@@ -1087,6 +1087,19 @@ extension NSToolbarItem.Identifier {
         zoomFit = Self("zoom-fit")
 }
 
+if CommandLine.arguments.contains("--smoke") {
+    do {
+        let codec = NativeDocumentCodec()
+        var document = try EditorDocument.sample()
+        for _ in 0..<100 { document = try codec.decode(codec.encode(document)) }
+        print("OpenDraw smoke: 100 native round trips passed")
+        exit(EXIT_SUCCESS)
+    } catch {
+        fputs("OpenDraw smoke failed: \(error)\n", stderr)
+        exit(EXIT_FAILURE)
+    }
+}
+
 let app = NSApplication.shared
 let delegate = AppDelegate()
 app.delegate = delegate

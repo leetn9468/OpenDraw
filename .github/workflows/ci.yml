@@ -2,19 +2,57 @@ name: CI
 on:
   push:
   pull_request:
+  schedule:
+    - cron: "23 3 * * *"
 
 jobs:
-  macos:
+  debug-release:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
-      - name: Toolchain
-        run: swift --version
-      - name: Format lint
-        run: xcrun swift-format lint --recursive --strict Sources Tests Package.swift
-      - name: Debug build and tests
-        run: swift test --parallel
-      - name: Release build
-        run: swift build -c release
-      - name: Dependency inventory
-        run: swift package show-dependencies
+      - run: swift --version
+      - run: test "$(uname -m)" = arm64
+      - run: xcrun swift-format lint --recursive --strict Sources Tests Package.swift
+      - run: swift build -c debug && swift build -c release
+      - run: swift test && swift test -c release
+      - run: scripts/check-module-dependencies.sh
+      - name: Public API symbol documentation surface
+        run: rm -rf .build/symbol-graphs && swift package dump-symbol-graph --output-dir .build/symbol-graphs && test -n "$(find .build/symbol-graphs -name '*.symbols.json' -print -quit)"
+      - name: macOS 13 deployment-target compile fallback
+        run: MACOSX_DEPLOYMENT_TARGET=13.0 swift build -c release
+  sanitizer:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift test --sanitize=address
+  adversarial-golden:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift test --filter 'deterministicNativeAndSVG|fixedAdversarial|compositeSceneMatchesProjectGolden'
+  benchmark:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift run -c release RenderBenchmark | tee benchmark.txt
+      - uses: actions/upload-artifact@v4
+        with: { name: benchmark-results, path: benchmark.txt }
+  coverage:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift test --enable-code-coverage
+      - run: scripts/check-coverage.sh 55
+  release-integrity:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: scripts/build-release-app.sh
+      - uses: actions/upload-artifact@v4
+        with: { name: OpenDraw-app, path: dist/OpenDraw.app }
+  nightly-reliability:
+    if: github.event_name == 'schedule'
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: scripts/nightly-reliability.sh
