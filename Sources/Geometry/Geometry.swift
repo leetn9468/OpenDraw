@@ -44,8 +44,10 @@ public struct Rect: Hashable, Codable, Sendable {
             maxY: max(maxY, other.maxY))
     }
     public func intersection(_ other: Rect) -> Rect? {
-        let innerMinX = max(minX, other.minX), innerMinY = max(minY, other.minY)
-        let innerMaxX = min(maxX, other.maxX), innerMaxY = min(maxY, other.maxY)
+        let innerMinX = max(minX, other.minX)
+        let innerMinY = max(minY, other.minY)
+        let innerMaxX = min(maxX, other.maxX)
+        let innerMaxY = min(maxY, other.maxY)
         guard innerMaxX >= innerMinX, innerMaxY >= innerMinY else { return nil }
         return Rect(minX: innerMinX, minY: innerMinY, maxX: innerMaxX, maxY: innerMaxY)
     }

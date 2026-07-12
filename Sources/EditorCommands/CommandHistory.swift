@@ -34,7 +34,9 @@ private final class ChangeBroadcaster: @unchecked Sendable {
     }
     func publish(_ change: DocumentChange) {
         let targets = lock.withLock { Array(continuations.values) }
-        targets.forEach { $0.yield(change) }
+        for target in targets {
+            target.yield(change)
+        }
     }
 }
 

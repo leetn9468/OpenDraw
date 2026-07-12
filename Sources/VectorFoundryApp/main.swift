@@ -980,12 +980,12 @@ extension AppDelegate: NSToolbarDelegate {
         guard let canvas else { return }
         do {
             _ = try unsavedCoordinator.resolve(
-                isDirty: canvas.history.isDirty, decision: unsavedDecision, save: { try saveNative(canvas) }
-            ) {
-                guard let document = try promptForNewDocument() else { return }
-                canvas.replaceDocument(document)
-                currentURL = nil
-            }
+                isDirty: canvas.history.isDirty, decision: unsavedDecision, save: { try saveNative(canvas) },
+                operation: {
+                    guard let document = try promptForNewDocument() else { return }
+                    canvas.replaceDocument(document)
+                    currentURL = nil
+                })
         } catch { NSAlert(error: error).runModal() }
     }
     private func promptForNewDocument() throws -> EditorDocument? {
@@ -1040,18 +1040,18 @@ extension AppDelegate: NSToolbarDelegate {
         guard let canvas else { return }
         do {
             _ = try unsavedCoordinator.resolve(
-                isDirty: canvas.history.isDirty, decision: unsavedDecision, save: { try saveNative(canvas) }
-            ) {
-                let panel = NSOpenPanel()
-                panel.allowsMultipleSelection = false
-                guard panel.runModal() == .OK, let url = panel.url else { return }
-                let document =
-                    url.pathExtension.lowercased() == "svg"
-                    ? try SVGImporter().importFile(url).document : try NativeDocumentCodec().load(from: url)
-                canvas.replaceDocument(document)
-                currentURL = url
-                NSDocumentController.shared.noteNewRecentDocumentURL(url)
-            }
+                isDirty: canvas.history.isDirty, decision: unsavedDecision, save: { try saveNative(canvas) },
+                operation: {
+                    let panel = NSOpenPanel()
+                    panel.allowsMultipleSelection = false
+                    guard panel.runModal() == .OK, let url = panel.url else { return }
+                    let document =
+                        url.pathExtension.lowercased() == "svg"
+                        ? try SVGImporter().importFile(url).document : try NativeDocumentCodec().load(from: url)
+                    canvas.replaceDocument(document)
+                    currentURL = url
+                    NSDocumentController.shared.noteNewRecentDocumentURL(url)
+                })
         } catch { NSAlert(error: error).runModal() }
     }
 }

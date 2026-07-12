@@ -16,8 +16,9 @@ jobs:
       - run: swift build -c debug && swift build -c release
       - run: swift test && swift test -c release
       - run: scripts/check-module-dependencies.sh
+      - run: scripts/check-clean-room.sh
       - name: Public API symbol documentation surface
-        run: rm -rf .build/symbol-graphs && swift package dump-symbol-graph --output-dir .build/symbol-graphs && test -n "$(find .build/symbol-graphs -name '*.symbols.json' -print -quit)"
+        run: swift package dump-symbol-graph && test -n "$(find .build -path '*/symbolgraph/*.symbols.json' -print -quit)"
       - name: macOS 13 deployment-target compile fallback
         run: MACOSX_DEPLOYMENT_TARGET=13.0 swift build -c release
   sanitizer:

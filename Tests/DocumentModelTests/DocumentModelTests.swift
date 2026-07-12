@@ -70,7 +70,7 @@ import Testing
     #expect(history.document.width == 100)
 }
 
-@Test func unsavedCoordinatorsAreIndependentAndCancelPreventsReplacement() async throws {
+@Test func unsavedCoordinatorsAreIndependentAndCancelPreventsReplacement() throws {
     let first = UnsavedChangesCoordinator()
     let second = UnsavedChangesCoordinator()
     final class State: @unchecked Sendable {
@@ -78,12 +78,12 @@ import Testing
         let lock = NSLock()
     }
     let state = State()
-    let cancelled = try await first.resolve(
+    let cancelled = try first.resolve(
         isDirty: true, decision: { .cancel }, save: {},
         operation: {
             state.lock.withLock { state.operations += 1 }
         })
-    let completed = try await second.resolve(
+    let completed = try second.resolve(
         isDirty: false, decision: { .cancel }, save: {},
         operation: {
             state.lock.withLock { state.operations += 1 }

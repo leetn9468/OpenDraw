@@ -1,45 +1,39 @@
-# Phase 4 selected expansion review
+# Phase 4 verification, hardening, and release review
 
-Status: **Selected subset implemented and verified**  
-Baseline date: 2026-07-12
+Status: **R4 checkpoint passed**
+Review date: 2026-07-13
 
-The plan explicitly says to implement only an approved subset. Selection follows
-the Phase 1 capability matrix and avoids treating each advanced area as a small task.
+## Completed work
 
-## Implemented subset
-
-| Capability | Acceptance evidence |
+| Area | Acceptance evidence |
 |---|---|
-| Alignment | Undoable two-object alignment test |
-| Swatches and reusable color resources | Resource invariant/native round-trip tests |
-| Linear/radial gradients, opacity, basic blend modes | Core Graphics expanded-render test |
-| Dash style model/rendering | Native round trip and renderer coverage |
-| Unicode point text and transforms | Core Text multilingual and expanded-render tests |
-| Embedded/linked raster resources | Decode byte/pixel/path limits and placeholder rendering |
-| Safe SVG rectangle import | Isolated parse, active-content block and malformed-input tests |
-| SVG text/path export and loss reports | Determinism, escaping and feature-loss tests |
-| Native v2 → v3 migration | Project-created migration fixture test |
-| Spatial hit-test index | Near/far candidate tests |
-| Cached panning | 1,000-object cache/invalidation frame-budget test |
-| Parser robustness corpus | 128 deterministic malformed native inputs; 29-test combined suite |
+| R4.1 adversarial parsing | Fixed-seed 256-case native and 256-case SVG mutation corpora, fixed hostile classes, cancellation and production-path deadline harness |
+| R4.2 golden rendering | Project-created composite golden covering gradients, opacity, transforms, dash/cap/join behavior, text baseline and z-order, with a documented tolerance policy |
+| R4.3 UI/accessibility | Headless create/draw/style/transform/save/reopen/export journey and a stable accessibility-tree baseline for document, layers and selection |
+| R4.4 CI/release | Debug, release, ASan, coverage, benchmark, adversarial/golden, deployment-target, API-symbol, clean-room, signed-app and nightly reliability gates |
+| R4.5 re-audit | Closure matrix plus final security, correctness, architecture, clean-room and verification-queue review |
 
-## Explicitly deferred
+The permanent suite contains 88 tests. Coverage is 87.60%, above the enforced
+55% line-coverage floor. VERIFY-001 through VERIFY-021 are `VERIFIED` and frozen.
 
-Compound/Boolean/offset paths, clipping masks, transparency groups, distribution,
-area/paragraph text, text-on-path, embedded-image SVG export, PDF, full SVG path
-import, color management, process-isolated extensions and an external SDK. These
-need separate designs and acceptance tests; unsupported adapters warn or reject.
+## Release-policy boundaries
+
+- CI is arm64 macOS 15 with a macOS 13 deployment-target compile fallback.
+- Intel remains out of scope per ADR-011.
+- The signed CI artifact uses an ad-hoc hardened-runtime signature; distribution
+  identity signing and notarization require owner-held credentials.
+- Manual VoiceOver, multi-display, and long-duration Instruments observation are
+  operator release checks. Automated accessibility structure and repeated smoke
+  cycles prevent those external checks from being silently represented as complete.
 
 ## Exit review
 
 | Criterion | Result |
 |---|---|
-| Selected capabilities have acceptance tests | Pass |
-| Public-format failures are safe and diagnosable | Pass for implemented SVG subset |
-| Native migration preserves older project data | Pass for v2 → v3 |
-| Large representative interaction meets budget | Pass for cached pan; uncached rebuild documented separately |
-| Unsupported cases are documented, not silently corrupted | Pass through compatibility/loss matrix |
-| Dependency direction remains valid | Pass |
-
-Manual VoiceOver, multi-display and memory-profiler gates from Phase 2 remain external
-release gates, not silently converted into passes. Intel is out of scope per ADR-011.
+| Deterministic adversarial corpus and deadline/cancellation behavior | Pass |
+| Composite project-owned golden and explicit tolerance | Pass |
+| Critical headless UI journey and accessibility tree | Pass |
+| Coverage, dependency, API, benchmark, sanitizer, and release integrity gates | Pass |
+| All pre-Phase-5 audit findings closed | Pass |
+| Clean-room implementation boundary | Pass; CI enforcement added |
+| Verification queue has no open entries | Pass |
