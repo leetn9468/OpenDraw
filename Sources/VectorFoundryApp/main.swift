@@ -26,6 +26,7 @@ final class CanvasView: NSView {
         subscribeToChanges()
     }
     required init?(coder: NSCoder) { nil }
+    var hasSelection: Bool { selectedID != nil }
     deinit { changeTask?.cancel() }
     private func subscribeToChanges() {
         changeTask?.cancel()
@@ -230,7 +231,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 extension AppDelegate: NSToolbarDelegate {
     func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-        [.new, .open, .save, .export, .undo, .redo, .selection, .pen, .rectangle, .ellipse, .style]
+        [.new, .open, .save, .export, .undo, .redo, .selection, .directSelection, .pen, .rectangle, .ellipse, .style]
     }
     func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
         toolbarAllowedItemIdentifiers(toolbar)
@@ -250,6 +251,7 @@ extension AppDelegate: NSToolbarDelegate {
         case .new: newDocument()
         case .open: openDocument()
         case .selection: canvas.activeTool = .selection
+        case .directSelection: canvas.activeTool = .directSelection
         case .pen: canvas.activeTool = .pen
         case .rectangle: canvas.activeTool = .rectangle
         case .ellipse: canvas.activeTool = .ellipse
@@ -332,10 +334,23 @@ extension AppDelegate: NSToolbarDelegate {
     }
 }
 
+extension AppDelegate: NSToolbarItemValidation {
+    func validateToolbarItem(_ item: NSToolbarItem) -> Bool {
+        guard let canvas else { return false }
+        switch item.itemIdentifier {
+        case .undo: return canvas.history.canUndo
+        case .redo: return canvas.history.canRedo
+        case .style: return canvas.hasSelection
+        default: return true
+        }
+    }
+}
+
 extension NSToolbarItem.Identifier {
     static let new = Self("new"), open = Self("open"), save = Self("save"), export = Self("export"),
         undo = Self("undo"),
-        redo = Self("redo"), selection = Self("select"), pen = Self("pen"), rectangle = Self("rectangle"),
+        redo = Self("redo"), selection = Self("select"), directSelection = Self("direct-select"), pen = Self("pen"),
+        rectangle = Self("rectangle"),
         ellipse = Self("ellipse"), style = Self("style")
 }
 
