@@ -283,7 +283,7 @@ tolerance rationale, and the permanent test file. New entries remain
 - Status: `VERIFIED`
 - R-task: R2.1/R2.3
 - Function/file: `InputLimits`, `JSONStructureValidator`, `SVGImporter.Delegate`
-- Commit: `b05a149`
+- Commit: `b05a149`, resolution `65cfb1a`
 - Mathematical claim: native file bytes are capped at `100 MiB`; SVG at `10 MiB`;
   JSON nesting at `128`, total values at `1,000,000`; SVG nesting at `256`, elements
   at `100,000`, produced nodes at `100,000`, warnings at `1,000`, and every XML
@@ -307,16 +307,17 @@ tolerance rationale, and the permanent test file. New entries remain
 
 ### VERIFY-012 — Approved image-cache pixel budget and autosave interval
 
-- Status: `PENDING OWNER VERIFICATION`
+- Status: `VERIFIED`
 - R-task: R2.2/R2.6
 - Function/file: `ApprovedImageCache`, `RecoverySettings`
 - Commit: `b05a149`
 - Mathematical claim: one image remains bounded by VERIFY-007's `67,108,864`
   pixels; the approved decoded cache permits at most `268,435,456` pixels (`4*2^26`,
-  approximately 1 GiB at four bytes/pixel), and one image source permits at most 32
+  exactly 1 GiB at four bytes/pixel), and one image source permits at most 32
   frames. Checked addition rejects overflow before the budget comparison. Default
   autosave interval is exactly 60 seconds and must be strictly positive.
-- Reasoning: four maximum-sized decoded images provide a deterministic upper bound.
+- Reasoning: the cache budget is exactly 4× VERIFY-007's per-image cap, so at most
+  four maximum-sized decoded images fit; at four bytes per pixel it is exactly 1 GiB.
   Checked addition prevents wrapped cache accounting. The 60-second default is fixed
   by the owner directive; positive validation prevents a busy-loop timer.
 - Worked examples:
@@ -325,9 +326,10 @@ tolerance rationale, and the permanent test file. New entries remain
   3. `Int64.max + 1` → rejected as `overflow`, never budget-tested.
   4. Autosave `60` seconds → accepted; `0` and `-1` → rejected as `nonPositive`.
   5. Image source with 32 frames → accepted; 33 frames → rejected as `frameCount`.
-- Tolerance: exact integer pixel arithmetic; exact `Duration.seconds(60)` policy.
+- Tolerance: exact integer pixel arithmetic; exact Foundation `TimeInterval` (`Double`)
+  value `60.0`, with validation requiring a finite value greater than zero.
 - Permanent tests: `Tests/DocumentFormatsTests/ApprovedImageCacheVerifyTests.swift`,
-  `Tests/DocumentFormatsTests/RecoverySettingsVerifyTests.swift`
+  `Tests/DocumentFormatsTests/DurablePersistenceTests.swift`
 
 ## Independent Cross-Verification — Claude (VERIFY-010/011/012)
 
