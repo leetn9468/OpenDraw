@@ -6,6 +6,9 @@ public enum TransformHandle: Sendable, CaseIterable {
 }
 
 public enum TransformInteractions {
+    public static let minZoom = 0.05
+    public static let maxZoom = 64.0
+    public static func clampedZoom(_ requested: Double) -> Double { min(max(requested, minZoom), maxZoom) }
     public static func snappedRotation(radians: Double, constrain: Bool) -> Double {
         guard constrain else { return radians }
         let step = Double.pi / 12

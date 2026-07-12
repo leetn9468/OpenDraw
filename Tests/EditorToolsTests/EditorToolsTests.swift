@@ -55,12 +55,29 @@ import Testing
     #expect(tool.hitTest(hidden, pointer: Point(x: 10, y: 10), zoom: 1) == nil)
 }
 
-@Test func transformRotationAndZoomAboutPointExamples() throws {
+@Test func testVerify013PivotRotationAndHalfAwaySnapping() {
     let pivot = Point(x: 10, y: 20)
     let transform = TransformInteractions.rotation(about: pivot, radians: .pi / 2)
     #expect(transform.applying(to: pivot).distance(to: pivot) < 1e-9)
     #expect(transform.applying(to: Point(x: 15, y: 20)).distance(to: Point(x: 10, y: 25)) < 1e-9)
+    #expect(abs(transform.a) < 1e-9 && abs(transform.b - 1) < 1e-9)
+    #expect(abs(transform.c + 1) < 1e-9 && abs(transform.d) < 1e-9)
+    #expect(abs(transform.tx - 30) < 1e-9 && abs(transform.ty - 10) < 1e-9)
+    #expect(TransformInteractions.rotation(about: pivot, radians: 1.234).applying(to: pivot) == pivot)
+    let point = Point(x: 4, y: -9)
+    #expect(TransformInteractions.rotation(about: pivot, radians: 0).applying(to: point) == point)
+    #expect(TransformInteractions.snappedRotation(radians: 0.27, constrain: false) == 0.27)
     #expect(abs(TransformInteractions.snappedRotation(radians: 0.27, constrain: true) - .pi / 12) < 1e-9)
+    #expect(abs(TransformInteractions.snappedRotation(radians: -0.27, constrain: true) + .pi / 12) < 1e-9)
+    #expect((Double.pi / 8) / (Double.pi / 12) == 1.5)
+    #expect(TransformInteractions.snappedRotation(radians: .pi / 8, constrain: true) == .pi / 6)
+    let nontrivial = TransformInteractions.rotation(about: Point(x: 3, y: -4), radians: 37 * .pi / 180)
+        .applying(to: Point(x: 7.5, y: 2.25))
+    #expect(abs(nontrivial.x - 2.8325159005) < 1e-9)
+    #expect(abs(nontrivial.y - 3.6996395420) < 1e-9)
+}
+
+@Test func testVerify014ZoomAboutPointDomainAndInvariant() throws {
     let pan = try #require(
         TransformInteractions.zoomAbout(
             screenPoint: Point(x: 100, y: 80), oldZoom: 1, newZoom: 2, oldPan: Point(x: 10, y: 20)))
@@ -68,4 +85,30 @@ import Testing
     let documentBefore = Point(x: (100 - 10) / 1, y: (80 - 20) / 1)
     let documentAfter = Point(x: (100 - pan.x) / 2, y: (80 - pan.y) / 2)
     #expect(documentBefore == documentAfter)
+    #expect(
+        TransformInteractions.zoomAbout(
+            screenPoint: Point(x: 100, y: 80), oldZoom: 2, newZoom: 0.5,
+            oldPan: Point(x: -80, y: -40)) == Point(x: 55, y: 50))
+    #expect(
+        TransformInteractions.zoomAbout(
+            screenPoint: Point(x: 100, y: 80), oldZoom: 1, newZoom: 1,
+            oldPan: Point(x: 10, y: 20)) == Point(x: 10, y: 20))
+    #expect(
+        TransformInteractions.zoomAbout(
+            screenPoint: Point(x: 123.5, y: 67.25), oldZoom: 1.6, newZoom: 2.4,
+            oldPan: Point(x: 12.75, y: -8.5)) == Point(x: -42.625, y: -46.375))
+    for invalid in [0.0, -1.0, .infinity, .nan] {
+        #expect(
+            TransformInteractions.zoomAbout(
+                screenPoint: Point(x: 1, y: 1), oldZoom: 1, newZoom: invalid,
+                oldPan: Point(x: 2, y: 3)) == nil)
+        #expect(
+            TransformInteractions.zoomAbout(
+                screenPoint: Point(x: 1, y: 1), oldZoom: invalid, newZoom: 1,
+                oldPan: Point(x: 2, y: 3)) == nil)
+    }
+    #expect(TransformInteractions.minZoom == 0.05)
+    #expect(TransformInteractions.maxZoom == 64)
+    #expect(TransformInteractions.clampedZoom(0) == 0.05)
+    #expect(TransformInteractions.clampedZoom(100) == 64)
 }

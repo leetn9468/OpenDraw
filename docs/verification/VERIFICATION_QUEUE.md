@@ -366,24 +366,38 @@ four maximal images and exactly 1 GiB at four bytes per pixel. Checked overflow,
 
 ### VERIFY-013 — Rotation about a pivot and 15-degree snapping
 
-- Status: `PENDING OWNER VERIFICATION`
+- Status: `VERIFIED`
 - R-task: R3-B.3
 - Function/file: `TransformInteractions.rotation`, `snappedRotation`
-- Mathematical claim: rotation uses `q = p + R(theta)(x-p)`; constrained angles
-  round to the nearest multiple of `pi/12` (15 degrees).
-- Worked example: pivot `(10,20)`, point `(15,20)`, rotation 90 degrees maps to
-  `(10,25)` and leaves the pivot fixed. `0.27` radians snaps to `pi/12`.
+- Mathematical claim: rotation uses `q = p + R(theta)(x-p)`, equivalently linear
+  part `R(theta)` and translation `p-R(theta)p` under VERIFY-001. Constrained
+  angles use `round(theta/(pi/12))*(pi/12)`, half away from zero.
+- Worked examples: `(10,20)` pivot and `(15,20)` at 90° gives `(10,25)` and affine
+  `(0,1,-1,0,30,10)`; the pivot at `1.234` is fixed; zero is identity; `±0.27`
+  snap to `±pi/12`; the exactly reachable tie `pi/8` snaps to `pi/6`; pivot
+  `(3,-4)`, point `(7.5,2.25)`, 37° gives `(2.8325159005,3.6996395420)`.
 - Tolerance: `1e-9` absolute.
 - Permanent test: `Tests/EditorToolsTests/EditorToolsTests.swift`
 
 ### VERIFY-014 — Zoom about a fixed screen point
 
-- Status: `PENDING OWNER VERIFICATION`
+- Status: `VERIFIED`
 - R-task: R3-B.4
 - Function/file: `TransformInteractions.zoomAbout`
-- Mathematical claim: document point `(s-pan)/zoom` remains invariant by choosing
-  `newPan = s - documentPoint*newZoom`.
-- Worked example: screen `(100,80)`, pan `(10,20)`, zoom `1→2` gives new pan
-  `(-80,-40)` and preserves document point `(90,60)`.
+- Mathematical claim: for finite positive old/new zoom, document point
+  `(s-pan)/zoom` remains invariant by choosing `newPan=s-documentPoint*newZoom`;
+  invalid zoom returns `nil`. UI requests clamp to `minZoom=0.05` and `maxZoom=64`.
+- Worked examples: base `1→2` gives `(-80,-40)`; inverse `2→0.5` gives `(55,50)`;
+  identity leaves pan `(10,20)`; the dyadic fractional case gives
+  `(-42.625,-46.375)` exactly; zero, negative, infinity and NaN return `nil`.
 - Tolerance: exact for the integer-valued example; `1e-9` generally.
 - Permanent test: `Tests/EditorToolsTests/EditorToolsTests.swift`
+
+## VERIFY-013/014 Consolidated Resolution — Claude + Codex
+
+Two independent computations agree on every frozen value. Both identified and
+closed the prior worked-example template gap. VERIFY-013 pins Swift's
+round-half-away-from-zero tie behavior and the VERIFY-001 affine equivalence.
+VERIFY-014 pins the finite-positive domain, named UI clamps, inverse/identity/
+fractional cases, and invalid-input behavior. Both entries are `VERIFIED` and
+the frozen-value rule now covers VERIFY-001 through VERIFY-014.
