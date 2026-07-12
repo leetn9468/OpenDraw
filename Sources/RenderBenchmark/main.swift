@@ -77,6 +77,9 @@ let activity = ProcessInfo.processInfo.beginActivity(
 defer { ProcessInfo.processInfo.endActivity(activity) }
 let base = try referenceDocument()
 let destination = context()
+let coldStart = ContinuousClock.now
+CoreGraphicsRenderer().render(base, in: destination)
+let coldOpenMilliseconds = milliseconds(coldStart.duration(to: .now))
 
 var dragDocument = base
 let dragCache = SceneBitmapCache()
@@ -94,6 +97,19 @@ let bench2 = measure { index in
 }
 printStats("BENCH-2 pan", bench2)
 
+let stripCache = ViewportStripCache()
+var priorStripCount = 0
+let bench2b = measure { index in
+    stripCache.render(
+        base, revision: 1, in: destination,
+        viewport: RenderViewport(zoom: 2, pan: Point(x: -Double(index * 2), y: 0)),
+        pixelWidth: 800, pixelHeight: 500)
+    let current = stripCache.redrawnStripCount
+    precondition(current > priorStripCount, "BENCH-2b must redraw a nonzero strip every frame")
+    priorStripCount = current
+}
+printStats("BENCH-2b forced-exposure pan", bench2b)
+
 let zoomCache = SceneBitmapCache()
 let bench3 = measure { index in
     let zoom = 0.8 + Double(index % 60) / 100
@@ -104,6 +120,7 @@ let settleStart = ContinuousClock.now
 zoomCache.render(base, revision: 1, in: destination, viewport: RenderViewport(zoom: 1.4))
 print(String(format: "BENCH-3 settle: %.3f ms", milliseconds(settleStart.duration(to: .now))))
 
-let coldStart = ContinuousClock.now
+let warmFullStart = ContinuousClock.now
 CoreGraphicsRenderer().render(base, in: destination)
-print(String(format: "BENCH-4 cold: %.3f ms", milliseconds(coldStart.duration(to: .now))))
+print(String(format: "BENCH-4 cold-open: %.3f ms", coldOpenMilliseconds))
+print(String(format: "Warm full redraw: %.3f ms", milliseconds(warmFullStart.duration(to: .now))))

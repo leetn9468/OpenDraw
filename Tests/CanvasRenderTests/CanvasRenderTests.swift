@@ -59,6 +59,23 @@ import Testing
     #expect(DamageRegion.rects([rect]) == .rects([rect]))
 }
 
+@Test func forcedExposurePanRedrawsNonzeroStrips() throws {
+    let document = try EditorDocument.sample()
+    let destination = try #require(
+        CGContext(
+            data: nil, width: 200, height: 100, bitsPerComponent: 8,
+            bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+    let cache = ViewportStripCache()
+    cache.render(
+        document, revision: 1, in: destination, viewport: RenderViewport(zoom: 2), pixelWidth: 200, pixelHeight: 100)
+    let first = cache.redrawnStripCount
+    cache.render(
+        document, revision: 1, in: destination,
+        viewport: RenderViewport(zoom: 2, pan: Point(x: -2, y: 0)), pixelWidth: 200, pixelHeight: 100)
+    #expect(cache.redrawnStripCount > first)
+}
+
 @Test func cachedPanMeetsInteractiveFrameBudget() throws {
     var document = try EditorDocument.sample()
     guard case .path(let path) = try #require(document.layers[0].nodes.first) else {

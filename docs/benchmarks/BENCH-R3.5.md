@@ -21,6 +21,7 @@ value, or `VERIFY-*` assertion boundary and is approved as-is.
 |---|---|---|---|
 | BENCH-1 | Continuously drag one selected object | p95 ≤ 16.7 ms | Damage is old ∪ new visual bounds; clean regions come from cache. |
 | BENCH-2 | Constant-velocity viewport pan | p95 ≤ 16.7 ms | Retained cache redraws newly exposed strips only. |
+| BENCH-2b | Forced-exposure pan at 2× zoom | p95 ≤ 16.7 ms; ≥1 strip every frame | Viewport-sized retained cache shifts clean pixels and redraws exposed strips. |
 | BENCH-3 | Continuous pinch/scroll zoom | p95 ≤ 33 ms; settled full-quality frame ≤ 100 ms | Scaled cached bitmap during gesture; precise redraw on settle. |
 | BENCH-4 | Cold full redraw | Informational only | Always record; explicitly exempt from 16.7 ms. |
 
@@ -48,14 +49,24 @@ release build, 60 warm-up frames and 300 measured frames:
 
 | Scenario | p50 | p95 | max / settle | Result |
 |---|---:|---:|---:|---|
-| BENCH-1 drag | 4.948 ms | 5.407 ms | 5.967 ms | PASS |
-| BENCH-2 pan | 0.087 ms | 0.107 ms | 0.138 ms | PASS |
-| BENCH-3 zoom | 2.435 ms | 9.097 ms | 10.679 ms; settle 2.901 ms | PASS |
-| BENCH-4 cold | — | — | 4.203 ms | informational |
+| BENCH-1 drag | 4.937 ms | 5.324 ms | 5.565 ms | PASS |
+| BENCH-2 pan | 0.087 ms | 0.109 ms | 0.148 ms | PASS |
+| BENCH-2b forced exposure | 5.368 ms | 5.831 ms | 7.628 ms | PASS; strips > 0 every frame |
+| BENCH-3 zoom | 2.379 ms | 8.853 ms | 10.443 ms; settle 2.778 ms | PASS |
+| BENCH-4 cold-open | — | — | 9.359 ms | informational |
+| Warm full redraw | — | — | 4.491 ms | informational |
 
-The reference artboard fits within the retained full-artboard bitmap budget,
-so pan exposes already-cached pixels rather than requiring strip redraw. Zoom
-uses the retained bitmap between existing resolution buckets and settles with
-a precise redraw. All binding targets pass after the retained-cache/culling
-stage; per-object/tile caching is therefore deferred to Phase 5 under the
-owner-ratified conditional step-4 rule.
+The retained full-artboard budget is `67,108,864` pixels. BENCH-2 is the pure
+blit case because the 800×500 reference artboard fits that budget. BENCH-2b
+uses a viewport-sized 800×500 retained bitmap at 2× zoom: the 1,600×1,000
+visible traversal is strictly larger than the cached extent, and a two-pixel
+pan per frame is asserted to increase the production strip-redraw counter.
+
+The former 4.203 ms value was a warm full redraw after all scenario warm-ups,
+not a cold open. BENCH-4 now runs before any scenario or renderer warm-up in a
+fresh harness process; its 9.359 ms value includes first-use text/render setup.
+The separately labelled warm full redraw is 4.491 ms.
+
+All binding targets, including forced-exposure BENCH-2b, pass. Per-object/tile
+caching is therefore definitively deferred to Phase 5 under the owner-ratified
+conditional step-4 rule.
