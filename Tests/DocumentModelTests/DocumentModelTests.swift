@@ -143,6 +143,37 @@ import Testing
     #expect(history.document.visualBounds(for: b.id)?.minX != history.document.visualBounds(for: a.id)?.minX)
 }
 
+@Test func directAnchorGroupUngroupAndCompoundCommandsAreUndoable() throws {
+    let first = PathObject(segments: [
+        CubicBezier(
+            start: Point(x: 0, y: 0), control1: Point(x: 0, y: 0), control2: Point(x: 10, y: 0), end: Point(x: 10, y: 0)
+        )
+    ])
+    let second = PathObject(segments: [
+        CubicBezier(
+            start: Point(x: 20, y: 0), control1: Point(x: 20, y: 0), control2: Point(x: 30, y: 0),
+            end: Point(x: 30, y: 0))
+    ])
+    let layer = Layer(name: "L", nodes: [.path(first), .path(second)])
+    var history = CommandHistory(document: try EditorDocument(width: 100, height: 100, layers: [layer]))
+    try history.perform(SceneCommands.moveAnchor(pathID: first.id, subpath: 0, segment: 0, delta: Point(x: 3, y: 4)))
+    guard case .path(let moved) = history.document.layers[0].nodes[0] else { return }
+    #expect(moved.segments[0].start == Point(x: 3, y: 4))
+    history.undo()
+    try history.perform(SceneCommands.group(layerID: layer.id, nodeIDs: [first.id, second.id]))
+    guard case .group(let group) = history.document.layers[0].nodes[0] else { return }
+    #expect(group.children.count == 2)
+    try history.perform(SceneCommands.ungroup(layerID: layer.id, groupID: group.id))
+    #expect(history.document.layers[0].nodes.count == 2)
+    history.undo()
+    history.undo()
+    try history.perform(SceneCommands.makeCompound(layerID: layer.id, pathIDs: [first.id, second.id]))
+    guard case .path(let compound) = history.document.layers[0].nodes[0] else { return }
+    #expect(compound.path.subpaths.count == 2)
+    history.undo()
+    #expect(history.document.layers[0].nodes.count == 2)
+}
+
 @Test func advancedResourceInvariants() throws {
     let swatch = Swatch(name: "Blue", color: SRGBColor(red: 0, green: 0, blue: 1))
     let gradient = GradientResource(
