@@ -222,8 +222,10 @@ tolerance rationale, and the permanent test file. New entries remain
 
 # Independent Cross-Verification — Claude
 
-> Verifier: **Claude**  
-> Verification date: 2026-07-12  
+> Verifier: **Claude**
+>
+> Verification date: 2026-07-12
+>
 > Scope: independently recomputed VERIFY-008 and VERIFY-009 against commit
 > `8e98346`; all calculations were executed numerically.
 
@@ -258,7 +260,7 @@ tolerance rationale, and the permanent test file. New entries remain
 
 ### VERIFY-010 — SVG absolute-unit conversion
 
-- Status: `PENDING OWNER VERIFICATION`
+- Status: `VERIFIED`
 - R-task: R2.3
 - Function/file: `SVGLengthParser.parse(_:)`
 - Commit: `b05a149`
@@ -278,22 +280,28 @@ tolerance rationale, and the permanent test file. New entries remain
 
 ### VERIFY-011 — External-input structural ceilings
 
-- Status: `PENDING OWNER VERIFICATION`
+- Status: `VERIFIED`
 - R-task: R2.1/R2.3
 - Function/file: `InputLimits`, `JSONStructureValidator`, `SVGImporter.Delegate`
 - Commit: `b05a149`
 - Mathematical claim: native file bytes are capped at `100 MiB`; SVG at `10 MiB`;
   JSON nesting at `128`, total values at `1,000,000`; SVG nesting at `256`, elements
   at `100,000`, produced nodes at `100,000`, warnings at `1,000`, and every XML
-  attribute/string at `1,000,000` UTF-8 bytes. Comparisons are inclusive.
+  XML string at `1,000,000` UTF-8 bytes, including element names, attribute names
+  and values, and accumulated character data per element. Comparisons are inclusive.
 - Reasoning: byte limits match existing format budgets. Structural limits bound parser
-  traversal independently of bytes. Produced-node limit matches `DocumentLimits`.
-  Inclusive checks accept exactly the documented capacity and reject the next unit.
+  traversal independently of bytes. The root consumes one element, so the importer
+  can produce at most `99,999` nodes—deliberately below VERIFY-008's `100,000`-node
+  document ceiling. Inclusive checks accept exactly the documented capacity and
+  reject the next unit.
 - Worked examples:
   1. JSON depth `128` accepted; `129` rejected as `nestingDepth`.
   2. `1,000,000` JSON values accepted; `1,000,001` rejected as `valueCount`.
-  3. SVG `100,000` elements/nodes accepted; the `100,001`st is rejected.
+  3. One root plus `99,999` producing children is `100,000` elements and produces
+     `99,999` nodes → accepted; another child is element `100,001` → `elementCount`.
   4. Exactly `1,000` warnings accepted; the `1,001`st aborts as `warningCount`.
+  5. Accumulated character data of `1,000,000` UTF-8 bytes in one text element is
+     accepted at the parser layer; `1,000,001` bytes rejects as `stringLength`.
 - Tolerance: exact integer comparisons, no epsilon.
 - Permanent test: `Tests/DocumentFormatsTests/InputLimitsVerifyTests.swift`
 
@@ -320,3 +328,36 @@ tolerance rationale, and the permanent test file. New entries remain
 - Tolerance: exact integer pixel arithmetic; exact `Duration.seconds(60)` policy.
 - Permanent tests: `Tests/DocumentFormatsTests/ApprovedImageCacheVerifyTests.swift`,
   `Tests/DocumentFormatsTests/RecoverySettingsVerifyTests.swift`
+
+## Independent Cross-Verification — Claude (VERIFY-010/011/012)
+
+> Verifier: **Claude**
+>
+> Verification date: 2026-07-12
+>
+> Scope: every worked example independently recomputed against commit `b05a149`.
+
+### Result summary
+
+| Entry | Result |
+|---|---|
+| VERIFY-010 | `VERIFIED`; conversions and typed invalid/unsupported split confirmed. |
+| VERIFY-011 | Numeric ceilings confirmed; element example amended and XML string enforcement extended. |
+| VERIFY-012 | `VERIFIED`; numerics confirmed, with documentation corrections adopted. |
+
+For VERIFY-010, `1in`, `2.54cm`, `25.4mm`, `72pt`, and `6pc` recompute to
+`96.0`; `10PX`, bare values, and zero-unit behavior agree. The `1e-9` tolerance
+remains because the exact round trips are input-specific.
+
+For VERIFY-011, the root-element count makes the original combined
+100,000-element/100,000-node example unrealizable. The frozen element ceiling
+remains `100,000`; one root plus 99,999 producing children is accepted and the
+next child rejects. The parser now applies the `1,000,000`-byte ceiling to every
+XML string category, including accumulated character data and element names.
+Direct fixtures pin element/node, warning, depth, attribute, and character-data
+boundaries.
+
+For VERIFY-012, `4 × 67,108,864 = 268,435,456` pixels exactly, which is exactly
+four maximal images and exactly 1 GiB at four bytes per pixel. Checked overflow,
+32/33 frames, and finite positive `TimeInterval` validation at `60.0`, `0`, and
+`-1` all recompute as specified.

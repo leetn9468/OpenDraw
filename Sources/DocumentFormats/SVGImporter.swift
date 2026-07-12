@@ -43,6 +43,7 @@ private final class Delegate: NSObject, XMLParserDelegate {
     var sawRoot = false
     var depth = 0
     var elementCount = 0
+    var characterByteCounts: [Int] = []
     var suppressedDepth: Int?
     var failure: Error?
     func parser(
@@ -51,8 +52,10 @@ private final class Delegate: NSObject, XMLParserDelegate {
     ) {
         depth += 1
         elementCount += 1
+        characterByteCounts.append(0)
         guard enforce(elementCount <= InputLimits.maximumSVGElements, .elementCount, parser),
-            enforce(depth <= InputLimits.maximumSVGDepth, .nestingDepth, parser)
+            enforce(depth <= InputLimits.maximumSVGDepth, .nestingDepth, parser),
+            enforce(name.utf8.count <= InputLimits.maximumStringUTF8Bytes, .stringLength, parser)
         else { return }
         for (key, value) in attributes {
             guard
@@ -112,7 +115,17 @@ private final class Delegate: NSObject, XMLParserDelegate {
         _ parser: XMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?
     ) {
         if suppressedDepth == depth { suppressedDepth = nil }
+        if !characterByteCounts.isEmpty { characterByteCounts.removeLast() }
         depth -= 1
+    }
+    func parser(_ parser: XMLParser, foundCharacters string: String) {
+        guard !characterByteCounts.isEmpty else { return }
+        let result = characterByteCounts[characterByteCounts.count - 1].addingReportingOverflow(string.utf8.count)
+        guard !result.overflow, result.partialValue <= InputLimits.maximumStringUTF8Bytes else {
+            abort(InputLimitError.stringLength, parser)
+            return
+        }
+        characterByteCounts[characterByteCounts.count - 1] = result.partialValue
     }
     func parser(_ parser: XMLParser, foundInternalEntityDeclarationWithName name: String, value: String?) {
         abort(InputLimitError.invalidStructure, parser)
