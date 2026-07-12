@@ -168,7 +168,7 @@ tolerance rationale, and the permanent test file. New entries remain
 
 ### VERIFY-008 — Document magnitude and collection ceilings
 
-- Status: `PENDING OWNER VERIFICATION`
+- Status: `VERIFIED`
 - R-task: R1.3
 - Function/file: `DocumentLimits`, `EditorDocument.validate()`
 - Commit: `8e98346`
