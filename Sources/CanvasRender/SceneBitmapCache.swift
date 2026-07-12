@@ -31,7 +31,7 @@ public final class SceneBitmapCache {
         let zoomBucket = max(1, Int((max(viewport.zoom, 0.01) * 8).rounded(.up)))
         let requestedScale = max(1, backingScale) * Double(zoomBucket) / 8
         let area = max(1, document.width * document.height)
-        let budgetScale = sqrt(Double(DocumentLimits.maximumSceneCachePixels) / area)
+        let budgetScale = sqrt(Double(DocumentLimits.maximumRetainedBitmapPixels) / area)
         let renderScale = min(requestedScale, budgetScale)
         let nextKey = Key(
             revision: revision, zoomBucket: zoomBucket, backingScale: backingScale, width: document.width,
@@ -41,7 +41,7 @@ public final class SceneBitmapCache {
             let width = max(1, Int((document.width * renderScale).rounded(.up)))
             let height = max(1, Int((document.height * renderScale).rounded(.up)))
             let pixels = Int64(width).multipliedReportingOverflow(by: Int64(height))
-            if !pixels.overflow, pixels.partialValue <= DocumentLimits.maximumSceneCachePixels,
+            if !pixels.overflow, pixels.partialValue <= DocumentLimits.maximumRetainedBitmapPixels,
                 let bitmap = CGContext(
                     data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
                     space: CGColorSpaceCreateDeviceRGB(),

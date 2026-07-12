@@ -70,3 +70,6 @@ The separately labelled warm full redraw is 4.491 ms.
 All binding targets, including forced-exposure BENCH-2b, pass. Per-object/tile
 caching is therefore definitively deferred to Phase 5 under the owner-ratified
 conditional step-4 rule.
+
+The approximately 41 ms audit baseline used the pre-R1.5 duplicate-ID sample
+and is not directly comparable to the current deterministic unique-ID results.

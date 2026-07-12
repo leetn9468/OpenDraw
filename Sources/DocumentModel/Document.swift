@@ -26,7 +26,9 @@ public enum DocumentLimits {
     public static let maximumImagePixelCount: Int64 = 67_108_864
     public static let maximumHistoryEstimatedBytes = 512 * 1_024 * 1_024
     public static let minimumHistoryEntriesUnderMemoryPressure = 5
-    public static let maximumSceneCachePixels: Int64 = 67_108_864
+    /// Independent retained-rendering budget; numerically equal to VERIFY-007's
+    /// image cap today, but intentionally named separately so policies can diverge.
+    public static let maximumRetainedBitmapPixels: Int64 = 67_108_864
     public static func checkedPixelCount(width: Int64, height: Int64) throws -> Int64 {
         guard width > 0, height > 0 else { throw PixelCountError.nonPositive }
         let result = width.multipliedReportingOverflow(by: height)
