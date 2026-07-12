@@ -440,11 +440,22 @@ the frozen-value rule now covers VERIFY-001 through VERIFY-014.
 
 ### VERIFY-018 — Screen-space snapping tolerance
 
-- Status: `PENDING OWNER VERIFICATION`
+- Status: `VERIFIED`
 - R-task: R3-B.3
 - Claim: a document-space candidate snaps iff Euclidean distance is at most
   `screenTolerance/zoom`; equality is inclusive and invalid zoom never snaps.
 - Examples: tolerance 6 at zoom 2 accepts distance 3 and rejects 3.000001;
-  at zoom 0.5 accepts distance 12; zoom 0/negative rejects.
+  at zoom 0.5 accepts distance 12; zoom 0/negative rejects; NaN, infinity, and
+  negative distance reject at valid zoom.
 - Tolerance: `1e-9` at the boundary. Permanent test:
   `Tests/EditorToolsTests/EditorToolsTests.swift`.
+
+## Independent Cross-Verification — Claude (VERIFY-015/016/017/018)
+
+All values were independently recomputed against `9fdd523`. The resolution
+pins touching-rectangle retention, the complete y-down eight-handle table and
+opposite-anchor integration, negative and degenerate scale cases, the smooth-
+handle vector identity, and non-finite/negative snapping distances. Protocol
+compliance was confirmed: all four mathematical surfaces were queued before
+reliance. VERIFY-015 through VERIFY-018 are `VERIFIED`; frozen values now cover
+VERIFY-001 through VERIFY-018.

@@ -193,4 +193,7 @@ import Testing
     #expect(policy.shouldSnap(distance: 12, zoom: 0.5))
     #expect(!policy.shouldSnap(distance: 0, zoom: 0))
     #expect(!policy.shouldSnap(distance: 0, zoom: -1))
+    #expect(!policy.shouldSnap(distance: .nan, zoom: 1))
+    #expect(!policy.shouldSnap(distance: .infinity, zoom: 1))
+    #expect(!policy.shouldSnap(distance: -1, zoom: 1))
 }
