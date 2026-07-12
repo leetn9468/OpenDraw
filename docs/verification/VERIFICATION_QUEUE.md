@@ -485,7 +485,8 @@ VERIFY-001 through VERIFY-018.
 
 ### VERIFY-020 — Document-space transform applied to a nested node
 
-- Status: `PENDING OWNER VERIFICATION`
+- Status: `VERIFIED`
+- Implementation commit: `d85ae4b`
 - R-task: R3-B.3
 - Function/file: `EditorDocument.applyDocumentTransform(id:transform:)`
 - Mathematical claim: with accumulated ancestor mapping `P`, node transform `N`,
@@ -501,7 +502,8 @@ VERIFY-001 through VERIFY-018.
 
 ### VERIFY-021 — Axis snap candidate selection
 
-- Status: `PENDING OWNER VERIFICATION`
+- Status: `VERIFIED`
+- Implementation commit: `72bd44d`
 - R-task: R3-B.3
 - Function/file: `SnapPolicy.snap(_:xCandidates:yCandidates:zoom:)`
 - Mathematical claim: each axis independently chooses the nearest candidate whose
@@ -512,3 +514,19 @@ VERIFY-001 through VERIFY-018.
   does not; equal-distance candidates preserve input order.
 - Tolerance: exact for examples, `1e-9` boundary policy.
 - Permanent test: `Tests/EditorToolsTests/EditorToolsTests.swift`.
+
+## Independent Cross-Verification — VERIFY-020/021
+
+Owner verification confirmed on 2026-07-13:
+
+- VERIFY-020: under the project convention that `A.concatenating(B)` applies
+  A then B, `parent.concatenating(D).concatenating(parent.inverted())`
+  represents `P⁻¹∘D∘P`; composing it after the existing node transform gives
+  `N'=P⁻¹∘D∘P∘N`. Identity, scaled-parent `(10,8)→(5,2)`, and singular
+  no-mutation examples all agree with `d85ae4b` and its permanent tests.
+- VERIFY-021: independent-axis nearest-candidate selection, inclusive
+  `distance <= screenTolerance/zoom`, strict-best stable tie ordering, and
+  invalid-zoom passthrough all agree with `72bd44d`. The `1e-9` value is a test
+  assertion tolerance only and does not enlarge the snapping region.
+
+Frozen: VERIFY-001 through VERIFY-021. No open entries.
