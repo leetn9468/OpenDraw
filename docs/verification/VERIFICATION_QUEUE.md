@@ -401,3 +401,44 @@ round-half-away-from-zero tie behavior and the VERIFY-001 affine equivalence.
 VERIFY-014 pins the finite-positive domain, named UI clamps, inverse/identity/
 fractional cases, and invalid-input behavior. Both entries are `VERIFIED` and
 the frozen-value rule now covers VERIFY-001 through VERIFY-014.
+
+### VERIFY-015 — Damage rectangle union and intersection
+
+- Status: `PENDING OWNER VERIFICATION`
+- R-task: R3.5
+- Claim: union uses componentwise extrema; intersection uses componentwise inner
+  extrema and returns `nil` when either resulting dimension is negative.
+- Examples: union of `(0,0)-(10,10)` and `(5,-2)-(12,8)` is
+  `(0,-2)-(12,10)`; intersection is `(5,0)-(10,8)`; disjoint rectangles return nil.
+- Tolerance: exact. Permanent test: `Tests/GeometryTests/GeometryTests.swift`.
+
+### VERIFY-016 — Eight-handle scale mapping
+
+- Status: `PENDING OWNER VERIFICATION`
+- R-task: R3-B.3
+- Claim: each handle fixes its opposite anchor; Option fixes the center and doubles
+  pointer displacement; Shift uses the smaller-magnitude axis scale for uniformity.
+- Examples: right handle on a 100×50 box dragged +50 gives `(sx,sy)=(1.5,1)`;
+  Option gives `(2,1)`; Shift on bottom-right displacement `(50,50)` gives `(1.5,1.5)`.
+- Tolerance: `1e-9`. Permanent test: `Tests/EditorToolsTests/EditorToolsTests.swift`.
+
+### VERIFY-017 — Smooth-anchor handle symmetry
+
+- Status: `PENDING OWNER VERIFICATION`
+- R-task: R3-B.2
+- Claim: for anchor `a` and outgoing handle `h`, the mirrored incoming handle is
+  `2a-h`, preserving collinearity and equal opposite distance.
+- Examples: `a=(10,20), h=(14,26)` gives `(6,14)`; `h=a` remains at `a`;
+  negative-coordinate case `a=(-2,3), h=(-5,-1)` gives `(1,7)`.
+- Tolerance: exact. Permanent test: `Tests/EditorToolsTests/EditorToolsTests.swift`.
+
+### VERIFY-018 — Screen-space snapping tolerance
+
+- Status: `PENDING OWNER VERIFICATION`
+- R-task: R3-B.3
+- Claim: a document-space candidate snaps iff Euclidean distance is at most
+  `screenTolerance/zoom`; equality is inclusive and invalid zoom never snaps.
+- Examples: tolerance 6 at zoom 2 accepts distance 3 and rejects 3.000001;
+  at zoom 0.5 accepts distance 12; zoom 0/negative rejects.
+- Tolerance: `1e-9` at the boundary. Permanent test:
+  `Tests/EditorToolsTests/EditorToolsTests.swift`.
