@@ -360,10 +360,35 @@ extension AppDelegate: NSToolbarDelegate {
             _ = try unsavedCoordinator.resolve(
                 isDirty: canvas.history.isDirty, decision: unsavedDecision, save: { try saveNative(canvas) }
             ) {
-                canvas.replaceDocument(try EditorDocument.sample())
+                guard let document = try promptForNewDocument() else { return }
+                canvas.replaceDocument(document)
                 currentURL = nil
             }
         } catch { NSAlert(error: error).runModal() }
+    }
+    private func promptForNewDocument() throws -> EditorDocument? {
+        let alert = NSAlert()
+        alert.messageText = "New Drawing"
+        alert.informativeText = "Enter the artboard size in points."
+        alert.addButton(withTitle: "Create")
+        alert.addButton(withTitle: "Cancel")
+        let width = NSTextField(string: "640")
+        let height = NSTextField(string: "480")
+        width.placeholderString = "Width"
+        height.placeholderString = "Height"
+        let stack = NSStackView(views: [
+            NSTextField(labelWithString: "Width"), width,
+            NSTextField(labelWithString: "Height"), height,
+        ])
+        stack.orientation = .vertical
+        stack.spacing = 6
+        stack.frame = NSRect(x: 0, y: 0, width: 240, height: 100)
+        alert.accessoryView = stack
+        guard alert.runModal() == .alertFirstButtonReturn else { return nil }
+        guard let w = Double(width.stringValue), let h = Double(height.stringValue), w > 0, h > 0 else {
+            throw EditorError.invalidValue("Artboard dimensions must be positive numbers")
+        }
+        return try EditorDocument(width: w, height: h)
     }
     private func save(_ canvas: CanvasView, svg: Bool) {
         let panel = NSSavePanel()
