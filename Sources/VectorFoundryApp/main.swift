@@ -16,6 +16,10 @@ final class CanvasView: NSView {
         var subpath: Int
         var segment: Int
     }
+    private enum TransformGesture {
+        case scale(TransformHandle)
+        case rotate
+    }
     var history: CommandHistory
     var activeTool: ActiveTool = .pen
     private var pen = PenToolState()
@@ -32,6 +36,7 @@ final class CanvasView: NSView {
     private var panDragLocation: NSPoint?
     private var snappingEnabled = true
     private var snapIndicator: Point?
+    private var transformGesture: TransformGesture?
     private let renderer = CoreGraphicsRenderer()
     private var changeTask: Task<Void, Never>?
     init(frame: NSRect, document: EditorDocument) {
@@ -78,6 +83,20 @@ final class CanvasView: NSView {
                 }
             }
         }
+        if activeTool == .selection, let bounds = selectionBounds() {
+            context.setStrokeColor(NSColor.controlAccentColor.cgColor)
+            context.setLineWidth(1 / zoom)
+            context.stroke(CGRect(x: bounds.minX, y: bounds.minY, width: bounds.width, height: bounds.height))
+            context.setFillColor(NSColor.controlAccentColor.cgColor)
+            for (_, point) in handlePoints(bounds) {
+                context.fill(CGRect(x: point.x - 3 / zoom, y: point.y - 3 / zoom, width: 6 / zoom, height: 6 / zoom))
+            }
+            let rotation = Point(x: bounds.center.x, y: bounds.minY - 20 / zoom)
+            context.strokeEllipse(
+                in: CGRect(
+                    x: rotation.x - 4 / zoom, y: rotation.y - 4 / zoom,
+                    width: 8 / zoom, height: 8 / zoom))
+        }
         if let snapIndicator {
             context.setStrokeColor(NSColor.systemRed.cgColor)
             context.setLineWidth(1 / zoom)
@@ -97,6 +116,23 @@ final class CanvasView: NSView {
             return
         }
         let point = documentPoint(location)
+        if activeTool == .selection, let bounds = selectionBounds() {
+            if let handle = handlePoints(bounds).first(where: { $0.1.distance(to: point) <= 7 / zoom })?.0 {
+                transformGesture = .scale(handle)
+                dragLast = point
+                dragHasMutation = false
+                dragGestureID = GestureID()
+                return
+            }
+            let rotation = Point(x: bounds.center.x, y: bounds.minY - 20 / zoom)
+            if rotation.distance(to: point) <= 8 / zoom {
+                transformGesture = .rotate
+                dragLast = point
+                dragHasMutation = false
+                dragGestureID = GestureID()
+                return
+            }
+        }
         if activeTool == .text {
             createText(at: point)
         } else if activeTool == .pen {
@@ -154,6 +190,44 @@ final class CanvasView: NSView {
         let dx = next.x - prior.x
         let dy = next.y - prior.y
         guard dx != 0 || dy != 0 else { return }
+        if let transformGesture, let bounds = selectionBounds() {
+            var documentTransform: Geometry.AffineTransform?
+            switch transformGesture {
+            case .scale(let handle):
+                if let factors = TransformInteractions.scale(
+                    bounds: bounds, handle: handle, displacement: Point(x: dx, y: dy),
+                    uniform: event.modifierFlags.contains(.shift), fromCenter: event.modifierFlags.contains(.option))
+                {
+                    let pivot = event.modifierFlags.contains(.option) ? bounds.center : oppositePoint(handle, bounds)
+                    documentTransform = Geometry.AffineTransform(
+                        a: factors.x, d: factors.y, tx: pivot.x * (1 - factors.x), ty: pivot.y * (1 - factors.y))
+                }
+            case .rotate:
+                let pivot = bounds.center
+                let delta = atan2(next.y - pivot.y, next.x - pivot.x) - atan2(prior.y - pivot.y, prior.x - pivot.x)
+                documentTransform = TransformInteractions.rotation(
+                    about: pivot,
+                    radians: TransformInteractions.snappedRotation(
+                        radians: delta, constrain: event.modifierFlags.contains(.shift)))
+            }
+            if let documentTransform {
+                let ids = selectedIDs
+                let command = DocumentCommand(name: "Transform selection") { document in
+                    for id in ids { _ = document.applyDocumentTransform(id: id, transform: documentTransform) }
+                }
+                do {
+                    if dragHasMutation, let dragGestureID {
+                        try history.coalesce(command, gestureID: dragGestureID)
+                    } else {
+                        try history.perform(command, gestureID: dragGestureID)
+                        dragHasMutation = true
+                    }
+                } catch { presentCommandError(error, command: "Transform selection") }
+            }
+            dragLast = next
+            needsDisplay = true
+            return
+        }
         let ids = selectedIDs
         if activeTool == .directSelection, !selectedAnchors.isEmpty {
             do {
@@ -194,6 +268,7 @@ final class CanvasView: NSView {
             return
         }
         if activeTool == .selection || activeTool == .directSelection {
+            transformGesture = nil
             dragLast = nil
             dragHasMutation = false
             dragGestureID = nil
@@ -278,6 +353,30 @@ final class CanvasView: NSView {
         snappingEnabled.toggle()
         snapIndicator = nil
         needsDisplay = true
+    }
+    private func selectionBounds() -> Rect? {
+        selectedIDs.compactMap { history.document.visualBounds(for: $0) }
+            .reduce(nil) { partial, next in partial.map { $0.union(next) } ?? next }
+    }
+    private func handlePoints(_ bounds: Rect) -> [(TransformHandle, Point)] {
+        [
+            (.topLeft, Point(x: bounds.minX, y: bounds.minY)), (.top, Point(x: bounds.center.x, y: bounds.minY)),
+            (.topRight, Point(x: bounds.maxX, y: bounds.minY)), (.right, Point(x: bounds.maxX, y: bounds.center.y)),
+            (.bottomRight, Point(x: bounds.maxX, y: bounds.maxY)), (.bottom, Point(x: bounds.center.x, y: bounds.maxY)),
+            (.bottomLeft, Point(x: bounds.minX, y: bounds.maxY)), (.left, Point(x: bounds.minX, y: bounds.center.y)),
+        ]
+    }
+    private func oppositePoint(_ handle: TransformHandle, _ bounds: Rect) -> Point {
+        switch handle {
+        case .topLeft: Point(x: bounds.maxX, y: bounds.maxY)
+        case .top: Point(x: bounds.center.x, y: bounds.maxY)
+        case .topRight: Point(x: bounds.minX, y: bounds.maxY)
+        case .right: Point(x: bounds.minX, y: bounds.center.y)
+        case .bottomRight: Point(x: bounds.minX, y: bounds.minY)
+        case .bottom: Point(x: bounds.center.x, y: bounds.minY)
+        case .bottomLeft: Point(x: bounds.maxX, y: bounds.minY)
+        case .left: Point(x: bounds.maxX, y: bounds.center.y)
+        }
     }
     private func add(_ object: PathObject) {
         let layerIndex = activeLayerIndex

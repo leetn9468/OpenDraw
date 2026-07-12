@@ -274,6 +274,22 @@ public indirect enum SceneNode: Hashable, Codable, Sendable {
             self = .group(x)
         }
     }
+    fileprivate mutating func composeTransform(_ transform: Geometry.AffineTransform) {
+        switch self {
+        case .path(var value):
+            value.transform = value.transform.concatenating(transform)
+            self = .path(value)
+        case .text(var value):
+            value.transform = value.transform.concatenating(transform)
+            self = .text(value)
+        case .image(var value):
+            value.transform = value.transform.concatenating(transform)
+            self = .image(value)
+        case .group(var value):
+            value.transform = value.transform.concatenating(transform)
+            self = .group(value)
+        }
+    }
 }
 
 public struct Layer: Identifiable, Hashable, Codable, Sendable {
@@ -445,6 +461,18 @@ public struct EditorDocument: Hashable, Codable, Sendable {
         }
         return nil
     }
+    @discardableResult public mutating func applyDocumentTransform(
+        id: ObjectID, transform: Geometry.AffineTransform
+    ) -> Bool {
+        for layerIndex in layers.indices {
+            if applyDocumentTransformRecursive(
+                in: &layers[layerIndex].nodes, id: id, transform: transform, parent: .identity)
+            {
+                return true
+            }
+        }
+        return false
+    }
     @discardableResult public mutating func movePathAnchor(
         id: ObjectID, subpath: Int, segment: Int, documentDelta: Point
     ) -> Bool {
@@ -560,6 +588,28 @@ private func transformPathPoint(
         }
     }
     return nil
+}
+private func applyDocumentTransformRecursive(
+    in nodes: inout [SceneNode], id: ObjectID, transform: Geometry.AffineTransform,
+    parent: Geometry.AffineTransform
+) -> Bool {
+    for index in nodes.indices {
+        if nodes[index].id == id {
+            guard let inverseParent = parent.inverted() else { return false }
+            nodes[index].composeTransform(parent.concatenating(transform).concatenating(inverseParent))
+            return true
+        }
+        if case .group(var group) = nodes[index] {
+            if applyDocumentTransformRecursive(
+                in: &group.children, id: id, transform: transform,
+                parent: group.transform.concatenating(parent))
+            {
+                nodes[index] = .group(group)
+                return true
+            }
+        }
+    }
+    return false
 }
 private func movePathAnchorRecursive(
     in nodes: inout [SceneNode], id: ObjectID, subpath: Int, segment: Int,
