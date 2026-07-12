@@ -482,3 +482,19 @@ VERIFY-001 through VERIFY-018.
      `(2,-5)` under VERIFY-019.
 - Tolerance: `1e-9` absolute.
 - Permanent test: `Tests/DocumentModelTests/DirectAnchorVerifyTests.swift`.
+
+### VERIFY-020 — Document-space transform applied to a nested node
+
+- Status: `PENDING OWNER VERIFICATION`
+- R-task: R3-B.3
+- Function/file: `EditorDocument.applyDocumentTransform(id:transform:)`
+- Mathematical claim: with accumulated ancestor mapping `P`, node transform `N`,
+  and desired document transform `D`, the replacement node transform is
+  `N' = P⁻¹ ∘ D ∘ P ∘ N`; singular `P` fails without mutation.
+- Worked examples:
+  1. Identity parent gives `N'=D∘N`.
+  2. Parent scale `(2,4)`, document translation `(10,8)`, identity node gives
+     node-local translation `(5,2)`, reproducing document displacement `(10,8)`.
+  3. Singular parent fails without mutation.
+- Tolerance: `1e-9` absolute.
+- Permanent test: `Tests/DocumentModelTests/DocumentTransformVerifyTests.swift`.
