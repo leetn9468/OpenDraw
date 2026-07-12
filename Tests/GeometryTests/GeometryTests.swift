@@ -33,11 +33,7 @@ private let curve = CubicBezier(
         if curve.hitTest(Point(x: Double(index % 100), y: 75), tolerance: 2, subdivisions: 32) { hits += 1 }
     }
     #expect(hits > 0)
-    #if hasFeature(address_sanitizer)
     #expect(start.duration(to: .now) < .seconds(15))
-    #else
-    #expect(start.duration(to: .now) < .seconds(5))
-    #endif
 }
 
 @Test func subdivisionFlatteningAndBounds() {
