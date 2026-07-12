@@ -17,6 +17,7 @@ final class CanvasView: NSView {
     private var dragStart: Point?
     private var dragLast: Point?
     private var selectedIDs: Set<ObjectID> = []
+    private var activeLayerIndex = 0
     private var dragHasMutation = false
     private var dragGestureID: GestureID?
     private(set) var zoom = 1.0
@@ -188,8 +189,10 @@ final class CanvasView: NSView {
         needsDisplay = true
     }
     private func add(_ object: PathObject) {
+        let layerIndex = activeLayerIndex
         do {
-            try history.perform(DocumentCommand(name: "Create object") { $0.layers[0].nodes.append(.path(object)) })
+            try history.perform(
+                DocumentCommand(name: "Create object") { $0.layers[layerIndex].nodes.append(.path(object)) })
         } catch { presentCommandError(error, command: "Create object") }
         needsDisplay = true
     }
@@ -213,15 +216,26 @@ final class CanvasView: NSView {
             return
         }
         let text = TextObject(text: content.stringValue, origin: point, fontName: font.stringValue, fontSize: fontSize)
+        let layerIndex = activeLayerIndex
         do {
-            try history.perform(DocumentCommand(name: "Create text") { $0.layers[0].nodes.append(.text(text)) })
+            try history.perform(
+                DocumentCommand(name: "Create text") { $0.layers[layerIndex].nodes.append(.text(text)) })
         } catch { presentCommandError(error, command: "Create text") }
     }
     func placeEmbeddedImage(data: Data) throws {
         let image = try RasterResourceLoader().embedded(
             data: data,
             frame: Rect(minX: 40, minY: 40, maxX: 240, maxY: 240))
-        try history.perform(DocumentCommand(name: "Place image") { $0.layers[0].nodes.append(.image(image)) })
+        let layerIndex = activeLayerIndex
+        try history.perform(DocumentCommand(name: "Place image") { $0.layers[layerIndex].nodes.append(.image(image)) })
+    }
+    func placeLinkedImage(relativePath: String, pixelWidth: Int, pixelHeight: Int) throws {
+        let image = try RasterResourceLoader().linked(
+            relativePath: relativePath,
+            frame: Rect(minX: 40, minY: 40, maxX: 240, maxY: 240), pixelWidth: pixelWidth, pixelHeight: pixelHeight)
+        let layerIndex = activeLayerIndex
+        try history.perform(
+            DocumentCommand(name: "Place linked image") { $0.layers[layerIndex].nodes.append(.image(image)) })
     }
     func editSelectedProperties() {
         guard let id = selectedIDs.first else { return }
@@ -278,6 +292,86 @@ final class CanvasView: NSView {
             selectedIDs.removeAll()
         } catch { presentCommandError(error, command: "Group") }
     }
+    func ungroupSelected() {
+        guard selectedIDs.count == 1, let id = selectedIDs.first,
+            let layer = history.document.layers.first(where: { $0.nodes.contains { $0.id == id } })
+        else { return }
+        do {
+            try history.perform(SceneCommands.ungroup(layerID: layer.id, groupID: id))
+            selectedIDs.removeAll()
+        } catch { presentCommandError(error, command: "Ungroup") }
+    }
+    func makeCompoundSelected() {
+        guard selectedIDs.count > 1,
+            let layer = history.document.layers.first(where: { layer in
+                selectedIDs.allSatisfy { id in layer.nodes.contains { $0.id == id } }
+            })
+        else { return }
+        do {
+            try history.perform(SceneCommands.makeCompound(layerID: layer.id, pathIDs: selectedIDs))
+            selectedIDs.removeAll()
+        } catch { presentCommandError(error, command: "Make compound") }
+    }
+    func releaseCompoundSelected() {
+        guard selectedIDs.count == 1, let id = selectedIDs.first,
+            let layer = history.document.layers.first(where: { $0.nodes.contains { $0.id == id } })
+        else { return }
+        do {
+            try history.perform(SceneCommands.releaseCompound(layerID: layer.id, pathID: id))
+            selectedIDs.removeAll()
+        } catch { presentCommandError(error, command: "Release compound") }
+    }
+    func editLayers() {
+        let alert = NSAlert()
+        alert.messageText = "Layers"
+        alert.addButton(withTitle: "Apply")
+        alert.addButton(withTitle: "Add Layer")
+        alert.addButton(withTitle: "Cancel")
+        let popup = NSPopUpButton()
+        popup.addItems(withTitles: history.document.layers.map(\.name))
+        popup.selectItem(at: activeLayerIndex)
+        let name = NSTextField(string: history.document.layers[activeLayerIndex].name)
+        let visible = NSButton(checkboxWithTitle: "Visible", target: nil, action: nil)
+        let locked = NSButton(checkboxWithTitle: "Locked", target: nil, action: nil)
+        visible.state = history.document.layers[activeLayerIndex].isVisible ? .on : .off
+        locked.state = history.document.layers[activeLayerIndex].isLocked ? .on : .off
+        let order = NSSegmentedControl(
+            labels: ["Move Up", "Move Down"], trackingMode: .selectOne, target: nil, action: nil)
+        let stack = NSStackView(views: [popup, name, visible, locked, order])
+        stack.orientation = .vertical
+        stack.spacing = 6
+        stack.frame = NSRect(x: 0, y: 0, width: 250, height: 150)
+        alert.accessoryView = stack
+        let response = alert.runModal()
+        if response == .alertSecondButtonReturn {
+            do {
+                try history.perform(
+                    DocumentCommand(name: "Add layer") { $0.layers.append(Layer(name: "Layer \($0.layers.count + 1)")) }
+                )
+                activeLayerIndex = history.document.layers.count - 1
+            } catch { presentCommandError(error, command: "Add layer") }
+            return
+        }
+        guard response == .alertFirstButtonReturn else { return }
+        let index = popup.indexOfSelectedItem
+        let nextName = name.stringValue
+        let nextVisible = visible.state == .on
+        let nextLocked = locked.state == .on
+        let moveDirection = order.selectedSegment
+        do {
+            try history.perform(
+                DocumentCommand(name: "Edit layer") { document in
+                    document.layers[index].name = nextName
+                    document.layers[index].isVisible = nextVisible
+                    document.layers[index].isLocked = nextLocked
+                    if moveDirection == 0, index > 0 { document.layers.swapAt(index, index - 1) }
+                    if moveDirection == 1, index + 1 < document.layers.count {
+                        document.layers.swapAt(index, index + 1)
+                    }
+                })
+            activeLayerIndex = min(index, history.document.layers.count - 1)
+        } catch { presentCommandError(error, command: "Edit layer") }
+    }
     func undo() {
         history.undo()
         needsDisplay = true
@@ -308,6 +402,7 @@ final class CanvasView: NSView {
         history = CommandHistory(document: document)
         subscribeToChanges()
         selectedIDs.removeAll()
+        activeLayerIndex = 0
         needsDisplay = true
     }
 }
@@ -397,7 +492,7 @@ extension AppDelegate: NSToolbarDelegate {
         [
             .new, .open, .save, .export, .undo, .redo, .selection, .directSelection, .pen, .rectangle, .ellipse, .text,
             .image, .style, .properties, .zoomOut, .actualSize, .zoomIn, .zoomFit,
-            .alignLeft, .group,
+            .alignLeft, .group, .ungroup, .makeCompound, .releaseCompound, .layers,
         ]
     }
     func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
@@ -430,6 +525,10 @@ extension AppDelegate: NSToolbarDelegate {
         case .properties: canvas.editSelectedProperties()
         case .alignLeft: canvas.alignSelectedLeft()
         case .group: canvas.groupSelected()
+        case .ungroup: canvas.ungroupSelected()
+        case .makeCompound: canvas.makeCompoundSelected()
+        case .releaseCompound: canvas.releaseCompoundSelected()
+        case .layers: canvas.editLayers()
         case .zoomIn: canvas.zoomIn()
         case .zoomOut: canvas.zoomOut()
         case .actualSize: canvas.actualSize()
@@ -448,7 +547,26 @@ extension AppDelegate: NSToolbarDelegate {
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
             let data = try BoundedFileReader().read(url, maximumBytes: RasterResourceLoader.maximumBytes)
-            try canvas.placeEmbeddedImage(data: data)
+            let validated = try RasterResourceLoader().embedded(
+                data: data,
+                frame: Rect(minX: 0, minY: 0, maxX: 1, maxY: 1))
+            let choice = NSAlert()
+            choice.messageText = "Place Image"
+            choice.addButton(withTitle: "Embed")
+            choice.addButton(withTitle: "Link")
+            choice.addButton(withTitle: "Cancel")
+            switch choice.runModal() {
+            case .alertFirstButtonReturn: try canvas.placeEmbeddedImage(data: data)
+            case .alertSecondButtonReturn:
+                guard let root = currentURL?.deletingLastPathComponent(), url.deletingLastPathComponent() == root else {
+                    throw ImageApprovalError.pathEscape
+                }
+                _ = try LinkedResourceResolver(root: root).resolve(url.lastPathComponent)
+                try canvas.placeLinkedImage(
+                    relativePath: url.lastPathComponent,
+                    pixelWidth: validated.pixelWidth, pixelHeight: validated.pixelHeight)
+            default: return
+            }
         } catch { NSAlert(error: error).runModal() }
     }
     private func saveNative(_ canvas: CanvasView, forceSaveAs: Bool = false) throws {
@@ -553,7 +671,8 @@ extension AppDelegate: NSToolbarItemValidation {
         case .undo: return canvas.history.canUndo
         case .redo: return canvas.history.canRedo
         case .style, .properties: return canvas.hasSelection
-        case .alignLeft, .group: return canvas.hasMultipleSelection
+        case .alignLeft, .group, .makeCompound: return canvas.hasMultipleSelection
+        case .ungroup, .releaseCompound: return canvas.hasSelection
         default: return true
         }
     }
@@ -567,6 +686,9 @@ extension NSToolbarItem.Identifier {
         ellipse = Self("ellipse"), style = Self("style")
     static let text = Self("text"), image = Self("image"), properties = Self("properties")
     static let alignLeft = Self("align-left"), group = Self("group")
+    static let ungroup = Self("ungroup"), makeCompound = Self("make-compound"),
+        releaseCompound = Self("release-compound")
+    static let layers = Self("layers")
     static let zoomIn = Self("zoom-in"), zoomOut = Self("zoom-out"), actualSize = Self("zoom-100"),
         zoomFit = Self("zoom-fit")
 }
