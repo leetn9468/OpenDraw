@@ -404,12 +404,14 @@ the frozen-value rule now covers VERIFY-001 through VERIFY-014.
 
 ### VERIFY-015 — Damage rectangle union and intersection
 
-- Status: `PENDING OWNER VERIFICATION`
+- Status: `VERIFIED`
 - R-task: R3.5
 - Claim: union uses componentwise extrema; intersection uses componentwise inner
-  extrema and returns `nil` when either resulting dimension is negative.
+  extrema and returns `nil` when either resulting dimension is negative. Zero
+  dimensions are retained (`>=`): touching damage rectangles merge like overlaps.
 - Examples: union of `(0,0)-(10,10)` and `(5,-2)-(12,8)` is
-  `(0,-2)-(12,10)`; intersection is `(5,0)-(10,8)`; disjoint rectangles return nil.
+  `(0,-2)-(12,10)`; intersection is `(5,0)-(10,8)`; disjoint rectangles return nil;
+  touching at x=10 retains `(10,0)-(10,10)`.
 - Tolerance: exact. Permanent test: `Tests/GeometryTests/GeometryTests.swift`.
 
 ### VERIFY-016 — Eight-handle scale mapping

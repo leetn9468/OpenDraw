@@ -72,4 +72,7 @@ private let curve = CubicBezier(
     #expect(a.union(b) == Rect(minX: 0, minY: -2, maxX: 12, maxY: 10))
     #expect(a.intersection(b) == Rect(minX: 5, minY: 0, maxX: 10, maxY: 8))
     #expect(a.intersection(Rect(minX: 20, minY: 20, maxX: 30, maxY: 30)) == nil)
+    #expect(
+        a.intersection(Rect(minX: 10, minY: 0, maxX: 20, maxY: 10))
+            == Rect(minX: 10, minY: 0, maxX: 10, maxY: 10))
 }
