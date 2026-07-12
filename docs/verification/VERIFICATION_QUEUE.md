@@ -196,14 +196,16 @@ tolerance rationale, and the permanent test file. New entries remain
 
 ### VERIFY-009 — Nested-node document delta to parent-local delta
 
-- Status: `PENDING OWNER VERIFICATION`
+- Status: `VERIFIED`
 - R-task: R1.2 alignment
 - Function/file: `EditorDocument.translateNode(id:documentDelta:)`
 - Commit: `8e98346`
-- Mathematical claim: for parent linear transform `L`, a desired document-space
-  translation vector `d` becomes parent-local vector `L^-1*d`; translation terms are
-  excluded because vectors have homogeneous coordinate zero. If `L` is singular under
-  the VERIFY-001 `1e-12` policy, nested translation fails without mutation.
+- Mathematical claim: for a node whose ancestor chain applies transforms `T1`
+  (outermost) through `Tn` (immediate parent), `L` is the linear part of the
+  accumulated mapping `T1 ∘ ... ∘ Tn` (apply innermost first). A desired
+  document-space translation `d` becomes node-parent-local `q=L^-1*d`; translation
+  terms are excluded because vectors have homogeneous coordinate zero. If accumulated
+  `L` is singular under the VERIFY-001 `1e-12` policy, translation fails without mutation.
 - Reasoning: a child-local position maps through its parent as `L*p+t`. Adding local
   vector `q` changes the mapped point by `L*q`. Solving `L*q=d` gives `q=L^-1*d`.
   Parent translation cancels when subtracting old and new positions.
@@ -212,5 +214,44 @@ tolerance rationale, and the permanent test file. New entries remain
   2. Scale parent `(2,0,0,4,10,20)`, document delta `(10,8)` → local `(5,2)`.
   3. 90° rotation parent `(0,1,-1,0,0,0)`, document delta `(10,0)` → local `(0,-10)`.
   4. Singular parent `(0,0,0,1,0,0)` → explicit failure and no mutation.
+  5. Outer rotation 90° and inner scale `(2,4)` accumulate to
+     `L=(0,2,-4,0)`. Document delta `(10,6)` → local `(3,-2.5)`; round-trip
+     `L*(3,-2.5)=(10,6)` exactly.
 - Tolerance: `1e-9` absolute for transformed vectors; singularity `1e-12` per VERIFY-001.
 - Permanent test: `Tests/DocumentModelTests/NestedTranslationVerifyTests.swift`
+
+# Independent Cross-Verification — Claude
+
+> Verifier: **Claude**  
+> Verification date: 2026-07-12  
+> Scope: independently recomputed VERIFY-008 and VERIFY-009 against commit
+> `8e98346`; all calculations were executed numerically.
+
+## Claude result summary
+
+| Entry | Resolution | Result |
+|---|---|---|
+| VERIFY-008 | `VERIFIED` | Ceiling arithmetic, boundaries, and overflow behavior agree; direct boundary fixtures added in `2f6d3d6`. |
+| VERIFY-009 | `VERIFIED` after precision amendment | Examples 1–4 agree; accumulated-ancestor definition and example 5 pin multi-level nesting. |
+
+## VERIFY-008 calculation
+
+1. `100 MiB=104,857,600`; five assets total `524,288,000=500 MiB` and are
+   accepted inclusively; `524,288,001` is rejected as `aggregateAssetBytes`.
+2. `999,999,999.5` is exactly representable near `1e9` and is within the inclusive
+   coordinate ceiling.
+3. `1,000,000,001` and artboard `1,000,001` exceed their respective ceilings.
+4. Recursive count `100,000` is accepted and `100,001` is rejected as `nodeCount`.
+   Checked aggregate addition rejects overflow before budget comparison.
+5. Pixel and encoded-byte budgets are independent: `2^26` bounds decoded pixels;
+   100 MiB bounds one encoded asset.
+
+## VERIFY-009 calculation
+
+1. Identity maps delta `(8,-3)` to `(8,-3)`.
+2. Scale `(2,4)` maps document `(10,8)` back to local `(5,2)`.
+3. Rotation 90° maps document `(10,0)` back to local `(0,-10)`.
+4. Singular `(0,0,0,1)` fails without mutation under the `1e-12` policy.
+5. Outer rotation 90° after inner scale `(2,4)` has accumulated linear part
+   `(0,2,-4,0)`; inverse mapping of `(10,6)` is `(3,-2.5)`, and the forward
+   round-trip returns `(10,6)` exactly.

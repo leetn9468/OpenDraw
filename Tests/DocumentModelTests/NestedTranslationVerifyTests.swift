@@ -42,3 +42,29 @@ private func nestedDocument(parent: Geometry.AffineTransform) throws -> (EditorD
     #expect(!moved4)
     #expect(singular == original)
 }
+
+@Test func verify009TwoLevelAccumulatedAncestorExample() throws {
+    let path = PathObject(segments: [
+        CubicBezier(
+            start: Point(x: 0, y: 0), control1: Point(x: 0, y: 0), control2: Point(x: 1, y: 1), end: Point(x: 1, y: 1))
+    ])
+    let inner = GroupNode(name: "Inner", transform: Geometry.AffineTransform(a: 2, d: 4), children: [.path(path)])
+    let outer = GroupNode(
+        name: "Outer", transform: Geometry.AffineTransform(a: 0, b: 1, c: -1, d: 0), children: [.group(inner)])
+    var document = try EditorDocument(width: 100, height: 100, layers: [Layer(name: "L", nodes: [.group(outer)])])
+    let moved = document.translateNode(id: path.id, documentDX: 10, documentDY: 6)
+    #expect(moved)
+    guard case .group(let restoredOuter) = document.layers[0].nodes[0],
+        case .group(let restoredInner) = restoredOuter.children[0],
+        case .path(let restoredPath) = restoredInner.children[0]
+    else {
+        Issue.record("Nested path missing")
+        return
+    }
+    #expect(abs(restoredPath.transform.tx - 3) < 1e-9)
+    #expect(abs(restoredPath.transform.ty - (-2.5)) < 1e-9)
+    let accumulated = inner.transform.concatenating(outer.transform)
+    let roundTrip = Point(x: accumulated.a * 3 + accumulated.c * (-2.5), y: accumulated.b * 3 + accumulated.d * (-2.5))
+    #expect(abs(roundTrip.x - 10) < 1e-9)
+    #expect(abs(roundTrip.y - 6) < 1e-9)
+}
