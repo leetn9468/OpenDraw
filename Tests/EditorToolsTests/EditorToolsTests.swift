@@ -15,6 +15,19 @@ import Testing
     #expect(path?.path.subpaths.first?.isClosed == true)
 }
 
+@Test func smoothPenCreatesMirroredHandlesPreviewAndClosedPath() throws {
+    var pen = SmoothPenToolState()
+    pen.addSmooth(Point(x: 10, y: 20), outgoing: Point(x: 14, y: 26))
+    #expect(pen.anchors[0].incoming == Point(x: 6, y: 14))
+    #expect(pen.preview(to: Point(x: 30, y: 20))?.control1 == Point(x: 14, y: 26))
+    pen.addCorner(Point(x: 30, y: 20))
+    let finished = pen.finish(close: true)
+    let path = try #require(finished)
+    #expect(path.segments.count == 2)
+    #expect(path.segments[0].control1 == Point(x: 14, y: 26))
+    #expect(path.path.subpaths[0].isClosed)
+}
+
 @Test func primitiveAndSnapPolicies() {
     #expect(ShapeFactory.rectangle(from: Point(x: 0, y: 0), to: Point(x: 0, y: 10)) == nil)
     let square = ShapeFactory.rectangle(from: Point(x: 0, y: 0), to: Point(x: 20, y: 10), constrained: true)

@@ -44,6 +44,48 @@ public struct PenToolState: Sendable {
     }
 }
 
+public struct PenAnchor: Equatable, Sendable {
+    public var point: Point
+    public var incoming: Point
+    public var outgoing: Point
+    public init(point: Point, incoming: Point? = nil, outgoing: Point? = nil) {
+        self.point = point
+        self.incoming = incoming ?? point
+        self.outgoing = outgoing ?? point
+    }
+}
+
+public struct SmoothPenToolState: Sendable {
+    public private(set) var anchors: [PenAnchor] = []
+    public init() {}
+    public mutating func addCorner(_ point: Point) { anchors.append(PenAnchor(point: point)) }
+    public mutating func addSmooth(_ point: Point, outgoing: Point) {
+        anchors.append(
+            PenAnchor(
+                point: point,
+                incoming: TransformInteractions.mirroredHandle(anchor: point, outgoing: outgoing), outgoing: outgoing))
+    }
+    public func preview(to point: Point) -> CubicBezier? {
+        guard let last = anchors.last else { return nil }
+        return CubicBezier(start: last.point, control1: last.outgoing, control2: point, end: point)
+    }
+    public mutating func finish(close: Bool, style: PathStyle = PathStyle()) -> PathObject? {
+        guard anchors.count >= 2 else {
+            anchors.removeAll()
+            return nil
+        }
+        var segments = zip(anchors, anchors.dropFirst()).map {
+            CubicBezier(start: $0.point, control1: $0.outgoing, control2: $1.incoming, end: $1.point)
+        }
+        if close, let first = anchors.first, let last = anchors.last {
+            segments.append(
+                CubicBezier(start: last.point, control1: last.outgoing, control2: first.incoming, end: first.point))
+        }
+        anchors.removeAll()
+        return PathObject(segments: segments, isClosed: close, style: style)
+    }
+}
+
 public enum ShapeFactory {
     public static func rectangle(
         from start: Point, to end: Point, constrained: Bool = false, style: PathStyle = PathStyle(fill: .white)
