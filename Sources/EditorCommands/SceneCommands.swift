@@ -11,6 +11,23 @@ public enum SceneCommands {
             else { throw SceneCommandError.selectionNotFound }
         }
     }
+    public static func deleteAnchor(pathID: ObjectID, subpath: Int, segment: Int) -> DocumentCommand {
+        DocumentCommand(name: "Delete anchor") { document in
+            var deleted = false
+            guard
+                document.mutatePath(
+                    id: pathID,
+                    { path in
+                        guard path.path.subpaths.indices.contains(subpath),
+                            path.path.subpaths[subpath].segments.count > 1,
+                            path.path.subpaths[subpath].segments.indices.contains(segment)
+                        else { return }
+                        path.path.subpaths[subpath].segments.remove(at: segment)
+                        deleted = true
+                    }), deleted
+            else { throw SceneCommandError.incompatibleSelection }
+        }
+    }
     public static func group(layerID: ObjectID, nodeIDs: Set<ObjectID>) -> DocumentCommand {
         DocumentCommand(name: "Group") { document in
             guard let layerIndex = document.layers.firstIndex(where: { $0.id == layerID }) else {

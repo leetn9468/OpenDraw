@@ -11,12 +11,18 @@ import UniformTypeIdentifiers
 
 @MainActor
 final class CanvasView: NSView {
+    private struct AnchorRef: Hashable {
+        var pathID: ObjectID
+        var subpath: Int
+        var segment: Int
+    }
     var history: CommandHistory
     var activeTool: ActiveTool = .pen
     private var pen = PenToolState()
     private var dragStart: Point?
     private var dragLast: Point?
     private var selectedIDs: Set<ObjectID> = []
+    private var selectedAnchors: Set<AnchorRef> = []
     private var activeLayerIndex = 0
     private var dragHasMutation = false
     private var dragGestureID: GestureID?
@@ -54,6 +60,22 @@ final class CanvasView: NSView {
         context.setFillColor(NSColor.white.cgColor)
         context.fill(CGRect(x: 0, y: 0, width: history.document.width, height: history.document.height))
         renderer.render(history.document, in: context)
+        if activeTool == .directSelection {
+            context.setFillColor(NSColor.controlAccentColor.cgColor)
+            for id in selectedIDs {
+                guard let path = history.document.path(id: id) else { continue }
+                for subpath in path.path.subpaths {
+                    for segment in subpath.segments {
+                        if let anchor = history.document.documentPoint(pathID: id, localPoint: segment.start) {
+                            context.fillEllipse(
+                                in: CGRect(
+                                    x: anchor.x - 3 / zoom, y: anchor.y - 3 / zoom,
+                                    width: 6 / zoom, height: 6 / zoom))
+                        }
+                    }
+                }
+            }
+        }
         context.restoreGState()
     }
 
@@ -75,6 +97,27 @@ final class CanvasView: NSView {
                 selectedIDs.insert(hit)
             } else {
                 selectedIDs = hit.map { [$0] } ?? []
+            }
+            if activeTool == .directSelection, let hit, let path = history.document.path(id: hit) {
+                var nearest: (AnchorRef, Double)?
+                for (subpathIndex, subpath) in path.path.subpaths.enumerated() {
+                    for (segmentIndex, segment) in subpath.segments.enumerated() {
+                        guard
+                            let documentAnchor = history.document.documentPoint(pathID: hit, localPoint: segment.start)
+                        else { continue }
+                        let distance = documentAnchor.distance(to: point)
+                        if distance <= 6 / zoom, distance < nearest?.1 ?? .infinity {
+                            nearest = (AnchorRef(pathID: hit, subpath: subpathIndex, segment: segmentIndex), distance)
+                        }
+                    }
+                }
+                if let anchor = nearest?.0 {
+                    if event.modifierFlags.contains(.shift) {
+                        selectedAnchors.insert(anchor)
+                    } else {
+                        selectedAnchors = [anchor]
+                    }
+                }
             }
             dragLast = point
             dragHasMutation = false
@@ -99,6 +142,23 @@ final class CanvasView: NSView {
         let dy = next.y - prior.y
         guard dx != 0 || dy != 0 else { return }
         let ids = selectedIDs
+        if activeTool == .directSelection, !selectedAnchors.isEmpty {
+            do {
+                for anchor in selectedAnchors {
+                    let command = SceneCommands.moveAnchor(
+                        pathID: anchor.pathID, subpath: anchor.subpath,
+                        segment: anchor.segment, delta: Point(x: dx, y: dy))
+                    if dragHasMutation, let dragGestureID {
+                        try history.coalesce(command, gestureID: dragGestureID)
+                    } else {
+                        try history.perform(command, gestureID: dragGestureID)
+                        dragHasMutation = true
+                    }
+                }
+            } catch { presentCommandError(error, command: "Move anchor") }
+            dragLast = next
+            return
+        }
         let command = DocumentCommand(name: "Move path") { document in
             for id in ids { _ = document.translateNode(id: id, documentDX: dx, documentDY: dy) }
         }
@@ -151,6 +211,18 @@ final class CanvasView: NSView {
     override func keyDown(with event: NSEvent) {
         if event.keyCode == 49 {
             spaceDown = true
+            return
+        }
+        if [51, 117].contains(event.keyCode), !selectedAnchors.isEmpty {
+            do {
+                for anchor in selectedAnchors.sorted(by: { $0.segment > $1.segment }) {
+                    try history.perform(
+                        SceneCommands.deleteAnchor(
+                            pathID: anchor.pathID,
+                            subpath: anchor.subpath, segment: anchor.segment))
+                }
+                selectedAnchors.removeAll()
+            } catch { presentCommandError(error, command: "Delete anchor") }
             return
         }
         super.keyDown(with: event)
@@ -457,6 +529,7 @@ final class CanvasView: NSView {
         history = CommandHistory(document: document)
         subscribeToChanges()
         selectedIDs.removeAll()
+        selectedAnchors.removeAll()
         activeLayerIndex = 0
         needsDisplay = true
     }

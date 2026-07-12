@@ -72,3 +72,20 @@ private func line(_ x: Double) -> PathObject {
     try compoundHistory.perform(SceneCommands.releaseCompound(layerID: layer.id, pathID: a.id))
     #expect(compoundHistory.document.layers[0].nodes.compactMap(\.visualBounds) == original)
 }
+
+@Test func directAnchorDeletionIsUndoable() throws {
+    let path = PathObject(segments: [
+        CubicBezier(
+            start: Point(x: 0, y: 0), control1: Point(x: 0, y: 0), control2: Point(x: 10, y: 0), end: Point(x: 10, y: 0)
+        ),
+        CubicBezier(
+            start: Point(x: 10, y: 0), control1: Point(x: 10, y: 0), control2: Point(x: 20, y: 0),
+            end: Point(x: 20, y: 0)),
+    ])
+    var history = CommandHistory(
+        document: try EditorDocument(width: 100, height: 100, layers: [Layer(name: "L", nodes: [.path(path)])]))
+    try history.perform(SceneCommands.deleteAnchor(pathID: path.id, subpath: 0, segment: 1))
+    #expect(history.document.path(id: path.id)?.segments.count == 1)
+    history.undo()
+    #expect(history.document.path(id: path.id)?.segments.count == 2)
+}

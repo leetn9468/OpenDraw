@@ -433,6 +433,18 @@ public struct EditorDocument: Hashable, Codable, Sendable {
         }
         return false
     }
+    public func path(id: ObjectID) -> PathObject? {
+        for layer in layers { if let found = findPath(in: layer.nodes, id: id) { return found } }
+        return nil
+    }
+    public func documentPoint(pathID: ObjectID, localPoint: Point) -> Point? {
+        for layer in layers {
+            if let result = transformPathPoint(in: layer.nodes, id: pathID, point: localPoint, parent: .identity) {
+                return result
+            }
+        }
+        return nil
+    }
     @discardableResult public mutating func movePathAnchor(
         id: ObjectID, subpath: Int, segment: Int, documentDelta: Point
     ) -> Bool {
@@ -521,6 +533,33 @@ private func mutatePathRecursive(in nodes: inout [SceneNode], id: ObjectID, _ mu
         }
     }
     return false
+}
+private func findPath(in nodes: [SceneNode], id: ObjectID) -> PathObject? {
+    for node in nodes {
+        if case .path(let path) = node, path.id == id { return path }
+        if case .group(let group) = node, let found = findPath(in: group.children, id: id) { return found }
+    }
+    return nil
+}
+private func transformPathPoint(
+    in nodes: [SceneNode], id: ObjectID, point: Point,
+    parent: Geometry.AffineTransform
+) -> Point? {
+    for node in nodes {
+        switch node {
+        case .path(let path) where path.id == id:
+            return path.transform.concatenating(parent).applying(to: point)
+        case .group(let group):
+            if let result = transformPathPoint(
+                in: group.children, id: id, point: point,
+                parent: group.transform.concatenating(parent))
+            {
+                return result
+            }
+        default: break
+        }
+    }
+    return nil
 }
 private func movePathAnchorRecursive(
     in nodes: inout [SceneNode], id: ObjectID, subpath: Int, segment: Int,
