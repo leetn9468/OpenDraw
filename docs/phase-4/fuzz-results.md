@@ -1,13 +1,15 @@
 # Parser robustness corpus and results
 
-The current deterministic native-format corpus generates 128 byte sequences of
-length 0–127 from a fixed linear-congruential seed. Every input must return a
-controlled error. Additional fixed cases cover missing version, future version,
-oversized input policy, malformed SVG, active SVG content, unsupported SVG elements,
-unsafe raster links and malformed raster bytes.
+The R4 deterministic corpus mutates project-created valid native and SVG seeds
+256 times each with a fixed linear-congruential seed. Every input must either
+decode safely or return a controlled error within the production two-second
+deadline wrapper. Fixed adversarial classes cover deep nesting, huge counts,
+entity expansion, overflow dimensions, truncation, invalid UTF-8, path traversal,
+pre-dispatch cancellation, active SVG content, and malformed raster bytes.
 
-Result on 2026-07-12, Swift 6.1.2, arm64 macOS 15.7.5: all corpus assertions passed.
+Result on 2026-07-13, arm64 macOS: 512 deterministic mutations and every fixed
+adversarial class passed; the combined mutation corpus completed in 0.025 seconds.
 
-This is a regression corpus, not coverage-guided fuzzing. Before accepting broader
-SVG syntax, add a persistent fuzz target with timeout/memory limits, crash artifact
-retention and minimized project-authored seeds. No proprietary sample is permitted.
+This is the documented deterministic CI floor rather than coverage-guided fuzzing.
+Nightly CI runs a larger fixed-seed iteration count and retains failing mutation
+indices as reproducible artifacts. No proprietary sample is permitted.
