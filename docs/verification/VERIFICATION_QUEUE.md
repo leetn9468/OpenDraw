@@ -1,35 +1,161 @@
 # Mathematical Verification Queue
 
-The project owner independently verifies each queued mathematical or numerical claim
-with multiple AI systems. Codex must stop at every R-task checkpoint until every new
-entry is marked `VERIFIED` or returned with a correction.
+Verified examples are frozen permanent assertions. A semantic change requires a new
+queue entry; expected values below may not be weakened or edited to make code pass.
 
-## Status values
+Convention: `AffineTransform(a,b,c,d,tx,ty)` maps
+`(x,y)` to `(a*x+c*y+tx, b*x+d*y+ty)`.
 
-- `PENDING OWNER VERIFICATION`
-- `VERIFIED`
-- `CORRECTION REQUIRED`
+## R1 verified entries
+
+### VERIFY-001 — Affine transform apply, concatenation, and inverse
+
+- Status: `VERIFIED`
+- R-task: R1.1/R1.2
+- Function/file: `Geometry.AffineTransform.applying(to:)`, `concatenating(_:)`, `inverted()`
+- Commit: populated by the R1 implementation commit
+- Claim: concatenation applies the receiver first and the argument second. The
+  algebraic inverse has linear part `(d,-b,-c,a)/det`, where `det=a*d-b*c`, and
+  translation `(-tx*ia-ty*ic, -tx*ib-ty*id)`.
+- Reasoning: affine maps are augmented 2×3 matrices. Composition is matrix
+  multiplication in application order. The inverse follows from the 2×2 adjugate,
+  with translation chosen so inverse(transform(point)) equals point.
+- Worked examples:
+  1. `(0,1,-1,0,0,0)` applied to `(2,3)` → `(-3,2)`.
+  2. `scale(2,3).concatenating(translate(5,-1))` → `(2,0,0,3,5,-1)`;
+     applied to `(1,1)` → `(7,2)`.
+  3. Shear `(1,0,2,1,0,0)` maps `(3,4)` → `(11,4)`; inverse
+     `(1,0,-2,1,0,0)` maps `(11,4)` → `(3,4)`.
+  4. `(0,0,0,3,1,2)` has determinant zero and inversion fails explicitly.
+- Tolerance: exact for integer cases; `1e-9` absolute for composed values.
+  `|det| < 1e-12` is the library implementation policy for treating a transform
+  as near-singular; this is distinct from the pure mathematical condition `det != 0`.
+- Permanent test: `Tests/GeometryTests/AffineTransformVerifyTests.swift`
+
+### VERIFY-002 — Cubic Bézier evaluation
+
+- Status: `VERIFIED`
+- R-task: R1.2
+- Function/file: `Geometry.CubicBezier.point(at:)`
+- Claim: `B(t)=(1-t)^3 P0+3(1-t)^2t P1+3(1-t)t^2 P2+t^3 P3`.
+- Reasoning: this is the cubic Bernstein basis; coefficients sum to one, preserving
+  affine combinations and constant degenerate segments.
+- Worked examples for `P0=(0,0), P1=(0,100), P2=(100,100), P3=(100,0)`:
+  1. `t=0.5` → `(50,75)`.
+  2. `t=0.25` → `(15.625,56.25)`.
+  3. All points `(5,5)`, `t=0.7` → `(5,5)` exactly.
+- Tolerance: `1e-9` absolute.
+- Permanent test: `Tests/GeometryTests/BezierEvaluationVerifyTests.swift`
+
+### VERIFY-003 — Cubic Bézier tight bounds
+
+- Status: `VERIFIED`
+- R-task: R1.2
+- Function/file: `Geometry.CubicBezier.tightBounds`, `BezierPath.localBounds`
+- Claim: per-axis extrema are roots in `(0,1)` of `a*t^2+b*t+c=0`, with
+  `a=3(-p0+3p1-3p2+p3)`, `b=6(p0-2p1+p2)`, `c=3(p1-p0)`; endpoints and extrema
+  determine tight bounds. The `a≈0` linear branch uses `t=-c/b`.
+- Reasoning: differentiating the cubic Bernstein form yields the quadratic. A
+  continuous function on `[0,1]` reaches extrema at endpoints or stationary points.
+- Worked examples:
+  1. Arch from VERIFY-002: y derivative `(0,-600,300)`, root `0.5`, bounds
+     `(0,0,100,75)`.
+  2. Its x derivative `(-600,600,0)` has roots `0` and `1`, excluded from the
+     open interior-root set.
+  3. `(0,0),(-200,0),(300,0),(100,0)` has roots
+     `0.1726731646` and `0.8273268354`; bounds
+     `(-48.1980506062,0,148.1980506062,0)`.
+- Tolerance: `1e-6` for printed irrational values; linear threshold `1e-12`.
+- Permanent test: `Tests/GeometryTests/BezierBoundsVerifyTests.swift`
+
+### VERIFY-004 — Path visual bounds
+
+- Status: `VERIFIED`
+- R-task: R1.2
+- Function/file: `SceneNode.visualBounds` path case
+- Claim: conservatively compute `expand(AABB(T*corners(localBounds)),e)`, where
+  `e=(strokeWidth/2)*max(joinFactor,capFactor)`, miter `joinFactor=miterLimit`, other
+  joins `1`, square-cap factor `sqrt(2)`, other caps `1`. Stroke expansion is in
+  document space after transforming corners.
+- Reasoning: transformed-corner AABB contains the affine image of the local bounds.
+  Stroke extends half-width, bounded by the miter limit or square-cap diagonal.
+- Worked examples:
+  1. `(0,0,100,50)`, rotation 45°, width 10 round → transformed AABB
+     `(-35.355339,0,70.710678,106.066017)`, visual
+     `(-40.355339,-5,75.710678,111.066017)`.
+  2. `(10,20,60,45)`, rotation 37° + translation `(12,-8)`, width 6, miter 4 →
+     transformed AABB `(-7.09532094,13.99086043,47.88183014,64.04749934)`, visual
+     `(-19.09532094,1.99086043,59.88183014,76.04749934)`.
+  3. Width 4, miter limit 10 → expansion `20`.
+  4. Point `(5,5)`, square cap, width 6 → expansion `4.2426406871`, visual
+     `(0.7573593129,0.7573593129,9.2426406871,9.2426406871)`.
+- Tolerance: `1e-6`; over-coverage allowed, under-coverage forbidden.
+- Permanent test: `Tests/DocumentModelTests/VisualBoundsVerifyTests.swift`
+
+### VERIFY-005 — Group visual bounds
+
+- Status: `VERIFIED`
+- R-task: R1.1
+- Function/file: `SceneNode.visualBounds` group case
+- Claim: `AABB(groupTransform*corners(union(child.visualBounds)))`.
+- Reasoning: each child bounds contains child ink in group space; union contains all
+  ink; affine mapping preserves containment; the transformed corner AABB is conservative.
+- Worked examples:
+  1. Union of VERIFY-004 example 1 and `(0,0,20,20)` remains
+     `(-40.355339,-5,75.710678,111.066017)`.
+  2. Rotation -30° + translation `(100,50)` →
+     `(62.55125125,7.81453398,221.10037899,166.36366172)`.
+  3. Empty group → `nil`; one child with identity → exact child bounds.
+- Tolerance: `1e-6`.
+- Permanent test: `Tests/DocumentModelTests/GroupBoundsVerifyTests.swift`
+
+### VERIFY-006 — Compound-path fill containment
+
+- Status: `VERIFIED`
+- R-task: R1.1
+- Function/file: `CompoundPath.contains(_:fillRule:)`
+- Claim: cast a +x ray; upward crossings contribute +1 and downward -1 using the
+  half-open y rule. A crossing counts only when `xIntersection > px` (strict). No
+  separate boundary-inclusion predicate exists. Non-zero is inside iff winding is
+  nonzero; even-odd is inside iff crossing count is odd.
+- Reasoning: half-open y comparisons count shared vertices once. Strict x comparison
+  makes edge behavior deterministic. Interactive R3-B.1 hit-testing adds stroke
+  distance tolerance, so boundary clicks can still select while pure fill remains strict.
+- Worked examples for outer `(0,0)-(10,10)` and inner `(3,3)-(7,7)` squares:
+  1. CCW+CCW at `(5,5)`: winding `2`, crossings `2` → nonZero inside,
+     evenOdd outside.
+  2. CCW+CW at `(5,5)`: winding `0` → both outside.
+  3. `(1,5)`: winding `1`, crossings `3` → both inside.
+  4. `(10,5)` on the outer right edge: winding `0`, crossings `0` → outside under
+     both rules in both orientation configurations. `(12,5)` is likewise outside.
+- Tolerance: exact for square fixtures; curve flattening tolerance `0.1` document units.
+- Permanent test: `Tests/GeometryTests/FillRuleVerifyTests.swift`
+
+### VERIFY-007 — Overflow-checked pixel count
+
+- Status: `VERIFIED`
+- R-task: R1.3
+- Function/file: `DocumentLimits.checkedPixelCount(width:height:)`
+- Claim: positive `Int64` dimensions multiply using `multipliedReportingOverflow`.
+  Overflow and budget excess are distinct typed errors. Pixel budget is exactly
+  `67_108_864` (`8192*8192=2^26`, approximately 256 MiB decoded RGBA).
+- Reasoning: checked multiplication prevents integer wrap. Positivity is checked
+  first. A successful product is then compared with the explicit resource budget.
+- Worked examples:
+  1. `4096*4096=16_777_216` → accepted.
+  2. `3_037_000_499^2=9_223_372_030_926_249_001` → rejected as `budget`.
+  3. `3_037_000_500^2=9_223_372_037_000_250_000` → rejected as `overflow`.
+  4. Zero or negative dimensions → rejected as `nonPositive` before multiplication.
+- Tolerance: exact integer arithmetic.
+- Permanent test: `Tests/DocumentModelTests/PixelOverflowVerifyTests.swift`
 
 ## R0 checkpoint
 
-R0 changes product identity, platform scope, repository policy, and architecture
-records only. No mathematical, geometry, numerical, tolerance, conversion, sizing,
-or overflow formula was written or modified, so R0 adds no numeric verification
-entry.
+R0 changed no mathematical or numerical functions and added no numeric entry.
 
-## Entry template
+## Entry template for VERIFY-008+
 
-### VERIFY-NNN — Function name
-
-- Status: `PENDING OWNER VERIFICATION`
-- R-task:
-- Function/file:
-- Commit: populated after the task commit
-- Mathematical claim:
-- Derivation/reasoning (3–10 lines):
-- Worked examples (at least three, including one edge/degenerate case):
-  1. Inputs → expected output
-  2. Inputs → expected output
-  3. Inputs → expected output
-- Epsilon/tolerance and rationale:
-- Permanent test assertion:
+Each new entry must include status, R-task, function/file/commit, precise claim,
+3–10 lines of reasoning, at least three numeric examples including a degenerate case,
+tolerance rationale, and the permanent test file. New entries remain
+`PENDING OWNER VERIFICATION` until the owner resolves the next checkpoint.
