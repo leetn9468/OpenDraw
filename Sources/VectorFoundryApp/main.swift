@@ -372,6 +372,61 @@ final class CanvasView: NSView {
             activeLayerIndex = min(index, history.document.layers.count - 1)
         } catch { presentCommandError(error, command: "Edit layer") }
     }
+    func editGradient() {
+        guard let pathID = selectedIDs.first else { return }
+        let alert = NSAlert()
+        alert.messageText = "Gradient"
+        alert.addButton(withTitle: "Apply")
+        alert.addButton(withTitle: "Cancel")
+        let kind = NSPopUpButton()
+        kind.addItems(withTitles: ["Linear", "Radial"])
+        let start = NSTextField(string: "0,0")
+        let end = NSTextField(string: "100,0")
+        let stops = NSTextField(string: "0:#000000, 1:#FFFFFF")
+        let stack = NSStackView(views: [
+            kind, NSTextField(labelWithString: "Start x,y"), start,
+            NSTextField(labelWithString: "End x,y"), end, NSTextField(labelWithString: "Stops offset:#RRGGBB"), stops,
+        ])
+        stack.orientation = .vertical
+        stack.spacing = 5
+        stack.frame = NSRect(x: 0, y: 0, width: 280, height: 180)
+        alert.accessoryView = stack
+        guard alert.runModal() == .alertFirstButtonReturn,
+            let startPoint = parsePoint(start.stringValue), let endPoint = parsePoint(end.stringValue),
+            let parsedStops = parseStops(stops.stringValue), parsedStops.count >= 2
+        else { return }
+        let gradient = GradientResource(
+            name: "Gradient", kind: kind.indexOfSelectedItem == 0 ? .linear : .radial,
+            start: startPoint, end: endPoint, stops: parsedStops)
+        do {
+            try history.perform(
+                DocumentCommand(name: "Apply gradient") { document in
+                    document.gradients.append(gradient)
+                    guard document.mutatePath(id: pathID, { $0.style.fillGradientID = gradient.id })
+                    else { throw SceneCommandError.selectionNotFound }
+                })
+        } catch { presentCommandError(error, command: "Apply gradient") }
+    }
+    private func parsePoint(_ value: String) -> Point? {
+        let pieces = value.split(separator: ",").compactMap { Double($0.trimmingCharacters(in: .whitespaces)) }
+        return pieces.count == 2 ? Point(x: pieces[0], y: pieces[1]) : nil
+    }
+    private func parseStops(_ value: String) -> [ColorStop]? {
+        let result = value.split(separator: ",").compactMap { item -> ColorStop? in
+            let pieces = item.split(separator: ":", maxSplits: 1)
+            guard pieces.count == 2, let offset = Double(pieces[0].trimmingCharacters(in: .whitespaces)),
+                offset >= 0, offset <= 1
+            else { return nil }
+            let hex = pieces[1].trimmingCharacters(in: .whitespaces)
+            guard hex.count == 7, hex.first == "#", let raw = Int(hex.dropFirst(), radix: 16) else { return nil }
+            return ColorStop(
+                offset: offset,
+                color: SRGBColor(
+                    red: Double((raw >> 16) & 255) / 255,
+                    green: Double((raw >> 8) & 255) / 255, blue: Double(raw & 255) / 255))
+        }.sorted { $0.offset < $1.offset }
+        return result.count == value.split(separator: ",").count ? result : nil
+    }
     func undo() {
         history.undo()
         needsDisplay = true
@@ -492,7 +547,7 @@ extension AppDelegate: NSToolbarDelegate {
         [
             .new, .open, .save, .export, .undo, .redo, .selection, .directSelection, .pen, .rectangle, .ellipse, .text,
             .image, .style, .properties, .zoomOut, .actualSize, .zoomIn, .zoomFit,
-            .alignLeft, .group, .ungroup, .makeCompound, .releaseCompound, .layers,
+            .alignLeft, .group, .ungroup, .makeCompound, .releaseCompound, .layers, .gradient,
         ]
     }
     func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
@@ -529,6 +584,7 @@ extension AppDelegate: NSToolbarDelegate {
         case .makeCompound: canvas.makeCompoundSelected()
         case .releaseCompound: canvas.releaseCompoundSelected()
         case .layers: canvas.editLayers()
+        case .gradient: canvas.editGradient()
         case .zoomIn: canvas.zoomIn()
         case .zoomOut: canvas.zoomOut()
         case .actualSize: canvas.actualSize()
@@ -670,7 +726,7 @@ extension AppDelegate: NSToolbarItemValidation {
         switch item.itemIdentifier {
         case .undo: return canvas.history.canUndo
         case .redo: return canvas.history.canRedo
-        case .style, .properties: return canvas.hasSelection
+        case .style, .properties, .gradient: return canvas.hasSelection
         case .alignLeft, .group, .makeCompound: return canvas.hasMultipleSelection
         case .ungroup, .releaseCompound: return canvas.hasSelection
         default: return true
@@ -689,6 +745,7 @@ extension NSToolbarItem.Identifier {
     static let ungroup = Self("ungroup"), makeCompound = Self("make-compound"),
         releaseCompound = Self("release-compound")
     static let layers = Self("layers")
+    static let gradient = Self("gradient")
     static let zoomIn = Self("zoom-in"), zoomOut = Self("zoom-out"), actualSize = Self("zoom-100"),
         zoomFit = Self("zoom-fit")
 }
