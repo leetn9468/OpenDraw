@@ -459,3 +459,20 @@ handle vector identity, and non-finite/negative snapping distances. Protocol
 compliance was confirmed: all four mathematical surfaces were queued before
 reliance. VERIFY-015 through VERIFY-018 are `VERIFIED`; frozen values now cover
 VERIFY-001 through VERIFY-018.
+
+### VERIFY-019 — Document delta to path-local anchor delta
+
+- Status: `PENDING OWNER VERIFICATION`
+- R-task: R3-B.2
+- Function/file: `EditorDocument.movePathAnchor(id:subpath:segment:documentDelta:)`
+- Mathematical claim: for anchor geometry stored in node-local space, `L` is
+  the accumulated linear mapping `ancestors ∘ nodeTransform`; document drag
+  `d` becomes local delta `q=L⁻¹d`. Translation is excluded. A singular mapping
+  fails without mutation under VERIFY-001's `1e-12` policy.
+- Worked examples:
+  1. Identity maps `(8,-3)` to `(8,-3)`.
+  2. Own 90° rotation inside group scale `(2,4)` gives `L=(0,4,-2,0)`;
+     document delta `(10,8)` maps to local `(2,-5)`, round-tripping to `(10,8)`.
+  3. Singular own transform `(0,0,0,1)` fails without mutation.
+- Tolerance: `1e-9` absolute.
+- Permanent test: `Tests/DocumentModelTests/DirectAnchorVerifyTests.swift`.
