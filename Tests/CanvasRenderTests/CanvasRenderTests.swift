@@ -99,6 +99,31 @@ import Testing
     #expect(context.makeImage() != nil)
 }
 
+@Test func rendererUsesOnlyApprovedImagesOrPlaceholder() throws {
+    let data = Data([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])
+    let image = ImageObject(
+        frame: Geometry.Rect(minX: 10, minY: 10, maxX: 30, maxY: 30), storage: .embedded(data), pixelWidth: 1,
+        pixelHeight: 1)
+    let document = try EditorDocument(width: 40, height: 40, layers: [Layer(name: "L", nodes: [.image(image)])])
+    let context = try #require(
+        CGContext(
+            data: nil, width: 40, height: 40, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+    CoreGraphicsRenderer().render(document, in: context, approvedImages: [:])
+    #expect(context.makeImage() != nil)
+    let approvedContext = try #require(
+        CGContext(
+            data: nil, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+    let approved = try #require(approvedContext.makeImage())
+    let destination = try #require(
+        CGContext(
+            data: nil, width: 40, height: 40, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+    CoreGraphicsRenderer().render(document, in: destination, approvedImages: [image.id: approved])
+    #expect(destination.makeImage() != nil)
+}
+
 @Test func transformedStrokeInkIsContainedByVisualBounds() throws {
     let width = 256
     let height = 256

@@ -4,7 +4,7 @@ import Foundation
 import Geometry
 
 public struct NativeDocumentCodec: Sendable {
-    public static let maximumBytes = 100 * 1_024 * 1_024
+    public static let maximumBytes = InputLimits.maximumNativeBytes
     public init() {}
     public func encode(_ document: EditorDocument) throws -> Data {
         try document.validate()
@@ -14,7 +14,7 @@ public struct NativeDocumentCodec: Sendable {
     }
     public func decode(_ data: Data) throws -> EditorDocument {
         guard data.count <= Self.maximumBytes else { throw EditorError.corruptInput("Document exceeds size limit") }
-        let root = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        let root = try JSONStructureValidator().parseAndValidate(data) as? [String: Any]
         guard let version = root?["formatVersion"] as? Int else {
             throw EditorError.corruptInput("Missing format version")
         }
@@ -31,27 +31,16 @@ public struct NativeDocumentCodec: Sendable {
         default: throw EditorError.unsupported("Unsupported document version \(version)")
         }
         try document.validate()
+        try EmbeddedImageValidator().validate(document)
         return document
     }
-    public func saveAtomically(_ document: EditorDocument, to url: URL) throws {
-        let data = try encode(document)
-        let manager = FileManager.default
-        let temporary = url.deletingLastPathComponent().appendingPathComponent(
-            ".\(url.lastPathComponent).\(UUID().uuidString).tmp")
-        do {
-            try data.write(to: temporary, options: .withoutOverwriting)
-            if manager.fileExists(atPath: url.path) {
-                _ = try manager.replaceItemAt(url, withItemAt: temporary)
-            } else {
-                try manager.moveItem(at: temporary, to: url)
-            }
-        } catch {
-            try? manager.removeItem(at: temporary)
-            throw error
-        }
+    public func saveAtomically(_ document: EditorDocument, to url: URL, writer: DurableFileWriter = DurableFileWriter())
+        throws
+    {
+        try writer.write(try encode(document), to: url)
     }
     public func load(from url: URL) throws -> EditorDocument {
-        try decode(Data(contentsOf: url, options: .mappedIfSafe))
+        try decode(BoundedFileReader().read(url, maximumBytes: Self.maximumBytes))
     }
 }
 

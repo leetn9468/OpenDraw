@@ -9,67 +9,148 @@ public struct ImportResult: Sendable {
 }
 
 public struct SVGImporter: Sendable {
-    public static let maximumBytes = 10 * 1_024 * 1_024
+    public static let maximumBytes = InputLimits.maximumSVGBytes
     public init() {}
+    public func importFile(_ url: URL) throws -> ImportResult {
+        try importData(BoundedFileReader().read(url, maximumBytes: Self.maximumBytes))
+    }
     public func importData(_ data: Data) throws -> ImportResult {
-        guard data.count <= Self.maximumBytes else { throw EditorError.corruptInput("SVG exceeds size limit") }
+        guard data.count <= Self.maximumBytes else { throw InputLimitError.byteCount }
         let delegate = Delegate()
         let parser = XMLParser(data: data)
         parser.delegate = delegate
+        parser.shouldProcessNamespaces = true
         parser.shouldResolveExternalEntities = false
-        guard parser.parse(), delegate.sawRoot else {
-            throw EditorError.corruptInput(parser.parserError?.localizedDescription ?? delegate.error ?? "Invalid SVG")
+        let parsed = parser.parse()
+        guard parsed, delegate.sawRoot, delegate.depth == 0 else {
+            throw delegate.failure
+                ?? EditorError.corruptInput(parser.parserError?.localizedDescription ?? "Invalid SVG")
         }
         let document = try EditorDocument(
             width: delegate.width ?? 640, height: delegate.height ?? 480,
-            layers: [Layer(name: "Imported SVG", nodes: delegate.paths.map(SceneNode.path))])
-        return ImportResult(document: document, warnings: Array(Set(delegate.warnings)).sorted { $0.code < $1.code })
+            layers: [Layer(name: "Imported SVG", nodes: delegate.nodes)])
+        try document.validate()
+        return ImportResult(document: document, warnings: delegate.warnings)
     }
 }
 
 private final class Delegate: NSObject, XMLParserDelegate {
+    let namespace = "http://www.w3.org/2000/svg"
     var width: Double?
     var height: Double?
-    var paths: [PathObject] = []
+    var nodes: [SceneNode] = []
     var warnings: [FormatWarning] = []
     var sawRoot = false
-    var error: String?
+    var depth = 0
+    var elementCount = 0
+    var suppressedDepth: Int?
+    var failure: Error?
     func parser(
         _ parser: XMLParser, didStartElement name: String, namespaceURI: String?, qualifiedName qName: String?,
         attributes: [String: String]
     ) {
-        switch name.lowercased() {
-        case "svg":
-            sawRoot = true
-            width = number(attributes["width"])
-            height = number(attributes["height"])
-        case "rect":
-            if let x = number(attributes["x"]) ?? 0 as Double?, let y = number(attributes["y"]) ?? 0 as Double?,
-                let w = number(attributes["width"]), let h = number(attributes["height"]), w > 0, h > 0
-            {
-                paths.append(rect(x: x, y: y, w: w, h: h, attributes: attributes))
-            } else {
-                warnings.append(FormatWarning(code: "SVG-INVALID-RECT", message: "Invalid rectangle was skipped."))
+        depth += 1
+        elementCount += 1
+        guard enforce(elementCount <= InputLimits.maximumSVGElements, .elementCount, parser),
+            enforce(depth <= InputLimits.maximumSVGDepth, .nestingDepth, parser)
+        else { return }
+        for (key, value) in attributes {
+            guard
+                enforce(
+                    key.utf8.count <= InputLimits.maximumStringUTF8Bytes
+                        && value.utf8.count <= InputLimits.maximumStringUTF8Bytes, .stringLength, parser)
+            else { return }
+        }
+        if let suppressedDepth {
+            _ = suppressedDepth
+            return
+        }
+        let lower = name.lowercased()
+        if depth == 1 {
+            guard !sawRoot, lower == "svg", namespaceURI == namespace else {
+                abort(InputLimitError.invalidStructure, parser)
+                return
             }
+            sawRoot = true
+            width = parseLength(attributes["width"], property: "width", parser: parser)
+            height = parseLength(attributes["height"], property: "height", parser: parser)
+            return
+        }
+        if lower == "svg" {
+            abort(InputLimitError.invalidStructure, parser)
+            return
+        }
+        switch lower {
         case "script", "foreignobject":
-            warnings.append(FormatWarning(code: "SVG-UNSAFE-IGNORED", message: "Active SVG content was ignored."))
+            addWarning(
+                code: "SVG-UNSAFE-IGNORED", message: "Active SVG subtree was ignored.", property: lower, parser: parser)
+            suppressedDepth = depth
+        case "rect":
+            let x = parseLength(attributes["x"], property: "x", parser: parser) ?? 0
+            let y = parseLength(attributes["y"], property: "y", parser: parser) ?? 0
+            guard let w = parseLength(attributes["width"], property: "width", parser: parser),
+                let h = parseLength(attributes["height"], property: "height", parser: parser), w > 0, h > 0
+            else {
+                addWarning(
+                    code: "SVG-INVALID-RECT", message: "Invalid rectangle was skipped.", property: "geometry",
+                    parser: parser)
+                return
+            }
+            guard nodes.count < InputLimits.maximumSVGNodes else {
+                abort(InputLimitError.nodeCount, parser)
+                return
+            }
+            nodes.append(.path(rect(x: x, y: y, w: w, h: h, attributes: attributes)))
         case "g", "title", "desc": break
         default:
-            if name.lowercased() != "svg" {
-                warnings.append(
-                    FormatWarning(
-                        code: "SVG-UNSUPPORTED-\(name.uppercased())",
-                        message: "Unsupported SVG element \(name) was skipped."))
-            }
+            addWarning(
+                code: "SVG-UNSUPPORTED-\(name.uppercased())", message: "Unsupported SVG element \(name) was skipped.",
+                property: lower, parser: parser)
         }
     }
+    func parser(
+        _ parser: XMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?
+    ) {
+        if suppressedDepth == depth { suppressedDepth = nil }
+        depth -= 1
+    }
+    func parser(_ parser: XMLParser, foundInternalEntityDeclarationWithName name: String, value: String?) {
+        abort(InputLimitError.invalidStructure, parser)
+    }
+    func parser(
+        _ parser: XMLParser, foundExternalEntityDeclarationWithName name: String, publicID: String?, systemID: String?
+    ) { abort(InputLimitError.invalidStructure, parser) }
     func parser(_ parser: XMLParser, resolveExternalEntityName name: String, systemID: String?) -> Data? {
-        warnings.append(FormatWarning(code: "SVG-EXTERNAL-BLOCKED", message: "External entity was blocked."))
+        abort(InputLimitError.invalidStructure, parser)
         return nil
     }
-    private func number(_ text: String?) -> Double? {
-        guard let text else { return nil }
-        return Double(text.replacingOccurrences(of: "px", with: ""))
+    private func enforce(_ condition: Bool, _ error: InputLimitError, _ parser: XMLParser) -> Bool {
+        if !condition { abort(error, parser) }
+        return condition
+    }
+    private func abort(_ error: Error, _ parser: XMLParser) {
+        if failure == nil { failure = error }
+        parser.abortParsing()
+    }
+    private func addWarning(code: String, message: String, property: String, parser: XMLParser) {
+        guard warnings.count < InputLimits.maximumWarnings else {
+            abort(InputLimitError.warningCount, parser)
+            return
+        }
+        warnings.append(
+            FormatWarning(
+                code: code, message: message, property: property, reason: message, occurrenceCount: 1,
+                layerName: "Imported SVG", layerIndex: 0, nodeIndex: nodes.count, line: parser.lineNumber,
+                column: parser.columnNumber))
+    }
+    private func parseLength(_ value: String?, property: String, parser: XMLParser) -> Double? {
+        guard let value else { return nil }
+        do { return try SVGLengthParser().parse(value) } catch {
+            addWarning(
+                code: "SVG-INVALID-UNIT", message: "Unsupported or invalid \(property) unit.", property: property,
+                parser: parser)
+            return nil
+        }
     }
     private func rect(x: Double, y: Double, w: Double, h: Double, attributes: [String: String]) -> PathObject {
         let points = [
@@ -82,7 +163,7 @@ private final class Delegate: NSObject, XMLParserDelegate {
             }, isClosed: true,
             style: PathStyle(
                 fill: color(attributes["fill"]), stroke: color(attributes["stroke"]),
-                strokeWidth: number(attributes["stroke-width"]) ?? 1))
+                strokeWidth: (try? SVGLengthParser().parse(attributes["stroke-width"] ?? "1")) ?? 1))
     }
     private func color(_ value: String?) -> SRGBColor? {
         guard let value, value != "none", value.hasPrefix("#"), value.count == 7,

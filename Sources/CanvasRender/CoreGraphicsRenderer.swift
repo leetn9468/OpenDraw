@@ -3,7 +3,6 @@ import DocumentModel
 import EditorCore
 import Foundation
 import Geometry
-import ImageIO
 import TextEngine
 
 public struct RenderViewport: Sendable {
@@ -25,10 +24,15 @@ public struct DamageRegion: Sendable {
 
 public struct CoreGraphicsRenderer: Sendable {
     public init() {}
-    public func render(_ document: EditorDocument, in context: CGContext, scale: Double = 1) {
-        render(document, in: context, viewport: RenderViewport(zoom: scale))
+    public func render(
+        _ document: EditorDocument, in context: CGContext, scale: Double = 1, approvedImages: [ObjectID: CGImage] = [:]
+    ) {
+        render(document, in: context, viewport: RenderViewport(zoom: scale), approvedImages: approvedImages)
     }
-    public func render(_ document: EditorDocument, in context: CGContext, viewport: RenderViewport) {
+    public func render(
+        _ document: EditorDocument, in context: CGContext, viewport: RenderViewport,
+        approvedImages: [ObjectID: CGImage] = [:]
+    ) {
         context.saveGState()
         defer { context.restoreGState() }
         if let clip = viewport.clip {
@@ -39,7 +43,9 @@ public struct CoreGraphicsRenderer: Sendable {
         let swatches = Dictionary(uniqueKeysWithValues: document.swatches.map { ($0.id, $0.color) })
         let gradients = Dictionary(uniqueKeysWithValues: document.gradients.map { ($0.id, $0) })
         for layer in document.layers where layer.isVisible {
-            for node in layer.nodes { render(node, swatches: swatches, gradients: gradients, in: context) }
+            for node in layer.nodes {
+                render(node, swatches: swatches, gradients: gradients, approvedImages: approvedImages, in: context)
+            }
         }
     }
     public func renderSelection(_ object: PathObject, in context: CGContext, zoom: Double) {
@@ -71,19 +77,22 @@ public struct CoreGraphicsRenderer: Sendable {
     }
     private func render(
         _ node: SceneNode, swatches: [ObjectID: SRGBColor], gradients: [ObjectID: GradientResource],
+        approvedImages: [ObjectID: CGImage],
         in context: CGContext
     ) {
         switch node {
         case .path(let path): render(path, swatches: swatches, gradients: gradients, in: context)
         case .text(let text): render(text, in: context)
-        case .image(let image): render(image, in: context)
+        case .image(let image): render(image, approvedImage: approvedImages[image.id], in: context)
         case .group(let group):
             context.saveGState()
             context.concatenate(
                 CGAffineTransform(
                     a: group.transform.a, b: group.transform.b, c: group.transform.c, d: group.transform.d,
                     tx: group.transform.tx, ty: group.transform.ty))
-            for child in group.children { render(child, swatches: swatches, gradients: gradients, in: context) }
+            for child in group.children {
+                render(child, swatches: swatches, gradients: gradients, approvedImages: approvedImages, in: context)
+            }
             context.restoreGState()
         }
     }
@@ -136,7 +145,7 @@ public struct CoreGraphicsRenderer: Sendable {
             text.text, fontName: text.fontName, size: text.fontSize, at: text.origin, color: text.color.cgColor,
             in: context)
     }
-    private func render(_ image: ImageObject, in context: CGContext) {
+    private func render(_ image: ImageObject, approvedImage: CGImage?, in context: CGContext) {
         context.saveGState()
         defer { context.restoreGState() }
         context.concatenate(
@@ -145,9 +154,7 @@ public struct CoreGraphicsRenderer: Sendable {
                 tx: image.transform.tx, ty: image.transform.ty))
         let frame = CGRect(
             x: image.frame.minX, y: image.frame.minY, width: image.frame.width, height: image.frame.height)
-        if case .embedded(let data) = image.storage, let source = CGImageSourceCreateWithData(data as CFData, nil),
-            let cg = CGImageSourceCreateImageAtIndex(source, 0, nil)
-        {
+        if let cg = approvedImage {
             context.draw(cg, in: frame)
         } else {
             placeholder(frame, in: context)

@@ -12,17 +12,21 @@ public struct RasterResourceLoader: Sendable {
         guard data.count <= Self.maximumBytes, let source = CGImageSourceCreateWithData(data as CFData, nil),
             let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
             let width = properties[kCGImagePropertyPixelWidth] as? Int,
-            let height = properties[kCGImagePropertyPixelHeight] as? Int, width > 0, height > 0,
-            width * height <= Self.maximumPixels
+            let height = properties[kCGImagePropertyPixelHeight] as? Int
         else { throw EditorError.corruptInput("Unsafe or unsupported raster image") }
+        _ = try EmbeddedImageValidator().decode(data)
         return ImageObject(frame: frame, storage: .embedded(data), pixelWidth: width, pixelHeight: height)
     }
     public func linked(relativePath: String, frame: Geometry.Rect, pixelWidth: Int, pixelHeight: Int) throws
         -> ImageObject
     {
-        guard !relativePath.hasPrefix("/"), !relativePath.split(separator: "/").contains(".."), pixelWidth > 0,
-            pixelHeight > 0, pixelWidth * pixelHeight <= Self.maximumPixels
-        else { throw EditorError.corruptInput("Unsafe linked image") }
+        let components = NSString(string: relativePath).pathComponents
+        guard !relativePath.hasPrefix("/"), !components.contains("..") else {
+            throw EditorError.corruptInput("Unsafe linked image path")
+        }
+        do { _ = try DocumentLimits.checkedPixelCount(width: Int64(pixelWidth), height: Int64(pixelHeight)) } catch {
+            throw EditorError.corruptInput("Unsafe linked image")
+        }
         return ImageObject(
             frame: frame, storage: .linked(relativePath: relativePath), pixelWidth: pixelWidth, pixelHeight: pixelHeight
         )

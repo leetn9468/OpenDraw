@@ -123,17 +123,32 @@ private func canonicalReferenceDocument() throws -> EditorDocument {
                 frame: Geometry.Rect(minX: 0, minY: 0, maxX: 10, maxY: 10), storage: .linked(relativePath: "image.png"),
                 pixelWidth: 1, pixelHeight: 1)))
     let result = try SVGExporter().export(document)
-    #expect(result.warnings.map(\.code) == ["SVG-GRADIENT-DEFERRED", "SVG-IMAGE-DEFERRED"])
+    let svg = String(decoding: result.data, as: UTF8.self)
+    #expect(svg.contains("<linearGradient"))
+    #expect(svg.contains("fill=\"url(#g"))
+    #expect(result.warnings.map(\.code) == ["SVG-IMAGE-OMITTED"])
+    #expect(result.warnings.first?.objectID != nil)
 }
 
 @Test func svgImportIsIsolatedSafeAndDiagnosable() throws {
     let input = Data(
-        "<svg width=\"100\" height=\"80\"><rect x=\"5\" y=\"6\" width=\"20\" height=\"30\" fill=\"#FF0000\"/><script>alert(1)</script><circle/></svg>"
+        "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100\" height=\"80\"><rect x=\"5\" y=\"6\" width=\"20\" height=\"30\" fill=\"#FF0000\"/><script><rect width=\"9\" height=\"9\"/></script><circle/></svg>"
             .utf8)
     let result = try SVGImporter().importData(input)
     #expect(result.document.layers[0].nodes.count == 1)
     #expect(result.warnings.map(\.code) == ["SVG-UNSAFE-IGNORED", "SVG-UNSUPPORTED-CIRCLE"])
-    #expect(throws: (any Error).self) { try SVGImporter().importData(Data("<svg><rect>".utf8)) }
+    #expect(throws: (any Error).self) {
+        try SVGImporter().importData(Data("<svg xmlns=\"http://www.w3.org/2000/svg\"><rect>".utf8))
+    }
+}
+
+@Test func svgRejectsWrongNamespaceRepeatedRootAndEntityDeclaration() {
+    let importer = SVGImporter()
+    for input in [
+        "<svg/>",
+        "<svg xmlns=\"http://www.w3.org/2000/svg\"><svg/></svg>",
+        "<!DOCTYPE svg [<!ENTITY x \"boom\">]><svg xmlns=\"http://www.w3.org/2000/svg\">&x;</svg>",
+    ] { #expect(throws: (any Error).self) { try importer.importData(Data(input.utf8)) } }
 }
 
 @Test func nativeDecoderDeterministicMalformedCorpus() {

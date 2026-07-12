@@ -125,6 +125,9 @@ final class CanvasView: NSView {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var window: NSWindow?
     private var canvas: CanvasView?
+    private var autosaveTimer: Timer?
+    private var currentURL: URL?
+    private let recoveryID = "active-document"
     func applicationDidFinishLaunching(_ notification: Notification) {
         Diagnostics.installCrashContext()
         let frame = NSRect(x: 0, y: 0, width: 800, height: 620)
@@ -138,7 +141,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             NSApp.terminate(nil)
             return
         }
-        let canvas = CanvasView(frame: frame, document: document)
+        var launchDocument = document
+        if let recovered = try? RecoveryStore.applicationSupport().recover(documentID: recoveryID, newerThan: nil) {
+            let alert = NSAlert()
+            alert.messageText = "Recover unsaved drawing?"
+            alert.informativeText = "A newer autosave was found."
+            alert.addButton(withTitle: "Restore")
+            alert.addButton(withTitle: "Discard")
+            if alert.runModal() == .alertFirstButtonReturn {
+                launchDocument = recovered
+            } else {
+                try? RecoveryStore.applicationSupport().discard(documentID: recoveryID)
+            }
+        }
+        let canvas = CanvasView(frame: frame, document: launchDocument)
         window.contentView = canvas
         self.canvas = canvas
         let toolbar = NSToolbar(identifier: "tools")
@@ -147,7 +163,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window.center()
         window.makeKeyAndOrderFront(nil)
         self.window = window
+        autosaveTimer = Timer.scheduledTimer(withTimeInterval: RecoverySettings.defaultInterval, repeats: true) {
+            [weak self] _ in Task { @MainActor in self?.writeRecoveryIfDirty() }
+        }
         NSApp.activate(ignoringOtherApps: true)
+    }
+    private func writeRecoveryIfDirty() {
+        guard let canvas, canvas.history.isDirty else { return }
+        try? RecoveryStore.applicationSupport().save(canvas.history.document, documentID: recoveryID)
     }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
@@ -200,16 +223,20 @@ extension AppDelegate: NSToolbarDelegate {
         do {
             if svg {
                 let result = try SVGExporter().export(canvas.history.document)
-                try result.data.write(to: url, options: .atomic)
                 if !result.warnings.isEmpty {
                     let alert = NSAlert()
-                    alert.messageText = "Export completed with limitations"
+                    alert.messageText = "Review export limitations"
                     alert.informativeText = result.warnings.map(\.message).joined(separator: "\n")
-                    alert.runModal()
+                    alert.addButton(withTitle: "Export")
+                    alert.addButton(withTitle: "Cancel")
+                    guard alert.runModal() == .alertFirstButtonReturn else { return }
                 }
+                try DurableFileWriter().write(result.data, to: url)
             } else {
                 try NativeDocumentCodec().saveAtomically(canvas.history.document, to: url)
                 canvas.history.markSaved()
+                currentURL = url
+                try? RecoveryStore.applicationSupport().discard(documentID: recoveryID)
             }
         } catch {
             let alert = NSAlert(error: error)
@@ -222,8 +249,12 @@ extension AppDelegate: NSToolbarDelegate {
         panel.allowsMultipleSelection = false
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
-            let document = try NativeDocumentCodec().load(from: url)
+            let result =
+                url.pathExtension.lowercased() == "svg"
+                ? try SVGImporter().importFile(url).document : try NativeDocumentCodec().load(from: url)
+            let document = result
             canvas.replaceDocument(document)
+            currentURL = url
         } catch { NSAlert(error: error).runModal() }
     }
 }
