@@ -59,6 +59,7 @@ public struct SmoothPenToolState: Sendable {
     public private(set) var anchors: [PenAnchor] = []
     public init() {}
     public mutating func addCorner(_ point: Point) { anchors.append(PenAnchor(point: point)) }
+    public mutating func reset() { anchors.removeAll() }
     public mutating func addSmooth(_ point: Point, outgoing: Point) {
         anchors.append(
             PenAnchor(

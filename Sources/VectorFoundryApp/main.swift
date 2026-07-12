@@ -22,7 +22,9 @@ final class CanvasView: NSView {
     }
     var history: CommandHistory
     var activeTool: ActiveTool = .pen
-    private var pen = PenToolState()
+    private var pen = SmoothPenToolState()
+    private var penMouseDown: Point?
+    private var penPreviewPoint: Point?
     private var dragStart: Point?
     private var dragLast: Point?
     private var selectedIDs: Set<ObjectID> = []
@@ -106,6 +108,16 @@ final class CanvasView: NSView {
             context.addLine(to: CGPoint(x: snapIndicator.x, y: snapIndicator.y + 8 / zoom))
             context.strokePath()
         }
+        if activeTool == .pen, let previewPoint = penPreviewPoint, let preview = pen.preview(to: previewPoint) {
+            context.setStrokeColor(NSColor.controlAccentColor.cgColor)
+            context.setLineWidth(1 / zoom)
+            context.move(to: CGPoint(x: preview.start.x, y: preview.start.y))
+            context.addCurve(
+                to: CGPoint(x: preview.end.x, y: preview.end.y),
+                control1: CGPoint(x: preview.control1.x, y: preview.control1.y),
+                control2: CGPoint(x: preview.control2.x, y: preview.control2.y))
+            context.strokePath()
+        }
         context.restoreGState()
     }
 
@@ -136,8 +148,8 @@ final class CanvasView: NSView {
         if activeTool == .text {
             createText(at: point)
         } else if activeTool == .pen {
-            pen.addAnchor(point)
-            if event.clickCount == 2, let object = pen.finish(close: false) { add(object) }
+            penMouseDown = point
+            penPreviewPoint = point
         } else if activeTool == .selection || activeTool == .directSelection {
             let hit = SelectionTool().hitTest(history.document, pointer: point, zoom: zoom)
             if event.modifierFlags.contains(.shift), let hit {
@@ -175,6 +187,11 @@ final class CanvasView: NSView {
         }
     }
     override func mouseDragged(with event: NSEvent) {
+        if activeTool == .pen, penMouseDown != nil {
+            penPreviewPoint = documentPoint(convert(event.locationInWindow, from: nil))
+            needsDisplay = true
+            return
+        }
         if let prior = panDragLocation {
             let location = convert(event.locationInWindow, from: nil)
             pan = Point(x: pan.x + location.x - prior.x, y: pan.y + location.y - prior.y)
@@ -275,6 +292,20 @@ final class CanvasView: NSView {
             snapIndicator = nil
             return
         }
+        if activeTool == .pen, let start = penMouseDown {
+            let end = documentPoint(convert(event.locationInWindow, from: nil))
+            if let first = pen.anchors.first?.point, pen.anchors.count >= 2, first.distance(to: end) <= 6 / zoom {
+                if let object = pen.finish(close: true) { add(object) }
+            } else if start.distance(to: end) > 2 / zoom {
+                pen.addSmooth(start, outgoing: end)
+            } else {
+                pen.addCorner(start)
+            }
+            penMouseDown = nil
+            penPreviewPoint = nil
+            needsDisplay = true
+            return
+        }
         guard let start = dragStart else { return }
         dragStart = nil
         let location = convert(event.locationInWindow, from: nil)
@@ -312,6 +343,17 @@ final class CanvasView: NSView {
                 }
                 selectedAnchors.removeAll()
             } catch { presentCommandError(error, command: "Delete anchor") }
+            return
+        }
+        if activeTool == .pen, event.keyCode == 36 {
+            if let object = pen.finish(close: false) { add(object) }
+            penPreviewPoint = nil
+            return
+        }
+        if activeTool == .pen, event.keyCode == 53 {
+            pen.reset()
+            penPreviewPoint = nil
+            needsDisplay = true
             return
         }
         super.keyDown(with: event)
@@ -436,20 +478,36 @@ final class CanvasView: NSView {
         let width = NSTextField(string: "1")
         let opacity = NSTextField(string: "1")
         let dash = NSTextField(string: "")
+        let fill = NSTextField(string: "#FFFFFF")
+        let miter = NSTextField(string: "10")
+        let cap = NSPopUpButton()
+        cap.addItems(withTitles: ["Butt", "Round", "Square"])
+        let join = NSPopUpButton()
+        join.addItems(withTitles: ["Miter", "Round", "Bevel"])
+        let swatch = NSPopUpButton()
+        swatch.addItem(withTitle: "No swatch")
+        swatch.addItems(withTitles: history.document.swatches.map(\.name))
         let stack = NSStackView(views: [
-            NSTextField(labelWithString: "Stroke width"), width,
+            NSTextField(labelWithString: "Fill #RRGGBB"), fill, NSTextField(labelWithString: "Fill swatch"), swatch,
+            NSTextField(labelWithString: "Stroke width"), width, cap, join, NSTextField(labelWithString: "Miter limit"),
+            miter,
             NSTextField(labelWithString: "Opacity (0–1)"), opacity, NSTextField(labelWithString: "Dash values"), dash,
         ])
         stack.orientation = .vertical
         stack.spacing = 5
-        stack.frame = NSRect(x: 0, y: 0, width: 240, height: 140)
+        stack.frame = NSRect(x: 0, y: 0, width: 260, height: 300)
         alert.accessoryView = stack
         guard alert.runModal() == .alertFirstButtonReturn, let strokeWidth = Double(width.stringValue),
-            let alpha = Double(opacity.stringValue)
+            let alpha = Double(opacity.stringValue), let miterLimit = Double(miter.stringValue),
+            let fillColor = parseColor(fill.stringValue)
         else { return }
         let dashes = dash.stringValue.split(separator: ",").compactMap {
             Double($0.trimmingCharacters(in: .whitespaces))
         }
+        let lineCap: LineCap = [.butt, .round, .square][cap.indexOfSelectedItem]
+        let lineJoin: LineJoin = [.miter, .round, .bevel][join.indexOfSelectedItem]
+        let swatchID =
+            swatch.indexOfSelectedItem > 0 ? history.document.swatches[swatch.indexOfSelectedItem - 1].id : nil
         do {
             try history.perform(
                 DocumentCommand(name: "Edit properties") { document in
@@ -460,10 +518,21 @@ final class CanvasView: NSView {
                                 path.style.strokeWidth = strokeWidth
                                 path.style.opacity = alpha
                                 path.style.dash = dashes
+                                path.style.fill = fillColor
+                                path.style.fillSwatchID = swatchID
+                                path.style.lineCap = lineCap
+                                path.style.lineJoin = lineJoin
+                                path.style.miterLimit = miterLimit
                             })
                     else { throw SceneCommandError.selectionNotFound }
                 })
         } catch { presentCommandError(error, command: "Edit properties") }
+    }
+    private func parseColor(_ value: String) -> SRGBColor? {
+        guard value.count == 7, value.first == "#", let raw = Int(value.dropFirst(), radix: 16) else { return nil }
+        return SRGBColor(
+            red: Double((raw >> 16) & 255) / 255,
+            green: Double((raw >> 8) & 255) / 255, blue: Double(raw & 255) / 255)
     }
     func alignSelectedLeft() {
         guard selectedIDs.count > 1 else { return }
