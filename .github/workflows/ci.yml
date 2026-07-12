@@ -1,0 +1,20 @@
+name: CI
+on:
+  push:
+  pull_request:
+
+jobs:
+  macos:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: swift --version
+      - name: Format lint
+        run: xcrun swift-format lint --recursive --strict Sources Tests Package.swift
+      - name: Debug build and tests
+        run: swift test --parallel
+      - name: Release build
+        run: swift build -c release
+      - name: Dependency inventory
+        run: swift package show-dependencies
