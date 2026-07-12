@@ -23,6 +23,23 @@ public struct SnapPolicy: Sendable {
         zoom.isFinite && zoom > 0 && distance.isFinite && distance >= 0
             && distance <= toleranceInScreenPoints / zoom
     }
+    public func snap(_ point: Point, xCandidates: [Double], yCandidates: [Double], zoom: Double) -> Point {
+        guard zoom.isFinite, zoom > 0 else { return point }
+        let limit = toleranceInScreenPoints / zoom
+        func nearest(_ value: Double, _ candidates: [Double]) -> Double {
+            var result = value
+            var best = Double.infinity
+            for candidate in candidates {
+                let distance = abs(candidate - value)
+                if distance <= limit, distance < best {
+                    best = distance
+                    result = candidate
+                }
+            }
+            return result
+        }
+        return Point(x: nearest(point.x, xCandidates), y: nearest(point.y, yCandidates))
+    }
 }
 
 public struct PenToolState: Sendable {

@@ -240,7 +240,7 @@ final class CanvasView: NSView {
         guard !selectedIDs.isEmpty, let prior = dragLast else { return }
         let location = convert(event.locationInWindow, from: nil)
         let rawNext = documentPoint(location)
-        let next = snappingEnabled ? SnapPolicy(gridSpacing: 10).snap(rawNext, zoom: zoom) : rawNext
+        let next = snappingEnabled ? snappedPoint(rawNext) : rawNext
         snapIndicator = next == rawNext ? nil : next
         let dx = next.x - prior.x
         let dy = next.y - prior.y
@@ -473,6 +473,23 @@ final class CanvasView: NSView {
         case .bottomLeft: Point(x: bounds.maxX, y: bounds.minY)
         case .left: Point(x: bounds.maxX, y: bounds.center.y)
         }
+    }
+    private func snappedPoint(_ point: Point) -> Point {
+        var xCandidates: [Double] = []
+        var yCandidates: [Double] = []
+        for layer in history.document.layers where layer.isVisible && !layer.isLocked {
+            for node in layer.nodes where !selectedIDs.contains(node.id) {
+                if let bounds = node.visualBounds {
+                    xCandidates += [bounds.minX, bounds.center.x, bounds.maxX]
+                    yCandidates += [bounds.minY, bounds.center.y, bounds.maxY]
+                }
+            }
+        }
+        let grid = 10.0
+        xCandidates.append((point.x / grid).rounded() * grid)
+        yCandidates.append((point.y / grid).rounded() * grid)
+        return SnapPolicy(toleranceInScreenPoints: 6).snap(
+            point, xCandidates: xCandidates, yCandidates: yCandidates, zoom: zoom)
     }
     private func add(_ object: PathObject) {
         let layerIndex = activeLayerIndex

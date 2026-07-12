@@ -210,3 +210,13 @@ import Testing
     #expect(!policy.shouldSnap(distance: .infinity, zoom: 1))
     #expect(!policy.shouldSnap(distance: -1, zoom: 1))
 }
+
+@Test func verify021AxisSnapCandidates() {
+    let policy = SnapPolicy(toleranceInScreenPoints: 6)
+    #expect(
+        policy.snap(Point(x: 9, y: 21), xCandidates: [0, 10], yCandidates: [20, 30], zoom: 1) == Point(x: 10, y: 20))
+    #expect(policy.snap(Point(x: 7, y: 0), xCandidates: [10], yCandidates: [], zoom: 2).x == 10)
+    #expect(policy.snap(Point(x: 6.999999, y: 0), xCandidates: [10], yCandidates: [], zoom: 2).x == 6.999999)
+    #expect(policy.snap(Point(x: 5, y: 0), xCandidates: [0, 10], yCandidates: [], zoom: 1).x == 0)
+    #expect(policy.snap(Point(x: 1, y: 2), xCandidates: [1], yCandidates: [2], zoom: 0) == Point(x: 1, y: 2))
+}
