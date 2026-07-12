@@ -43,9 +43,21 @@ public struct Rect: Hashable, Codable, Sendable {
             minX: min(minX, other.minX), minY: min(minY, other.minY), maxX: max(maxX, other.maxX),
             maxY: max(maxY, other.maxY))
     }
+    public func expanded(by amount: Double) -> Rect {
+        Rect(minX: minX - amount, minY: minY - amount, maxX: maxX + amount, maxY: maxY + amount)
+    }
+    public func transformed(by transform: AffineTransform) -> Rect {
+        let corners = [
+            Point(x: minX, y: minY), Point(x: maxX, y: minY), Point(x: maxX, y: maxY), Point(x: minX, y: maxY),
+        ].map { transform.applying(to: $0) }
+        return Rect(
+            minX: corners.map(\.x).min()!, minY: corners.map(\.y).min()!, maxX: corners.map(\.x).max()!,
+            maxY: corners.map(\.y).max()!)
+    }
 }
 
 public struct AffineTransform: Hashable, Codable, Sendable {
+    public static let singularityEpsilon = 1e-12
     public var a: Double
     public var b: Double
     public var c: Double
@@ -62,6 +74,21 @@ public struct AffineTransform: Hashable, Codable, Sendable {
     }
     public static let identity = Self()
     public func applying(to p: Point) -> Point { Point(x: a * p.x + c * p.y + tx, y: b * p.x + d * p.y + ty) }
+    public func concatenating(_ next: AffineTransform) -> AffineTransform {
+        AffineTransform(
+            a: next.a * a + next.c * b, b: next.b * a + next.d * b, c: next.a * c + next.c * d,
+            d: next.b * c + next.d * d, tx: next.a * tx + next.c * ty + next.tx, ty: next.b * tx + next.d * ty + next.ty
+        )
+    }
+    public func inverted() -> AffineTransform? {
+        let determinant = a * d - b * c
+        guard determinant.isFinite, abs(determinant) >= Self.singularityEpsilon else { return nil }
+        let ia = d / determinant
+        let ib = -b / determinant
+        let ic = -c / determinant
+        let id = a / determinant
+        return AffineTransform(a: ia, b: ib, c: ic, d: id, tx: -(tx * ia + ty * ic), ty: -(tx * ib + ty * id))
+    }
 }
 
 public struct CubicBezier: Hashable, Codable, Sendable {
@@ -164,6 +191,51 @@ public struct BezierPath: Hashable, Codable, Sendable {
     public var bounds: Rect? {
         guard let first = segments.first?.tightBounds else { return nil }
         return segments.dropFirst().reduce(first) { $0.union($1.tightBounds) }
+    }
+}
+
+public struct ContainmentMetrics: Equatable, Sendable {
+    public var winding: Int
+    public var crossings: Int
+    public init(winding: Int, crossings: Int) {
+        self.winding = winding
+        self.crossings = crossings
+    }
+}
+
+public struct CompoundPath: Hashable, Codable, Sendable {
+    public var subpaths: [BezierPath]
+    public var fillRule: FillRule
+    public init(subpaths: [BezierPath], fillRule: FillRule = .nonZero) {
+        self.subpaths = subpaths
+        self.fillRule = fillRule
+    }
+    public var localBounds: Rect? {
+        subpaths.compactMap(\.bounds).reduce(nil) { partial, next in partial.map { $0.union(next) } ?? next }
+    }
+    public func containmentMetrics(at point: Point, flatteningTolerance: Double = 0.1) -> ContainmentMetrics {
+        var winding = 0
+        var crossings = 0
+        for subpath in subpaths where subpath.isClosed {
+            var points = subpath.segments.flatMap { Array($0.flattened(tolerance: flatteningTolerance).dropLast()) }
+            if let end = subpath.segments.last?.end { points.append(end) }
+            guard points.count >= 2 else { continue }
+            if points.last != points.first, let first = points.first { points.append(first) }
+            for (a, b) in zip(points, points.dropFirst()) {
+                let upward = a.y <= point.y && point.y < b.y
+                let downward = b.y <= point.y && point.y < a.y
+                guard upward || downward else { continue }
+                let xIntersection = a.x + (point.y - a.y) * (b.x - a.x) / (b.y - a.y)
+                guard xIntersection > point.x else { continue }
+                crossings += 1
+                winding += upward ? 1 : -1
+            }
+        }
+        return ContainmentMetrics(winding: winding, crossings: crossings)
+    }
+    public func contains(_ point: Point, flatteningTolerance: Double = 0.1) -> Bool {
+        let metrics = containmentMetrics(at: point, flatteningTolerance: flatteningTolerance)
+        return fillRule == .nonZero ? metrics.winding != 0 : metrics.crossings % 2 == 1
     }
 }
 
