@@ -40,3 +40,22 @@ regression thresholds; the absolute targets bind on the reference hardware.
 
 Include the four benchmark tables for every completed step, the step where
 each target first passed, the step-4 decision, and the `a4b20bd` audit above.
+
+## Current production-path result
+
+Measured 2026-07-12 on owner reference hardware `MacBookPro18,2` (arm64),
+release build, 60 warm-up frames and 300 measured frames:
+
+| Scenario | p50 | p95 | max / settle | Result |
+|---|---:|---:|---:|---|
+| BENCH-1 drag | 4.948 ms | 5.407 ms | 5.967 ms | PASS |
+| BENCH-2 pan | 0.087 ms | 0.107 ms | 0.138 ms | PASS |
+| BENCH-3 zoom | 2.435 ms | 9.097 ms | 10.679 ms; settle 2.901 ms | PASS |
+| BENCH-4 cold | — | — | 4.203 ms | informational |
+
+The reference artboard fits within the retained full-artboard bitmap budget,
+so pan exposes already-cached pixels rather than requiring strip redraw. Zoom
+uses the retained bitmap between existing resolution buckets and settles with
+a precise redraw. All binding targets pass after the retained-cache/culling
+stage; per-object/tile caching is therefore deferred to Phase 5 under the
+owner-ratified conditional step-4 rule.

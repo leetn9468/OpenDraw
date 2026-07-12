@@ -7,6 +7,7 @@ let package = Package(
     platforms: [.macOS(.v13)],
     products: [
         .executable(name: "VectorFoundry", targets: ["VectorFoundryApp"]),
+        .executable(name: "RenderBenchmark", targets: ["RenderBenchmark"]),
         .library(name: "EditorCore", targets: ["EditorCore"]),
         .library(name: "Geometry", targets: ["Geometry"]),
         .library(name: "DocumentModel", targets: ["DocumentModel"]),
@@ -30,6 +31,9 @@ let package = Package(
                 "MacPlatform",
             ]
         ),
+        .executableTarget(
+            name: "RenderBenchmark",
+            dependencies: ["CanvasRender", "DocumentModel", "EditorCore", "Geometry"]),
         .testTarget(name: "GeometryTests", dependencies: ["Geometry"]),
         .testTarget(
             name: "DocumentModelTests", dependencies: ["EditorCore", "DocumentModel", "EditorCommands", "Geometry"]),
