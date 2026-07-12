@@ -6,10 +6,11 @@ listed Phase 2 proof before broad implementation.
 ## TDR-001 — Platform target
 
 - Status: Accepted; owner reconfirmation requested.
-- Decision: macOS 13+, Apple Silicon and Intel.
-- Reason: AppKit/Core Graphics provide a coherent native foundation; macOS 13
-  keeps deployment practical while retaining still-used Intel Macs.
-- Consequence: no Windows/Linux MVP and CI must build both architectures.
+- Decision: macOS 13+, Apple Silicon (`arm64`) only. Superseded and finalized by
+  Phase 5 remediation ADR-011.
+- Reason: AppKit/Core Graphics provide a coherent native foundation; the owner has
+  explicitly placed Intel outside product scope.
+- Consequence: no Windows/Linux/Intel support claim.
 
 ## TDR-002 — Language and build
 

@@ -41,5 +41,5 @@ need separate designs and acceptance tests; unsupported adapters warn or reject.
 | Unsupported cases are documented, not silently corrupted | Pass through compatibility/loss matrix |
 | Dependency direction remains valid | Pass |
 
-Manual Intel, VoiceOver, multi-display and memory-profiler gates from Phase 2 remain
-external release gates, not silently converted into passes.
+Manual VoiceOver, multi-display and memory-profiler gates from Phase 2 remain external
+release gates, not silently converted into passes. Intel is out of scope per ADR-011.

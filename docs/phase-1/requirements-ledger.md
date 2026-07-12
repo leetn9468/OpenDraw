@@ -21,7 +21,7 @@ an allowed source.
 | REQ-012 | PNG export | Public Specification | W3C PNG, https://www.w3.org/TR/png/ | 2026-07-12 | Project/Codex | Specified AT-018 |
 | REQ-013 | Clipboard interoperability | Original Product Decision | CAP-022 | 2026-07-12 | Project/Codex | Specified AT-019 |
 | REQ-014 | macOS accessibility support | Public Specification | Apple Accessibility documentation | 2026-07-12 | Project/Codex | Specified AT-020 |
-| REQ-015 | macOS 13+, arm64 and x86_64 | Original Product Decision | TDR-001 | 2026-07-12 | Project/Codex | Gate pending |
+| REQ-015 | macOS 13+, arm64 only | User Requirement | ADR-011 | 2026-07-12 | Project owner | Accepted |
 | REQ-016 | No decompiler-derived production code | User Requirement | Clean-room plan §2.1 | 2026-07-12 | Project/Codex | Policy review |
 
 ## New-entry template

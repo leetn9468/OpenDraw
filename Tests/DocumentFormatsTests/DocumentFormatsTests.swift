@@ -40,7 +40,7 @@ import Testing
     let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
     defer { try? FileManager.default.removeItem(at: directory) }
-    let url = directory.appendingPathComponent("sample.vfd")
+    let url = directory.appendingPathComponent("sample.odraw")
     let codec = NativeDocumentCodec()
     let document = EditorDocument.sample()
     try codec.saveAtomically(document, to: url)

@@ -1,6 +1,6 @@
-# Vector Foundry native format
+# OpenDraw native format
 
-Extension: `.vfd` (working designation)  
+Extension: `.odraw`
 Encoding: UTF-8 JSON with sorted keys  
 Current version: 3 (Phase 3 introduced version 2; Phase 4 migrates it)
 

@@ -17,7 +17,7 @@ not release benchmarks until baseline hardware is nominated.
 
 ## External validation checklist
 
-- Run debug/release build and tests on macOS 13 Intel and Apple Silicon hardware.
+- Run debug/release build and tests on macOS 13 Apple Silicon hardware.
 - Record release benchmark medians/p95 on nominated 8 GB baseline machines.
 - Exercise mouse, trackpad scroll/magnify, keyboard modifiers, IME, and window moves
   between 1×/2× displays; pressure input is only required if later product scope says so.

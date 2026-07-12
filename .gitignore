@@ -5,3 +5,9 @@ DerivedData/
 .DS_Store
 *.profraw
 *.profdata
+
+# Restricted clean-room research artifacts must never enter this repository.
+AI10.c
+**/AI10.c
+*decompiled*
+*decompiler-export*

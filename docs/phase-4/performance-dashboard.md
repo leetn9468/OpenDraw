@@ -13,5 +13,5 @@ cross-hardware release certification.
 The initial rebuild does not meet the interactive frame budget and is explicitly not
 hidden. Cached panning meets it; document mutations invalidate and rebuild the cache.
 Future work: incremental tiled cache/damage rendering, representative nonidentical
-objects, memory/RSS capture, cancellation tests, baseline Intel/8 GB hardware, and
+objects, memory/RSS capture, cancellation tests, baseline arm64/8 GB hardware, and
 median/p95 sampling rather than single-run observations.

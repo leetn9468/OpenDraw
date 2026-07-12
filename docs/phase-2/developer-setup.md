@@ -4,7 +4,7 @@
 
 - macOS 13 or newer.
 - Swift 6.0+ toolchain. Full current Xcode is recommended for application debugging,
-  accessibility inspection, XCUITest, and Intel/universal archive work.
+  accessibility inspection, XCUITest, and arm64 archive work.
 - `swift-format` available through `xcrun` (included in current Xcode/Swift toolchains).
 - `rg` for the dependency guard.
 

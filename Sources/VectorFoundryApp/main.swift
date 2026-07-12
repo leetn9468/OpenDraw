@@ -133,7 +133,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let window = NSWindow(
             contentRect: frame, styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered,
             defer: false)
-        window.title = "Vector Foundry — Foundation"
+        window.title = "OpenDraw"
         let canvas = CanvasView(frame: frame)
         window.contentView = canvas
         self.canvas = canvas
@@ -191,7 +191,7 @@ extension AppDelegate: NSToolbarDelegate {
     }
     private func save(_ canvas: CanvasView, svg: Bool) {
         let panel = NSSavePanel()
-        panel.nameFieldStringValue = svg ? "Drawing.svg" : "Drawing.vfd"
+        panel.nameFieldStringValue = svg ? "Drawing.svg" : "Drawing.odraw"
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
             if svg {

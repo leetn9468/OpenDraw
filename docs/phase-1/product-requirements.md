@@ -19,7 +19,7 @@ not a clone and does not promise full parity or proprietary-file compatibility.
 ## Supported environment
 
 - macOS 13 Ventura or newer.
-- Apple Silicon (`arm64`) and Intel (`x86_64`).
+- Apple Silicon (`arm64`) only.
 - Keyboard, pointing device, and standard Retina/non-Retina displays.
 - English UI for MVP. Unicode text content is supported within the limits in
   `BEH-TEXT-001`; localization is post-MVP.
