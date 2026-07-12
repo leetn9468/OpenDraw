@@ -18,6 +18,10 @@ final class CanvasView: NSView {
     private var selectedID: ObjectID?
     private var dragHasMutation = false
     private var dragGestureID: GestureID?
+    private(set) var zoom = 1.0
+    private(set) var pan = Point(x: 0, y: 0)
+    private var spaceDown = false
+    private var panDragLocation: NSPoint?
     private let renderer = CoreGraphicsRenderer()
     private var changeTask: Task<Void, Never>?
     init(frame: NSRect, document: EditorDocument) {
@@ -36,30 +40,32 @@ final class CanvasView: NSView {
         }
     }
     override var isFlipped: Bool { true }
+    override var acceptsFirstResponder: Bool { true }
     override func draw(_ dirtyRect: NSRect) {
         NSColor.windowBackgroundColor.setFill()
         dirtyRect.fill()
         guard let context = NSGraphicsContext.current?.cgContext else { return }
         context.saveGState()
-        context.translateBy(x: 24, y: 24)
+        context.translateBy(x: 24 + pan.x, y: 24 + pan.y)
+        context.scaleBy(x: zoom, y: zoom)
         context.setFillColor(NSColor.white.cgColor)
         context.fill(CGRect(x: 0, y: 0, width: history.document.width, height: history.document.height))
-        let documentClip = Rect(
-            minX: max(0, dirtyRect.minX - 24), minY: max(0, dirtyRect.minY - 24),
-            maxX: min(history.document.width, dirtyRect.maxX - 24),
-            maxY: min(history.document.height, dirtyRect.maxY - 24))
-        renderer.render(history.document, in: context, viewport: RenderViewport(clip: documentClip))
+        renderer.render(history.document, in: context)
         context.restoreGState()
     }
 
     override func mouseDown(with event: NSEvent) {
         let location = convert(event.locationInWindow, from: nil)
-        let point = Point(x: location.x - 24, y: location.y - 24)
+        if spaceDown {
+            panDragLocation = location
+            return
+        }
+        let point = documentPoint(location)
         if activeTool == .pen {
             pen.addAnchor(point)
             if event.clickCount == 2, let object = pen.finish(close: false) { add(object) }
         } else if activeTool == .selection || activeTool == .directSelection {
-            selectedID = SelectionTool().hitTest(history.document, pointer: point, zoom: 1)
+            selectedID = SelectionTool().hitTest(history.document, pointer: point, zoom: zoom)
             dragLast = point
             dragHasMutation = false
             dragGestureID = GestureID()
@@ -69,9 +75,16 @@ final class CanvasView: NSView {
         }
     }
     override func mouseDragged(with event: NSEvent) {
+        if let prior = panDragLocation {
+            let location = convert(event.locationInWindow, from: nil)
+            pan = Point(x: pan.x + location.x - prior.x, y: pan.y + location.y - prior.y)
+            panDragLocation = location
+            needsDisplay = true
+            return
+        }
         guard let id = selectedID, let prior = dragLast else { return }
         let location = convert(event.locationInWindow, from: nil)
-        let next = Point(x: location.x - 24, y: location.y - 24)
+        let next = documentPoint(location)
         let dx = next.x - prior.x
         let dy = next.y - prior.y
         guard dx != 0 || dy != 0 else { return }
@@ -92,6 +105,10 @@ final class CanvasView: NSView {
         needsDisplay = true
     }
     override func mouseUp(with event: NSEvent) {
+        if panDragLocation != nil {
+            panDragLocation = nil
+            return
+        }
         if activeTool == .selection || activeTool == .directSelection {
             dragLast = nil
             dragHasMutation = false
@@ -101,13 +118,64 @@ final class CanvasView: NSView {
         guard let start = dragStart else { return }
         dragStart = nil
         let location = convert(event.locationInWindow, from: nil)
-        let end = Point(x: location.x - 24, y: location.y - 24)
+        let end = documentPoint(location)
         let object =
             activeTool == .rectangle
             ? ShapeFactory.rectangle(from: start, to: end, constrained: event.modifierFlags.contains(.shift))
             : activeTool == .ellipse
                 ? ShapeFactory.ellipse(in: Rect(minX: start.x, minY: start.y, maxX: end.x, maxY: end.y)) : nil
         if let object { add(object) }
+    }
+    override func scrollWheel(with event: NSEvent) {
+        if event.modifierFlags.contains(.option) {
+            setZoom(zoom * exp(-event.scrollingDeltaY * 0.01), about: convert(event.locationInWindow, from: nil))
+        } else {
+            pan = Point(x: pan.x - event.scrollingDeltaX, y: pan.y - event.scrollingDeltaY)
+            needsDisplay = true
+        }
+    }
+    override func magnify(with event: NSEvent) {
+        setZoom(zoom * (1 + event.magnification), about: convert(event.locationInWindow, from: nil))
+    }
+    override func keyDown(with event: NSEvent) {
+        if event.keyCode == 49 {
+            spaceDown = true
+            return
+        }
+        super.keyDown(with: event)
+    }
+    override func keyUp(with event: NSEvent) {
+        if event.keyCode == 49 {
+            spaceDown = false
+            return
+        }
+        super.keyUp(with: event)
+    }
+    private func documentPoint(_ viewPoint: NSPoint) -> Point {
+        Point(x: (viewPoint.x - 24 - pan.x) / zoom, y: (viewPoint.y - 24 - pan.y) / zoom)
+    }
+    private func setZoom(_ requested: Double, about viewPoint: NSPoint) {
+        let next = TransformInteractions.clampedZoom(requested)
+        let screen = Point(x: viewPoint.x - 24, y: viewPoint.y - 24)
+        if let nextPan = TransformInteractions.zoomAbout(screenPoint: screen, oldZoom: zoom, newZoom: next, oldPan: pan)
+        {
+            zoom = next
+            pan = nextPan
+            needsDisplay = true
+        }
+    }
+    func zoomIn() { setZoom(zoom * 1.25, about: NSPoint(x: bounds.midX, y: bounds.midY)) }
+    func zoomOut() { setZoom(zoom / 1.25, about: NSPoint(x: bounds.midX, y: bounds.midY)) }
+    func actualSize() { setZoom(1, about: NSPoint(x: bounds.midX, y: bounds.midY)) }
+    func zoomToFit() {
+        let availableWidth = Double(max(1, bounds.width - 48))
+        let availableHeight = Double(max(1, bounds.height - 48))
+        zoom = TransformInteractions.clampedZoom(
+            min(availableWidth / history.document.width, availableHeight / history.document.height))
+        pan = Point(
+            x: (availableWidth - history.document.width * zoom) / 2,
+            y: (availableHeight - history.document.height * zoom) / 2)
+        needsDisplay = true
     }
     private func add(_ object: PathObject) {
         do {
@@ -231,7 +299,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 extension AppDelegate: NSToolbarDelegate {
     func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-        [.new, .open, .save, .export, .undo, .redo, .selection, .directSelection, .pen, .rectangle, .ellipse, .style]
+        [
+            .new, .open, .save, .export, .undo, .redo, .selection, .directSelection, .pen, .rectangle, .ellipse, .style,
+            .zoomOut, .actualSize, .zoomIn, .zoomFit,
+        ]
     }
     func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
         toolbarAllowedItemIdentifiers(toolbar)
@@ -258,6 +329,10 @@ extension AppDelegate: NSToolbarDelegate {
         case .undo: canvas.undo()
         case .redo: canvas.redo()
         case .style: canvas.applyAccentStyle()
+        case .zoomIn: canvas.zoomIn()
+        case .zoomOut: canvas.zoomOut()
+        case .actualSize: canvas.actualSize()
+        case .zoomFit: canvas.zoomToFit()
         case .save:
             do { try saveNative(canvas) } catch { NSAlert(error: error).runModal() }
         case .export: save(canvas, svg: true)
@@ -352,6 +427,8 @@ extension NSToolbarItem.Identifier {
         redo = Self("redo"), selection = Self("select"), directSelection = Self("direct-select"), pen = Self("pen"),
         rectangle = Self("rectangle"),
         ellipse = Self("ellipse"), style = Self("style")
+    static let zoomIn = Self("zoom-in"), zoomOut = Self("zoom-out"), actualSize = Self("zoom-100"),
+        zoomFit = Self("zoom-fit")
 }
 
 let app = NSApplication.shared
