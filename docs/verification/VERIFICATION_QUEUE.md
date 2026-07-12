@@ -430,7 +430,7 @@ the frozen-value rule now covers VERIFY-001 through VERIFY-014.
 
 ### VERIFY-017 — Smooth-anchor handle symmetry
 
-- Status: `PENDING OWNER VERIFICATION`
+- Status: `VERIFIED`
 - R-task: R3-B.2
 - Claim: for anchor `a` and outgoing handle `h`, the mirrored incoming handle is
   `2a-h`, preserving collinearity and equal opposite distance.

@@ -171,9 +171,13 @@ import Testing
 }
 
 @Test func testVerify017SmoothAnchorSymmetry() {
+    let anchor = Point(x: 10, y: 20)
+    let outgoing = Point(x: 14, y: 26)
+    let incoming = TransformInteractions.mirroredHandle(anchor: anchor, outgoing: outgoing)
+    #expect(incoming == Point(x: 6, y: 14))
     #expect(
-        TransformInteractions.mirroredHandle(anchor: Point(x: 10, y: 20), outgoing: Point(x: 14, y: 26))
-            == Point(x: 6, y: 14))
+        Point(x: incoming.x - anchor.x, y: incoming.y - anchor.y)
+            == Point(x: -(outgoing.x - anchor.x), y: -(outgoing.y - anchor.y)))
     #expect(
         TransformInteractions.mirroredHandle(anchor: Point(x: 10, y: 20), outgoing: Point(x: 10, y: 20))
             == Point(x: 10, y: 20))
