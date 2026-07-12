@@ -498,3 +498,17 @@ VERIFY-001 through VERIFY-018.
   3. Singular parent fails without mutation.
 - Tolerance: `1e-9` absolute.
 - Permanent test: `Tests/DocumentModelTests/DocumentTransformVerifyTests.swift`.
+
+### VERIFY-021 — Axis snap candidate selection
+
+- Status: `PENDING OWNER VERIFICATION`
+- R-task: R3-B.3
+- Function/file: `SnapPolicy.snap(_:xCandidates:yCandidates:zoom:)`
+- Mathematical claim: each axis independently chooses the nearest candidate whose
+  absolute axis distance is at most `screenTolerance/zoom`; ties choose the first
+  candidate in stable input order. Invalid zoom returns the original point.
+- Worked examples: point `(9,21)`, candidates x `[0,10]`, y `[20,30]`, tolerance
+  6 at zoom 1 gives `(10,20)`; x distance exactly 3 at zoom 2 snaps; 3.000001
+  does not; equal-distance candidates preserve input order.
+- Tolerance: exact for examples, `1e-9` boundary policy.
+- Permanent test: `Tests/EditorToolsTests/EditorToolsTests.swift`.
