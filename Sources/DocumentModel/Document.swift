@@ -433,6 +433,19 @@ public struct EditorDocument: Hashable, Codable, Sendable {
         }
         return false
     }
+    @discardableResult public mutating func movePathAnchor(
+        id: ObjectID, subpath: Int, segment: Int, documentDelta: Point
+    ) -> Bool {
+        for layerIndex in layers.indices {
+            if movePathAnchorRecursive(
+                in: &layers[layerIndex].nodes, id: id, subpath: subpath,
+                segment: segment, documentDelta: documentDelta, parentTransform: .identity)
+            {
+                return true
+            }
+        }
+        return false
+    }
     public static func sample() throws -> EditorDocument {
         let curve = CubicBezier(
             start: Point(x: 80, y: 250), control1: Point(x: 180, y: 40), control2: Point(x: 350, y: 440),
@@ -501,6 +514,41 @@ private func mutatePathRecursive(in nodes: inout [SceneNode], id: ObjectID, _ mu
             return true
         case .group(var group):
             if mutatePathRecursive(in: &group.children, id: id, mutation) {
+                nodes[index] = .group(group)
+                return true
+            }
+        default: break
+        }
+    }
+    return false
+}
+private func movePathAnchorRecursive(
+    in nodes: inout [SceneNode], id: ObjectID, subpath: Int, segment: Int,
+    documentDelta: Point, parentTransform: Geometry.AffineTransform
+) -> Bool {
+    for index in nodes.indices {
+        switch nodes[index] {
+        case .path(var path) where path.id == id:
+            guard path.path.subpaths.indices.contains(subpath),
+                path.path.subpaths[subpath].segments.indices.contains(segment),
+                let inverse = path.transform.concatenating(parentTransform).inverted()
+            else { return false }
+            let delta = Point(
+                x: inverse.a * documentDelta.x + inverse.c * documentDelta.y,
+                y: inverse.b * documentDelta.x + inverse.d * documentDelta.y)
+            var item = path.path.subpaths[subpath].segments[segment]
+            item.start = Point(x: item.start.x + delta.x, y: item.start.y + delta.y)
+            item.control1 = Point(x: item.control1.x + delta.x, y: item.control1.y + delta.y)
+            path.path.subpaths[subpath].segments[segment] = item
+            if segment > 0 { path.path.subpaths[subpath].segments[segment - 1].end = item.start }
+            nodes[index] = .path(path)
+            return true
+        case .group(var group):
+            let accumulated = group.transform.concatenating(parentTransform)
+            if movePathAnchorRecursive(
+                in: &group.children, id: id, subpath: subpath, segment: segment,
+                documentDelta: documentDelta, parentTransform: accumulated)
+            {
                 nodes[index] = .group(group)
                 return true
             }

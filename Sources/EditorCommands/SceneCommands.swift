@@ -7,21 +7,7 @@ public enum SceneCommandError: Error, Equatable { case selectionNotFound, incomp
 public enum SceneCommands {
     public static func moveAnchor(pathID: ObjectID, subpath: Int, segment: Int, delta: Point) -> DocumentCommand {
         DocumentCommand(name: "Move anchor") { document in
-            guard
-                document.mutatePath(
-                    id: pathID,
-                    { path in
-                        guard path.path.subpaths.indices.contains(subpath),
-                            path.path.subpaths[subpath].segments.indices.contains(segment)
-                        else { return }
-                        var item = path.path.subpaths[subpath].segments[segment]
-                        item.start = Point(x: item.start.x + delta.x, y: item.start.y + delta.y)
-                        item.control1 = Point(x: item.control1.x + delta.x, y: item.control1.y + delta.y)
-                        path.path.subpaths[subpath].segments[segment] = item
-                        if segment > 0 {
-                            path.path.subpaths[subpath].segments[segment - 1].end = item.start
-                        }
-                    })
+            guard document.movePathAnchor(id: pathID, subpath: subpath, segment: segment, documentDelta: delta)
             else { throw SceneCommandError.selectionNotFound }
         }
     }
@@ -66,6 +52,22 @@ public enum SceneCommands {
                 subpaths: selected.flatMap { $0.1.path.subpaths }, fillRule: combined.path.fillRule)
             document.layers[li].nodes.removeAll { pathIDs.contains($0.id) }
             document.layers[li].nodes.insert(.path(combined), at: selected.map(\.0).min()!)
+        }
+    }
+    public static func releaseCompound(layerID: ObjectID, pathID: ObjectID) -> DocumentCommand {
+        DocumentCommand(name: "Release compound path") { document in
+            guard let li = document.layers.firstIndex(where: { $0.id == layerID }),
+                let ni = document.layers[li].nodes.firstIndex(where: { $0.id == pathID }),
+                case .path(let compound) = document.layers[li].nodes[ni], compound.path.subpaths.count > 1
+            else { throw SceneCommandError.selectionNotFound }
+            let released = compound.path.subpaths.enumerated().map { offset, subpath in
+                var path = compound
+                if offset > 0 { path.id = ObjectID() }
+                path.path = CompoundPath(subpaths: [subpath], fillRule: compound.path.fillRule)
+                return SceneNode.path(path)
+            }
+            document.layers[li].nodes.remove(at: ni)
+            document.layers[li].nodes.insert(contentsOf: released, at: ni)
         }
     }
 }
