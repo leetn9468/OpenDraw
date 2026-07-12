@@ -19,6 +19,10 @@ public struct SnapPolicy: Sendable {
             x: (point.x / gridSpacing).rounded() * gridSpacing, y: (point.y / gridSpacing).rounded() * gridSpacing)
         return candidate.distance(to: point) <= toleranceInScreenPoints / zoom ? candidate : point
     }
+    public func shouldSnap(distance: Double, zoom: Double) -> Bool {
+        zoom.isFinite && zoom > 0 && distance.isFinite && distance >= 0
+            && distance <= toleranceInScreenPoints / zoom
+    }
 }
 
 public struct PenToolState: Sendable {

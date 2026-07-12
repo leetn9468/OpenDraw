@@ -112,3 +112,41 @@ import Testing
     #expect(TransformInteractions.clampedZoom(0) == 0.05)
     #expect(TransformInteractions.clampedZoom(100) == 64)
 }
+
+@Test func testVerify016EightHandleScaleMapping() throws {
+    let bounds = Rect(minX: 0, minY: 0, maxX: 100, maxY: 50)
+    #expect(
+        TransformInteractions.scale(
+            bounds: bounds, handle: .right, displacement: Point(x: 50, y: 0), uniform: false, fromCenter: false)
+            == Point(x: 1.5, y: 1))
+    #expect(
+        TransformInteractions.scale(
+            bounds: bounds, handle: .right, displacement: Point(x: 50, y: 0), uniform: false, fromCenter: true)
+            == Point(x: 2, y: 1))
+    #expect(
+        TransformInteractions.scale(
+            bounds: bounds, handle: .bottomRight, displacement: Point(x: 50, y: 50), uniform: true, fromCenter: false)
+            == Point(x: 1.5, y: 1.5))
+    #expect(TransformHandle.allCases.count == 8)
+}
+
+@Test func testVerify017SmoothAnchorSymmetry() {
+    #expect(
+        TransformInteractions.mirroredHandle(anchor: Point(x: 10, y: 20), outgoing: Point(x: 14, y: 26))
+            == Point(x: 6, y: 14))
+    #expect(
+        TransformInteractions.mirroredHandle(anchor: Point(x: 10, y: 20), outgoing: Point(x: 10, y: 20))
+            == Point(x: 10, y: 20))
+    #expect(
+        TransformInteractions.mirroredHandle(anchor: Point(x: -2, y: 3), outgoing: Point(x: -5, y: -1))
+            == Point(x: 1, y: 7))
+}
+
+@Test func testVerify018ScreenSpaceSnappingTolerance() {
+    let policy = SnapPolicy(toleranceInScreenPoints: 6)
+    #expect(policy.shouldSnap(distance: 3, zoom: 2))
+    #expect(!policy.shouldSnap(distance: 3.000001, zoom: 2))
+    #expect(policy.shouldSnap(distance: 12, zoom: 0.5))
+    #expect(!policy.shouldSnap(distance: 0, zoom: 0))
+    #expect(!policy.shouldSnap(distance: 0, zoom: -1))
+}

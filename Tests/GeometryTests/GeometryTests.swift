@@ -65,3 +65,11 @@ private let curve = CubicBezier(
     #expect(backtracking.hitTest(Point(x: 25, y: 0), tolerance: 0.5, subdivisions: 64))
     #expect(!backtracking.hitTest(Point(x: 25, y: 0), tolerance: 0.5, subdivisions: 1))
 }
+
+@Test func testVerify015DamageRectangleUnionAndIntersection() {
+    let a = Rect(minX: 0, minY: 0, maxX: 10, maxY: 10)
+    let b = Rect(minX: 5, minY: -2, maxX: 12, maxY: 8)
+    #expect(a.union(b) == Rect(minX: 0, minY: -2, maxX: 12, maxY: 10))
+    #expect(a.intersection(b) == Rect(minX: 5, minY: 0, maxX: 10, maxY: 8))
+    #expect(a.intersection(Rect(minX: 20, minY: 20, maxX: 30, maxY: 30)) == nil)
+}
