@@ -7,6 +7,7 @@ import EditorCore
 import EditorTools
 import Geometry
 import TextEngine
+import UniformTypeIdentifiers
 
 @MainActor
 final class CanvasView: NSView {
@@ -61,7 +62,9 @@ final class CanvasView: NSView {
             return
         }
         let point = documentPoint(location)
-        if activeTool == .pen {
+        if activeTool == .text {
+            createText(at: point)
+        } else if activeTool == .pen {
             pen.addAnchor(point)
             if event.clickCount == 2, let object = pen.finish(close: false) { add(object) }
         } else if activeTool == .selection || activeTool == .directSelection {
@@ -183,6 +186,74 @@ final class CanvasView: NSView {
         } catch { presentCommandError(error, command: "Create object") }
         needsDisplay = true
     }
+    private func createText(at point: Point) {
+        let alert = NSAlert()
+        alert.messageText = "Create Text"
+        alert.addButton(withTitle: "Create")
+        alert.addButton(withTitle: "Cancel")
+        let content = NSTextField(string: "Text")
+        let font = NSTextField(string: "Helvetica")
+        let size = NSTextField(string: "24")
+        let stack = NSStackView(views: [
+            NSTextField(labelWithString: "Content"), content,
+            NSTextField(labelWithString: "Font"), font, NSTextField(labelWithString: "Size"), size,
+        ])
+        stack.orientation = .vertical
+        stack.spacing = 5
+        stack.frame = NSRect(x: 0, y: 0, width: 260, height: 150)
+        alert.accessoryView = stack
+        guard alert.runModal() == .alertFirstButtonReturn, let fontSize = Double(size.stringValue), fontSize > 0 else {
+            return
+        }
+        let text = TextObject(text: content.stringValue, origin: point, fontName: font.stringValue, fontSize: fontSize)
+        do {
+            try history.perform(DocumentCommand(name: "Create text") { $0.layers[0].nodes.append(.text(text)) })
+        } catch { presentCommandError(error, command: "Create text") }
+    }
+    func placeEmbeddedImage(data: Data) throws {
+        let image = try RasterResourceLoader().embedded(
+            data: data,
+            frame: Rect(minX: 40, minY: 40, maxX: 240, maxY: 240))
+        try history.perform(DocumentCommand(name: "Place image") { $0.layers[0].nodes.append(.image(image)) })
+    }
+    func editSelectedProperties() {
+        guard let id = selectedID else { return }
+        let alert = NSAlert()
+        alert.messageText = "Path Properties"
+        alert.addButton(withTitle: "Apply")
+        alert.addButton(withTitle: "Cancel")
+        let width = NSTextField(string: "1")
+        let opacity = NSTextField(string: "1")
+        let dash = NSTextField(string: "")
+        let stack = NSStackView(views: [
+            NSTextField(labelWithString: "Stroke width"), width,
+            NSTextField(labelWithString: "Opacity (0–1)"), opacity, NSTextField(labelWithString: "Dash values"), dash,
+        ])
+        stack.orientation = .vertical
+        stack.spacing = 5
+        stack.frame = NSRect(x: 0, y: 0, width: 240, height: 140)
+        alert.accessoryView = stack
+        guard alert.runModal() == .alertFirstButtonReturn, let strokeWidth = Double(width.stringValue),
+            let alpha = Double(opacity.stringValue)
+        else { return }
+        let dashes = dash.stringValue.split(separator: ",").compactMap {
+            Double($0.trimmingCharacters(in: .whitespaces))
+        }
+        do {
+            try history.perform(
+                DocumentCommand(name: "Edit properties") { document in
+                    guard
+                        document.mutatePath(
+                            id: id,
+                            { path in
+                                path.style.strokeWidth = strokeWidth
+                                path.style.opacity = alpha
+                                path.style.dash = dashes
+                            })
+                    else { throw SceneCommandError.selectionNotFound }
+                })
+        } catch { presentCommandError(error, command: "Edit properties") }
+    }
     func undo() {
         history.undo()
         needsDisplay = true
@@ -300,8 +371,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 extension AppDelegate: NSToolbarDelegate {
     func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
         [
-            .new, .open, .save, .export, .undo, .redo, .selection, .directSelection, .pen, .rectangle, .ellipse, .style,
-            .zoomOut, .actualSize, .zoomIn, .zoomFit,
+            .new, .open, .save, .export, .undo, .redo, .selection, .directSelection, .pen, .rectangle, .ellipse, .text,
+            .image, .style, .properties, .zoomOut, .actualSize, .zoomIn, .zoomFit,
         ]
     }
     func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
@@ -326,9 +397,12 @@ extension AppDelegate: NSToolbarDelegate {
         case .pen: canvas.activeTool = .pen
         case .rectangle: canvas.activeTool = .rectangle
         case .ellipse: canvas.activeTool = .ellipse
+        case .text: canvas.activeTool = .text
+        case .image: placeImage()
         case .undo: canvas.undo()
         case .redo: canvas.redo()
         case .style: canvas.applyAccentStyle()
+        case .properties: canvas.editSelectedProperties()
         case .zoomIn: canvas.zoomIn()
         case .zoomOut: canvas.zoomOut()
         case .actualSize: canvas.actualSize()
@@ -338,6 +412,17 @@ extension AppDelegate: NSToolbarDelegate {
         case .export: save(canvas, svg: true)
         default: break
         }
+    }
+    private func placeImage() {
+        guard let canvas else { return }
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = false
+        panel.allowedContentTypes = [.png, .jpeg, .gif, .tiff]
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do {
+            let data = try BoundedFileReader().read(url, maximumBytes: RasterResourceLoader.maximumBytes)
+            try canvas.placeEmbeddedImage(data: data)
+        } catch { NSAlert(error: error).runModal() }
     }
     private func saveNative(_ canvas: CanvasView, forceSaveAs: Bool = false) throws {
         var destination = forceSaveAs ? nil : currentURL
@@ -440,7 +525,7 @@ extension AppDelegate: NSToolbarItemValidation {
         switch item.itemIdentifier {
         case .undo: return canvas.history.canUndo
         case .redo: return canvas.history.canRedo
-        case .style: return canvas.hasSelection
+        case .style, .properties: return canvas.hasSelection
         default: return true
         }
     }
@@ -452,6 +537,7 @@ extension NSToolbarItem.Identifier {
         redo = Self("redo"), selection = Self("select"), directSelection = Self("direct-select"), pen = Self("pen"),
         rectangle = Self("rectangle"),
         ellipse = Self("ellipse"), style = Self("style")
+    static let text = Self("text"), image = Self("image"), properties = Self("properties")
     static let zoomIn = Self("zoom-in"), zoomOut = Self("zoom-out"), actualSize = Self("zoom-100"),
         zoomFit = Self("zoom-fit")
 }

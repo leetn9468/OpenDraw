@@ -4,7 +4,7 @@ import Foundation
 import Geometry
 
 public enum ToolModifier: Hashable, Sendable { case constrain, fromCenter, option }
-public enum ActiveTool: String, Sendable { case selection, directSelection, pen, rectangle, ellipse }
+public enum ActiveTool: String, Sendable { case selection, directSelection, pen, rectangle, ellipse, text }
 
 public struct SnapPolicy: Sendable {
     public var gridSpacing: Double?
