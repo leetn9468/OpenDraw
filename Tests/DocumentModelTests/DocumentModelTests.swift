@@ -1,6 +1,7 @@
 import DocumentModel
 import EditorCommands
 import EditorCore
+import Foundation
 import Geometry
 import Testing
 
@@ -26,8 +27,9 @@ import Testing
 @Test func historyDirtyCoalescingRollbackAndLimit() throws {
     var history = CommandHistory(document: try EditorDocument(width: 100, height: 100), maximumEntries: 2)
     #expect(!history.isDirty)
-    try history.perform(DocumentCommand(name: "Move") { $0.width = 110 })
-    try history.coalesce(DocumentCommand(name: "Move") { $0.width = 120 })
+    let gesture = GestureID()
+    try history.perform(DocumentCommand(name: "Move") { $0.width = 110 }, gestureID: gesture)
+    try history.coalesce(DocumentCommand(name: "Move") { $0.width = 120 }, gestureID: gesture)
     #expect(history.isDirty)
     history.undo()
     #expect(history.document.width == 100)
@@ -38,6 +40,59 @@ import Testing
     #expect(history.document.width == 120)
 }
 
+@Test func revisionGestureAndChangeStreamSemantics() async throws {
+    var history = CommandHistory(document: try EditorDocument(width: 100, height: 100))
+    let stream = history.changes()
+    let gestureA = GestureID()
+    let gestureB = GestureID()
+    try history.perform(DocumentCommand(name: "Move") { $0.width = 110 }, gestureID: gestureA)
+    try history.coalesce(DocumentCommand(name: "Move") { $0.width = 120 }, gestureID: gestureA)
+    try history.coalesce(DocumentCommand(name: "Move") { $0.width = 130 }, gestureID: gestureB)
+    #expect(history.currentRevision == 3)
+    history.undo()
+    #expect(history.document.width == 120)
+    history.undo()
+    #expect(history.document.width == 100)
+    #expect(history.currentRevision == 5)
+    var iterator = stream.makeAsyncIterator()
+    #expect(await iterator.next() == DocumentChange(revision: 1, kind: .command("Move")))
+}
+
+@Test func failedFirstGestureDoesNotCorruptLaterCoalescing() throws {
+    var history = CommandHistory(document: try EditorDocument(width: 100, height: 100))
+    let gesture = GestureID()
+    #expect(throws: (any Error).self) {
+        try history.perform(DocumentCommand(name: "Move") { $0.width = .nan }, gestureID: gesture)
+    }
+    try history.coalesce(DocumentCommand(name: "Move") { $0.width = 110 }, gestureID: gesture)
+    #expect(history.canUndo)
+    history.undo()
+    #expect(history.document.width == 100)
+}
+
+@Test func unsavedCoordinatorsAreIndependentAndCancelPreventsReplacement() async throws {
+    let first = UnsavedChangesCoordinator()
+    let second = UnsavedChangesCoordinator()
+    final class State: @unchecked Sendable {
+        var operations = 0
+        let lock = NSLock()
+    }
+    let state = State()
+    let cancelled = try await first.resolve(
+        isDirty: true, decision: { .cancel }, save: {},
+        operation: {
+            state.lock.withLock { state.operations += 1 }
+        })
+    let completed = try await second.resolve(
+        isDirty: false, decision: { .cancel }, save: {},
+        operation: {
+            state.lock.withLock { state.operations += 1 }
+        })
+    #expect(!cancelled)
+    #expect(completed)
+    #expect(state.operations == 1)
+}
+
 @Test func historyLimitIsImmutableAndCappedAtThirty() throws {
     var history = CommandHistory(document: try EditorDocument(width: 100, height: 100), maximumEntries: 100)
     #expect(history.maximumEntries == 30)
@@ -46,6 +101,27 @@ import Testing
     #expect(history.document.width == 101)
     history.undo()
     #expect(history.document.width == 101)
+}
+
+@Test func snapshotHistorySharesEmbeddedAssetsAndHonorsMemorySafetyNet() throws {
+    var bytes = Data(repeating: 0, count: 50 * 1_024 * 1_024)
+    bytes.replaceSubrange(0..<8, with: [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
+    let image = ImageObject(
+        frame: Rect(minX: 0, minY: 0, maxX: 1, maxY: 1), storage: .embedded(bytes), pixelWidth: 1,
+        pixelHeight: 1)
+    let document = try EditorDocument(
+        width: 100, height: 100, layers: [Layer(name: "L", nodes: [.image(image)])])
+    let originalAddress = bytes.withUnsafeBytes { Int(bitPattern: $0.baseAddress) }
+    var history = CommandHistory(document: document, maximumEstimatedBytes: 60 * 1_024 * 1_024)
+    for value in 101...130 { try history.perform(DocumentCommand(name: "Resize") { $0.width = Double(value) }) }
+    guard case .image(let stored) = history.document.layers[0].nodes[0], case .embedded(let storedData) = stored.storage
+    else {
+        Issue.record("Missing embedded image")
+        return
+    }
+    #expect(storedData.withUnsafeBytes { Int(bitPattern: $0.baseAddress) } == originalAddress)
+    #expect(history.estimatedMemoryBytes < 60 * 1_024 * 1_024)
+    #expect(history.undoDepth == 30)
 }
 
 @Test func alignmentIsUndoable() throws {

@@ -56,3 +56,12 @@ private let curve = CubicBezier(
     #expect(degenerate.flattened(tolerance: 0.1) == [point, point])
     #expect(degenerate.hitTest(Point(x: 4.05, y: 9), tolerance: 0.1))
 }
+
+@Test func collinearBacktrackingAndSubdivisionCountAreHonored() {
+    let backtracking = CubicBezier(
+        start: Point(x: 0, y: 0), control1: Point(x: 100, y: 0), control2: Point(x: -100, y: 0),
+        end: Point(x: 10, y: 0))
+    #expect(backtracking.flattened(tolerance: 0.1).count > 2)
+    #expect(backtracking.hitTest(Point(x: 25, y: 0), tolerance: 0.5, subdivisions: 64))
+    #expect(!backtracking.hitTest(Point(x: 25, y: 0), tolerance: 0.5, subdivisions: 1))
+}

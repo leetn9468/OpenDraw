@@ -63,11 +63,12 @@ import Testing
             data: nil, width: 640, height: 480, bitsPerComponent: 8, bytesPerRow: 0,
             space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
     let cache = SceneBitmapCache()
-    cache.render(document, in: context, viewport: RenderViewport())
+    cache.render(document, revision: 1, in: context, viewport: RenderViewport())
     var worst = Duration.zero
     for index in 0..<20 {
         let start = ContinuousClock.now
-        cache.render(document, in: context, viewport: RenderViewport(pan: Geometry.Point(x: Double(index), y: 0)))
+        cache.render(
+            document, revision: 1, in: context, viewport: RenderViewport(pan: Geometry.Point(x: Double(index), y: 0)))
         worst = max(worst, start.duration(to: .now))
     }
     #expect(worst < .milliseconds(16.7))

@@ -22,7 +22,9 @@ public struct TextShaper: Sendable {
         var descent: CGFloat = 0
         var leading: CGFloat = 0
         let width = CTLineGetTypographicBounds(line, &ascent, &descent, &leading)
-        let runs = CTLineGetGlyphRuns(line) as! [CTRun]
+        guard let runs = CTLineGetGlyphRuns(line) as? [CTRun] else {
+            throw EditorError.invariantViolation("Core Text returned an unexpected glyph-run representation")
+        }
         return ShapedTextMetrics(
             glyphCount: runs.reduce(0) { $0 + CTRunGetGlyphCount($1) }, width: Double(width), ascent: Double(ascent),
             descent: Double(descent))

@@ -143,13 +143,16 @@ public struct CubicBezier: Hashable, Codable, Sendable {
     }
     public func hitTest(_ query: Point, tolerance: Double, subdivisions: Int = 64) -> Bool {
         guard tolerance >= 0, subdivisions > 0 else { return false }
-        let points = flattened(tolerance: max(tolerance / 2, 0.001))
+        let points = (0...subdivisions).map { point(at: Double($0) / Double(subdivisions)) }
         return zip(points, points.dropFirst()).contains { Self.segmentDistance(query, $0, $1) <= tolerance }
     }
     private func flatten(into result: inout [Point], tolerance: Double, depth: Int) {
-        if max(Self.segmentDistance(control1, start, end), Self.segmentDistance(control2, start, end)) <= tolerance
-            || depth >= 20
-        {
+        let polygonLength = start.distance(to: control1) + control1.distance(to: control2) + control2.distance(to: end)
+        let chordLength = start.distance(to: end)
+        let isFlat =
+            max(Self.segmentDistance(control1, start, end), Self.segmentDistance(control2, start, end)) <= tolerance
+            && polygonLength <= chordLength + tolerance
+        if isFlat || depth >= 20 {
             result.append(end)
             return
         }

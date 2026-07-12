@@ -15,11 +15,10 @@ public struct RenderViewport: Sendable {
         self.clip = clip
     }
 }
-public struct DamageRegion: Sendable {
-    public private(set) var bounds: Rect?
-    public init() {}
-    public mutating func invalidate(_ r: Rect) { bounds = bounds.map { $0.union(r) } ?? r }
-    public mutating func invalidateAll() { bounds = nil }
+public enum DamageRegion: Sendable, Equatable {
+    case none
+    case rects([Rect])
+    case full
 }
 
 public struct CoreGraphicsRenderer: Sendable {
@@ -141,9 +140,16 @@ public struct CoreGraphicsRenderer: Sendable {
             CGAffineTransform(
                 a: text.transform.a, b: text.transform.b, c: text.transform.c, d: text.transform.d,
                 tx: text.transform.tx, ty: text.transform.ty))
-        try? TextShaper().draw(
-            text.text, fontName: text.fontName, size: text.fontSize, at: text.origin, color: text.color.cgColor,
-            in: context)
+        do {
+            try TextShaper().draw(
+                text.text, fontName: text.fontName, size: text.fontSize, at: text.origin, color: text.color.cgColor,
+                in: context)
+        } catch {
+            Diagnostics.rendering.error("Text draw failed: \(String(describing: error), privacy: .public)")
+            context.setStrokeColor(CGColor(gray: 0.5, alpha: 1))
+            context.stroke(
+                CGRect(x: text.origin.x, y: text.origin.y - text.fontSize, width: text.fontSize, height: text.fontSize))
+        }
     }
     private func render(_ image: ImageObject, approvedImage: CGImage?, in context: CGContext) {
         context.saveGState()

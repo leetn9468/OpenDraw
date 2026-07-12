@@ -17,6 +17,7 @@ final class CanvasView: NSView {
     private var dragLast: Point?
     private var selectedID: ObjectID?
     private var dragHasMutation = false
+    private var dragGestureID: GestureID?
     private let renderer = CoreGraphicsRenderer()
     init(frame: NSRect, document: EditorDocument) {
         history = CommandHistory(document: document)
@@ -43,13 +44,10 @@ final class CanvasView: NSView {
             pen.addAnchor(point)
             if event.clickCount == 2, let object = pen.finish(close: false) { add(object) }
         } else if activeTool == .selection || activeTool == .directSelection {
-            selectedID =
-                history.document.layers.reversed().flatMap { $0.nodes.reversed() }.first { node in
-                    // Selection uses visual bounds because it targets rendered ink.
-                    node.visualBounds?.contains(point, tolerance: 6) == true
-                }?.id
+            selectedID = SelectionTool().hitTest(history.document, pointer: point, zoom: 1)
             dragLast = point
             dragHasMutation = false
+            dragGestureID = GestureID()
             needsDisplay = true
         } else {
             dragStart = point
@@ -65,11 +63,15 @@ final class CanvasView: NSView {
         let command = DocumentCommand(name: "Move path") { document in
             _ = document.translateNode(id: id, documentDX: dx, documentDY: dy)
         }
-        if dragHasMutation {
-            try? history.coalesce(command)
-        } else {
-            try? history.perform(command)
-            dragHasMutation = true
+        do {
+            if dragHasMutation, let dragGestureID {
+                try history.coalesce(command, gestureID: dragGestureID)
+            } else {
+                try history.perform(command, gestureID: dragGestureID)
+                dragHasMutation = true
+            }
+        } catch {
+            presentCommandError(error, command: command.name)
         }
         dragLast = next
         needsDisplay = true
@@ -78,6 +80,7 @@ final class CanvasView: NSView {
         if activeTool == .selection || activeTool == .directSelection {
             dragLast = nil
             dragHasMutation = false
+            dragGestureID = nil
             return
         }
         guard let start = dragStart else { return }
@@ -92,7 +95,9 @@ final class CanvasView: NSView {
         if let object { add(object) }
     }
     private func add(_ object: PathObject) {
-        try? history.perform(DocumentCommand(name: "Create object") { $0.layers[0].nodes.append(.path(object)) })
+        do {
+            try history.perform(DocumentCommand(name: "Create object") { $0.layers[0].nodes.append(.path(object)) })
+        } catch { presentCommandError(error, command: "Create object") }
         needsDisplay = true
     }
     func undo() {
@@ -105,14 +110,21 @@ final class CanvasView: NSView {
     }
     func applyAccentStyle() {
         guard let id = selectedID ?? history.document.layers.first?.nodes.last?.id else { return }
-        try? history.perform(
-            DocumentCommand(name: "Apply style") { document in
-                _ = document.mutatePath(id: id) {
-                    $0.style.stroke = SRGBColor(red: 0.85, green: 0.18, blue: 0.35)
-                    $0.style.strokeWidth = 6
-                }
-            })
+        do {
+            try history.perform(
+                DocumentCommand(name: "Apply style") { document in
+                    _ = document.mutatePath(id: id) {
+                        $0.style.stroke = SRGBColor(red: 0.85, green: 0.18, blue: 0.35)
+                        $0.style.strokeWidth = 6
+                    }
+                })
+        } catch { presentCommandError(error, command: "Apply style") }
         needsDisplay = true
+    }
+    private func presentCommandError(_ error: Error, command: String) {
+        Diagnostics.documents.error(
+            "Command \(command, privacy: .public) failed: \(String(describing: error), privacy: .public)")
+        NSAlert(error: error).runModal()
     }
     func replaceDocument(_ document: EditorDocument) {
         history = CommandHistory(document: document)
@@ -128,6 +140,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var autosaveTimer: Timer?
     private var currentURL: URL?
     private let recoveryID = "active-document"
+    private let unsavedCoordinator = UnsavedChangesCoordinator()
     func applicationDidFinishLaunching(_ notification: Notification) {
         Diagnostics.installCrashContext()
         let frame = NSRect(x: 0, y: 0, width: 800, height: 620)
@@ -174,19 +187,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        guard canvas?.history.isDirty == true else { return .terminateNow }
+        guard let canvas else { return .terminateNow }
+        do {
+            let proceed = try unsavedCoordinator.resolve(
+                isDirty: canvas.history.isDirty, decision: unsavedDecision, save: { try saveNative(canvas) },
+                operation: {})
+            return proceed ? .terminateNow : .terminateCancel
+        } catch {
+            NSAlert(error: error).runModal()
+            return .terminateCancel
+        }
+    }
+    private func unsavedDecision() -> UnsavedResolution {
         let alert = NSAlert()
-        alert.messageText = "Discard unsaved changes?"
-        alert.informativeText = "Your current drawing has changes that have not been saved."
-        alert.addButton(withTitle: "Cancel")
+        alert.messageText = "Save changes?"
+        alert.informativeText = "Your drawing has unsaved changes."
+        alert.addButton(withTitle: "Save")
         alert.addButton(withTitle: "Discard")
-        return alert.runModal() == .alertSecondButtonReturn ? .terminateNow : .terminateCancel
+        alert.addButton(withTitle: "Cancel")
+        switch alert.runModal() {
+        case .alertFirstButtonReturn: return .save
+        case .alertSecondButtonReturn: return .discard
+        default: return .cancel
+        }
     }
 }
 
 extension AppDelegate: NSToolbarDelegate {
     func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-        [.open, .save, .export, .undo, .redo, .selection, .pen, .rectangle, .ellipse, .style]
+        [.new, .open, .save, .export, .undo, .redo, .selection, .pen, .rectangle, .ellipse, .style]
     }
     func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
         toolbarAllowedItemIdentifiers(toolbar)
@@ -203,6 +232,7 @@ extension AppDelegate: NSToolbarDelegate {
     @objc private func toolbarAction(_ sender: NSToolbarItem) {
         guard let canvas else { return }
         switch sender.itemIdentifier {
+        case .new: newDocument()
         case .open: openDocument()
         case .selection: canvas.activeTool = .selection
         case .pen: canvas.activeTool = .pen
@@ -211,10 +241,37 @@ extension AppDelegate: NSToolbarDelegate {
         case .undo: canvas.undo()
         case .redo: canvas.redo()
         case .style: canvas.applyAccentStyle()
-        case .save: save(canvas, svg: false)
+        case .save:
+            do { try saveNative(canvas) } catch { NSAlert(error: error).runModal() }
         case .export: save(canvas, svg: true)
         default: break
         }
+    }
+    private func saveNative(_ canvas: CanvasView, forceSaveAs: Bool = false) throws {
+        var destination = forceSaveAs ? nil : currentURL
+        if destination == nil {
+            let panel = NSSavePanel()
+            panel.nameFieldStringValue = "Drawing.odraw"
+            guard panel.runModal() == .OK, let url = panel.url else { throw CocoaError(.userCancelled) }
+            destination = url
+        }
+        let url = destination!
+        try NativeDocumentCodec().saveAtomically(canvas.history.document, to: url)
+        canvas.history.markSaved()
+        currentURL = url
+        NSDocumentController.shared.noteNewRecentDocumentURL(url)
+        try? RecoveryStore.applicationSupport().discard(documentID: recoveryID)
+    }
+    private func newDocument() {
+        guard let canvas else { return }
+        do {
+            _ = try unsavedCoordinator.resolve(
+                isDirty: canvas.history.isDirty, decision: unsavedDecision, save: { try saveNative(canvas) }
+            ) {
+                canvas.replaceDocument(try EditorDocument.sample())
+                currentURL = nil
+            }
+        } catch { NSAlert(error: error).runModal() }
     }
     private func save(_ canvas: CanvasView, svg: Bool) {
         let panel = NSSavePanel()
@@ -233,10 +290,7 @@ extension AppDelegate: NSToolbarDelegate {
                 }
                 try DurableFileWriter().write(result.data, to: url)
             } else {
-                try NativeDocumentCodec().saveAtomically(canvas.history.document, to: url)
-                canvas.history.markSaved()
-                currentURL = url
-                try? RecoveryStore.applicationSupport().discard(documentID: recoveryID)
+                try saveNative(canvas, forceSaveAs: true)
             }
         } catch {
             let alert = NSAlert(error: error)
@@ -245,22 +299,27 @@ extension AppDelegate: NSToolbarDelegate {
     }
     private func openDocument() {
         guard let canvas else { return }
-        let panel = NSOpenPanel()
-        panel.allowsMultipleSelection = false
-        guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
-            let result =
-                url.pathExtension.lowercased() == "svg"
-                ? try SVGImporter().importFile(url).document : try NativeDocumentCodec().load(from: url)
-            let document = result
-            canvas.replaceDocument(document)
-            currentURL = url
+            _ = try unsavedCoordinator.resolve(
+                isDirty: canvas.history.isDirty, decision: unsavedDecision, save: { try saveNative(canvas) }
+            ) {
+                let panel = NSOpenPanel()
+                panel.allowsMultipleSelection = false
+                guard panel.runModal() == .OK, let url = panel.url else { return }
+                let document =
+                    url.pathExtension.lowercased() == "svg"
+                    ? try SVGImporter().importFile(url).document : try NativeDocumentCodec().load(from: url)
+                canvas.replaceDocument(document)
+                currentURL = url
+                NSDocumentController.shared.noteNewRecentDocumentURL(url)
+            }
         } catch { NSAlert(error: error).runModal() }
     }
 }
 
 extension NSToolbarItem.Identifier {
-    static let open = Self("open"), save = Self("save"), export = Self("export"), undo = Self("undo"),
+    static let new = Self("new"), open = Self("open"), save = Self("save"), export = Self("export"),
+        undo = Self("undo"),
         redo = Self("redo"), selection = Self("select"), pen = Self("pen"), rectangle = Self("rectangle"),
         ellipse = Self("ellipse"), style = Self("style")
 }
