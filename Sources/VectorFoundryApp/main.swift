@@ -43,7 +43,11 @@ final class CanvasView: NSView {
         context.translateBy(x: 24, y: 24)
         context.setFillColor(NSColor.white.cgColor)
         context.fill(CGRect(x: 0, y: 0, width: history.document.width, height: history.document.height))
-        renderer.render(history.document, in: context)
+        let documentClip = Rect(
+            minX: max(0, dirtyRect.minX - 24), minY: max(0, dirtyRect.minY - 24),
+            maxX: min(history.document.width, dirtyRect.maxX - 24),
+            maxY: min(history.document.height, dirtyRect.maxY - 24))
+        renderer.render(history.document, in: context, viewport: RenderViewport(clip: documentClip))
         context.restoreGState()
     }
 

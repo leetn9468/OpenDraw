@@ -48,7 +48,15 @@ import Testing
     let start = ContinuousClock.now
     CoreGraphicsRenderer().render(document, in: context)
     let elapsed = start.duration(to: .now)
+    // R3.5 reference measurement is recorded in the fixing commit; the hard
+    // 16.7 ms gate is enabled when the incremental/per-layer cache lands.
     #expect(elapsed < .seconds(5))
+}
+
+@Test func damageRegionStatesAreExplicit() {
+    let rect = Geometry.Rect(minX: 1, minY: 2, maxX: 3, maxY: 4)
+    #expect(DamageRegion.none != .full)
+    #expect(DamageRegion.rects([rect]) == .rects([rect]))
 }
 
 @Test func cachedPanMeetsInteractiveFrameBudget() throws {
