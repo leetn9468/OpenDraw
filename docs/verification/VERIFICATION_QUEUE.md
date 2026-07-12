@@ -255,3 +255,67 @@ tolerance rationale, and the permanent test file. New entries remain
 5. Outer rotation 90° after inner scale `(2,4)` has accumulated linear part
    `(0,2,-4,0)`; inverse mapping of `(10,6)` is `(3,-2.5)`, and the forward
    round-trip returns `(10,6)` exactly.
+
+### VERIFY-010 — SVG absolute-unit conversion
+
+- Status: `PENDING OWNER VERIFICATION`
+- R-task: R2.3
+- Function/file: `SVGLengthParser.parse(_:)`
+- Commit: populated after R2 implementation
+- Mathematical claim: OpenDraw's SVG import coordinate unit is one CSS pixel at
+  96 pixels per inch. Absolute conversions are `px=1`, `in=96`, `cm=96/2.54`,
+  `mm=96/25.4`, `pt=96/72`, and `pc=16`. Unit matching is case-insensitive.
+- Reasoning: SVG/CSS defines 96 CSS pixels per inch. Centimeters and millimeters
+  divide the inch conversion by 2.54 and 25.4. A point is 1/72 inch and a pica is
+  12 points, hence 16 CSS pixels.
+- Worked examples:
+  1. `1in` → `96`; `2.54cm` → `96`; `25.4mm` → `96`.
+  2. `72pt` → `96`; `6pc` → `96`; `10PX` → `10`.
+  3. Bare `12.5` → `12.5`; `0mm` → `0`.
+  4. Percent, `em`, unknown suffix, NaN, and infinity → typed unsupported/invalid result.
+- Tolerance: `1e-9` absolute for decimal conversions; exact for px/pc examples.
+- Permanent test: `Tests/DocumentFormatsTests/SVGLengthVerifyTests.swift`
+
+### VERIFY-011 — External-input structural ceilings
+
+- Status: `PENDING OWNER VERIFICATION`
+- R-task: R2.1/R2.3
+- Function/file: `InputLimits`, `JSONStructureValidator`, `SVGImporter.Delegate`
+- Commit: populated after R2 implementation
+- Mathematical claim: native file bytes are capped at `100 MiB`; SVG at `10 MiB`;
+  JSON nesting at `128`, total values at `1,000,000`; SVG nesting at `256`, elements
+  at `100,000`, produced nodes at `100,000`, warnings at `1,000`, and every XML
+  attribute/string at `1,000,000` UTF-8 bytes. Comparisons are inclusive.
+- Reasoning: byte limits match existing format budgets. Structural limits bound parser
+  traversal independently of bytes. Produced-node limit matches `DocumentLimits`.
+  Inclusive checks accept exactly the documented capacity and reject the next unit.
+- Worked examples:
+  1. JSON depth `128` accepted; `129` rejected as `nestingDepth`.
+  2. `1,000,000` JSON values accepted; `1,000,001` rejected as `valueCount`.
+  3. SVG `100,000` elements/nodes accepted; the `100,001`st is rejected.
+  4. Exactly `1,000` warnings accepted; the `1,001`st aborts as `warningCount`.
+- Tolerance: exact integer comparisons, no epsilon.
+- Permanent test: `Tests/DocumentFormatsTests/InputLimitsVerifyTests.swift`
+
+### VERIFY-012 — Approved image-cache pixel budget and autosave interval
+
+- Status: `PENDING OWNER VERIFICATION`
+- R-task: R2.2/R2.6
+- Function/file: `ApprovedImageCache`, `RecoverySettings`
+- Commit: populated after R2 implementation
+- Mathematical claim: one image remains bounded by VERIFY-007's `67,108,864`
+  pixels; the approved decoded cache permits at most `268,435,456` pixels (`4*2^26`,
+  approximately 1 GiB at four bytes/pixel). Checked addition rejects overflow before
+  the budget comparison. Default autosave interval is exactly 60 seconds and must be
+  strictly positive.
+- Reasoning: four maximum-sized decoded images provide a deterministic upper bound.
+  Checked addition prevents wrapped cache accounting. The 60-second default is fixed
+  by the owner directive; positive validation prevents a busy-loop timer.
+- Worked examples:
+  1. Four images of `67,108,864` pixels total `268,435,456` → accepted.
+  2. That total plus one pixel → rejected as `totalPixelBudget`.
+  3. `Int64.max + 1` → rejected as `overflow`, never budget-tested.
+  4. Autosave `60` seconds → accepted; `0` and `-1` → rejected as `nonPositive`.
+- Tolerance: exact integer pixel arithmetic; exact `Duration.seconds(60)` policy.
+- Permanent tests: `Tests/DocumentFormatsTests/ApprovedImageCacheVerifyTests.swift`,
+  `Tests/DocumentFormatsTests/RecoverySettingsVerifyTests.swift`
