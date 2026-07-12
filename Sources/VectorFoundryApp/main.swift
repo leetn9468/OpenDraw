@@ -16,7 +16,7 @@ final class CanvasView: NSView {
     private var pen = PenToolState()
     private var dragStart: Point?
     private var dragLast: Point?
-    private var selectedID: ObjectID?
+    private var selectedIDs: Set<ObjectID> = []
     private var dragHasMutation = false
     private var dragGestureID: GestureID?
     private(set) var zoom = 1.0
@@ -31,7 +31,8 @@ final class CanvasView: NSView {
         subscribeToChanges()
     }
     required init?(coder: NSCoder) { nil }
-    var hasSelection: Bool { selectedID != nil }
+    var hasSelection: Bool { !selectedIDs.isEmpty }
+    var hasMultipleSelection: Bool { selectedIDs.count > 1 }
     deinit { changeTask?.cancel() }
     private func subscribeToChanges() {
         changeTask?.cancel()
@@ -68,7 +69,12 @@ final class CanvasView: NSView {
             pen.addAnchor(point)
             if event.clickCount == 2, let object = pen.finish(close: false) { add(object) }
         } else if activeTool == .selection || activeTool == .directSelection {
-            selectedID = SelectionTool().hitTest(history.document, pointer: point, zoom: zoom)
+            let hit = SelectionTool().hitTest(history.document, pointer: point, zoom: zoom)
+            if event.modifierFlags.contains(.shift), let hit {
+                selectedIDs.insert(hit)
+            } else {
+                selectedIDs = hit.map { [$0] } ?? []
+            }
             dragLast = point
             dragHasMutation = false
             dragGestureID = GestureID()
@@ -85,14 +91,15 @@ final class CanvasView: NSView {
             needsDisplay = true
             return
         }
-        guard let id = selectedID, let prior = dragLast else { return }
+        guard !selectedIDs.isEmpty, let prior = dragLast else { return }
         let location = convert(event.locationInWindow, from: nil)
         let next = documentPoint(location)
         let dx = next.x - prior.x
         let dy = next.y - prior.y
         guard dx != 0 || dy != 0 else { return }
+        let ids = selectedIDs
         let command = DocumentCommand(name: "Move path") { document in
-            _ = document.translateNode(id: id, documentDX: dx, documentDY: dy)
+            for id in ids { _ = document.translateNode(id: id, documentDX: dx, documentDY: dy) }
         }
         do {
             if dragHasMutation, let dragGestureID {
@@ -217,7 +224,7 @@ final class CanvasView: NSView {
         try history.perform(DocumentCommand(name: "Place image") { $0.layers[0].nodes.append(.image(image)) })
     }
     func editSelectedProperties() {
-        guard let id = selectedID else { return }
+        guard let id = selectedIDs.first else { return }
         let alert = NSAlert()
         alert.messageText = "Path Properties"
         alert.addButton(withTitle: "Apply")
@@ -254,6 +261,23 @@ final class CanvasView: NSView {
                 })
         } catch { presentCommandError(error, command: "Edit properties") }
     }
+    func alignSelectedLeft() {
+        guard selectedIDs.count > 1 else { return }
+        do { try history.perform(AlignmentCommands.align(pathIDs: selectedIDs, axis: .left)) } catch {
+            presentCommandError(error, command: "Align left")
+        }
+    }
+    func groupSelected() {
+        guard selectedIDs.count > 1,
+            let layer = history.document.layers.first(where: { layer in
+                selectedIDs.allSatisfy { id in layer.nodes.contains { $0.id == id } }
+            })
+        else { return }
+        do {
+            try history.perform(SceneCommands.group(layerID: layer.id, nodeIDs: selectedIDs))
+            selectedIDs.removeAll()
+        } catch { presentCommandError(error, command: "Group") }
+    }
     func undo() {
         history.undo()
         needsDisplay = true
@@ -263,7 +287,7 @@ final class CanvasView: NSView {
         needsDisplay = true
     }
     func applyAccentStyle() {
-        guard let id = selectedID ?? history.document.layers.first?.nodes.last?.id else { return }
+        guard let id = selectedIDs.first ?? history.document.layers.first?.nodes.last?.id else { return }
         do {
             try history.perform(
                 DocumentCommand(name: "Apply style") { document in
@@ -283,7 +307,7 @@ final class CanvasView: NSView {
     func replaceDocument(_ document: EditorDocument) {
         history = CommandHistory(document: document)
         subscribeToChanges()
-        selectedID = nil
+        selectedIDs.removeAll()
         needsDisplay = true
     }
 }
@@ -373,6 +397,7 @@ extension AppDelegate: NSToolbarDelegate {
         [
             .new, .open, .save, .export, .undo, .redo, .selection, .directSelection, .pen, .rectangle, .ellipse, .text,
             .image, .style, .properties, .zoomOut, .actualSize, .zoomIn, .zoomFit,
+            .alignLeft, .group,
         ]
     }
     func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
@@ -403,6 +428,8 @@ extension AppDelegate: NSToolbarDelegate {
         case .redo: canvas.redo()
         case .style: canvas.applyAccentStyle()
         case .properties: canvas.editSelectedProperties()
+        case .alignLeft: canvas.alignSelectedLeft()
+        case .group: canvas.groupSelected()
         case .zoomIn: canvas.zoomIn()
         case .zoomOut: canvas.zoomOut()
         case .actualSize: canvas.actualSize()
@@ -526,6 +553,7 @@ extension AppDelegate: NSToolbarItemValidation {
         case .undo: return canvas.history.canUndo
         case .redo: return canvas.history.canRedo
         case .style, .properties: return canvas.hasSelection
+        case .alignLeft, .group: return canvas.hasMultipleSelection
         default: return true
         }
     }
@@ -538,6 +566,7 @@ extension NSToolbarItem.Identifier {
         rectangle = Self("rectangle"),
         ellipse = Self("ellipse"), style = Self("style")
     static let text = Self("text"), image = Self("image"), properties = Self("properties")
+    static let alignLeft = Self("align-left"), group = Self("group")
     static let zoomIn = Self("zoom-in"), zoomOut = Self("zoom-out"), actualSize = Self("zoom-100"),
         zoomFit = Self("zoom-fit")
 }
