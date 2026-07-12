@@ -26,6 +26,14 @@ private func line(_ x: Double) -> PathObject {
     path.transform = AffineTransform(a: 0, b: 1, c: -1, d: 0)
     let group = GroupNode(transform: AffineTransform(a: 2, b: 0, c: 0, d: 4), children: [.path(path)])
     var nested = try EditorDocument(width: 200, height: 200, layers: [Layer(name: "L", nodes: [.group(group)])])
+    var translated = nested
+    let nodeTranslated = translated.translateNode(id: path.id, documentDX: 10, documentDY: 8)
+    #expect(nodeTranslated)
+    guard case .group(let translatedGroup) = translated.layers[0].nodes[0],
+        case .path(let translatedPath) = translatedGroup.children[0]
+    else { return }
+    #expect(translatedPath.transform.tx == 5)
+    #expect(translatedPath.transform.ty == 2)
     let nestedMoved = nested.movePathAnchor(id: path.id, subpath: 0, segment: 0, documentDelta: Point(x: 10, y: 8))
     #expect(nestedMoved)
     guard case .group(let movedGroup) = nested.layers[0].nodes[0], case .path(let moved) = movedGroup.children[0] else {

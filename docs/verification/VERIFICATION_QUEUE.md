@@ -3,6 +3,9 @@
 Verified examples are frozen permanent assertions. A semantic change requires a new
 queue entry; expected values below may not be weakened or edited to make code pass.
 
+Process violation record: VERIFY-019 math shipped in `8ed6d00` before queueing;
+queued in `5f95bd6` and remediated on 2026-07-12 in `95fd622`.
+
 Convention: `AffineTransform(a,b,c,d,tx,ty)` maps
 `(x,y)` to `(a*x+c*y+tx, b*x+d*y+ty)`.
 
@@ -462,7 +465,7 @@ VERIFY-001 through VERIFY-018.
 
 ### VERIFY-019 — Document delta to path-local anchor delta
 
-- Status: `PENDING OWNER VERIFICATION`
+- Status: `VERIFIED`
 - R-task: R3-B.2
 - Function/file: `EditorDocument.movePathAnchor(id:subpath:segment:documentDelta:)`
 - Mathematical claim: for anchor geometry stored in node-local space, `L` is
@@ -474,5 +477,8 @@ VERIFY-001 through VERIFY-018.
   2. Own 90° rotation inside group scale `(2,4)` gives `L=(0,4,-2,0)`;
      document delta `(10,8)` maps to local `(2,-5)`, round-tripping to `(10,8)`.
   3. Singular own transform `(0,0,0,1)` fails without mutation.
+  4. Contrast: for own rot90 inside parent scale `(2,4)`, document delta `(10,8)`
+     gives `translateNode` parent-local `(5,2)` under VERIFY-009, but anchor-local
+     `(2,-5)` under VERIFY-019.
 - Tolerance: `1e-9` absolute.
 - Permanent test: `Tests/DocumentModelTests/DirectAnchorVerifyTests.swift`.
