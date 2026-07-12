@@ -30,6 +30,8 @@ final class CanvasView: NSView {
     private(set) var pan = Point(x: 0, y: 0)
     private var spaceDown = false
     private var panDragLocation: NSPoint?
+    private var snappingEnabled = true
+    private var snapIndicator: Point?
     private let renderer = CoreGraphicsRenderer()
     private var changeTask: Task<Void, Never>?
     init(frame: NSRect, document: EditorDocument) {
@@ -75,6 +77,15 @@ final class CanvasView: NSView {
                     }
                 }
             }
+        }
+        if let snapIndicator {
+            context.setStrokeColor(NSColor.systemRed.cgColor)
+            context.setLineWidth(1 / zoom)
+            context.move(to: CGPoint(x: snapIndicator.x - 8 / zoom, y: snapIndicator.y))
+            context.addLine(to: CGPoint(x: snapIndicator.x + 8 / zoom, y: snapIndicator.y))
+            context.move(to: CGPoint(x: snapIndicator.x, y: snapIndicator.y - 8 / zoom))
+            context.addLine(to: CGPoint(x: snapIndicator.x, y: snapIndicator.y + 8 / zoom))
+            context.strokePath()
         }
         context.restoreGState()
     }
@@ -137,7 +148,9 @@ final class CanvasView: NSView {
         }
         guard !selectedIDs.isEmpty, let prior = dragLast else { return }
         let location = convert(event.locationInWindow, from: nil)
-        let next = documentPoint(location)
+        let rawNext = documentPoint(location)
+        let next = snappingEnabled ? SnapPolicy(gridSpacing: 10).snap(rawNext, zoom: zoom) : rawNext
+        snapIndicator = next == rawNext ? nil : next
         let dx = next.x - prior.x
         let dy = next.y - prior.y
         guard dx != 0 || dy != 0 else { return }
@@ -184,6 +197,7 @@ final class CanvasView: NSView {
             dragLast = nil
             dragHasMutation = false
             dragGestureID = nil
+            snapIndicator = nil
             return
         }
         guard let start = dragStart else { return }
@@ -258,6 +272,11 @@ final class CanvasView: NSView {
         pan = Point(
             x: (availableWidth - history.document.width * zoom) / 2,
             y: (availableHeight - history.document.height * zoom) / 2)
+        needsDisplay = true
+    }
+    func toggleSnapping() {
+        snappingEnabled.toggle()
+        snapIndicator = nil
         needsDisplay = true
     }
     private func add(_ object: PathObject) {
@@ -621,6 +640,7 @@ extension AppDelegate: NSToolbarDelegate {
             .new, .open, .save, .export, .undo, .redo, .selection, .directSelection, .pen, .rectangle, .ellipse, .text,
             .image, .style, .properties, .zoomOut, .actualSize, .zoomIn, .zoomFit,
             .alignLeft, .group, .ungroup, .makeCompound, .releaseCompound, .layers, .gradient,
+            .snap,
         ]
     }
     func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
@@ -658,6 +678,7 @@ extension AppDelegate: NSToolbarDelegate {
         case .releaseCompound: canvas.releaseCompoundSelected()
         case .layers: canvas.editLayers()
         case .gradient: canvas.editGradient()
+        case .snap: canvas.toggleSnapping()
         case .zoomIn: canvas.zoomIn()
         case .zoomOut: canvas.zoomOut()
         case .actualSize: canvas.actualSize()
@@ -819,6 +840,7 @@ extension NSToolbarItem.Identifier {
         releaseCompound = Self("release-compound")
     static let layers = Self("layers")
     static let gradient = Self("gradient")
+    static let snap = Self("snap")
     static let zoomIn = Self("zoom-in"), zoomOut = Self("zoom-out"), actualSize = Self("zoom-100"),
         zoomFit = Self("zoom-fit")
 }
