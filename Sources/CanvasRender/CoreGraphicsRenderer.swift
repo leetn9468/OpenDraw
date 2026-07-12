@@ -36,16 +36,15 @@ public struct CoreGraphicsRenderer: Sendable {
         }
         context.translateBy(x: viewport.pan.x, y: viewport.pan.y)
         context.scaleBy(x: viewport.zoom, y: viewport.zoom)
-        let swatches = Dictionary(uniqueKeysWithValues: (document.swatches ?? []).map { ($0.id, $0.color) })
-        let gradients = Dictionary(uniqueKeysWithValues: (document.gradients ?? []).map { ($0.id, $0) })
+        let swatches = Dictionary(uniqueKeysWithValues: document.swatches.map { ($0.id, $0.color) })
+        let gradients = Dictionary(uniqueKeysWithValues: document.gradients.map { ($0.id, $0) })
         for layer in document.layers where layer.isVisible {
-            for object in layer.paths { render(object, swatches: swatches, gradients: gradients, in: context) }
-            for image in layer.imageObjects ?? [] { render(image, in: context) }
-            for text in layer.textObjects ?? [] { render(text, in: context) }
+            for node in layer.nodes { render(node, swatches: swatches, gradients: gradients, in: context) }
         }
     }
     public func renderSelection(_ object: PathObject, in context: CGContext, zoom: Double) {
-        guard let b = object.bounds else { return }
+        // Selection overlays use visual bounds because they describe rendered ink.
+        guard let b = object.visualBounds else { return }
         context.saveGState()
         defer { context.restoreGState() }
         context.setStrokeColor(CGColor(srgbRed: 0.1, green: 0.45, blue: 1, alpha: 1))
@@ -58,11 +57,35 @@ public struct CoreGraphicsRenderer: Sendable {
         }
     }
     private func append(_ object: PathObject, to context: CGContext) {
-        guard let first = object.segments.first else { return }
         context.beginPath()
-        context.move(to: first.start.cg)
-        for s in object.segments { context.addCurve(to: s.end.cg, control1: s.control1.cg, control2: s.control2.cg) }
-        if object.path.isClosed { context.closePath() }
+        for subpath in object.path.subpaths {
+            guard let first = subpath.segments.first else { continue }
+            context.move(to: object.transform.applying(to: first.start).cg)
+            for s in subpath.segments {
+                context.addCurve(
+                    to: object.transform.applying(to: s.end).cg, control1: object.transform.applying(to: s.control1).cg,
+                    control2: object.transform.applying(to: s.control2).cg)
+            }
+            if subpath.isClosed { context.closePath() }
+        }
+    }
+    private func render(
+        _ node: SceneNode, swatches: [ObjectID: SRGBColor], gradients: [ObjectID: GradientResource],
+        in context: CGContext
+    ) {
+        switch node {
+        case .path(let path): render(path, swatches: swatches, gradients: gradients, in: context)
+        case .text(let text): render(text, in: context)
+        case .image(let image): render(image, in: context)
+        case .group(let group):
+            context.saveGState()
+            context.concatenate(
+                CGAffineTransform(
+                    a: group.transform.a, b: group.transform.b, c: group.transform.c, d: group.transform.d,
+                    tx: group.transform.tx, ty: group.transform.ty))
+            for child in group.children { render(child, swatches: swatches, gradients: gradients, in: context) }
+            context.restoreGState()
+        }
     }
     private func render(
         _ object: PathObject, swatches: [ObjectID: SRGBColor], gradients: [ObjectID: GradientResource],
@@ -72,19 +95,18 @@ public struct CoreGraphicsRenderer: Sendable {
         defer { context.restoreGState() }
         context.setAlpha(object.style.opacity ?? 1)
         context.setBlendMode((object.style.blendMode ?? .normal).cg)
-        context.concatenate(
-            CGAffineTransform(
-                a: object.transform.a, b: object.transform.b, c: object.transform.c, d: object.transform.d,
-                tx: object.transform.tx, ty: object.transform.ty))
         append(object, to: context)
         if let id = object.style.fillGradientID, let gradient = gradients[id], let cg = gradient.cgGradient {
             context.saveGState()
             context.clip(using: object.path.fillRule == .evenOdd ? .evenOdd : .winding)
             if gradient.kind == .linear {
-                context.drawLinearGradient(cg, start: gradient.start.cg, end: gradient.end.cg, options: [])
+                context.drawLinearGradient(
+                    cg, start: object.transform.applying(to: gradient.start).cg,
+                    end: object.transform.applying(to: gradient.end).cg, options: [])
             } else {
                 context.drawRadialGradient(
-                    cg, startCenter: gradient.start.cg, startRadius: 0, endCenter: gradient.end.cg,
+                    cg, startCenter: object.transform.applying(to: gradient.start).cg, startRadius: 0,
+                    endCenter: object.transform.applying(to: gradient.end).cg,
                     endRadius: gradient.start.distance(to: gradient.end), options: [])
             }
             context.restoreGState()
@@ -115,6 +137,12 @@ public struct CoreGraphicsRenderer: Sendable {
             in: context)
     }
     private func render(_ image: ImageObject, in context: CGContext) {
+        context.saveGState()
+        defer { context.restoreGState() }
+        context.concatenate(
+            CGAffineTransform(
+                a: image.transform.a, b: image.transform.b, c: image.transform.c, d: image.transform.d,
+                tx: image.transform.tx, ty: image.transform.ty))
         let frame = CGRect(
             x: image.frame.minX, y: image.frame.minY, width: image.frame.width, height: image.frame.height)
         if case .embedded(let data) = image.storage, let source = CGImageSourceCreateWithData(data as CFData, nil),

@@ -1,12 +1,13 @@
 import DocumentFormats
 import DocumentModel
+import EditorCore
 import Foundation
 import Geometry
 import Testing
 
 @Test func nativeRoundTripIsDeterministic() throws {
     let codec = NativeDocumentCodec()
-    let document = EditorDocument.sample()
+    let document = try EditorDocument.sample()
     let first = try codec.encode(document)
     let decoded = try codec.decode(first)
     let second = try codec.encode(decoded)
@@ -15,7 +16,7 @@ import Testing
 }
 
 @Test func rejectsUnknownVersion() throws {
-    let data = try NativeDocumentCodec().encode(.sample())
+    let data = try NativeDocumentCodec().encode(try .sample())
     let changed = Data(
         String(decoding: data, as: UTF8.self).replacingOccurrences(
             of: "\"formatVersion\":\(EditorDocument.formatVersion)", with: "\"formatVersion\":99"
@@ -24,7 +25,7 @@ import Testing
 }
 
 @Test func svgExportIsDeterministicAndEscaped() throws {
-    var document = EditorDocument.sample()
+    var document = try EditorDocument.sample()
     document.layers[0].name = "A&B\""
     let exporter = SVGExporter()
     let first = try exporter.export(document)
@@ -42,7 +43,7 @@ import Testing
     defer { try? FileManager.default.removeItem(at: directory) }
     let url = directory.appendingPathComponent("sample.odraw")
     let codec = NativeDocumentCodec()
-    let document = EditorDocument.sample()
+    let document = try EditorDocument.sample()
     try codec.saveAtomically(document, to: url)
     #expect(try codec.load(from: url) == document)
     var changed = document
@@ -53,14 +54,45 @@ import Testing
 
 @Test func migratesVersionTwoDocument() throws {
     let codec = NativeDocumentCodec()
-    let current = EditorDocument.sample()
-    let data = try codec.encode(current)
-    var root = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
-    root["formatVersion"] = 2
-    let old = try JSONSerialization.data(withJSONObject: root)
-    let migrated = try codec.decode(old)
-    #expect(migrated.formatVersion == EditorDocument.formatVersion)
-    #expect(migrated.layers == current.layers)
+    let fixture = try #require(
+        Bundle.module.url(forResource: "v2-reference", withExtension: "json", subdirectory: "Fixtures"))
+    let migrated = try codec.decode(Data(contentsOf: fixture))
+    #expect(migrated.formatVersion == 4)
+    #expect(migrated.layers[0].nodes.count == 1)
+}
+
+@Test func migratesVersionThreeDocumentAndRoundTripsHistoricalFixtures() throws {
+    let codec = NativeDocumentCodec()
+    for name in ["v2-reference", "v3-reference"] {
+        let fixture = try #require(
+            Bundle.module.url(forResource: name, withExtension: "json", subdirectory: "Fixtures"))
+        let migrated = try codec.decode(Data(contentsOf: fixture))
+        #expect(migrated.formatVersion == 4)
+        let reopened = try codec.decode(codec.encode(migrated))
+        #expect(reopened == migrated)
+    }
+}
+
+private func canonicalReferenceDocument() throws -> EditorDocument {
+    let layerID = ObjectID(rawValue: try #require(UUID(uuidString: "00000000-0000-0000-0000-000000000100")))
+    let pathID = ObjectID(rawValue: try #require(UUID(uuidString: "00000000-0000-0000-0000-000000000101")))
+    let segment = CubicBezier(
+        start: Point(x: 0, y: 0), control1: Point(x: 0, y: 10), control2: Point(x: 10, y: 10), end: Point(x: 10, y: 0))
+    let path = PathObject(
+        id: pathID, segments: [segment],
+        style: PathStyle(fill: SRGBColor(red: 1, green: 0, blue: 0), stroke: nil, strokeWidth: 0))
+    return try EditorDocument(
+        width: 100, height: 80, layers: [Layer(id: layerID, name: "Reference", nodes: [.path(path)])])
+}
+
+@Test func v4CanonicalGoldenBytes() throws {
+    let encoded = try NativeDocumentCodec().encode(canonicalReferenceDocument())
+    let fixture = try #require(
+        Bundle.module.url(forResource: "v4-canonical-golden", withExtension: "odraw", subdirectory: "Fixtures"))
+    var golden = try Data(contentsOf: fixture)
+    if golden.last == 0x0A { golden.removeLast() }
+    #expect(encoded == golden)
+    #expect(try NativeDocumentCodec().decode(encoded) == canonicalReferenceDocument())
 }
 
 @Test func rasterLoaderEnforcesLimitsAndSafeLinks() throws {
@@ -81,14 +113,15 @@ import Testing
     let gradient = GradientResource(
         name: "G", kind: .linear, start: Geometry.Point(x: 0, y: 0), end: Geometry.Point(x: 10, y: 0),
         stops: [ColorStop(offset: 0, color: .black), ColorStop(offset: 1, color: .white)])
-    var document = EditorDocument.sample()
+    var document = try EditorDocument.sample()
     document.gradients = [gradient]
-    document.layers[0].paths[0].style.fillGradientID = gradient.id
-    document.layers[0].imageObjects = [
-        ImageObject(
-            frame: Geometry.Rect(minX: 0, minY: 0, maxX: 10, maxY: 10), storage: .linked(relativePath: "image.png"),
-            pixelWidth: 1, pixelHeight: 1)
-    ]
+    let firstID = try #require(document.layers[0].nodes.first?.id)
+    _ = document.mutatePath(id: firstID) { $0.style.fillGradientID = gradient.id }
+    document.layers[0].nodes.append(
+        .image(
+            ImageObject(
+                frame: Geometry.Rect(minX: 0, minY: 0, maxX: 10, maxY: 10), storage: .linked(relativePath: "image.png"),
+                pixelWidth: 1, pixelHeight: 1)))
     let result = try SVGExporter().export(document)
     #expect(result.warnings.map(\.code) == ["SVG-GRADIENT-DEFERRED", "SVG-IMAGE-DEFERRED"])
 }
@@ -98,7 +131,7 @@ import Testing
         "<svg width=\"100\" height=\"80\"><rect x=\"5\" y=\"6\" width=\"20\" height=\"30\" fill=\"#FF0000\"/><script>alert(1)</script><circle/></svg>"
             .utf8)
     let result = try SVGImporter().importData(input)
-    #expect(result.document.layers[0].paths.count == 1)
+    #expect(result.document.layers[0].nodes.count == 1)
     #expect(result.warnings.map(\.code) == ["SVG-UNSAFE-IGNORED", "SVG-UNSUPPORTED-CIRCLE"])
     #expect(throws: (any Error).self) { try SVGImporter().importData(Data("<svg><rect>".utf8)) }
 }

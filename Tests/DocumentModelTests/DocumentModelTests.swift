@@ -38,6 +38,16 @@ import Testing
     #expect(history.document.width == 120)
 }
 
+@Test func historyLimitIsImmutableAndCappedAtThirty() throws {
+    var history = CommandHistory(document: try EditorDocument(width: 100, height: 100), maximumEntries: 100)
+    #expect(history.maximumEntries == 30)
+    for value in 101...131 { try history.perform(DocumentCommand(name: "Resize") { $0.width = Double(value) }) }
+    for _ in 0..<30 { history.undo() }
+    #expect(history.document.width == 101)
+    history.undo()
+    #expect(history.document.width == 101)
+}
+
 @Test func alignmentIsUndoable() throws {
     let a = PathObject(segments: [
         CubicBezier(
@@ -50,19 +60,19 @@ import Testing
             end: Point(x: 70, y: 40))
     ])
     var history = CommandHistory(
-        document: try EditorDocument(width: 100, height: 100, layers: [Layer(name: "L", paths: [a, b])]))
+        document: try EditorDocument(width: 100, height: 100, layers: [Layer(name: "L", nodes: [.path(a), .path(b)])]))
     try history.perform(AlignmentCommands.align(pathIDs: [a.id, b.id], axis: .left))
-    #expect(history.document.layers[0].paths[1].transform.tx == -50)
+    #expect(history.document.visualBounds(for: b.id)?.minX == history.document.visualBounds(for: a.id)?.minX)
     history.undo()
-    #expect(history.document.layers[0].paths[1].transform.tx == 0)
+    #expect(history.document.visualBounds(for: b.id)?.minX != history.document.visualBounds(for: a.id)?.minX)
 }
 
 @Test func advancedResourceInvariants() throws {
     let swatch = Swatch(name: "Blue", color: SRGBColor(red: 0, green: 0, blue: 1))
     let gradient = GradientResource(
         name: "Fade", kind: .linear, start: Point(x: 0, y: 0), end: Point(x: 10, y: 0),
-        stops: [ColorStop(offset: 1, color: .white), ColorStop(offset: 0, color: .black)])
+        stops: [ColorStop(offset: 0, color: .black), ColorStop(offset: 1, color: .white)])
     let document = try EditorDocument(width: 100, height: 100, swatches: [swatch], gradients: [gradient])
     try document.validate()
-    #expect(document.gradients?[0].stops[0].offset == 0)
+    #expect(document.gradients[0].stops[0].offset == 0)
 }

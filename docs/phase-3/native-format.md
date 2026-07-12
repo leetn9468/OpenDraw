@@ -2,12 +2,12 @@
 
 Extension: `.odraw`
 Encoding: UTF-8 JSON with sorted keys  
-Current version: 3 (Phase 3 introduced version 2; Phase 4 migrates it)
+Current version: 4 (the pre–Phase 5 R1 remediation introduced ordered scene nodes)
 
-The root contains `formatVersion`, artboard width/height, unit, ordered layers and,
-from version 3, optional resources. Layers contain ordered paths and optional text
-and image objects. IDs are UUID-backed values. Geometry uses document-space doubles;
-paths store cubic segments and closure/fill rule independently of SVG.
+The root contains `formatVersion`, artboard width/height, unit, ordered layers and
+resources. Layers contain one heterogeneous ordered node sequence; nodes may be paths,
+text, images, or recursive groups. Paths support multiple cubic subpaths and one fill
+rule independently of SVG. IDs are UUID-backed and globally unique.
 
 Writers validate before encoding and use a temporary sibling plus filesystem move
 or replacement. Readers cap input at 100 MiB, inspect the version before decoding,

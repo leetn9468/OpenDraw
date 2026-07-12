@@ -10,7 +10,7 @@ import TextEngine
 
 @MainActor
 final class CanvasView: NSView {
-    var history = CommandHistory(document: EditorDocument.sample())
+    var history: CommandHistory
     var activeTool: ActiveTool = .pen
     private var pen = PenToolState()
     private var dragStart: Point?
@@ -18,6 +18,11 @@ final class CanvasView: NSView {
     private var selectedID: ObjectID?
     private var dragHasMutation = false
     private let renderer = CoreGraphicsRenderer()
+    init(frame: NSRect, document: EditorDocument) {
+        history = CommandHistory(document: document)
+        super.init(frame: frame)
+    }
+    required init?(coder: NSCoder) { nil }
     override var isFlipped: Bool { true }
     override func draw(_ dirtyRect: NSRect) {
         NSColor.windowBackgroundColor.setFill()
@@ -39,9 +44,9 @@ final class CanvasView: NSView {
             if event.clickCount == 2, let object = pen.finish(close: false) { add(object) }
         } else if activeTool == .selection || activeTool == .directSelection {
             selectedID =
-                history.document.layers.reversed().flatMap { $0.paths.reversed() }.first { object in
-                    object.bounds?.contains(
-                        Point(x: point.x - object.transform.tx, y: point.y - object.transform.ty), tolerance: 6) == true
+                history.document.layers.reversed().flatMap { $0.nodes.reversed() }.first { node in
+                    // Selection uses visual bounds because it targets rendered ink.
+                    node.visualBounds?.contains(point, tolerance: 6) == true
                 }?.id
             dragLast = point
             dragHasMutation = false
@@ -58,12 +63,7 @@ final class CanvasView: NSView {
         let dy = next.y - prior.y
         guard dx != 0 || dy != 0 else { return }
         let command = DocumentCommand(name: "Move path") { document in
-            for layer in document.layers.indices {
-                if let index = document.layers[layer].paths.firstIndex(where: { $0.id == id }) {
-                    document.layers[layer].paths[index].transform.tx += dx
-                    document.layers[layer].paths[index].transform.ty += dy
-                }
-            }
+            _ = document.translateNode(id: id, documentDX: dx, documentDY: dy)
         }
         if dragHasMutation {
             try? history.coalesce(command)
@@ -92,7 +92,7 @@ final class CanvasView: NSView {
         if let object { add(object) }
     }
     private func add(_ object: PathObject) {
-        try? history.perform(DocumentCommand(name: "Create object") { $0.layers[0].paths.append(object) })
+        try? history.perform(DocumentCommand(name: "Create object") { $0.layers[0].nodes.append(.path(object)) })
         needsDisplay = true
     }
     func undo() {
@@ -104,14 +104,12 @@ final class CanvasView: NSView {
         needsDisplay = true
     }
     func applyAccentStyle() {
-        guard let id = selectedID ?? history.document.layers.first?.paths.last?.id else { return }
+        guard let id = selectedID ?? history.document.layers.first?.nodes.last?.id else { return }
         try? history.perform(
             DocumentCommand(name: "Apply style") { document in
-                for layer in document.layers.indices {
-                    if let index = document.layers[layer].paths.firstIndex(where: { $0.id == id }) {
-                        document.layers[layer].paths[index].style.stroke = SRGBColor(red: 0.85, green: 0.18, blue: 0.35)
-                        document.layers[layer].paths[index].style.strokeWidth = 6
-                    }
+                _ = document.mutatePath(id: id) {
+                    $0.style.stroke = SRGBColor(red: 0.85, green: 0.18, blue: 0.35)
+                    $0.style.strokeWidth = 6
                 }
             })
         needsDisplay = true
@@ -134,7 +132,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             contentRect: frame, styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered,
             defer: false)
         window.title = "OpenDraw"
-        let canvas = CanvasView(frame: frame)
+        let document: EditorDocument
+        do { document = try EditorDocument.sample() } catch {
+            NSAlert(error: error).runModal()
+            NSApp.terminate(nil)
+            return
+        }
+        let canvas = CanvasView(frame: frame, document: document)
         window.contentView = canvas
         self.canvas = canvas
         let toolbar = NSToolbar(identifier: "tools")

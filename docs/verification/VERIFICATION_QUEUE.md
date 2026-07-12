@@ -159,3 +159,52 @@ Each new entry must include status, R-task, function/file/commit, precise claim,
 3–10 lines of reasoning, at least three numeric examples including a degenerate case,
 tolerance rationale, and the permanent test file. New entries remain
 `PENDING OWNER VERIFICATION` until the owner resolves the next checkpoint.
+
+### VERIFY-008 — Document magnitude and collection ceilings
+
+- Status: `PENDING OWNER VERIFICATION`
+- R-task: R1.3
+- Function/file: `DocumentLimits`, `EditorDocument.validate()`
+- Commit: populated after the R1 implementation commit
+- Mathematical claim: all coordinates and affine components must be finite. Absolute
+  coordinate magnitude is at most `1_000_000_000`; artboard width/height at most
+  `1_000_000`; layers at most `1_024`; total recursive scene nodes at most `100_000`;
+  total cubic segments at most `1_000_000`; each string at most `1_000_000` UTF-8
+  bytes; each embedded asset at most `100 MiB`; aggregate embedded assets at most
+  `500 MiB`. Aggregate byte addition uses `addingReportingOverflow`.
+- Reasoning: finite magnitude bounds prevent non-finite geometry and unsafe numeric
+  conversions. Count ceilings bound traversal and decoding work. Byte ceilings cap
+  per-resource and total snapshot pressure. Checked addition prevents an aggregate
+  byte count from wrapping and incorrectly passing its budget.
+- Worked examples:
+  1. Coordinate `999_999_999.5`, artboard `(640,480)`, 1 layer/1 node → accepted.
+  2. Coordinate `1_000_000_001` → rejected as `coordinateMagnitude`; artboard width
+     `1_000_001` → rejected as `artboardMagnitude`.
+  3. `100_000` nodes → accepted; `100_001` → rejected as `nodeCount`.
+  4. Five embedded assets of exactly `100 MiB` → aggregate `500 MiB`, accepted;
+     adding one byte → rejected as `aggregateAssetBytes`; checked-add overflow is
+     rejected as `assetByteOverflow`.
+- Epsilon/tolerance: exact integer limits; floating comparisons are inclusive (`<=`)
+  with no epsilon because these are safety budgets rather than geometric equality.
+- Permanent test: `Tests/DocumentModelTests/DocumentLimitsVerifyTests.swift`
+
+### VERIFY-009 — Nested-node document delta to parent-local delta
+
+- Status: `PENDING OWNER VERIFICATION`
+- R-task: R1.2 alignment
+- Function/file: `EditorDocument.translateNode(id:documentDelta:)`
+- Commit: populated after the R1 implementation commit
+- Mathematical claim: for parent linear transform `L`, a desired document-space
+  translation vector `d` becomes parent-local vector `L^-1*d`; translation terms are
+  excluded because vectors have homogeneous coordinate zero. If `L` is singular under
+  the VERIFY-001 `1e-12` policy, nested translation fails without mutation.
+- Reasoning: a child-local position maps through its parent as `L*p+t`. Adding local
+  vector `q` changes the mapped point by `L*q`. Solving `L*q=d` gives `q=L^-1*d`.
+  Parent translation cancels when subtracting old and new positions.
+- Worked examples:
+  1. Identity parent, document delta `(8,-3)` → local delta `(8,-3)`.
+  2. Scale parent `(2,0,0,4,10,20)`, document delta `(10,8)` → local `(5,2)`.
+  3. 90° rotation parent `(0,1,-1,0,0,0)`, document delta `(10,0)` → local `(0,-10)`.
+  4. Singular parent `(0,0,0,1,0,0)` → explicit failure and no mutation.
+- Tolerance: `1e-9` absolute for transformed vectors; singularity `1e-12` per VERIFY-001.
+- Permanent test: `Tests/DocumentModelTests/NestedTranslationVerifyTests.swift`

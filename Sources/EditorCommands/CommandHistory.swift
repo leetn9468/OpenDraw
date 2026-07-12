@@ -15,11 +15,11 @@ public struct CommandHistory: Sendable {
     private var undoStack: [(String, EditorDocument)] = []
     private var redoStack: [(String, EditorDocument)] = []
     private var savePoint: EditorDocument
-    public var maximumEntries: Int
-    public init(document: EditorDocument, maximumEntries: Int = 100) {
+    public let maximumEntries: Int
+    public init(document: EditorDocument, maximumEntries: Int = 30) {
         self.document = document
         savePoint = document
-        self.maximumEntries = max(1, maximumEntries)
+        self.maximumEntries = min(30, max(1, maximumEntries))
     }
     public var canUndo: Bool { !undoStack.isEmpty }
     public var canRedo: Bool { !redoStack.isEmpty }

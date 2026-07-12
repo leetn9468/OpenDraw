@@ -35,7 +35,9 @@ let package = Package(
             name: "DocumentModelTests", dependencies: ["EditorCore", "DocumentModel", "EditorCommands", "Geometry"]),
         .testTarget(name: "CanvasRenderTests", dependencies: ["CanvasRender", "DocumentModel", "Geometry"]),
         .testTarget(name: "TextEngineTests", dependencies: ["TextEngine"]),
-        .testTarget(name: "DocumentFormatsTests", dependencies: ["DocumentFormats", "DocumentModel", "Geometry"]),
+        .testTarget(
+            name: "DocumentFormatsTests", dependencies: ["EditorCore", "DocumentFormats", "DocumentModel", "Geometry"],
+            resources: [.copy("Fixtures")]),
         .testTarget(name: "EditorToolsTests", dependencies: ["EditorTools", "DocumentModel"]),
     ]
 )

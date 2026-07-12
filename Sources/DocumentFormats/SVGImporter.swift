@@ -22,7 +22,7 @@ public struct SVGImporter: Sendable {
         }
         let document = try EditorDocument(
             width: delegate.width ?? 640, height: delegate.height ?? 480,
-            layers: [Layer(name: "Imported SVG", paths: delegate.paths)])
+            layers: [Layer(name: "Imported SVG", nodes: delegate.paths.map(SceneNode.path))])
         return ImportResult(document: document, warnings: Array(Set(delegate.warnings)).sorted { $0.code < $1.code })
     }
 }
