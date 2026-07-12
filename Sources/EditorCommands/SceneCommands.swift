@@ -28,6 +28,16 @@ public enum SceneCommands {
             else { throw SceneCommandError.incompatibleSelection }
         }
     }
+    public static func moveControl(pathID: ObjectID, subpath: Int, segment: Int, control: Int, delta: Point)
+        -> DocumentCommand
+    {
+        DocumentCommand(name: "Move direction handle") { document in
+            guard
+                document.movePathControl(
+                    id: pathID, subpath: subpath, segment: segment, control: control, documentDelta: delta)
+            else { throw SceneCommandError.selectionNotFound }
+        }
+    }
     public static func group(layerID: ObjectID, nodeIDs: Set<ObjectID>) -> DocumentCommand {
         DocumentCommand(name: "Group") { document in
             guard let layerIndex = document.layers.firstIndex(where: { $0.id == layerID }) else {

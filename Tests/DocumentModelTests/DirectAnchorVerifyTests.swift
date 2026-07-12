@@ -89,3 +89,18 @@ private func line(_ x: Double) -> PathObject {
     history.undo()
     #expect(history.document.path(id: path.id)?.segments.count == 2)
 }
+
+@Test func directionHandleMovementUsesDocumentDeltaAndIsUndoable() throws {
+    var path = line(0)
+    path.transform = AffineTransform(a: 0, b: 1, c: -1, d: 0)
+    let group = GroupNode(transform: AffineTransform(a: 2, b: 0, c: 0, d: 4), children: [.path(path)])
+    var history = CommandHistory(
+        document: try EditorDocument(width: 200, height: 200, layers: [Layer(name: "L", nodes: [.group(group)])]))
+    let before = try #require(history.document.path(id: path.id)?.segments[0].control1)
+    try history.perform(
+        SceneCommands.moveControl(pathID: path.id, subpath: 0, segment: 0, control: 1, delta: Point(x: 10, y: 8)))
+    let after = try #require(history.document.path(id: path.id)?.segments[0].control1)
+    #expect(after.distance(to: Point(x: before.x + 2, y: before.y - 5)) < 1e-9)
+    history.undo()
+    #expect(history.document.path(id: path.id)?.segments[0].control1 == before)
+}

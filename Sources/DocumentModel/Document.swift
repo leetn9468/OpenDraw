@@ -486,6 +486,19 @@ public struct EditorDocument: Hashable, Codable, Sendable {
         }
         return false
     }
+    @discardableResult public mutating func movePathControl(
+        id: ObjectID, subpath: Int, segment: Int, control: Int, documentDelta: Point
+    ) -> Bool {
+        for layerIndex in layers.indices {
+            if movePathControlRecursive(
+                in: &layers[layerIndex].nodes, id: id, subpath: subpath,
+                segment: segment, control: control, documentDelta: documentDelta, parentTransform: .identity)
+            {
+                return true
+            }
+        }
+        return false
+    }
     public static func sample() throws -> EditorDocument {
         let curve = CubicBezier(
             start: Point(x: 80, y: 250), control1: Point(x: 180, y: 40), control2: Point(x: 350, y: 440),
@@ -637,6 +650,42 @@ private func movePathAnchorRecursive(
             if movePathAnchorRecursive(
                 in: &group.children, id: id, subpath: subpath, segment: segment,
                 documentDelta: documentDelta, parentTransform: accumulated)
+            {
+                nodes[index] = .group(group)
+                return true
+            }
+        default: break
+        }
+    }
+    return false
+}
+private func movePathControlRecursive(
+    in nodes: inout [SceneNode], id: ObjectID, subpath: Int, segment: Int,
+    control: Int, documentDelta: Point, parentTransform: Geometry.AffineTransform
+) -> Bool {
+    for index in nodes.indices {
+        switch nodes[index] {
+        case .path(var path) where path.id == id:
+            guard path.path.subpaths.indices.contains(subpath),
+                path.path.subpaths[subpath].segments.indices.contains(segment),
+                [1, 2].contains(control), let inverse = path.transform.concatenating(parentTransform).inverted()
+            else { return false }
+            let delta = Point(
+                x: inverse.a * documentDelta.x + inverse.c * documentDelta.y,
+                y: inverse.b * documentDelta.x + inverse.d * documentDelta.y)
+            if control == 1 {
+                path.path.subpaths[subpath].segments[segment].control1.x += delta.x
+                path.path.subpaths[subpath].segments[segment].control1.y += delta.y
+            } else {
+                path.path.subpaths[subpath].segments[segment].control2.x += delta.x
+                path.path.subpaths[subpath].segments[segment].control2.y += delta.y
+            }
+            nodes[index] = .path(path)
+            return true
+        case .group(var group):
+            if movePathControlRecursive(
+                in: &group.children, id: id, subpath: subpath, segment: segment, control: control,
+                documentDelta: documentDelta, parentTransform: group.transform.concatenating(parentTransform))
             {
                 nodes[index] = .group(group)
                 return true
