@@ -115,6 +115,22 @@ import Testing
 
 @Test func testVerify016EightHandleScaleMapping() throws {
     let bounds = Rect(minX: 0, minY: 0, maxX: 100, maxY: 50)
+    let cases: [(TransformHandle, Point, Point)] = [
+        (.topLeft, Point(x: 10, y: 20), Point(x: 0.9, y: 0.6)),
+        (.top, Point(x: 0, y: 20), Point(x: 1, y: 0.6)),
+        (.topRight, Point(x: 50, y: 20), Point(x: 1.5, y: 0.6)),
+        (.right, Point(x: 50, y: 0), Point(x: 1.5, y: 1)),
+        (.bottomRight, Point(x: 50, y: 20), Point(x: 1.5, y: 1.4)),
+        (.bottom, Point(x: 0, y: 20), Point(x: 1, y: 1.4)),
+        (.bottomLeft, Point(x: 10, y: 20), Point(x: 0.9, y: 1.4)),
+        (.left, Point(x: 50, y: 0), Point(x: 0.5, y: 1)),
+    ]
+    for item in cases {
+        let actual = try #require(
+            TransformInteractions.scale(
+                bounds: bounds, handle: item.0, displacement: item.1, uniform: false, fromCenter: false))
+        #expect(actual.distance(to: item.2) < 1e-9)
+    }
     #expect(
         TransformInteractions.scale(
             bounds: bounds, handle: .right, displacement: Point(x: 50, y: 0), uniform: false, fromCenter: false)
@@ -128,6 +144,30 @@ import Testing
             bounds: bounds, handle: .bottomRight, displacement: Point(x: 50, y: 50), uniform: true, fromCenter: false)
             == Point(x: 1.5, y: 1.5))
     #expect(TransformHandle.allCases.count == 8)
+    let raw = try #require(
+        TransformInteractions.scale(
+            bounds: bounds, handle: .bottomRight,
+            displacement: Point(x: 50, y: 50), uniform: false, fromCenter: false))
+    #expect(raw == Point(x: 1.5, y: 2))
+    #expect(Point(x: 100 * raw.x, y: 50 * raw.y) == Point(x: 150, y: 100))
+    #expect(Point(x: 100 * raw.x, y: 0 * raw.y) == Point(x: 150, y: 0))
+    #expect(Point(x: 0 * raw.x, y: 0 * raw.y) == Point(x: 0, y: 0))
+    #expect(
+        TransformInteractions.scale(
+            bounds: bounds, handle: .bottomRight,
+            displacement: Point(x: -150, y: 50), uniform: false, fromCenter: false) == Point(x: -0.5, y: 2))
+    #expect(
+        TransformInteractions.scale(
+            bounds: bounds, handle: .bottomRight,
+            displacement: Point(x: -150, y: 50), uniform: true, fromCenter: false) == Point(x: -0.5, y: 0.5))
+    #expect(
+        TransformInteractions.scale(
+            bounds: Rect(minX: 0, minY: 0, maxX: 0, maxY: 50),
+            handle: .right, displacement: Point(x: 1, y: 0), uniform: false, fromCenter: false) == nil)
+    #expect(
+        TransformInteractions.scale(
+            bounds: Rect(minX: 0, minY: 0, maxX: 100, maxY: 0),
+            handle: .bottom, displacement: Point(x: 0, y: 1), uniform: false, fromCenter: false) == nil)
 }
 
 @Test func testVerify017SmoothAnchorSymmetry() {

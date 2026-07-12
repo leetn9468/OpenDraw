@@ -416,12 +416,16 @@ the frozen-value rule now covers VERIFY-001 through VERIFY-014.
 
 ### VERIFY-016 — Eight-handle scale mapping
 
-- Status: `PENDING OWNER VERIFICATION`
+- Status: `VERIFIED`
 - R-task: R3-B.3
-- Claim: each handle fixes its opposite anchor; Option fixes the center and doubles
-  pointer displacement; Shift uses the smaller-magnitude axis scale for uniformity.
+- Claim: in y-down document space, min-edge handles use `s=1-d/size`, max-edge
+  handles use `s=1+d/size`, corners combine axes, and the other axis stays 1.
+  The caller applies factors about the opposite anchor; Option fixes the center and
+  doubles displacement; Shift uses the smaller magnitude with signs preserved.
 - Examples: right handle on a 100×50 box dragged +50 gives `(sx,sy)=(1.5,1)`;
-  Option gives `(2,1)`; Shift on bottom-right displacement `(50,50)` gives `(1.5,1.5)`.
+  Option gives `(2,1)`; Shift bottom-right `(50,50)` gives `(1.5,1.5)`. All eight
+  handles, opposite-anchor integration, negative mirror scaling, and zero dimensions
+  are pinned in the permanent test.
 - Tolerance: `1e-9`. Permanent test: `Tests/EditorToolsTests/EditorToolsTests.swift`.
 
 ### VERIFY-017 — Smooth-anchor handle symmetry
