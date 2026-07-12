@@ -13,7 +13,7 @@ Convention: `AffineTransform(a,b,c,d,tx,ty)` maps
 - Status: `VERIFIED`
 - R-task: R1.1/R1.2
 - Function/file: `Geometry.AffineTransform.applying(to:)`, `concatenating(_:)`, `inverted()`
-- Commit: populated by the R1 implementation commit
+- Commit: `6ca6ce1`
 - Claim: concatenation applies the receiver first and the argument second. The
   algebraic inverse has linear part `(d,-b,-c,a)/det`, where `det=a*d-b*c`, and
   translation `(-tx*ia-ty*ic, -tx*ib-ty*id)`.
@@ -37,6 +37,7 @@ Convention: `AffineTransform(a,b,c,d,tx,ty)` maps
 - Status: `VERIFIED`
 - R-task: R1.2
 - Function/file: `Geometry.CubicBezier.point(at:)`
+- Commit: `6ca6ce1`
 - Claim: `B(t)=(1-t)^3 P0+3(1-t)^2t P1+3(1-t)t^2 P2+t^3 P3`.
 - Reasoning: this is the cubic Bernstein basis; coefficients sum to one, preserving
   affine combinations and constant degenerate segments.
@@ -52,6 +53,7 @@ Convention: `AffineTransform(a,b,c,d,tx,ty)` maps
 - Status: `VERIFIED`
 - R-task: R1.2
 - Function/file: `Geometry.CubicBezier.tightBounds`, `BezierPath.localBounds`
+- Commit: `6ca6ce1`
 - Claim: per-axis extrema are roots in `(0,1)` of `a*t^2+b*t+c=0`, with
   `a=3(-p0+3p1-3p2+p3)`, `b=6(p0-2p1+p2)`, `c=3(p1-p0)`; endpoints and extrema
   determine tight bounds. The `a≈0` linear branch uses `t=-c/b`.
@@ -73,6 +75,7 @@ Convention: `AffineTransform(a,b,c,d,tx,ty)` maps
 - Status: `VERIFIED`
 - R-task: R1.2
 - Function/file: `SceneNode.visualBounds` path case
+- Commit: `8e98346`
 - Claim: conservatively compute `expand(AABB(T*corners(localBounds)),e)`, where
   `e=(strokeWidth/2)*max(joinFactor,capFactor)`, miter `joinFactor=miterLimit`, other
   joins `1`, square-cap factor `sqrt(2)`, other caps `1`. Stroke expansion is in
@@ -97,6 +100,7 @@ Convention: `AffineTransform(a,b,c,d,tx,ty)` maps
 - Status: `VERIFIED`
 - R-task: R1.1
 - Function/file: `SceneNode.visualBounds` group case
+- Commit: `8e98346`
 - Claim: `AABB(groupTransform*corners(union(child.visualBounds)))`.
 - Reasoning: each child bounds contains child ink in group space; union contains all
   ink; affine mapping preserves containment; the transformed corner AABB is conservative.
@@ -114,6 +118,7 @@ Convention: `AffineTransform(a,b,c,d,tx,ty)` maps
 - Status: `VERIFIED`
 - R-task: R1.1
 - Function/file: `CompoundPath.contains(_:fillRule:)`
+- Commit: `6ca6ce1`
 - Claim: cast a +x ray; upward crossings contribute +1 and downward -1 using the
   half-open y rule. A crossing counts only when `xIntersection > px` (strict). No
   separate boundary-inclusion predicate exists. Non-zero is inside iff winding is
@@ -136,6 +141,7 @@ Convention: `AffineTransform(a,b,c,d,tx,ty)` maps
 - Status: `VERIFIED`
 - R-task: R1.3
 - Function/file: `DocumentLimits.checkedPixelCount(width:height:)`
+- Commit: `8e98346`
 - Claim: positive `Int64` dimensions multiply using `multipliedReportingOverflow`.
   Overflow and budget excess are distinct typed errors. Pixel budget is exactly
   `67_108_864` (`8192*8192=2^26`, approximately 256 MiB decoded RGBA).
@@ -165,7 +171,7 @@ tolerance rationale, and the permanent test file. New entries remain
 - Status: `PENDING OWNER VERIFICATION`
 - R-task: R1.3
 - Function/file: `DocumentLimits`, `EditorDocument.validate()`
-- Commit: populated after the R1 implementation commit
+- Commit: `8e98346`
 - Mathematical claim: all coordinates and affine components must be finite. Absolute
   coordinate magnitude is at most `1_000_000_000`; artboard width/height at most
   `1_000_000`; layers at most `1_024`; total recursive scene nodes at most `100_000`;
@@ -193,7 +199,7 @@ tolerance rationale, and the permanent test file. New entries remain
 - Status: `PENDING OWNER VERIFICATION`
 - R-task: R1.2 alignment
 - Function/file: `EditorDocument.translateNode(id:documentDelta:)`
-- Commit: populated after the R1 implementation commit
+- Commit: `8e98346`
 - Mathematical claim: for parent linear transform `L`, a desired document-space
   translation vector `d` becomes parent-local vector `L^-1*d`; translation terms are
   excluded because vectors have homogeneous coordinate zero. If `L` is singular under
