@@ -363,3 +363,27 @@ For VERIFY-012, `4 × 67,108,864 = 268,435,456` pixels exactly, which is exactly
 four maximal images and exactly 1 GiB at four bytes per pixel. Checked overflow,
 32/33 frames, and finite positive `TimeInterval` validation at `60.0`, `0`, and
 `-1` all recompute as specified.
+
+### VERIFY-013 — Rotation about a pivot and 15-degree snapping
+
+- Status: `PENDING OWNER VERIFICATION`
+- R-task: R3-B.3
+- Function/file: `TransformInteractions.rotation`, `snappedRotation`
+- Mathematical claim: rotation uses `q = p + R(theta)(x-p)`; constrained angles
+  round to the nearest multiple of `pi/12` (15 degrees).
+- Worked example: pivot `(10,20)`, point `(15,20)`, rotation 90 degrees maps to
+  `(10,25)` and leaves the pivot fixed. `0.27` radians snaps to `pi/12`.
+- Tolerance: `1e-9` absolute.
+- Permanent test: `Tests/EditorToolsTests/EditorToolsTests.swift`
+
+### VERIFY-014 — Zoom about a fixed screen point
+
+- Status: `PENDING OWNER VERIFICATION`
+- R-task: R3-B.4
+- Function/file: `TransformInteractions.zoomAbout`
+- Mathematical claim: document point `(s-pan)/zoom` remains invariant by choosing
+  `newPan = s - documentPoint*newZoom`.
+- Worked example: screen `(100,80)`, pan `(10,20)`, zoom `1→2` gives new pan
+  `(-80,-40)` and preserves document point `(90,60)`.
+- Tolerance: exact for the integer-valued example; `1e-9` generally.
+- Permanent test: `Tests/EditorToolsTests/EditorToolsTests.swift`

@@ -19,11 +19,21 @@ final class CanvasView: NSView {
     private var dragHasMutation = false
     private var dragGestureID: GestureID?
     private let renderer = CoreGraphicsRenderer()
+    private var changeTask: Task<Void, Never>?
     init(frame: NSRect, document: EditorDocument) {
         history = CommandHistory(document: document)
         super.init(frame: frame)
+        subscribeToChanges()
     }
     required init?(coder: NSCoder) { nil }
+    deinit { changeTask?.cancel() }
+    private func subscribeToChanges() {
+        changeTask?.cancel()
+        let stream = history.changes()
+        changeTask = Task { @MainActor [weak self] in
+            for await _ in stream { self?.needsDisplay = true }
+        }
+    }
     override var isFlipped: Bool { true }
     override func draw(_ dirtyRect: NSRect) {
         NSColor.windowBackgroundColor.setFill()
@@ -128,6 +138,7 @@ final class CanvasView: NSView {
     }
     func replaceDocument(_ document: EditorDocument) {
         history = CommandHistory(document: document)
+        subscribeToChanges()
         selectedID = nil
         needsDisplay = true
     }

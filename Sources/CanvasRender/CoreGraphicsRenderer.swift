@@ -41,8 +41,16 @@ public struct CoreGraphicsRenderer: Sendable {
         context.scaleBy(x: viewport.zoom, y: viewport.zoom)
         let swatches = Dictionary(uniqueKeysWithValues: document.swatches.map { ($0.id, $0.color) })
         let gradients = Dictionary(uniqueKeysWithValues: document.gradients.map { ($0.id, $0) })
+        let visibleDocumentRect = viewport.clip.map {
+            Rect(
+                minX: ($0.minX - viewport.pan.x) / viewport.zoom,
+                minY: ($0.minY - viewport.pan.y) / viewport.zoom,
+                maxX: ($0.maxX - viewport.pan.x) / viewport.zoom,
+                maxY: ($0.maxY - viewport.pan.y) / viewport.zoom)
+        }
         for layer in document.layers where layer.isVisible {
-            for node in layer.nodes {
+            for node in layer.nodes
+            where visibleDocumentRect.map({ node.visualBounds?.intersects($0) ?? false }) ?? true {
                 render(node, swatches: swatches, gradients: gradients, approvedImages: approvedImages, in: context)
             }
         }
@@ -174,6 +182,12 @@ public struct CoreGraphicsRenderer: Sendable {
         context.move(to: CGPoint(x: frame.maxX, y: frame.minY))
         context.addLine(to: CGPoint(x: frame.minX, y: frame.maxY))
         context.strokePath()
+    }
+}
+
+extension Geometry.Rect {
+    fileprivate func intersects(_ other: Geometry.Rect) -> Bool {
+        maxX >= other.minX && other.maxX >= minX && maxY >= other.minY && other.maxY >= minY
     }
 }
 extension SRGBColor {

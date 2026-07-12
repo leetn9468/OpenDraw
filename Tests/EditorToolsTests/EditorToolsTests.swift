@@ -54,3 +54,18 @@ import Testing
     hidden.layers[0].isVisible = false
     #expect(tool.hitTest(hidden, pointer: Point(x: 10, y: 10), zoom: 1) == nil)
 }
+
+@Test func transformRotationAndZoomAboutPointExamples() throws {
+    let pivot = Point(x: 10, y: 20)
+    let transform = TransformInteractions.rotation(about: pivot, radians: .pi / 2)
+    #expect(transform.applying(to: pivot).distance(to: pivot) < 1e-9)
+    #expect(transform.applying(to: Point(x: 15, y: 20)).distance(to: Point(x: 10, y: 25)) < 1e-9)
+    #expect(abs(TransformInteractions.snappedRotation(radians: 0.27, constrain: true) - .pi / 12) < 1e-9)
+    let pan = try #require(
+        TransformInteractions.zoomAbout(
+            screenPoint: Point(x: 100, y: 80), oldZoom: 1, newZoom: 2, oldPan: Point(x: 10, y: 20)))
+    #expect(pan == Point(x: -80, y: -40))
+    let documentBefore = Point(x: (100 - 10) / 1, y: (80 - 20) / 1)
+    let documentAfter = Point(x: (100 - pan.x) / 2, y: (80 - pan.y) / 2)
+    #expect(documentBefore == documentAfter)
+}
