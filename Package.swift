@@ -37,10 +37,14 @@ let package = Package(
         .testTarget(name: "GeometryTests", dependencies: ["Geometry"]),
         .testTarget(
             name: "DocumentModelTests", dependencies: ["EditorCore", "DocumentModel", "EditorCommands", "Geometry"]),
-        .testTarget(name: "CanvasRenderTests", dependencies: ["CanvasRender", "DocumentModel", "EditorCore", "Geometry"]),
+        .testTarget(
+            name: "CanvasRenderTests", dependencies: ["CanvasRender", "DocumentModel", "EditorCore", "Geometry"]),
         .testTarget(name: "TextEngineTests", dependencies: ["TextEngine"]),
         .testTarget(
-            name: "DocumentFormatsTests", dependencies: ["EditorCore", "DocumentFormats", "DocumentModel", "Geometry"],
+            name: "DocumentFormatsTests",
+            dependencies: [
+                "EditorCore", "EditorCommands", "EditorTools", "DocumentFormats", "DocumentModel", "Geometry",
+            ],
             resources: [.copy("Fixtures")]),
         .testTarget(name: "EditorToolsTests", dependencies: ["EditorTools", "DocumentModel"]),
     ]

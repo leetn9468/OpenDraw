@@ -51,6 +51,9 @@ final class CanvasView: NSView {
     init(frame: NSRect, document: EditorDocument) {
         history = CommandHistory(document: document)
         super.init(frame: frame)
+        setAccessibilityElement(true)
+        setAccessibilityRole(.group)
+        setAccessibilityLabel("OpenDraw document canvas")
         subscribeToChanges()
     }
     required init?(coder: NSCoder) { nil }
