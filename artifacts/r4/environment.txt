@@ -1,0 +1,9 @@
+revision=6de4bce
+model=MacBookPro18,2
+chip=Apple M1 Max
+memory_bytes=68719476736
+os=macOS 15.7.5
+build=24G624
+arch=arm64
+toolchain=Apple Swift 6.1.2 swiftlang-6.1.2.1.2 clang-1700.0.13.5
+xcode=not-selected; active developer directory is Command Line Tools

@@ -1,17 +1,18 @@
 # Performance dashboard
 
-Environment: arm64 macOS 15.7.5, Swift 6.1.2. Results are local observations, not
-cross-hardware release certification.
+Environment: arm64 macOS 15.7.5 on `MacBookPro18,2` (Apple M1 Max, 64 GB),
+Swift 6.1.2. Results are local observations, not cross-hardware release
+certification. Current raw results are in `artifacts/r4/`.
 
 | Workload | Configuration | Observed / gate |
 |---|---|---|
-| Render 1,000 identical path objects to 640×480 bitmap | Release, isolated | ~42 ms initial scene rebuild |
-| Pan cached 1,000-object scene for 20 frames | Release | Every measured cached frame <16.7 ms (test assertion) |
-| 20,000 cubic hit tests, 32-subdivision parameter | Release full suite | ~30 ms |
-| Full automated suite | Release, 29 tests | ~49 ms test execution after build |
+| BENCH-1 selected-object drag | Release, 60 warm-up + 300 measured | p95 5.056 ms <= 16.7 ms |
+| BENCH-2 cached pan | Same | p95 0.108 ms <= 16.7 ms |
+| BENCH-2b forced-exposure pan | Same | p95 5.827 ms; 360/360 frames redrew strips |
+| BENCH-3 zoom / settle | Same | p95 8.763 ms <= 33 ms; settle 2.833 ms <= 100 ms |
+| BENCH-4 cold full redraw | Fresh harness before scenario warm-up | 8.166 ms, informational |
+| Full automated suite | Release, 88 tests | 1.113 s on final implementation/gate revision `6de4bce` |
 
-The initial rebuild does not meet the interactive frame budget and is explicitly not
-hidden. Cached panning meets it; document mutations invalidate and rebuild the cache.
-Future work: incremental tiled cache/damage rendering, representative nonidentical
-objects, memory/RSS capture, cancellation tests, baseline arm64/8 GB hardware, and
-median/p95 sampling rather than single-run observations.
+Current BENCH-R3.5 and memory/startup measurements use explicit warm-up/sample
+policies and are recorded in `docs/phase-4/R4-checkpoint.md`. Hosted-CI and real
+macOS 13 runtime proof remain open in `docs/PROJECT_STATE.md`.

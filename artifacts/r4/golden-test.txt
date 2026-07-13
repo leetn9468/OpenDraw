@@ -1,0 +1,9 @@
+Building for debugging...
+[0/8] Write swift-version--1AB21518FC5DEDBE.txt
+Build complete! (0.17s)
+◇ Test run started.
+↳ Testing Library Version: 124.4
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test compositeSceneMatchesProjectGoldenWithExplicitTolerance() started.
+✔ Test compositeSceneMatchesProjectGoldenWithExplicitTolerance() passed after 0.017 seconds.
+✔ Test run with 1 test passed after 0.017 seconds.

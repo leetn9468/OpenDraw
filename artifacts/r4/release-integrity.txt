@@ -1,0 +1,22 @@
+[0/1] Planning build
+Building for production...
+[0/4] Write swift-version--1AB21518FC5DEDBE.txt
+Build complete! (0.26s)
+dist/OpenDraw.app: replacing existing signature
+Executable=/Users/user/Documents/AI 10 restructure project/dist/OpenDraw.app/Contents/MacOS/OpenDraw
+Identifier=org.opendraw.editor
+Format=app bundle with Mach-O thin (arm64)
+CodeDirectory v=20500 size=13940 flags=0x10002(adhoc,runtime) hashes=429+3 location=embedded
+Hash type=sha256 size=32
+CandidateCDHash sha256=10757d707723bea744f0210d4b53c9ee3ab16d00
+CandidateCDHashFull sha256=10757d707723bea744f0210d4b53c9ee3ab16d007a87438eeadd236299fb8be3
+Hash choices=sha256
+CMSDigest=10757d707723bea744f0210d4b53c9ee3ab16d007a87438eeadd236299fb8be3
+CMSDigestType=2
+CDHash=10757d707723bea744f0210d4b53c9ee3ab16d00
+Signature=adhoc
+Info.plist entries=8
+TeamIdentifier=not set
+Runtime Version=15.5.0
+Sealed Resources version=2 rules=13 files=0
+Internal requirements count=0 size=12

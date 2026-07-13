@@ -1,0 +1,22 @@
+revision=f854389e3f7be89f237f80cb5ce13c3af65750c3 model=MacBookPro18,2 chip=Apple M1 Max memory_bytes=68719476736 os=15.7.5 build=24G624 arch=arm64 swift=swift-driver version: 1.120.5 Apple Swift version 6.1.2 (swiftlang-6.1.2.1.2 clang-1700.0.13.5) policy=clean-process-cold-app-state-warm-os-caches start=static-initializer stop=window-ready
+sample=1 startup_ready_ms=131.634
+sample=2 startup_ready_ms=138.461
+sample=3 startup_ready_ms=128.969
+sample=4 startup_ready_ms=140.815
+sample=5 startup_ready_ms=163.861
+sample=6 startup_ready_ms=145.485
+sample=7 startup_ready_ms=141.891
+sample=8 startup_ready_ms=141.074
+sample=9 startup_ready_ms=144.384
+sample=10 startup_ready_ms=126.292
+sample=11 startup_ready_ms=151.433
+sample=12 startup_ready_ms=142.571
+sample=13 startup_ready_ms=131.904
+sample=14 startup_ready_ms=143.409
+sample=15 startup_ready_ms=140.056
+sample=16 startup_ready_ms=134.033
+sample=17 startup_ready_ms=132.131
+sample=18 startup_ready_ms=143.965
+sample=19 startup_ready_ms=142.504
+sample=20 startup_ready_ms=135.040
+summary samples=20 p50_ms=140.815 p95_ms=151.433 max_ms=163.861 target_ms=2000 result=PASS

@@ -1,0 +1,4 @@
+command=xcrun swift-format lint --recursive --strict Sources Tests Package.swift
+revision=6de4bce
+exit=0
+result=PASS
