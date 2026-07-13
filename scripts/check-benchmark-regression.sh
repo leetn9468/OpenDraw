@@ -33,9 +33,17 @@ while IFS="$(printf '\t')" read -r metric base allowed; do
   case "$metric" in ''|'#'*) continue ;; esac
   observed=$(extract "$metric")
   test -n "$observed"
+  # Gate/test-side numeric policy: compare the parsed decimal strings exactly
+  # and inclusively at observed <= baseline * allowed. The six-decimal ratio is
+  # display only and never participates in the pass/fail decision.
   ratio=$(awk -v value="$observed" -v baseline="$base" 'BEGIN { printf "%.6f", value / baseline }')
   result=PASS
-  awk -v ratio="$ratio" -v allowed="$allowed" 'BEGIN { exit !(ratio <= allowed) }' || {
+  python3 - "$observed" "$base" "$allowed" <<'PY' || {
+from decimal import Decimal
+import sys
+observed, baseline, allowed = map(Decimal, sys.argv[1:])
+raise SystemExit(0 if observed <= baseline * allowed else 1)
+PY
     result=FAIL
     failed=1
   }

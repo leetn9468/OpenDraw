@@ -4,6 +4,8 @@ import Foundation
 import Testing
 
 private func mutations(of seed: Data, count: Int) -> [Data] {
+    // Test-side deterministic policy: fixed UInt64 seed and wrapping LCG
+    // arithmetic. This generator does not define production document behavior.
     var state: UInt64 = 0xA110_F00D
     return (0..<count).map { index in
         var bytes = [UInt8](seed)

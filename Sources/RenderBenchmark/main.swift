@@ -14,6 +14,13 @@ func milliseconds(_ duration: Duration) -> Double {
     let c = duration.components
     return Double(c.seconds) * 1_000 + Double(c.attoseconds) / 1_000_000_000_000_000
 }
+// Gate/test-side numeric policy: nearest-rank percentile, one-based rank
+// ceil(p * sampleCount), converted to a zero-based index. A single sample always
+// selects index zero. This does not define production editor behavior.
+func nearestRank(_ samples: [Double], percentile: Double) -> Double {
+    let rank = max(1, Int(ceil(percentile * Double(samples.count))))
+    return samples[min(samples.count - 1, rank - 1)]
+}
 func measure(warmup: Int = 60, frames: Int = 300, _ frame: (Int) throws -> Void) rethrows -> Statistics {
     for index in 0..<warmup { try frame(index) }
     var samples: [Double] = []
@@ -24,8 +31,8 @@ func measure(warmup: Int = 60, frames: Int = 300, _ frame: (Int) throws -> Void)
     }
     samples.sort()
     return Statistics(
-        p50: samples[Int(Double(samples.count - 1) * 0.50)],
-        p95: samples[Int(Double(samples.count - 1) * 0.95)], maximum: samples.last!)
+        p50: nearestRank(samples, percentile: 0.50),
+        p95: nearestRank(samples, percentile: 0.95), maximum: samples.last!)
 }
 func id(_ index: Int) -> ObjectID {
     let suffix = String(format: "%012X", index)

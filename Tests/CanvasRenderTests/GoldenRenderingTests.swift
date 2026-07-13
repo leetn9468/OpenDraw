@@ -67,6 +67,19 @@ private func png(_ image: CGImage) -> Data {
     return data as Data
 }
 
+// Gate/test-side numeric policy: both boundaries are inclusive. Integer division
+// deliberately floors 1% of 9,216 pixels to 92 permitted differing pixels.
+private func goldenDifferencePasses(differingPixels: Int, maxChannelDelta: Int) -> Bool {
+    maxChannelDelta <= 12 && differingPixels <= 96 * 96 / 100
+}
+
+@Test func goldenToleranceBoundaryPolicyIsInclusive() {
+    #expect(goldenDifferencePasses(differingPixels: 0, maxChannelDelta: 0))
+    #expect(goldenDifferencePasses(differingPixels: 92, maxChannelDelta: 12))
+    #expect(!goldenDifferencePasses(differingPixels: 93, maxChannelDelta: 12))
+    #expect(!goldenDifferencePasses(differingPixels: 92, maxChannelDelta: 13))
+}
+
 @Test func compositeSceneMatchesProjectGoldenWithExplicitTolerance() throws {
     let actual = try renderGolden()
     if ProcessInfo.processInfo.environment["UPDATE_GOLDENS"] == "1" {
@@ -90,6 +103,5 @@ private func png(_ image: CGImage) -> Data {
         }
         if differs { differingPixels += 1 }
     }
-    #expect(maxChannelDelta <= 12)
-    #expect(differingPixels <= 96 * 96 / 100)
+    #expect(goldenDifferencePasses(differingPixels: differingPixels, maxChannelDelta: maxChannelDelta))
 }

@@ -1098,10 +1098,15 @@ extension NSToolbarItem.Identifier {
 
 if CommandLine.arguments.contains("--smoke") {
     do {
+        let smokeStart = ProcessInfo.processInfo.systemUptime
         let codec = NativeDocumentCodec()
         var document = try EditorDocument.sample()
         for _ in 0..<100 { document = try codec.decode(codec.encode(document)) }
-        print("OpenDraw smoke: 100 native round trips passed")
+        let elapsed = (ProcessInfo.processInfo.systemUptime - smokeStart) * 1_000
+        print(
+            String(
+                format: "OpenDraw smoke: pid=%d duration_ms=%.3f 100 native round trips passed",
+                ProcessInfo.processInfo.processIdentifier, elapsed))
         exit(EXIT_SUCCESS)
     } catch {
         fputs("OpenDraw smoke failed: \(error)\n", stderr)

@@ -13,6 +13,24 @@ private func identifier(_ value: Int) -> ObjectID {
     return ObjectID(rawValue: UUID(uuidString: "10000000-0000-0000-0000-\(suffix)")!)
 }
 
+private func embeddedImageData() throws -> Data {
+    let context = try require(
+        CGContext(
+            data: nil, width: 2_500, height: 2_000, bitsPerComponent: 8, bytesPerRow: 0,
+            space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+    context.setFillColor(CGColor(srgbRed: 0.25, green: 0.5, blue: 0.75, alpha: 1))
+    context.fill(CGRect(x: 0, y: 0, width: 2_500, height: 2_000))
+    let image = try require(context.makeImage())
+    let data = NSMutableData()
+    let destination = try require(
+        CGImageDestinationCreateWithData(data, UTType.png.identifier as CFString, 1, nil))
+    CGImageDestinationAddImage(destination, image, nil)
+    guard CGImageDestinationFinalize(destination) else {
+        throw EditorError.invalidValue("Representative image encoding failed")
+    }
+    return data as Data
+}
+
 private func representativeDocument() throws -> EditorDocument {
     var nodes: [SceneNode] = []
     var anchorCount = 0
@@ -37,15 +55,14 @@ private func representativeDocument() throws -> EditorDocument {
                     id: identifier(objectIndex), segments: segments,
                     style: PathStyle(fill: nil, stroke: .black, strokeWidth: 1))))
     }
+    let imageData = try embeddedImageData()
+    let loader = RasterResourceLoader()
     for imageIndex in 0..<10 {
         let x = Double(imageIndex * 120)
-        nodes.append(
-            .image(
-                ImageObject(
-                    id: identifier(990 + imageIndex),
-                    frame: Rect(minX: x, minY: 900, maxX: x + 100, maxY: 980),
-                    storage: .linked(relativePath: "representative-\(imageIndex).png"),
-                    pixelWidth: 2_500, pixelHeight: 2_000)))
+        var image = try loader.embedded(
+            data: imageData, frame: Rect(minX: x, minY: 900, maxX: x + 100, maxY: 980))
+        image.id = identifier(990 + imageIndex)
+        nodes.append(.image(image))
     }
     precondition(nodes.count == 1_000)
     precondition(anchorCount == 10_000)
@@ -58,11 +75,22 @@ private func bitmapContext() -> CGContext {
         space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
 }
 
-private func settle(_ document: EditorDocument) throws -> CGContext {
+private struct SettledScenario: @unchecked Sendable {
+    var context: CGContext
+    var approvedImages: [ObjectID: CGImage]
+}
+
+private func settle(_ document: EditorDocument) async throws -> SettledScenario {
     try document.validate()
+    let cache = ApprovedImageCache()
+    try await cache.approve(document)
+    let approvedImages = await cache.snapshot()
+    precondition(approvedImages.count == 10, "All representative images must decode")
+    let approvedPixelCount = await cache.approvedPixelCount()
+    precondition(approvedPixelCount == 50_000_000, "Decoded pixel count must be representative")
     let context = bitmapContext()
-    CoreGraphicsRenderer().render(document, in: context)
-    return context
+    CoreGraphicsRenderer().render(document, in: context, approvedImages: approvedImages)
+    return SettledScenario(context: context, approvedImages: approvedImages)
 }
 
 private func exportPNG(_ context: CGContext) throws {
@@ -83,14 +111,27 @@ private func require<T>(_ value: T?) throws -> T {
 
 let mode = CommandLine.arguments.dropFirst().first ?? "settle"
 let document = try representativeDocument()
-let context = try settle(document)
-switch mode {
-case "settle":
-    print("R4_MEMORY_SCENARIO=settle objects=1000 anchors=10000 imagePixels=50000000")
-case "export":
-    try exportPNG(context)
-    print("R4_MEMORY_SCENARIO=export objects=1000 anchors=10000 imagePixels=50000000")
-default:
-    fputs("usage: R4GateHarness [settle|export]\n", stderr)
-    exit(EXIT_FAILURE)
+let extraByteCount = Int(ProcessInfo.processInfo.environment["R4_MEMORY_EXTRA_BYTES"] ?? "0") ?? 0
+let extraAllocation = [UInt8](repeating: 0xA5, count: extraByteCount)
+private let scenario = try await settle(document)
+withExtendedLifetime((scenario.approvedImages, extraAllocation)) {
+    switch mode {
+    case "settle":
+        print(
+            "R4_MEMORY_SCENARIO=settle objects=1000 anchors=10000 decodedImages=10 decodedPixels=50000000 extraBytes=\(extraByteCount)"
+        )
+    case "export":
+        do {
+            try exportPNG(scenario.context)
+            print(
+                "R4_MEMORY_SCENARIO=export objects=1000 anchors=10000 decodedImages=10 decodedPixels=50000000 extraBytes=\(extraByteCount)"
+            )
+        } catch {
+            fputs("R4 PNG export failed: \(error)\n", stderr)
+            exit(EXIT_FAILURE)
+        }
+    default:
+        fputs("usage: R4GateHarness [settle|export]\n", stderr)
+        exit(EXIT_FAILURE)
+    }
 }

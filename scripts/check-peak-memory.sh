@@ -2,8 +2,8 @@
 set -eu
 
 output=${1:-artifacts/r4/peak-memory.txt}
-settle_limit=$((500 * 1024 * 1024))
-export_limit=$((650 * 1024 * 1024))
+settle_limit=${R4_MEMORY_SETTLE_LIMIT_BYTES:-$((500 * 1024 * 1024))}
+export_limit=${R4_MEMORY_EXPORT_LIMIT_BYTES:-$((650 * 1024 * 1024))}
 mkdir -p "$(dirname "$output")"
 swift build -c release --product R4GateHarness >/dev/null
 
@@ -18,8 +18,10 @@ measure() {
   scenario=$1
   limit=$2
   timing=$(mktemp)
-  trap 'rm -f "$timing"' EXIT HUP INT TERM
-  /usr/bin/time -l .build/release/R4GateHarness "$scenario" 2>"$timing"
+  scenario_log=$(mktemp)
+  trap 'rm -f "$timing" "$scenario_log"' EXIT HUP INT TERM
+  /usr/bin/time -l .build/release/R4GateHarness "$scenario" >"$scenario_log" 2>"$timing"
+  cat "$scenario_log" | tee -a "$output"
   peak=$(awk '/maximum resident set size/ { print $1; exit }' "$timing")
   test -n "$peak"
   printf '%s peak_bytes=%s limit_bytes=%s result=' "$scenario" "$peak" "$limit" | tee -a "$output"
@@ -29,7 +31,7 @@ measure() {
     printf 'FAIL\n' | tee -a "$output"
     exit 1
   fi
-  rm -f "$timing"
+  rm -f "$timing" "$scenario_log"
   trap - EXIT HUP INT TERM
 }
 

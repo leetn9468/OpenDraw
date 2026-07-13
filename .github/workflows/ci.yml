@@ -37,7 +37,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: scripts/run-render-benchmark.sh benchmark.txt
       - run: scripts/test-benchmark-regression-gate.sh
-      - run: scripts/check-benchmark-regression.sh benchmarks/macos15-arm64-baseline.tsv benchmark.txt benchmark-comparison.txt
+      - run: scripts/check-benchmark-regression.sh benchmarks/owner-reference-macos15-arm64-baseline.tsv benchmark.txt benchmark-comparison.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with: { name: benchmark-results, path: benchmark.txt }
@@ -50,6 +50,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: scripts/check-startup-p95.sh 20 artifacts/r4/startup-p95.txt
       - run: scripts/check-peak-memory.sh artifacts/r4/peak-memory.txt
+      - run: scripts/test-peak-memory-gate.sh artifacts/r4/peak-memory-failure-fixture.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with: { name: startup-memory-results, path: artifacts/r4 }

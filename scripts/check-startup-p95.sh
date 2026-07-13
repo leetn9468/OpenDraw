@@ -30,6 +30,8 @@ done
 sorted=$(mktemp)
 trap 'rm -f "$values" "$sorted"' EXIT HUP INT TERM
 sort -n "$values" >"$sorted"
+# Gate/test-side numeric policy: nearest-rank percentile. The one-based rank is
+# ceil(percent * sampleCount / 100); for 20 samples p95 is the 19th sorted value.
 p50_index=$(((50 * samples + 99) / 100))
 p95_index=$(((95 * samples + 99) / 100))
 p50=$(sed -n "${p50_index}p" "$sorted")
