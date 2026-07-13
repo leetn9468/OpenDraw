@@ -37,7 +37,7 @@ The permanent suite contains 89 tests. Coverage is 87.93%, above the enforced
 | All pre-Phase-5 audit findings closed | Pass |
 | Clean-room implementation boundary | Pass; CI enforcement added |
 | Verification queue has no open entries | Pass |
-| Real macOS 13 Apple Silicon 100-launch runtime proof | **Open — BLOCK-002** |
+| Real macOS 13 Apple Silicon codec reliability plus 20-launch full-app startup proof from the same session | **Open — BLOCK-002** |
 | Hosted execution of memory/startup/reliability jobs | **Open — BLOCK-003/004/005** |
 | Hosted-CI benchmark baseline and run artifact | **Open — BLOCK-006** |
 

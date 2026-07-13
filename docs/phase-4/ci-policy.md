@@ -4,8 +4,11 @@
 
 The hosted arm64 lane uses macOS 15. CI also compiles with
 `MACOSX_DEPLOYMENT_TARGET=13.0`, but that is not a macOS 13 runtime test. ADR-011
-requires the 100-launch reliability script on real macOS 13 Apple Silicon before
-A7/R4 acceptance. That external run is currently missing (BLOCK-002).
+requires runtime evidence on real macOS 13 Apple Silicon before A7/R4
+acceptance. Frozen owner decision Option A (TN LEE, 2026-07-13) requires both
+the 100-launch codec reliability script and the 20-launch full-app startup gate
+from the same machine/session; codec-only Option B was rejected. Both external
+runs are currently missing (BLOCK-002).
 
 ## Enforced jobs
 

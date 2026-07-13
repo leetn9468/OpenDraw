@@ -71,9 +71,12 @@ measured frames per timed scenario, display sleep inhibited, production paths.
 
 ## Open blockers
 
-- BLOCK-002: no 100-launch log from real macOS 13.x Apple Silicon exists.
-  The ready command is `scripts/nightly-reliability.sh
-  artifacts/r4/macos13-reliability-100x100.txt` on that machine.
+- BLOCK-002: no qualifying runtime session from real macOS 13.x Apple Silicon
+  exists. Frozen owner decision Option A requires both
+  `scripts/nightly-reliability.sh
+  artifacts/r4/macos13-reliability-100x100.txt` and
+  `scripts/check-startup-p95.sh 20 artifacts/r4/macos13-startup-p95.txt` on the
+  same machine/session; codec-only Option B was rejected.
 - BLOCK-006: ratio enforcement exists, but this checkout has no Git remote and
   therefore no hosted macOS 15 run/baseline artifact or CI run URL. The committed
   baseline is truthfully labelled owner-reference, not hosted proof.

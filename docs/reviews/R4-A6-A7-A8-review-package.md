@@ -10,7 +10,8 @@ The locally executable engineering work is complete and passing, but R4/A7 is
 not accepted. A8 and Phase 5 entry remain blocked because two required external
 proofs do not exist:
 
-1. A 100-launch reliability run on real macOS 13.x Apple Silicon hardware.
+1. A 100-launch codec reliability run and a 20-launch full-app startup run from
+   the same session on real macOS 13.x Apple Silicon hardware.
 2. A hosted-CI benchmark baseline and comparison run with retained artifacts and
    a run URL.
 
@@ -29,7 +30,7 @@ The annotated tag `pre-phase5-remediation` has therefore not been created.
 | ID | Requirement | State | Direct evidence / required action |
 |---|---|---|---|
 | BLOCK-001 | Restore the exact 14-item A6 package | `CLOSED` | `docs/remediation/A6-R3-checkpoint.md` |
-| BLOCK-002 | Real macOS 13 Apple Silicon runtime proof | **OPEN** | Run `scripts/nightly-reliability.sh artifacts/r4/macos13-reliability-100x100.txt` on qualifying hardware and retain its environment header and results. |
+| BLOCK-002 | Real macOS 13 Apple Silicon runtime proof | **OPEN** | In one session on qualifying hardware, run `scripts/nightly-reliability.sh artifacts/r4/macos13-reliability-100x100.txt` and `scripts/check-startup-p95.sh 20 artifacts/r4/macos13-startup-p95.txt`; retain both environment headers and results. |
 | BLOCK-003 | Peak-memory assertions | `OPEN — LOCAL PASS, HOSTED PENDING` | Corrected decoded-image gate passes locally; first hosted `startup-memory` job must also pass. |
 | BLOCK-004 | Startup-p95 enforcement | `OPEN — LOCAL PASS, HOSTED PENDING` | Local 20-process gate passes; first hosted `startup-memory` job must also pass. |
 | BLOCK-005 | 100 launches / 10,000 round trips | `OPEN — LOCAL PASS, HOSTED PENDING` | Local sequential process proof passes; first hosted `nightly-reliability` job must also pass. |
@@ -187,8 +188,9 @@ The loop is sequential. `--smoke` bypasses AppKit window/UI initialization and
 runs only 100 codec cycles, explaining why its roughly 16–17 ms inner duration
 differs from the roughly 140 ms UI startup probe. The artifact records every
 PID, external process-wall duration and inner smoke duration. The local result
-was produced on macOS 15.7.5. BLOCK-002 requires the same script and result on
-actual macOS 13.x Apple Silicon hardware.
+was produced on macOS 15.7.5. BLOCK-002 requires the same script and result plus
+the 20-launch full-app startup gate on actual macOS 13.x Apple Silicon hardware,
+in the same machine session.
 
 ## Benchmark and ratio gate
 
@@ -395,11 +397,19 @@ swift --version
 sw_vers
 system_profiler SPHardwareDataType
 scripts/nightly-reliability.sh artifacts/r4/macos13-reliability-100x100.txt
+scripts/check-startup-p95.sh 20 artifacts/r4/macos13-startup-p95.txt
 ```
 
 Before committing the artifact, remove serial number, hardware UUID,
-provisioning UDID and similar device identifiers. Retain model identifier, SoC,
-RAM, macOS build, toolchain, revision, command, 100 launch rows and summary.
+provisioning UDID and similar device identifiers from both artifacts. Retain
+model identifier, SoC, RAM, macOS build, toolchain, revision and command in both;
+retain all 100 reliability launch rows and summary plus all 20 startup samples
+and its nearest-rank summary. The startup p95 target remains 2,000 ms.
+
+This is frozen owner decision **Option A**, adopted by TN LEE on 2026-07-13.
+BLOCK-002 closes only with both artifacts from the same session and machine.
+Option B, accepting codec-only smoke as sufficient, was rejected and may not be
+substituted without another explicit owner decision.
 
 ### BLOCK-003/004/005/006 — first hosted execution and benchmark proof
 
@@ -418,12 +428,16 @@ RAM, macOS build, toolchain, revision, command, 100 launch rows and summary.
 
 Only after both proofs pass:
 
-1. Update A7 and A8 to `CLOSED` and BLOCK-002/006/012 to `CLOSED`.
-2. Update the checkpoint/re-audit with the exact hosted and macOS 13 results.
-3. Rerun every gate affected by any code/script/CI change.
-4. Commit the final evidence.
-5. Create annotated tag `pre-phase5-remediation` on the proven revision.
-6. Record the exact tag target in `docs/PROJECT_STATE.md` and the checkpoint.
+1. As a mandatory A7 human spot-check, open and inspect
+   `artifacts/r4/a6-test-existence.txt`, `artifacts/r4/revision-map.md`, and the
+   exact 14-row test-name table in `docs/remediation/A6-R3-checkpoint.md`; do
+   not accept a summary in place of these files.
+2. Update A7 and A8 to `CLOSED` and BLOCK-002/006/012 to `CLOSED`.
+3. Update the checkpoint/re-audit with the exact hosted and macOS 13 results.
+4. Rerun every gate affected by any code/script/CI change.
+5. Commit the final evidence.
+6. Create annotated tag `pre-phase5-remediation` on the proven revision.
+7. Record the exact tag target in `docs/PROJECT_STATE.md` and the checkpoint.
 
 ## Review conclusion
 

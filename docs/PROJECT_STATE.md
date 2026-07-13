@@ -19,7 +19,7 @@ that directive. A row is closed only by committed, directly named evidence.
 | ID | Requirement | State | Direct evidence / exact remaining requirement |
 |---|---|---|---|
 | BLOCK-001 | Restore the exact 14-item A6 closure package | `CLOSED` | `docs/remediation/A6-R3-checkpoint.md`; `a6-test-existence.txt`; `a6-filtered-tests.txt`; explicit test-side numeric-policy classification and zero-new-production-math declaration |
-| BLOCK-002 | 100-run smoke on real macOS 13 Apple Silicon | `OPEN` | No qualifying macOS 13 machine was available. Run `scripts/nightly-reliability.sh <artifact>` on macOS 13.x arm64 and record model/SoC/RAM/toolchain/revision. Current macOS 15 evidence is not substituted. |
+| BLOCK-002 | Codec reliability and full-app startup on real macOS 13 Apple Silicon | `OPEN` | No qualifying macOS 13 machine was available. In one session on the same macOS 13.x arm64 machine, retain both `artifacts/r4/macos13-reliability-100x100.txt` from `scripts/nightly-reliability.sh` and `artifacts/r4/macos13-startup-p95.txt` from `scripts/check-startup-p95.sh 20`; the startup p95 target remains 2,000 ms. Both artifacts must retain the environment header after identifier stripping. Current macOS 15 evidence is not substituted. |
 | BLOCK-003 | Enforced peak-memory assertions | `OPEN — LOCAL PASS, HOSTED PENDING` | Corrected gate decodes ten embedded 5 MP images through `RasterResourceLoader` and `ApprovedImageCache`, renders approved images, and proves forced over-allocation failure. Local artifacts: `peak-memory.txt`, `peak-memory-failure-fixture.txt`. First hosted `startup-memory` job must pass. |
 | BLOCK-004 | Enforced startup p95 | `OPEN — LOCAL PASS, HOSTED PENDING` | Local nearest-rank 20-process gate passes. First hosted `startup-memory` job must pass; static-initializer timing excludes exec/dyld/pre-main. |
 | BLOCK-005 | 100 clean launches and 10,000 aggregate native round trips | `OPEN — LOCAL PASS, HOSTED PENDING` | Local sequential run records 100 distinct PIDs and per-process durations. First hosted scheduled `nightly-reliability` job must pass. |
@@ -34,3 +34,13 @@ that directive. A row is closed only by committed, directly named evidence.
 ## Tag state
 
 `pre-phase5-remediation`: **ABSENT — REQUIRED WHILE A8 IS BLOCKED**.
+
+## Frozen owner decisions
+
+> **Owner decision (TN LEE, 2026-07-13): Option A is adopted.** BLOCK-002 now
+> requires both the codec reliability run and the full-app startup run on real
+> macOS 13.x Apple Silicon hardware. Option B, accepting codec-only smoke as
+> sufficient macOS 13 runtime proof, was considered and rejected. BLOCK-002
+> closes only when both artifacts are retained from the same session and
+> machine. This decision may not be weakened without a further explicit owner
+> decision under frozen rule 11.
