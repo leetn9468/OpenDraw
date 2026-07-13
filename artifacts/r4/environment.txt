@@ -1,9 +1,1 @@
-revision=2884a54
-model=MacBookPro18,2
-chip=Apple M1 Max
-memory_bytes=68719476736
-os=macOS 15.7.5
-build=24G624
-arch=arm64
-toolchain=Apple Swift 6.1.2 swiftlang-6.1.2.1.2 clang-1700.0.13.5
-xcode=not-selected; active developer directory is Command Line Tools
+revision=f6ec81a88bee6a6b3055da850d08a6243061d090 model=MacBookPro18,2 chip=Apple M1 Max memory_bytes=68719476736 os=15.7.5 build=24G624 arch=arm64 swift=swift-driver version: 1.120.5 Apple Swift version 6.1.2 (swiftlang-6.1.2.1.2 clang-1700.0.13.5)

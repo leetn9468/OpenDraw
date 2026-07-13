@@ -7,5 +7,5 @@ Build complete! (0.18s)
 ◇ Test accessibilityTreeExposesDocumentLayersSelectionAndFrames() started.
 ◇ Test headlessUIJourneyCreateStyleTransformSaveReopenAndExport() started.
 ✔ Test accessibilityTreeExposesDocumentLayersSelectionAndFrames() passed after 0.001 seconds.
-✔ Test headlessUIJourneyCreateStyleTransformSaveReopenAndExport() passed after 0.030 seconds.
-✔ Test run with 2 tests passed after 0.030 seconds.
+✔ Test headlessUIJourneyCreateStyleTransformSaveReopenAndExport() passed after 0.025 seconds.
+✔ Test run with 2 tests passed after 0.025 seconds.

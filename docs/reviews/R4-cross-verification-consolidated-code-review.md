@@ -3,7 +3,7 @@
 Prepared: 2026-07-13  
 Branch: `remediation/pre-phase5`  
 Scope: Claude ISSUE-01–11, the corresponding Codex remediation, affected source/test/gate areas, retained proof, and current blockers  
-Implementation and gate revisions: `b01364b`, `2884a54`  
+Implementation and gate revisions: `b01364b`, `2884a54`, `f6ec81a`
 Evidence and state revision: `7cfbf00`  
 Detailed issue response revision: `076e1ef`
 
@@ -14,10 +14,10 @@ This does not authorize Phase 5. The current project verdict remains:
 
 > **FAILED — PHASE 5 BLOCKED**
 
-BLOCK-002 and BLOCK-006 require external execution. Frozen owner decision
-Option A requires both codec reliability and full-app startup from the same
-real macOS 15 Apple Silicon session; codec-only Option B was rejected.
-BLOCK-003/004/005 retain hosted-execution components, and BLOCK-012 prohibits
+BLOCK-002 is closed by same-session codec reliability and full-app startup on
+the owner-reference real macOS 15 Apple Silicon machine at `f6ec81a`.
+BLOCK-003/004/005 retain hosted-execution components, BLOCK-006 remains open,
+and BLOCK-012 prohibits
 the Phase 5 tag until the external blockers close. No
 `pre-phase5-remediation` tag has been created.
 
@@ -29,6 +29,7 @@ the Phase 5 tag until the external blockers close. No
 | `2884a54` | Make the reliability run sequential and retain distinct PIDs plus external and inner per-process timing. |
 | `7cfbf00` | Record proof artifacts, correct project state, close local evidence gaps, and map artifacts to revisions. |
 | `076e1ef` | Commit the mandatory per-issue cross-verification response. |
+| `f6ec81a` | Raise only the platform floor to macOS 15 and provide the exact build-input revision for the complete rerun battery. |
 
 ## ISSUE-01 — Fuzz seed reproducibility
 
@@ -393,20 +394,20 @@ Status: **RESOLVED**
 
 ### ADD-01 — BLOCK-002 Option A
 
-The owner decision is frozen in `docs/PROJECT_STATE.md`: BLOCK-002 requires
+The owner decision is frozen in `docs/PROJECT_STATE.md`: BLOCK-002 required
 both `macos15-reliability-100x100.txt` and `macos15-startup-p95.txt` from the
-same real macOS 15.x Apple Silicon machine/session. The startup artifact uses
-20 full-app launches and the unchanged 2,000 ms p95 target. Option B,
-codec-only runtime proof, was rejected.
+same real macOS 15.x Apple Silicon machine/session. Both now pass at `f6ec81a`.
+The startup artifact uses 20 full-app launches and the unchanged 2,000 ms p95
+target. Option B, codec-only runtime proof, was rejected.
 
-Status: **RESOLVED AS PROCEDURE — EXTERNAL RUN OPEN**
+Status: **RESOLVED — BLOCK-002 CLOSED**
 
 ### ADD-02 — Optional percentile fixture
 
 No new synthetic fixture was added. The optional work would change a gate
 script and trigger a startup-gate rerun under BLOCK-011. The accepted live run
-already distinguishes rank 19 from rank 20 (`147.748 ms` versus the
-`162.816 ms` maximum), while the exact nearest-rank rule and boundary examples
+already distinguishes rank 19 from rank 20 (`152.286 ms` versus the
+`183.569 ms` maximum), while the exact nearest-rank rule and boundary examples
 are pinned in both the script and CI policy. This optional enhancement remains
 available if the owner later prioritizes it.
 
@@ -426,39 +427,32 @@ Status: **RESOLVED**
 
 | Gate | Result |
 |---|---|
-| Debug | 89 tests passed, 2.427 s |
-| Release | 89 tests passed, 1.135 s |
-| ASan | 89 tests passed, 11.317 s |
+| Debug | 89 tests passed, 2.419 s |
+| Release | 89 tests passed, 1.136 s |
+| ASan | 89 tests passed, 11.715 s |
 | Coverage | 87.93%, minimum 55% |
-| Startup | p50 139.778 ms; p95 147.748 ms; max 162.816 ms; target 2,000 ms |
-| Memory settle | 214,433,792 bytes; local pass |
-| Memory export | 224,395,264 bytes; local pass |
-| Memory failure fixture | 791,822,336 bytes; expected nonzero failure |
+| Startup | p50 142.652 ms; p95 152.286 ms; max 183.569 ms; target 2,000 ms |
+| Memory settle | 214,548,480 bytes; local pass |
+| Memory export | 225,280,000 bytes; local pass |
+| Memory failure fixture | 790,740,992 bytes; expected nonzero failure |
 | Reliability | 100 processes, 100 distinct PIDs, 10,000 round trips, zero failures |
-| BENCH-1 | p50 4.960; p95 5.496; max 12.056 ms |
-| BENCH-2 | p50 0.088; p95 0.108; max 0.180 ms |
-| BENCH-2b | p50 5.375; p95 5.950; max 23.265 ms; 360/360 strip-redraw frames |
-| BENCH-3 | p50 2.399; p95 8.953; max 10.186 ms; settle 2.745 ms |
+| BENCH-1 | p50 5.029; p95 5.408; max 5.611 ms |
+| BENCH-2 | p50 0.087; p95 0.107; max 0.133 ms |
+| BENCH-2b | p50 5.415; p95 5.815; max 6.161 ms; 360/360 strip-redraw frames |
+| BENCH-3 | p50 2.391; p95 9.162; max 10.436 ms; settle 2.776 ms |
 | Ratio boundary | Exact `1.25×` passes; `1.314801×` fails |
 
 ## Remaining actions before Phase 5
 
-1. **BLOCK-002:** on one real macOS 15.x Apple Silicon machine session, run
-   `scripts/nightly-reliability.sh
-   artifacts/r4/macos15-reliability-100x100.txt` and
-   `scripts/check-startup-p95.sh 20
-   artifacts/r4/macos15-startup-p95.txt`; retain model, SoC, RAM, OS/build,
-   Swift version, revision, all process/sample rows, and summaries after
-   identifier stripping. The startup p95 target remains 2,000 ms.
-2. **BLOCK-006:** establish a remote and obtain the first hosted CI run with all
+1. **BLOCK-006:** establish a remote and obtain the first hosted CI run with all
    four required jobs green; retain its run URL and artifacts.
-3. Bootstrap a clearly identified hosted benchmark baseline and comparison
+2. Bootstrap a clearly identified hosted benchmark baseline and comparison
    artifact without overwriting the owner-reference provenance.
-4. Update BLOCK-003/004/005 only after their hosted jobs actually pass.
-5. At A7 final acceptance, the human reviewer must open
+3. Update BLOCK-003/004/005 only after their hosted jobs actually pass.
+4. At A7 final acceptance, the human reviewer must open
    `artifacts/r4/a6-test-existence.txt`, `artifacts/r4/revision-map.md`, and the
    exact 14-row table in `docs/remediation/A6-R3-checkpoint.md`.
-6. Keep BLOCK-012 open and do not create `pre-phase5-remediation` while any
+5. Keep BLOCK-012 open and do not create `pre-phase5-remediation` while any
    prerequisite remains open.
 
 Until those actions are complete, A8 remains blocked and the final verdict is

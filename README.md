@@ -14,9 +14,9 @@ and Phase 4 verification/release hardening. No legacy decompiler output belongs 
   Manager, Swift Testing
 - Compatibility: SVG 1.1 subset for interchange; deterministic OpenDraw v4 native format
 
-Local R4 gates pass, but project acceptance still requires real macOS 15 Apple
-Silicon codec reliability and full-app startup runs from the same session, plus
-a hosted-CI benchmark baseline/run artifact.
+Local R4 gates and the real minimum-OS macOS 15 runtime proofs pass. Project
+acceptance still requires the first hosted-CI four-job run and hosted benchmark
+baseline/comparison artifact.
 See [the authoritative project state](docs/PROJECT_STATE.md). No Phase 5 entry
 tag exists while those blockers remain.
 

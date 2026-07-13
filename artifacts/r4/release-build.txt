@@ -1,14 +1,22 @@
 [0/1] Planning build
 Building for production...
-[0/6] Write sources
-[2/6] Write swift-version--1AB21518FC5DEDBE.txt
-[4/10] Compiling MacPlatform BackingScale.swift
-[5/10] Compiling RenderBenchmark main.swift
-[5/10] Write Objects.LinkFileList
-[7/10] Compiling EditorCommands AlignmentCommands.swift
-[7/10] Linking RenderBenchmark
-[9/11] Compiling EditorTools AccessibilityTree.swift
-[10/12] Compiling VectorFoundryApp main.swift
-[10/12] Write Objects.LinkFileList
-[11/12] Linking VectorFoundry
-Build complete! (6.43s)
+[0/7] Write swift-version--1AB21518FC5DEDBE.txt
+[2/8] Compiling EditorCore CoreTypes.swift
+[3/10] Compiling Geometry Geometry.swift
+[4/12] Compiling MacPlatform BackingScale.swift
+[5/12] Compiling TextEngine TextShaper.swift
+[6/12] Compiling DocumentModel Document.swift
+[7/15] Compiling CanvasRender CoreGraphicsRenderer.swift
+[8/16] Compiling EditorCommands AlignmentCommands.swift
+[9/17] Compiling RenderBenchmark main.swift
+[9/17] Write Objects.LinkFileList
+[10/17] Linking RenderBenchmark
+[12/17] Compiling EditorTools AccessibilityTree.swift
+[13/17] Compiling DocumentFormats AdversarialParserHarness.swift
+[14/19] Compiling R4GateHarness main.swift
+[14/19] Write Objects.LinkFileList
+[15/19] Linking R4GateHarness
+[17/19] Compiling VectorFoundryApp main.swift
+[17/19] Write Objects.LinkFileList
+[18/19] Linking VectorFoundry
+Build complete! (13.61s)

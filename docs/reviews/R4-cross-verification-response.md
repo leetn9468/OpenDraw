@@ -6,6 +6,10 @@ Final implementation/gate revision: `2884a54`
 Complete-battery revision: `b01364b`  
 Evidence/documentation revision: `7cfbf00`
 
+Platform-floor follow-up: the complete battery was subsequently rerun at
+`f6ec81a`; BLOCK-002 is closed by the same-session
+`macos15-reliability-100x100.txt` and `macos15-startup-p95.txt` artifacts.
+
 Overall verdict remains **FAILED — PHASE 5 BLOCKED**. No
 `pre-phase5-remediation` tag exists.
 
@@ -303,7 +307,6 @@ RESOLVED
 
 The issue resolutions above do not close:
 
-- BLOCK-002 — real macOS 15.x Apple Silicon runtime proof;
 - BLOCK-003/004/005 hosted-execution components;
 - BLOCK-006 — hosted run, hosted baseline/comparison artifact and run URL;
 - BLOCK-012 — prohibited tag while blockers remain.

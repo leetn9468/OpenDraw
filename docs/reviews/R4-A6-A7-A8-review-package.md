@@ -7,12 +7,10 @@ Documentation revision at preparation: `f44b7e4`
 ## Executive verdict
 
 The locally executable engineering work is complete and passing, but R4/A7 is
-not accepted. A8 and Phase 5 entry remain blocked because two required external
-proofs do not exist:
+not accepted. A8 and Phase 5 entry remain blocked because one required external
+proof does not exist:
 
-1. A 100-launch codec reliability run and a 20-launch full-app startup run from
-   the same session on real macOS 15.x Apple Silicon hardware.
-2. A hosted-CI benchmark baseline and comparison run with retained artifacts and
+1. A hosted-CI benchmark baseline and comparison run with retained artifacts and
    a run URL.
 
 The annotated tag `pre-phase5-remediation` has therefore not been created.
@@ -22,7 +20,7 @@ The annotated tag `pre-phase5-remediation` has therefore not been created.
 | Acceptance | State | Evidence / reason |
 |---|---|---|
 | A6 — R3/R3-B checkpoint package | `CLOSED` | The original 14 feature groups are mapped to exact production symbols, tests and commits in `docs/remediation/A6-R3-checkpoint.md`. |
-| A7 — R4 CI/reliability acceptance | `NOT ACCEPTED` | BLOCK-002 and BLOCK-006 remain open. |
+| A7 — R4 CI/reliability acceptance | `NOT ACCEPTED` | BLOCK-003/004/005 hosted components and BLOCK-006 remain open. |
 | A8 — Phase 5 entry | `BLOCKED` | The required entry tag cannot exist while a hard blocker remains. |
 
 ## BLOCK-001–012 status
@@ -30,16 +28,16 @@ The annotated tag `pre-phase5-remediation` has therefore not been created.
 | ID | Requirement | State | Direct evidence / required action |
 |---|---|---|---|
 | BLOCK-001 | Restore the exact 14-item A6 package | `CLOSED` | `docs/remediation/A6-R3-checkpoint.md` |
-| BLOCK-002 | Real macOS 15 Apple Silicon runtime proof | **OPEN** | In one session on qualifying hardware, run `scripts/nightly-reliability.sh artifacts/r4/macos15-reliability-100x100.txt` and `scripts/check-startup-p95.sh 20 artifacts/r4/macos15-startup-p95.txt`; retain both environment headers and results. |
+| BLOCK-002 | Real minimum-OS macOS 15 Apple Silicon runtime proof | **CLOSED** | At `f6ec81a`, the owner-reference MacBookPro18,2/macOS 15.7.5 session produced `macos15-reliability-100x100.txt` (100 distinct PIDs/10,000 round trips/zero failures) and `macos15-startup-p95.txt` (20 launches, p95 152.286 ms ≤ 2,000 ms). |
 | BLOCK-003 | Peak-memory assertions | `OPEN — LOCAL PASS, HOSTED PENDING` | Corrected decoded-image gate passes locally; first hosted `startup-memory` job must also pass. |
 | BLOCK-004 | Startup-p95 enforcement | `OPEN — LOCAL PASS, HOSTED PENDING` | Local 20-process gate passes; first hosted `startup-memory` job must also pass. |
 | BLOCK-005 | 100 launches / 10,000 round trips | `OPEN — LOCAL PASS, HOSTED PENDING` | Local sequential process proof passes; first hosted `nightly-reliability` job must also pass. |
 | BLOCK-006 | Hosted benchmark ratio proof | **OPEN** | Enforcement exists, but no Git remote, hosted run, hosted baseline artifact or run URL is available. |
-| BLOCK-007 | Fresh final-revision battery | `CLOSED` | Revision-accounted debug/release/ASan/coverage and targeted reruns under `artifacts/r4/` |
+| BLOCK-007 | Fresh final-revision battery | `CLOSED` | Complete local battery and all retained gate artifacts at `f6ec81a` |
 | BLOCK-008 | Reproducibility metadata | `CLOSED` | `docs/phase-4/fuzz-results.md`; environment and benchmark artifacts |
 | BLOCK-009 | Audit traceability | `CLOSED` | `docs/audits/findings-closure-matrix.md` |
 | BLOCK-010 | Correct R4 documentation | `CLOSED` | Incorrect unconditional pass language was removed. |
-| BLOCK-011 | Exact revision accounting | `CLOSED` | Earlier lineage plus `b01364b` complete battery and `2884a54` targeted reliability rerun; see `revision-map.md` and `revision-scope-proof.txt` |
+| BLOCK-011 | Exact revision accounting | `CLOSED` | Complete battery at final build-input revision `f6ec81a`; see `revision-map.md` and `revision-scope-proof.txt` |
 | BLOCK-012 | Phase 5 entry tag | **OPEN** | `pre-phase5-remediation` is intentionally absent. |
 
 ## Revision model
@@ -52,6 +50,7 @@ The annotated tag `pre-phase5-remediation` has therefore not been created.
 | `f44b7e4` | Restored project tracker/A6 record, corrected documents and committed raw artifacts. | Documentation-only checks executed; no build input changed. |
 | `b01364b` | Corrected decoded-image memory gate, failure fixture, numeric policies, PID evidence and baseline naming. | Complete local battery rerun. |
 | `2884a54` | Reliability-only external process-duration correction. | 100-process/10,000-cycle reliability gate rerun. |
+| `f6ec81a` | Raised only the platform floor to macOS 15 in package/release/CI inputs and swept active documentation. | Complete local battery and every retained R4 artifact regenerated. |
 
 ## Environment
 
@@ -65,17 +64,17 @@ The annotated tag `pre-phase5-remediation` has therefore not been created.
 | Swift | Apple Swift 6.1.2 (`swiftlang-6.1.2.1.2`, clang 1700.0.13.5) |
 | Xcode selection | Full Xcode not selected; Command Line Tools active |
 
-This environment is not a substitute for the required macOS 15 runtime test.
+This is the owner-approved minimum-OS runtime-proof environment.
 
 ## Final local verification results
 
 | Gate | Exact command | Observed result | Artifact |
 |---|---|---|---|
 | Debug build | `swift build -c debug` | PASS | `artifacts/r4/debug-build.txt` |
-| Debug tests | `swift test` | 89/89, 2.427 s | `artifacts/r4/debug-tests.txt` |
+| Debug tests | `swift test` | 89/89, 2.419 s | `artifacts/r4/debug-tests.txt` |
 | Release build | `swift build -c release` | PASS | `artifacts/r4/release-build.txt` |
-| Release tests | `swift test -c release` | 89/89, 1.135 s | `artifacts/r4/release-tests.txt` |
-| AddressSanitizer | `swift test --sanitize=address` | 89/89, 11.317 s | `artifacts/r4/asan-tests.txt` |
+| Release tests | `swift test -c release` | 89/89, 1.136 s | `artifacts/r4/release-tests.txt` |
+| AddressSanitizer | `swift test --sanitize=address` | 89/89, 11.715 s | `artifacts/r4/asan-tests.txt` |
 | Coverage | `swift test --enable-code-coverage`; `scripts/check-coverage.sh 55` | 87.93% versus 55% floor | `coverage-tests.txt`, `coverage-summary.txt` |
 | Formatting | `xcrun swift-format lint --recursive --strict Sources Tests Package.swift` | PASS | `format.txt` |
 | Module direction | `scripts/check-module-dependencies.sh` | PASS | `module-dependencies.txt` |
@@ -86,10 +85,10 @@ This environment is not a substitute for the required macOS 15 runtime test.
 | Golden rendering | `swift test --filter compositeSceneMatchesProjectGolden` | PASS | `golden-test.txt` |
 | UI/accessibility | `swift test --filter 'headlessUIJourney|accessibilityTreeExposes'` | PASS | `ui-accessibility-tests.txt` |
 | Release integrity | `scripts/build-release-app.sh`; `codesign -dvvv dist/OpenDraw.app` | arm64, ad-hoc hardened-runtime signature | `release-integrity.txt` |
-| Startup | `scripts/check-startup-p95.sh 20 artifacts/r4/startup-p95.txt` | LOCAL PASS; hosted pending | `startup-p95.txt` |
+| Startup | `scripts/check-startup-p95.sh 20 artifacts/r4/macos15-startup-p95.txt` | PASS; minimum-OS runtime proof; hosted job pending separately | `macos15-startup-p95.txt`, `startup-p95.txt` |
 | Peak memory | `scripts/check-peak-memory.sh artifacts/r4/peak-memory.txt` | LOCAL PASS with decoded images; hosted pending | `peak-memory.txt` |
 | Memory failure fixture | `scripts/test-peak-memory-gate.sh artifacts/r4/peak-memory-failure-fixture.txt` | PASS: underlying gate fails as required | `peak-memory-failure-fixture.txt` |
-| Reliability | `scripts/nightly-reliability.sh artifacts/r4/reliability-100x100.txt` | LOCAL PASS with 100 distinct PIDs; hosted pending | `reliability-100x100.txt` |
+| Reliability | `scripts/nightly-reliability.sh artifacts/r4/macos15-reliability-100x100.txt` | PASS with 100 distinct PIDs; minimum-OS runtime proof; hosted job pending separately | `macos15-reliability-100x100.txt`, `reliability-100x100.txt` |
 | Benchmark | `scripts/run-render-benchmark.sh artifacts/r4/render-benchmark.txt` | All absolute targets pass | `render-benchmark.txt` |
 | Ratio gate | `scripts/check-benchmark-regression.sh ...`; `scripts/test-benchmark-regression-gate.sh` | Local comparison passes; above-threshold fixture fails as intended | `benchmark-comparison.txt`, `benchmark-gate-fixtures.txt` |
 
@@ -115,7 +114,7 @@ the 19th sorted value.
 
 | p50 | p95 | Maximum | Target | Result |
 |---:|---:|---:|---:|---|
-| 139.778 ms | 147.748 ms | 162.816 ms | p95 <= 2,000 ms | LOCAL PASS |
+| 142.652 ms | 152.286 ms | 183.569 ms | p95 <= 2,000 ms | PASS |
 
 ### Code area
 
@@ -145,9 +144,9 @@ observed result:
 
 | Scenario | Observed peak | Ceiling | Result |
 |---|---:|---:|---|
-| Settled render | 214,433,792 bytes | 524,288,000 bytes | LOCAL PASS; 309,854,208-byte headroom |
-| PNG export | 224,395,264 bytes | 681,574,400 bytes | LOCAL PASS; 457,179,136-byte headroom |
-| Forced 550 MiB extra allocation | 791,822,336 bytes | 524,288,000 bytes | Expected FAIL/nonzero exit |
+| Settled render | 214,548,480 bytes | 524,288,000 bytes | LOCAL PASS; 309,739,520-byte headroom |
+| PNG export | 225,280,000 bytes | 681,574,400 bytes | LOCAL PASS; 456,294,400-byte headroom |
+| Forced 550 MiB extra allocation | 790,740,992 bytes | 524,288,000 bytes | Expected FAIL/nonzero exit |
 
 ### Code area
 
@@ -187,10 +186,10 @@ observed result:
 The loop is sequential. `--smoke` bypasses AppKit window/UI initialization and
 runs only 100 codec cycles, explaining why its roughly 16–17 ms inner duration
 differs from the roughly 140 ms UI startup probe. The artifact records every
-PID, external process-wall duration and inner smoke duration. The local result
-was produced on macOS 15.7.5. BLOCK-002 requires the same script and result plus
-the 20-launch full-app startup gate on actual macOS 15.x Apple Silicon hardware,
-in the same machine session.
+PID, external process-wall duration and inner smoke duration. This result was
+produced on the owner-approved minimum-OS environment, macOS 15.7.5, in the
+same session as the full-app startup artifact and closes BLOCK-002. The separate
+hosted reliability job remains pending.
 
 ## Benchmark and ratio gate
 
@@ -202,13 +201,13 @@ and 300 measured frames through production rendering/cache paths.
 
 | Scenario | p50 | p95 | Maximum/settle | Target | Result |
 |---|---:|---:|---:|---:|---|
-| BENCH-1 drag | 4.960 ms | 5.496 ms | 12.056 ms | p95 <= 16.7 ms | PASS |
-| BENCH-2 pan | 0.088 ms | 0.108 ms | 0.180 ms | p95 <= 16.7 ms | PASS |
-| BENCH-2b forced exposure | 5.375 ms | 5.950 ms | 23.265 ms | p95 <= 16.7 ms | PASS |
-| BENCH-3 zoom | 2.399 ms | 8.953 ms | 10.186 ms | p95 <= 33 ms | PASS |
-| BENCH-3 settle | — | — | 2.745 ms | <= 100 ms | PASS |
-| BENCH-4 cold full redraw | — | — | 8.236 ms | Informational | RECORDED |
-| Warm full redraw | — | — | 4.510 ms | Informational | RECORDED |
+| BENCH-1 drag | 5.029 ms | 5.408 ms | 5.611 ms | p95 <= 16.7 ms | PASS |
+| BENCH-2 pan | 0.087 ms | 0.107 ms | 0.133 ms | p95 <= 16.7 ms | PASS |
+| BENCH-2b forced exposure | 5.415 ms | 5.815 ms | 6.161 ms | p95 <= 16.7 ms | PASS |
+| BENCH-3 zoom | 2.391 ms | 9.162 ms | 10.436 ms | p95 <= 33 ms | PASS |
+| BENCH-3 settle | — | — | 2.776 ms | <= 100 ms | PASS |
+| BENCH-4 cold full redraw | — | — | 8.326 ms | Informational | RECORDED |
+| Warm full redraw | — | — | 4.871 ms | Informational | RECORDED |
 
 BENCH-2b recorded nonzero strip redraws for all 360 warm-up and measured frames.
 This is an assertion, not observation: `Sources/RenderBenchmark/main.swift`
@@ -386,9 +385,9 @@ These remain visible and are not represented as automated passes:
 
 ## Required operator work to unblock Phase 5
 
-### BLOCK-002 — macOS 15 runtime
+### BLOCK-002 — macOS 15 runtime — completed at `f6ec81a`
 
-On a real macOS 15.x Apple Silicon Mac:
+Executed on the owner-reference real macOS 15.x Apple Silicon Mac:
 
 ```sh
 git switch remediation/pre-phase5
@@ -407,7 +406,7 @@ retain all 100 reliability launch rows and summary plus all 20 startup samples
 and its nearest-rank summary. The startup p95 target remains 2,000 ms.
 
 This is frozen owner decision **Option A**, adopted by TN LEE on 2026-07-13.
-BLOCK-002 closes only with both artifacts from the same session and machine.
+BLOCK-002 closed with both artifacts from the same session and machine.
 Option B, accepting codec-only smoke as sufficient, was rejected and may not be
 substituted without another explicit owner decision.
 
@@ -426,13 +425,13 @@ substituted without another explicit owner decision.
 
 ### Final closure sequence
 
-Only after both proofs pass:
+Only after the remaining hosted proof passes:
 
 1. As a mandatory A7 human spot-check, open and inspect
    `artifacts/r4/a6-test-existence.txt`, `artifacts/r4/revision-map.md`, and the
    exact 14-row test-name table in `docs/remediation/A6-R3-checkpoint.md`; do
    not accept a summary in place of these files.
-2. Update A7 and A8 to `CLOSED` and BLOCK-002/006/012 to `CLOSED`.
+2. Update A7 and A8 to `CLOSED` and BLOCK-003/004/005/006/012 to `CLOSED` as their hosted evidence permits.
 3. Update the checkpoint/re-audit with the exact hosted and macOS 15 results.
 4. Rerun every gate affected by any code/script/CI change.
 5. Commit the final evidence.

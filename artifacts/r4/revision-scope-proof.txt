@@ -1,59 +1,72 @@
-6de4bce R4 adversarial: retain reproducible mutation failure indices
- .../AdversarialCorpusTests.swift                     | 20 ++++++++++++++++++--
- 1 file changed, 18 insertions(+), 2 deletions(-)
-f44b7e4 R4 evidence: restore A6 and record unresolved acceptance blockers
- README.md                                 |  15 +-
- artifacts/r4/adversarial-tests.txt        | 100 +++++++++++
- artifacts/r4/asan-tests.txt               | 272 ++++++++++++++++++++++++++++++
- artifacts/r4/benchmark-comparison.txt     |   5 +
- artifacts/r4/benchmark-gate-fixtures.txt  |  10 ++
- artifacts/r4/clean-room.txt               |   4 +
- artifacts/r4/coverage-summary.txt         |   1 +
- artifacts/r4/coverage-tests.txt           | 271 +++++++++++++++++++++++++++++
- artifacts/r4/debug-build.txt              |   4 +
- artifacts/r4/debug-tests.txt              | 184 ++++++++++++++++++++
- artifacts/r4/environment.txt              |   9 +
- artifacts/r4/format.txt                   |   4 +
- artifacts/r4/golden-test.txt              |   9 +
- artifacts/r4/macos13-deployment-build.txt |  22 +++
- artifacts/r4/module-dependencies.txt      |   4 +
- artifacts/r4/peak-memory.txt              |   3 +
- artifacts/r4/release-build.txt            |   4 +
- artifacts/r4/release-integrity.txt        |  22 +++
- artifacts/r4/release-tests.txt            | 212 +++++++++++++++++++++++
- artifacts/r4/reliability-100x100.txt      | 102 +++++++++++
- artifacts/r4/render-benchmark.txt         |  10 ++
- artifacts/r4/startup-p95.txt              |  22 +++
- artifacts/r4/symbol-graph.txt             |  64 +++++++
- artifacts/r4/ui-accessibility-tests.txt   |  11 ++
- docs/PROJECT_STATE.md                     |  36 ++++
- docs/audits/R4-final-reaudit.md           |  38 +++--
- docs/audits/findings-closure-matrix.md    |  27 +--
- docs/phase-4/R4-checkpoint.md             | 141 +++++++++-------
- docs/phase-4/README.md                    |  15 +-
- docs/phase-4/ci-policy.md                 |  80 +++++++--
- docs/phase-4/fuzz-results.md              |  48 ++++--
- docs/phase-4/performance-dashboard.md     |  23 +--
- docs/remediation/A6-R3-checkpoint.md      |  74 ++++++++
- docs/verification/GOLDEN_RENDERING.md     |  10 +-
- 34 files changed, 1713 insertions(+), 143 deletions(-)
-b01364b R4 gates: decode representative images and pin numeric policies
- .github/workflows/ci.yml                           |  3 +-
- Sources/R4GateHarness/main.swift                   | 81 ++++++++++++++++------
- Sources/RenderBenchmark/main.swift                 | 11 ++-
- Sources/VectorFoundryApp/main.swift                |  7 +-
- Tests/CanvasRenderTests/GoldenRenderingTests.swift | 16 ++++-
- .../AdversarialCorpusTests.swift                   |  2 +
- ... => owner-reference-macos15-arm64-baseline.tsv} |  2 +-
- scripts/check-benchmark-regression.sh              | 10 ++-
- scripts/check-peak-memory.sh                       | 12 ++--
- scripts/check-startup-p95.sh                       |  2 +
- scripts/fixtures/benchmark-regression-boundary.txt |  5 ++
- scripts/nightly-reliability.sh                     | 22 ++++--
- scripts/test-benchmark-regression-gate.sh          |  6 +-
- scripts/test-peak-memory-gate.sh                   | 10 +++
- 14 files changed, 150 insertions(+), 39 deletions(-)
-2884a54 R4 reliability: record per-process wall durations
- scripts/nightly-reliability.sh | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
-merge-base --is-ancestor 14de9b3 f44b7e4 exit=0
+revision=f6ec81a88bee6a6b3055da850d08a6243061d090
+build_input_commit_stat
+f6ec81a (HEAD -> remediation/pre-phase5) platform: raise minimum deployment target to macOS 15
+ .github/workflows/ci.yml                           |  4 ++--
+ Package.swift                                      |  2 +-
+ README.md                                          |  4 ++--
+ artifacts/r4/macos13-deployment-build.txt          | 22 ----------------------
+ artifacts/r4/macos15-deployment-build.txt          | 22 ++++++++++++++++++++++
+ artifacts/r4/revision-map.md                       |  2 +-
+ docs/PROJECT_STATE.md                              | 12 +++++++++++-
+ docs/adr/ADR-011-platform-support.md               | 22 ++++++++++++++++++++--
+ docs/audits/R4-final-reaudit.md                    |  6 +++---
+ docs/audits/findings-closure-matrix.md             |  2 +-
+ docs/audits/pre-phase5-code-audit.md               |  4 ++++
+ docs/phase-1/README.md                             |  2 +-
+ docs/phase-1/product-requirements.md               |  2 +-
+ docs/phase-1/requirements-ledger.md                |  3 ++-
+ docs/phase-1/technology-decision-record.md         |  2 +-
+ docs/phase-2/architecture-decisions.md             |  2 +-
+ docs/phase-2/developer-setup.md                    |  2 +-
+ docs/phase-2/technical-spikes.md                   |  2 +-
+ docs/phase-4/R4-checkpoint.md                      | 10 +++++-----
+ docs/phase-4/README.md                             |  6 +++---
+ docs/phase-4/ci-policy.md                          |  7 ++++---
+ docs/phase-4/performance-dashboard.md              |  2 +-
+ docs/reviews/R4-A6-A7-A8-review-package.md         | 20 ++++++++++----------
+ ...-cross-verification-consolidated-code-review.md | 14 +++++++-------
+ docs/reviews/R4-cross-verification-response.md     |  4 ++--
+ resources/Info.plist                               |  2 +-
+ 26 files changed, 108 insertions(+), 74 deletions(-)
+build_input_paths
+M	.github/workflows/ci.yml
+M	Package.swift
+M	README.md
+D	artifacts/r4/macos13-deployment-build.txt
+A	artifacts/r4/macos15-deployment-build.txt
+M	artifacts/r4/revision-map.md
+M	docs/PROJECT_STATE.md
+M	docs/adr/ADR-011-platform-support.md
+M	docs/audits/R4-final-reaudit.md
+M	docs/audits/findings-closure-matrix.md
+M	docs/audits/pre-phase5-code-audit.md
+M	docs/phase-1/README.md
+M	docs/phase-1/product-requirements.md
+M	docs/phase-1/requirements-ledger.md
+M	docs/phase-1/technology-decision-record.md
+M	docs/phase-2/architecture-decisions.md
+M	docs/phase-2/developer-setup.md
+M	docs/phase-2/technical-spikes.md
+M	docs/phase-4/R4-checkpoint.md
+M	docs/phase-4/README.md
+M	docs/phase-4/ci-policy.md
+M	docs/phase-4/performance-dashboard.md
+M	docs/reviews/R4-A6-A7-A8-review-package.md
+M	docs/reviews/R4-cross-verification-consolidated-code-review.md
+M	docs/reviews/R4-cross-verification-response.md
+M	resources/Info.plist
+lineage_14de9b3_to_f6ec81a=ancestor
+frozen_verify_diff_count=0
+runner_images
+10:    runs-on: macos-15
+25:    runs-on: macos-15
+30:    runs-on: macos-15
+35:    runs-on: macos-15
+48:    runs-on: macos-15
+58:    runs-on: macos-15
+64:    runs-on: macos-15
+72:    runs-on: macos-15
+minimum_platform
+.github/workflows/ci.yml:23:        run: MACOSX_DEPLOYMENT_TARGET=15.0 swift build -c release
+resources/Info.plist:9:<key>LSMinimumSystemVersion</key><string>15.0</string>
+Package.swift:7:    platforms: [.macOS(.v15)],

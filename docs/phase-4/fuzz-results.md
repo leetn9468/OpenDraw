@@ -24,7 +24,7 @@ input/structure limits remain the primary hard resource control.
 
 The final local command was `swift test --filter
 'deterministicNativeAndSVG|fixedAdversarial'`; it passed on implementation
-complete-battery revision `b01364b`. Raw output is retained at
+complete-battery revision `f6ec81a`. Raw output is retained at
 `artifacts/r4/adversarial-tests.txt`. A reproducible failure record uses
 `CORPUS_FAILURE kind=<native|svg> index=<0-based> seed=0x00000000A110F00D` in
 the retained test log; the input is regenerated from the named seed, index,

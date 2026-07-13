@@ -8,8 +8,10 @@ CI also compiles with
 requires runtime evidence on real macOS 15 Apple Silicon before A7/R4
 acceptance. Frozen owner decision Option A (TN LEE, 2026-07-13) requires both
 the 100-launch codec reliability script and the 20-launch full-app startup gate
-from the same machine/session; codec-only Option B was rejected. Both external
-runs are currently missing (BLOCK-002).
+from the same machine/session; codec-only Option B was rejected. Both ran on
+the owner-reference MacBookPro18,2 at final build-input revision `f6ec81a`, so
+BLOCK-002 is closed by `macos15-reliability-100x100.txt` and
+`macos15-startup-p95.txt`.
 
 ## Enforced jobs
 

@@ -1,6 +1,6 @@
 # A6 — R3/R3-B checkpoint closure package
 
-Status: **CLOSED locally at final implementation/gate revision `2884a54`**
+Status: **CLOSED locally and revalidated at final build-input revision `f6ec81a`**
 
 The original owner directive defines fourteen R3-B feature groups. This table
 uses those groups without merging them into R4 labels. Swift Testing functions
@@ -27,20 +27,19 @@ of inventing an XCTest class.
 Grep-level existence proof for every unique method named above is retained at
 `artifacts/r4/a6-test-existence.txt`. The exact combined filter and its 19-test
 pass output are retained at `artifacts/r4/a6-filtered-tests.txt`, both produced
-on `b01364b`.
+on `f6ec81a`.
 
 ## A6 final-revision gates
 
-The complete battery ran on `b01364b`; the only later implementation/gate
-revision, `2884a54`, changes reliability duration capture and that affected gate
-was rerun. Environment: `MacBookPro18,2`, Apple
+The complete battery reran on `f6ec81a` after the owner-directed macOS 15
+platform-floor change. Environment: `MacBookPro18,2`, Apple
 M1 Max, 64 GB RAM, macOS 15.7.5 build 24G624, arm64, Apple Swift 6.1.2.
 
 | Gate | Result |
 |---|---|
-| Debug build/tests | PASS; 89 tests, 2.427 s |
-| Release build/tests | PASS; 89 tests, 1.135 s |
-| AddressSanitizer | PASS; 89 tests, 11.317 s |
+| Debug build/tests | PASS; 89 tests, 2.419 s |
+| Release build/tests | PASS; 89 tests, 1.136 s |
+| AddressSanitizer | PASS; 89 tests, 11.715 s |
 | Module dependency and forbidden-import scripts | PASS |
 | VERIFY-020 / VERIFY-021 | PASS in the all-tests runs; values unchanged |
 
@@ -63,13 +62,13 @@ and 300 measured frames.
 
 | Scenario | p50 | p95 | max / settle | Target | Result |
 |---|---:|---:|---:|---:|---|
-| BENCH-1 drag | 4.960 ms | 5.496 ms | 12.056 ms | p95 <= 16.7 ms | PASS |
-| BENCH-2 pan | 0.088 ms | 0.108 ms | 0.180 ms | p95 <= 16.7 ms | PASS |
-| BENCH-2b forced exposure | 5.375 ms | 5.950 ms | 23.265 ms | p95 <= 16.7 ms and strips every frame | PASS; precondition covers 360/360 frames |
-| BENCH-3 zoom | 2.399 ms | 8.953 ms | 10.186 ms | p95 <= 33 ms | PASS |
-| BENCH-3 settle | — | — | 2.745 ms | <= 100 ms | PASS |
-| BENCH-4 cold full redraw | — | — | 8.236 ms | informational | RECORDED |
-| Warm full redraw | — | — | 4.510 ms | informational | RECORDED |
+| BENCH-1 drag | 5.029 ms | 5.408 ms | 5.611 ms | p95 <= 16.7 ms | PASS |
+| BENCH-2 pan | 0.087 ms | 0.107 ms | 0.133 ms | p95 <= 16.7 ms | PASS |
+| BENCH-2b forced exposure | 5.415 ms | 5.815 ms | 6.161 ms | p95 <= 16.7 ms and strips every frame | PASS; precondition covers 360/360 frames |
+| BENCH-3 zoom | 2.391 ms | 9.162 ms | 10.436 ms | p95 <= 33 ms | PASS |
+| BENCH-3 settle | — | — | 2.776 ms | <= 100 ms | PASS |
+| BENCH-4 cold full redraw | — | — | 8.326 ms | informational | RECORDED |
+| Warm full redraw | — | — | 4.871 ms | informational | RECORDED |
 
 ## R3/R3-B audit-finding closure mapping
 

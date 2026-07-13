@@ -1,22 +1,46 @@
 [0/1] Planning build
 Building for production...
 [0/4] Write swift-version--1AB21518FC5DEDBE.txt
-Build complete! (0.26s)
+[2/5] Compiling EditorCore CoreTypes.swift
+[3/7] Compiling MacPlatform BackingScale.swift
+[4/7] Compiling Geometry Geometry.swift
+[5/9] Compiling TextEngine TextShaper.swift
+[6/12] Compiling DocumentModel Document.swift
+[7/15] Compiling CanvasRender CoreGraphicsRenderer.swift
+[8/16] Compiling EditorCommands AlignmentCommands.swift
+[9/17] Compiling RenderBenchmark main.swift
+[9/17] Write Objects.LinkFileList
+[10/17] Linking RenderBenchmark
+[12/17] Compiling EditorTools AccessibilityTree.swift
+[13/17] Compiling DocumentFormats AdversarialParserHarness.swift
+[14/19] Compiling R4GateHarness main.swift
+[14/19] Write Objects.LinkFileList
+[15/19] Linking R4GateHarness
+[17/19] Compiling VectorFoundryApp main.swift
+[17/19] Write Objects.LinkFileList
+[18/19] Linking VectorFoundry
+Build complete! (11.12s)
 dist/OpenDraw.app: replacing existing signature
 Executable=/Users/user/Documents/AI 10 restructure project/dist/OpenDraw.app/Contents/MacOS/OpenDraw
 Identifier=org.opendraw.editor
 Format=app bundle with Mach-O thin (arm64)
-CodeDirectory v=20500 size=13940 flags=0x10002(adhoc,runtime) hashes=429+3 location=embedded
+CodeDirectory v=20500 size=13780 flags=0x10002(adhoc,runtime) hashes=424+3 location=embedded
 Hash type=sha256 size=32
-CandidateCDHash sha256=582103dcffa14cdd51d15e10cfb8f4170988a326
-CandidateCDHashFull sha256=582103dcffa14cdd51d15e10cfb8f4170988a326f824d0d2df96631e6f72a87b
+CandidateCDHash sha256=dc8633848eb7f28c9150560d38ea7ddd67b1dfc2
+CandidateCDHashFull sha256=dc8633848eb7f28c9150560d38ea7ddd67b1dfc2a1224d26fc660361d7b1b57c
 Hash choices=sha256
-CMSDigest=582103dcffa14cdd51d15e10cfb8f4170988a326f824d0d2df96631e6f72a87b
+CMSDigest=dc8633848eb7f28c9150560d38ea7ddd67b1dfc2a1224d26fc660361d7b1b57c
 CMSDigestType=2
-CDHash=582103dcffa14cdd51d15e10cfb8f4170988a326
+CDHash=dc8633848eb7f28c9150560d38ea7ddd67b1dfc2
 Signature=adhoc
 Info.plist entries=8
 TeamIdentifier=not set
 Runtime Version=15.5.0
 Sealed Resources version=2 rules=13 files=0
 Internal requirements count=0 size=12
+
+minimum-platform-proof
+ platform 1
+    minos 15.0
+      sdk 15.5
+15.0

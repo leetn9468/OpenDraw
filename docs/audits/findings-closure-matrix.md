@@ -15,9 +15,9 @@ external R4 acceptance blockers are tracked separately in `docs/PROJECT_STATE.md
 | AUDIT-008 unsafe embedded images | Closed | `b05a149` | `Tests/DocumentFormatsTests/DocumentFormatsTests.swift::rasterLoaderEnforcesLimitsAndSafeLinks`; `Tests/DocumentFormatsTests/ApprovedImageCacheVerifyTests.swift::approvedImageCacheDecodesOffActorAndPublishesSnapshot`; `Tests/CanvasRenderTests/CanvasRenderTests.swift::rendererUsesOnlyApprovedImagesOrPlaceholder` | VERIFY-007/012 |
 
 All exact tests above passed in the 89-test debug, release, and AddressSanitizer
-runs on complete-battery revision `b01364b`. VERIFY-001 through VERIFY-021 remain
-frozen and verified. This matrix does not close the external macOS 15 runtime or
-hosted-CI evidence blockers.
+runs on complete-battery revision `f6ec81a`. VERIFY-001 through VERIFY-021 remain
+frozen and verified. BLOCK-002 minimum-OS runtime proof is closed; this matrix
+does not close the hosted-CI evidence blockers.
 
 Grep-level existence proof and the focused two-test pass for AUDIT-005/006 are
 retained at `artifacts/r4/audit-005-006-test-existence.txt` and
