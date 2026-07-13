@@ -7,7 +7,7 @@
 | `asan-tests.txt` | `b01364b` |
 | `coverage-tests.txt`, `coverage-summary.txt` | `b01364b` |
 | `format.txt`, `module-dependencies.txt`, `clean-room.txt` | `b01364b` |
-| `macos13-deployment-build.txt`, `symbol-graph.txt` | `b01364b` |
+| `macos15-deployment-build.txt`, `symbol-graph.txt` | `b01364b` |
 | `adversarial-tests.txt` | `b01364b` |
 | `golden-test.txt` | `b01364b` |
 | `ui-accessibility-tests.txt` | `b01364b` |

@@ -4,7 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "VectorFoundry",
-    platforms: [.macOS(.v13)],
+    platforms: [.macOS(.v15)],
     products: [
         .executable(name: "VectorFoundry", targets: ["VectorFoundryApp"]),
         .executable(name: "RenderBenchmark", targets: ["RenderBenchmark"]),

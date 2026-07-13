@@ -19,7 +19,7 @@ that directive. A row is closed only by committed, directly named evidence.
 | ID | Requirement | State | Direct evidence / exact remaining requirement |
 |---|---|---|---|
 | BLOCK-001 | Restore the exact 14-item A6 closure package | `CLOSED` | `docs/remediation/A6-R3-checkpoint.md`; `a6-test-existence.txt`; `a6-filtered-tests.txt`; explicit test-side numeric-policy classification and zero-new-production-math declaration |
-| BLOCK-002 | Codec reliability and full-app startup on real macOS 13 Apple Silicon | `OPEN` | No qualifying macOS 13 machine was available. In one session on the same macOS 13.x arm64 machine, retain both `artifacts/r4/macos13-reliability-100x100.txt` from `scripts/nightly-reliability.sh` and `artifacts/r4/macos13-startup-p95.txt` from `scripts/check-startup-p95.sh 20`; the startup p95 target remains 2,000 ms. Both artifacts must retain the environment header after identifier stripping. Current macOS 15 evidence is not substituted. |
+| BLOCK-002 | Prove the real minimum-OS (macOS 15.x) Apple Silicon release smoke | `OPEN — RERUN PENDING` | Execute BOTH `scripts/nightly-reliability.sh artifacts/r4/macos15-reliability-100x100.txt` (100 clean processes, 10,000 round trips) AND `scripts/check-startup-p95.sh 20 artifacts/r4/macos15-startup-p95.txt` (20 full-app launches, p95 ≤ 2,000 ms) on real macOS 15.x Apple Silicon hardware. Retain both artifacts with environment metadata after identifier stripping. |
 | BLOCK-003 | Enforced peak-memory assertions | `OPEN — LOCAL PASS, HOSTED PENDING` | Corrected gate decodes ten embedded 5 MP images through `RasterResourceLoader` and `ApprovedImageCache`, renders approved images, and proves forced over-allocation failure. Local artifacts: `peak-memory.txt`, `peak-memory-failure-fixture.txt`. First hosted `startup-memory` job must pass. |
 | BLOCK-004 | Enforced startup p95 | `OPEN — LOCAL PASS, HOSTED PENDING` | Local nearest-rank 20-process gate passes. First hosted `startup-memory` job must pass; static-initializer timing excludes exec/dyld/pre-main. |
 | BLOCK-005 | 100 clean launches and 10,000 aggregate native round trips | `OPEN — LOCAL PASS, HOSTED PENDING` | Local sequential run records 100 distinct PIDs and per-process durations. First hosted scheduled `nightly-reliability` job must pass. |
@@ -44,3 +44,13 @@ that directive. A row is closed only by committed, directly named evidence.
 > closes only when both artifacts are retained from the same session and
 > machine. This decision may not be weakened without a further explicit owner
 > decision under frozen rule 11.
+
+> **2026-07-13 — ADR-1 REVISED.** Minimum supported platform is raised from
+> macOS 13.0 to **macOS 15.0 (Sequoia)**, Apple Silicon only (unchanged).
+> Rationale: macOS 13 has exited Apple's security-update window; no macOS 13
+> hardware is available or worth provisioning for a pre-release product; the
+> owner's reference machine (MacBookPro18,2, macOS 15.x) becomes the
+> minimum-OS runtime-proof environment. The 2026-07-13 Option A decision
+> (BLOCK-002 requires BOTH codec reliability AND full-app startup runs at the
+> minimum OS) is **retained in substance** and retargeted from macOS 13 to
+> macOS 15; it is superseded only in its OS number, not its scope.

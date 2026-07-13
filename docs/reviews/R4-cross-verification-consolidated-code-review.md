@@ -16,7 +16,7 @@ This does not authorize Phase 5. The current project verdict remains:
 
 BLOCK-002 and BLOCK-006 require external execution. Frozen owner decision
 Option A requires both codec reliability and full-app startup from the same
-real macOS 13 Apple Silicon session; codec-only Option B was rejected.
+real macOS 15 Apple Silicon session; codec-only Option B was rejected.
 BLOCK-003/004/005 retain hosted-execution components, and BLOCK-012 prohibits
 the Phase 5 tag until the external blockers close. No
 `pre-phase5-remediation` tag has been created.
@@ -214,7 +214,7 @@ line=$(/usr/bin/time -p perl -e '$SIG{ALRM}=sub{exit 124}; alarm shift; exec @AR
   occurs.
 - Result: 100 distinct PIDs, 10,000 round trips, zero crashes, nonzero exits,
   timeouts, or corruption failures; aggregate wall time 5 seconds.
-- The same script and output format must be run on macOS 13 alongside the
+- The same script and output format must be run on macOS 15 alongside the
   20-launch full-app startup gate in the same machine session.
 - Artifact: `artifacts/r4/reliability-100x100.txt`.
 
@@ -394,8 +394,8 @@ Status: **RESOLVED**
 ### ADD-01 — BLOCK-002 Option A
 
 The owner decision is frozen in `docs/PROJECT_STATE.md`: BLOCK-002 requires
-both `macos13-reliability-100x100.txt` and `macos13-startup-p95.txt` from the
-same real macOS 13.x Apple Silicon machine/session. The startup artifact uses
+both `macos15-reliability-100x100.txt` and `macos15-startup-p95.txt` from the
+same real macOS 15.x Apple Silicon machine/session. The startup artifact uses
 20 full-app launches and the unchanged 2,000 ms p95 target. Option B,
 codec-only runtime proof, was rejected.
 
@@ -443,11 +443,11 @@ Status: **RESOLVED**
 
 ## Remaining actions before Phase 5
 
-1. **BLOCK-002:** on one real macOS 13.x Apple Silicon machine session, run
+1. **BLOCK-002:** on one real macOS 15.x Apple Silicon machine session, run
    `scripts/nightly-reliability.sh
-   artifacts/r4/macos13-reliability-100x100.txt` and
+   artifacts/r4/macos15-reliability-100x100.txt` and
    `scripts/check-startup-p95.sh 20
-   artifacts/r4/macos13-startup-p95.txt`; retain model, SoC, RAM, OS/build,
+   artifacts/r4/macos15-startup-p95.txt`; retain model, SoC, RAM, OS/build,
    Swift version, revision, all process/sample rows, and summaries after
    identifier stripping. The startup p95 target remains 2,000 ms.
 2. **BLOCK-006:** establish a remote and obtain the first hosted CI run with all

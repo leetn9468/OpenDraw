@@ -28,7 +28,7 @@ not conceal later code/config changes.
   Command Line Tools active; full Xcode is not selected
 - Raw metadata: `artifacts/r4/environment.txt` and the header of each performance log
 
-This is not macOS 13 runtime evidence.
+This is not macOS 15 runtime evidence.
 
 ## Final local battery
 
@@ -40,7 +40,7 @@ This is not macOS 13 runtime evidence.
 | `swift test --enable-code-coverage`; `scripts/check-coverage.sh 55` | PASS; 87.93% versus 55% floor | `coverage-tests.txt`, `coverage-summary.txt` |
 | `xcrun swift-format lint --recursive --strict Sources Tests Package.swift` | PASS | `format.txt` |
 | `scripts/check-module-dependencies.sh`; `scripts/check-clean-room.sh` | PASS | `module-dependencies.txt`, `clean-room.txt` |
-| `MACOSX_DEPLOYMENT_TARGET=13.0 swift build -c release` | PASS compile only; not runtime evidence | `macos13-deployment-build.txt` |
+| `MACOSX_DEPLOYMENT_TARGET=15.0 swift build -c release` | PASS compile only; not runtime evidence | `macos15-deployment-build.txt` |
 | `swift package dump-symbol-graph` plus emitted-file assertion | PASS | `symbol-graph.txt` |
 | adversarial test filter | PASS; 512 mutations plus seven directly enumerated fixed cases | `adversarial-tests.txt` |
 | golden filter | PASS | `golden-test.txt` |
@@ -71,11 +71,11 @@ measured frames per timed scenario, display sleep inhibited, production paths.
 
 ## Open blockers
 
-- BLOCK-002: no qualifying runtime session from real macOS 13.x Apple Silicon
+- BLOCK-002: no qualifying runtime session from real macOS 15.x Apple Silicon
   exists. Frozen owner decision Option A requires both
   `scripts/nightly-reliability.sh
-  artifacts/r4/macos13-reliability-100x100.txt` and
-  `scripts/check-startup-p95.sh 20 artifacts/r4/macos13-startup-p95.txt` on the
+  artifacts/r4/macos15-reliability-100x100.txt` and
+  `scripts/check-startup-p95.sh 20 artifacts/r4/macos15-startup-p95.txt` on the
   same machine/session; codec-only Option B was rejected.
 - BLOCK-006: ratio enforcement exists, but this checkout has no Git remote and
   therefore no hosted macOS 15 run/baseline artifact or CI run URL. The committed

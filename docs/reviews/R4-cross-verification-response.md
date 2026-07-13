@@ -149,7 +149,7 @@ summary launches=100 distinct_pids=100 round_trips=10000 crashes=0 nonzero_exits
 
 The five seconds are aggregate wall-clock time for the sequential shell loop,
 not a sum of inner smoke durations. The exact same script semantics, watchdog,
-PID checks, and output format apply to the future macOS 13 run, making the
+PID checks, and output format apply to the future macOS 15 run, making the
 artifacts comparable.
 
 Evidence: `artifacts/r4/reliability-100x100.txt`.
@@ -303,7 +303,7 @@ RESOLVED
 
 The issue resolutions above do not close:
 
-- BLOCK-002 — real macOS 13.x Apple Silicon runtime proof;
+- BLOCK-002 — real macOS 15.x Apple Silicon runtime proof;
 - BLOCK-003/004/005 hosted-execution components;
 - BLOCK-006 — hosted run, hosted baseline/comparison artifact and run URL;
 - BLOCK-012 — prohibited tag while blockers remain.

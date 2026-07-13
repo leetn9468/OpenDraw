@@ -2,7 +2,7 @@
 
 ## ADR-001 — Swift toolchain
 
-Accepted: Swift 6 language mode, Swift Package Manager, macOS 13 minimum. C++ is
+Accepted: Swift 6 language mode, Swift Package Manager, macOS 15 minimum. C++ is
 prohibited unless a measured isolated operation fails its budget and an ADR defines
 a narrow C ABI, ownership, sanitizer, and licensing boundary.
 

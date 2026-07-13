@@ -15,4 +15,4 @@ certification. Current raw results are in `artifacts/r4/`.
 
 Current BENCH-R3.5 and memory/startup measurements use explicit warm-up/sample
 policies and are recorded in `docs/phase-4/R4-checkpoint.md`. Hosted-CI and real
-macOS 13 runtime proof remain open in `docs/PROJECT_STATE.md`.
+macOS 15 runtime proof remain open in `docs/PROJECT_STATE.md`.

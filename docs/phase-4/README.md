@@ -10,7 +10,7 @@ Review date: 2026-07-13
 | R4.1 adversarial parsing | Fixed-seed 256-case native and 256-case SVG mutation corpora, fixed hostile classes, cancellation and production-path deadline harness |
 | R4.2 golden rendering | Project-created composite golden covering gradients, opacity, transforms, dash/cap/join behavior, text baseline and z-order, with a documented tolerance policy |
 | R4.3 UI/accessibility | Headless create/draw/style/transform/save/reopen/export journey and a stable accessibility-tree baseline for document, layers and selection |
-| R4.4 CI/release | Local gates implemented and passing; real macOS 13 runtime and hosted benchmark proof remain open |
+| R4.4 CI/release | Local gates implemented and passing; real macOS 15 runtime and hosted benchmark proof remain open |
 | R4.5 re-audit | Product-code closure matrix passes; acceptance blockers are tracked in `docs/PROJECT_STATE.md` |
 
 The permanent suite contains 89 tests. Coverage is 87.93%, above the enforced
@@ -18,7 +18,7 @@ The permanent suite contains 89 tests. Coverage is 87.93%, above the enforced
 
 ## Release-policy boundaries
 
-- CI is arm64 macOS 15 with a macOS 13 deployment-target compile fallback.
+- CI is arm64 macOS 15 with a macOS 15 deployment-target compile fallback.
 - Intel remains out of scope per ADR-011.
 - The signed CI artifact uses an ad-hoc hardened-runtime signature; distribution
   identity signing and notarization require owner-held credentials.
@@ -37,7 +37,7 @@ The permanent suite contains 89 tests. Coverage is 87.93%, above the enforced
 | All pre-Phase-5 audit findings closed | Pass |
 | Clean-room implementation boundary | Pass; CI enforcement added |
 | Verification queue has no open entries | Pass |
-| Real macOS 13 Apple Silicon codec reliability plus 20-launch full-app startup proof from the same session | **Open — BLOCK-002** |
+| Real macOS 15 Apple Silicon codec reliability plus 20-launch full-app startup proof from the same session | **Open — BLOCK-002** |
 | Hosted execution of memory/startup/reliability jobs | **Open — BLOCK-003/004/005** |
 | Hosted-CI benchmark baseline and run artifact | **Open — BLOCK-006** |
 

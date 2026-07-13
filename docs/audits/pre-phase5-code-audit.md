@@ -374,6 +374,10 @@ public final class SceneBitmapCache: @unchecked Sendable {
 
 ### Testing, CI, and release process
 
+The platform-floor statements in this historical audit describe the audited
+revision and are retained as evidence; ADR-011's 2026-07-13 revision supersedes
+them for the active product and release gate.
+
 - **High:** CI runs only macOS 15 and does not validate macOS 13 or Intel.
 - **High:** CI omits `scripts/check-module-dependencies.sh`.
 - **High:** CI omits AddressSanitizer and release-mode tests.

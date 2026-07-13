@@ -16,7 +16,7 @@ external R4 acceptance blockers are tracked separately in `docs/PROJECT_STATE.md
 
 All exact tests above passed in the 89-test debug, release, and AddressSanitizer
 runs on complete-battery revision `b01364b`. VERIFY-001 through VERIFY-021 remain
-frozen and verified. This matrix does not close the external macOS 13 runtime or
+frozen and verified. This matrix does not close the external macOS 15 runtime or
 hosted-CI evidence blockers.
 
 Grep-level existence proof and the focused two-test pass for AUDIT-005/006 are

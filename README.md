@@ -9,12 +9,12 @@ and Phase 4 verification/release hardening. No legacy decompiler output belongs 
 
 - Phase: 4 — verification remediation; **Phase 5 entry blocked**
 - Product posture: open-source learning project with a usable personal-tool MVP
-- Platform: macOS 13 or newer, Apple Silicon (`arm64`) only
+- Platform: macOS 15 or newer, Apple Silicon (`arm64`) only
 - Foundation: Swift 6, AppKit, Core Graphics, Core Text, Swift Package
   Manager, Swift Testing
 - Compatibility: SVG 1.1 subset for interchange; deterministic OpenDraw v4 native format
 
-Local R4 gates pass, but project acceptance still requires real macOS 13 Apple
+Local R4 gates pass, but project acceptance still requires real macOS 15 Apple
 Silicon codec reliability and full-app startup runs from the same session, plus
 a hosted-CI benchmark baseline/run artifact.
 See [the authoritative project state](docs/PROJECT_STATE.md). No Phase 5 entry

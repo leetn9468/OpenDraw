@@ -27,7 +27,7 @@ Requirements author: Project owner with Codex drafting support
 
 ## Decisions to reconfirm before Phase 2
 
-- Product owner accepts macOS 13+ as the minimum deployment target.
+- Product owner accepts macOS 15+ as the minimum deployment target.
 - Apple Silicon is the only supported CPU architecture; Intel is out of scope.
 - The working product name will be replaced before public distribution.
 - Swift/AppKit/Core Graphics proof-of-concepts meet the gates in `TDR-008`.

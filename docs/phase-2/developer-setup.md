@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- macOS 13 or newer.
+- macOS 15 or newer.
 - Swift 6.0+ toolchain. Full current Xcode is recommended for application debugging,
   accessibility inspection, XCUITest, and arm64 archive work.
 - `swift-format` available through `xcrun` (included in current Xcode/Swift toolchains).

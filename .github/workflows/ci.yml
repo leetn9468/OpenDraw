@@ -19,8 +19,8 @@ jobs:
       - run: scripts/check-clean-room.sh
       - name: Public API symbol documentation surface
         run: swift package dump-symbol-graph && test -n "$(find .build -path '*/symbolgraph/*.symbols.json' -print -quit)"
-      - name: macOS 13 deployment-target compile fallback
-        run: MACOSX_DEPLOYMENT_TARGET=13.0 swift build -c release
+      - name: macOS 15 minimum-deployment-target compile
+        run: MACOSX_DEPLOYMENT_TARGET=15.0 swift build -c release
   sanitizer:
     runs-on: macos-15
     steps:

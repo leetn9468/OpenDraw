@@ -11,7 +11,7 @@ not accepted. A8 and Phase 5 entry remain blocked because two required external
 proofs do not exist:
 
 1. A 100-launch codec reliability run and a 20-launch full-app startup run from
-   the same session on real macOS 13.x Apple Silicon hardware.
+   the same session on real macOS 15.x Apple Silicon hardware.
 2. A hosted-CI benchmark baseline and comparison run with retained artifacts and
    a run URL.
 
@@ -30,7 +30,7 @@ The annotated tag `pre-phase5-remediation` has therefore not been created.
 | ID | Requirement | State | Direct evidence / required action |
 |---|---|---|---|
 | BLOCK-001 | Restore the exact 14-item A6 package | `CLOSED` | `docs/remediation/A6-R3-checkpoint.md` |
-| BLOCK-002 | Real macOS 13 Apple Silicon runtime proof | **OPEN** | In one session on qualifying hardware, run `scripts/nightly-reliability.sh artifacts/r4/macos13-reliability-100x100.txt` and `scripts/check-startup-p95.sh 20 artifacts/r4/macos13-startup-p95.txt`; retain both environment headers and results. |
+| BLOCK-002 | Real macOS 15 Apple Silicon runtime proof | **OPEN** | In one session on qualifying hardware, run `scripts/nightly-reliability.sh artifacts/r4/macos15-reliability-100x100.txt` and `scripts/check-startup-p95.sh 20 artifacts/r4/macos15-startup-p95.txt`; retain both environment headers and results. |
 | BLOCK-003 | Peak-memory assertions | `OPEN — LOCAL PASS, HOSTED PENDING` | Corrected decoded-image gate passes locally; first hosted `startup-memory` job must also pass. |
 | BLOCK-004 | Startup-p95 enforcement | `OPEN — LOCAL PASS, HOSTED PENDING` | Local 20-process gate passes; first hosted `startup-memory` job must also pass. |
 | BLOCK-005 | 100 launches / 10,000 round trips | `OPEN — LOCAL PASS, HOSTED PENDING` | Local sequential process proof passes; first hosted `nightly-reliability` job must also pass. |
@@ -65,7 +65,7 @@ The annotated tag `pre-phase5-remediation` has therefore not been created.
 | Swift | Apple Swift 6.1.2 (`swiftlang-6.1.2.1.2`, clang 1700.0.13.5) |
 | Xcode selection | Full Xcode not selected; Command Line Tools active |
 
-This environment is not a substitute for the required macOS 13 runtime test.
+This environment is not a substitute for the required macOS 15 runtime test.
 
 ## Final local verification results
 
@@ -80,7 +80,7 @@ This environment is not a substitute for the required macOS 13 runtime test.
 | Formatting | `xcrun swift-format lint --recursive --strict Sources Tests Package.swift` | PASS | `format.txt` |
 | Module direction | `scripts/check-module-dependencies.sh` | PASS | `module-dependencies.txt` |
 | Clean room | `scripts/check-clean-room.sh` | PASS | `clean-room.txt` |
-| macOS 13 deployment compile | `MACOSX_DEPLOYMENT_TARGET=13.0 swift build -c release` | PASS compile only | `macos13-deployment-build.txt` |
+| macOS 15 deployment compile | `MACOSX_DEPLOYMENT_TARGET=15.0 swift build -c release` | PASS compile only | `macos15-deployment-build.txt` |
 | Symbol graph | `swift package dump-symbol-graph` plus emitted-file assertion | PASS | `symbol-graph.txt` |
 | Adversarial corpus | `swift test --filter 'deterministicNativeAndSVG|fixedAdversarial'` | PASS | `adversarial-tests.txt` |
 | Golden rendering | `swift test --filter compositeSceneMatchesProjectGolden` | PASS | `golden-test.txt` |
@@ -189,7 +189,7 @@ runs only 100 codec cycles, explaining why its roughly 16–17 ms inner duration
 differs from the roughly 140 ms UI startup probe. The artifact records every
 PID, external process-wall duration and inner smoke duration. The local result
 was produced on macOS 15.7.5. BLOCK-002 requires the same script and result plus
-the 20-launch full-app startup gate on actual macOS 13.x Apple Silicon hardware,
+the 20-launch full-app startup gate on actual macOS 15.x Apple Silicon hardware,
 in the same machine session.
 
 ## Benchmark and ratio gate
@@ -386,9 +386,9 @@ These remain visible and are not represented as automated passes:
 
 ## Required operator work to unblock Phase 5
 
-### BLOCK-002 — macOS 13 runtime
+### BLOCK-002 — macOS 15 runtime
 
-On a real macOS 13.x Apple Silicon Mac:
+On a real macOS 15.x Apple Silicon Mac:
 
 ```sh
 git switch remediation/pre-phase5
@@ -396,8 +396,8 @@ git rev-parse HEAD
 swift --version
 sw_vers
 system_profiler SPHardwareDataType
-scripts/nightly-reliability.sh artifacts/r4/macos13-reliability-100x100.txt
-scripts/check-startup-p95.sh 20 artifacts/r4/macos13-startup-p95.txt
+scripts/nightly-reliability.sh artifacts/r4/macos15-reliability-100x100.txt
+scripts/check-startup-p95.sh 20 artifacts/r4/macos15-startup-p95.txt
 ```
 
 Before committing the artifact, remove serial number, hardware UUID,
@@ -433,7 +433,7 @@ Only after both proofs pass:
    exact 14-row test-name table in `docs/remediation/A6-R3-checkpoint.md`; do
    not accept a summary in place of these files.
 2. Update A7 and A8 to `CLOSED` and BLOCK-002/006/012 to `CLOSED`.
-3. Update the checkpoint/re-audit with the exact hosted and macOS 13 results.
+3. Update the checkpoint/re-audit with the exact hosted and macOS 15 results.
 4. Rerun every gate affected by any code/script/CI change.
 5. Commit the final evidence.
 6. Create annotated tag `pre-phase5-remediation` on the proven revision.

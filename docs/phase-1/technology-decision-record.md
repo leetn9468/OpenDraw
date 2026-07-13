@@ -6,7 +6,7 @@ listed Phase 2 proof before broad implementation.
 ## TDR-001 — Platform target
 
 - Status: Accepted; owner reconfirmation requested.
-- Decision: macOS 13+, Apple Silicon (`arm64`) only. Superseded and finalized by
+- Decision: macOS 15+, Apple Silicon (`arm64`) only. Superseded and finalized by
   Phase 5 remediation ADR-011.
 - Reason: AppKit/Core Graphics provide a coherent native foundation; the owner has
   explicitly placed Intel outside product scope.
