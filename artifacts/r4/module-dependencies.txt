@@ -1,4 +1,0 @@
-command=scripts/check-module-dependencies.sh
-revision=52c3295
-exit=0
-result=PASS

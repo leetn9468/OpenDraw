@@ -30,15 +30,15 @@ The annotated tag `pre-phase5-remediation` has therefore not been created.
 |---|---|---|---|
 | BLOCK-001 | Restore the exact 14-item A6 package | `CLOSED` | `docs/remediation/A6-R3-checkpoint.md` |
 | BLOCK-002 | Real macOS 13 Apple Silicon runtime proof | **OPEN** | Run `scripts/nightly-reliability.sh artifacts/r4/macos13-reliability-100x100.txt` on qualifying hardware and retain its environment header and results. |
-| BLOCK-003 | Peak-memory assertions | `CLOSED` | `scripts/check-peak-memory.sh`; `artifacts/r4/peak-memory.txt` |
-| BLOCK-004 | Startup-p95 enforcement | `CLOSED` | `scripts/check-startup-p95.sh`; `artifacts/r4/startup-p95.txt` |
-| BLOCK-005 | 100 launches / 10,000 round trips | `CLOSED` | `scripts/nightly-reliability.sh`; `artifacts/r4/reliability-100x100.txt` |
+| BLOCK-003 | Peak-memory assertions | `OPEN — LOCAL PASS, HOSTED PENDING` | Corrected decoded-image gate passes locally; first hosted `startup-memory` job must also pass. |
+| BLOCK-004 | Startup-p95 enforcement | `OPEN — LOCAL PASS, HOSTED PENDING` | Local 20-process gate passes; first hosted `startup-memory` job must also pass. |
+| BLOCK-005 | 100 launches / 10,000 round trips | `OPEN — LOCAL PASS, HOSTED PENDING` | Local sequential process proof passes; first hosted `nightly-reliability` job must also pass. |
 | BLOCK-006 | Hosted benchmark ratio proof | **OPEN** | Enforcement exists, but no Git remote, hosted run, hosted baseline artifact or run URL is available. |
 | BLOCK-007 | Fresh final-revision battery | `CLOSED` | Revision-accounted debug/release/ASan/coverage and targeted reruns under `artifacts/r4/` |
 | BLOCK-008 | Reproducibility metadata | `CLOSED` | `docs/phase-4/fuzz-results.md`; environment and benchmark artifacts |
 | BLOCK-009 | Audit traceability | `CLOSED` | `docs/audits/findings-closure-matrix.md` |
 | BLOCK-010 | Correct R4 documentation | `CLOSED` | Incorrect unconditional pass language was removed. |
-| BLOCK-011 | Exact revision accounting | `CLOSED` | `52c3295`, `f854389`, `6de4bce`, `f44b7e4` |
+| BLOCK-011 | Exact revision accounting | `CLOSED` | Earlier lineage plus `b01364b` complete battery and `2884a54` targeted reliability rerun; see `revision-map.md` and `revision-scope-proof.txt` |
 | BLOCK-012 | Phase 5 entry tag | **OPEN** | `pre-phase5-remediation` is intentionally absent. |
 
 ## Revision model
@@ -49,6 +49,8 @@ The annotated tag `pre-phase5-remediation` has therefore not been created.
 | `f854389` | Corrected Swift toolchain metadata capture in four scripts. | Startup, memory, reliability, benchmark and ratio checks rerun. |
 | `6de4bce` | Added reproducible mutation failure-index records. | Debug/release/ASan/coverage and adversarial filters rerun. |
 | `f44b7e4` | Restored project tracker/A6 record, corrected documents and committed raw artifacts. | Documentation-only checks executed; no build input changed. |
+| `b01364b` | Corrected decoded-image memory gate, failure fixture, numeric policies, PID evidence and baseline naming. | Complete local battery rerun. |
+| `2884a54` | Reliability-only external process-duration correction. | 100-process/10,000-cycle reliability gate rerun. |
 
 ## Environment
 
@@ -69,10 +71,10 @@ This environment is not a substitute for the required macOS 13 runtime test.
 | Gate | Exact command | Observed result | Artifact |
 |---|---|---|---|
 | Debug build | `swift build -c debug` | PASS | `artifacts/r4/debug-build.txt` |
-| Debug tests | `swift test` | 88/88, 2.421 s | `artifacts/r4/debug-tests.txt` |
+| Debug tests | `swift test` | 89/89, 2.427 s | `artifacts/r4/debug-tests.txt` |
 | Release build | `swift build -c release` | PASS | `artifacts/r4/release-build.txt` |
-| Release tests | `swift test -c release` | 88/88, 1.113 s | `artifacts/r4/release-tests.txt` |
-| AddressSanitizer | `swift test --sanitize=address` | 88/88, 11.270 s | `artifacts/r4/asan-tests.txt` |
+| Release tests | `swift test -c release` | 89/89, 1.135 s | `artifacts/r4/release-tests.txt` |
+| AddressSanitizer | `swift test --sanitize=address` | 89/89, 11.317 s | `artifacts/r4/asan-tests.txt` |
 | Coverage | `swift test --enable-code-coverage`; `scripts/check-coverage.sh 55` | 87.93% versus 55% floor | `coverage-tests.txt`, `coverage-summary.txt` |
 | Formatting | `xcrun swift-format lint --recursive --strict Sources Tests Package.swift` | PASS | `format.txt` |
 | Module direction | `scripts/check-module-dependencies.sh` | PASS | `module-dependencies.txt` |
@@ -83,9 +85,10 @@ This environment is not a substitute for the required macOS 13 runtime test.
 | Golden rendering | `swift test --filter compositeSceneMatchesProjectGolden` | PASS | `golden-test.txt` |
 | UI/accessibility | `swift test --filter 'headlessUIJourney|accessibilityTreeExposes'` | PASS | `ui-accessibility-tests.txt` |
 | Release integrity | `scripts/build-release-app.sh`; `codesign -dvvv dist/OpenDraw.app` | arm64, ad-hoc hardened-runtime signature | `release-integrity.txt` |
-| Startup | `scripts/check-startup-p95.sh 20 artifacts/r4/startup-p95.txt` | PASS | `startup-p95.txt` |
-| Peak memory | `scripts/check-peak-memory.sh artifacts/r4/peak-memory.txt` | PASS | `peak-memory.txt` |
-| Reliability | `scripts/nightly-reliability.sh artifacts/r4/reliability-100x100.txt` | PASS | `reliability-100x100.txt` |
+| Startup | `scripts/check-startup-p95.sh 20 artifacts/r4/startup-p95.txt` | LOCAL PASS; hosted pending | `startup-p95.txt` |
+| Peak memory | `scripts/check-peak-memory.sh artifacts/r4/peak-memory.txt` | LOCAL PASS with decoded images; hosted pending | `peak-memory.txt` |
+| Memory failure fixture | `scripts/test-peak-memory-gate.sh artifacts/r4/peak-memory-failure-fixture.txt` | PASS: underlying gate fails as required | `peak-memory-failure-fixture.txt` |
+| Reliability | `scripts/nightly-reliability.sh artifacts/r4/reliability-100x100.txt` | LOCAL PASS with 100 distinct PIDs; hosted pending | `reliability-100x100.txt` |
 | Benchmark | `scripts/run-render-benchmark.sh artifacts/r4/render-benchmark.txt` | All absolute targets pass | `render-benchmark.txt` |
 | Ratio gate | `scripts/check-benchmark-regression.sh ...`; `scripts/test-benchmark-regression-gate.sh` | Local comparison passes; above-threshold fixture fails as intended | `benchmark-comparison.txt`, `benchmark-gate-fixtures.txt` |
 
@@ -103,11 +106,15 @@ This environment is not a substitute for the required macOS 13 runtime test.
 - Samples: 20.
 - Failure: p95 greater than 2,000 ms or any launch/output failure exits nonzero.
 
+The start boundary excludes exec, dyld and all pre-main/static-initializer work;
+it is not click-to-window timing. Percentiles use nearest rank, so p95 of 20 is
+the 19th sorted value.
+
 ### Result
 
 | p50 | p95 | Maximum | Target | Result |
 |---:|---:|---:|---:|---|
-| 140.815 ms | 151.433 ms | 163.861 ms | p95 <= 2,000 ms | PASS |
+| 139.778 ms | 147.748 ms | 162.816 ms | p95 <= 2,000 ms | LOCAL PASS |
 
 ### Code area
 
@@ -122,9 +129,12 @@ This environment is not a substitute for the required macOS 13 runtime test.
 
 ### Scenario and ceilings
 
-The representative gate document contains 1,000 objects, exactly 10,000 cubic
-anchors and ten image objects totalling 50,000,000 declared pixels. Measurement
-uses `/usr/bin/time -l` maximum resident set size.
+The corrected representative gate document contains 1,000 objects, exactly
+10,000 cubic anchors and ten embedded 2,500×2,000 images. Each image is created
+through `RasterResourceLoader.embedded`, all ten are decoded and retained by
+`ApprovedImageCache.approve`, the cache asserts exactly 50,000,000 approved
+pixels, and `CoreGraphicsRenderer.render` receives the approved snapshot.
+Measurement uses `/usr/bin/time -l` maximum resident set size.
 
 The pre-existing Phase 1 PRD supplies the ceilings; they were not chosen from the
 observed result:
@@ -134,8 +144,9 @@ observed result:
 
 | Scenario | Observed peak | Ceiling | Result |
 |---|---:|---:|---|
-| Settled render | 9,109,504 bytes | 524,288,000 bytes | PASS |
-| PNG export | 19,939,328 bytes | 681,574,400 bytes | PASS |
+| Settled render | 214,433,792 bytes | 524,288,000 bytes | LOCAL PASS; 309,854,208-byte headroom |
+| PNG export | 224,395,264 bytes | 681,574,400 bytes | LOCAL PASS; 457,179,136-byte headroom |
+| Forced 550 MiB extra allocation | 791,822,336 bytes | 524,288,000 bytes | Expected FAIL/nonzero exit |
 
 ### Code area
 
@@ -144,6 +155,7 @@ observed result:
   - `settle(_:)`
   - `exportPNG(_:)`
 - `scripts/check-peak-memory.sh`
+- `scripts/test-peak-memory-gate.sh`
 - `Package.swift`, executable product/target `R4GateHarness`
 - `.github/workflows/ci.yml`, job `startup-memory`
 
@@ -163,7 +175,7 @@ observed result:
 
 | Launches | Round trips | Crashes | Nonzero exits | Timeouts | Corruption failures | Duration |
 |---:|---:|---:|---:|---:|---:|---:|
-| 100 | 10,000 | 0 | 0 | 0 | 0 | 3 s |
+| 100 distinct PIDs | 10,000 | 0 | 0 | 0 | 0 | 5 s aggregate wall clock |
 
 ### Code area
 
@@ -171,8 +183,12 @@ observed result:
 - `scripts/nightly-reliability.sh`
 - `.github/workflows/ci.yml`, job `nightly-reliability`
 
-The local result was produced on macOS 15.7.5. BLOCK-002 requires the same script
-and result on actual macOS 13.x Apple Silicon hardware.
+The loop is sequential. `--smoke` bypasses AppKit window/UI initialization and
+runs only 100 codec cycles, explaining why its roughly 16–17 ms inner duration
+differs from the roughly 140 ms UI startup probe. The artifact records every
+PID, external process-wall duration and inner smoke duration. The local result
+was produced on macOS 15.7.5. BLOCK-002 requires the same script and result on
+actual macOS 13.x Apple Silicon hardware.
 
 ## Benchmark and ratio gate
 
@@ -184,23 +200,28 @@ and 300 measured frames through production rendering/cache paths.
 
 | Scenario | p50 | p95 | Maximum/settle | Target | Result |
 |---|---:|---:|---:|---:|---|
-| BENCH-1 drag | 4.764 ms | 5.056 ms | 5.508 ms | p95 <= 16.7 ms | PASS |
-| BENCH-2 pan | 0.087 ms | 0.108 ms | 0.181 ms | p95 <= 16.7 ms | PASS |
-| BENCH-2b forced exposure | 5.203 ms | 5.827 ms | 8.853 ms | p95 <= 16.7 ms | PASS |
-| BENCH-3 zoom | 2.408 ms | 8.763 ms | 10.214 ms | p95 <= 33 ms | PASS |
-| BENCH-3 settle | — | — | 2.833 ms | <= 100 ms | PASS |
-| BENCH-4 cold full redraw | — | — | 8.166 ms | Informational | RECORDED |
-| Warm full redraw | — | — | 4.724 ms | Informational | RECORDED |
+| BENCH-1 drag | 4.960 ms | 5.496 ms | 12.056 ms | p95 <= 16.7 ms | PASS |
+| BENCH-2 pan | 0.088 ms | 0.108 ms | 0.180 ms | p95 <= 16.7 ms | PASS |
+| BENCH-2b forced exposure | 5.375 ms | 5.950 ms | 23.265 ms | p95 <= 16.7 ms | PASS |
+| BENCH-3 zoom | 2.399 ms | 8.953 ms | 10.186 ms | p95 <= 33 ms | PASS |
+| BENCH-3 settle | — | — | 2.745 ms | <= 100 ms | PASS |
+| BENCH-4 cold full redraw | — | — | 8.236 ms | Informational | RECORDED |
+| Warm full redraw | — | — | 4.510 ms | Informational | RECORDED |
 
 BENCH-2b recorded nonzero strip redraws for all 360 warm-up and measured frames.
+This is an assertion, not observation: `Sources/RenderBenchmark/main.swift`
+checks `current > priorStripCount` with `precondition` inside every BENCH-2b
+frame. A zero-strip frame traps the harness and produces a nonzero process exit.
 
 ### Ratio enforcement
 
 - Threshold: every BENCH-1/2/2b/3 p95 and BENCH-3 settle value must be at most
-  1.25 times baseline.
+  1.25 times baseline. Exact decimal arithmetic makes equality inclusive;
+  six-decimal ratio rendering is display-only.
 - Missing, empty, unknown or expired baselines fail closed.
 - The committed baseline expires on 2026-10-10.
 - The passing fixture remains below threshold.
+- The exact-boundary fixture passes every metric at exactly 1.25.
 - The failing fixture produces BENCH-1 ratio `1.314801` and exits nonzero.
 - Baseline updates require a reviewed known-good hosted run, source URL/artifact,
   unchanged scenario semantics, date and 90-day expiry.
@@ -213,18 +234,21 @@ BENCH-2b recorded nonzero strip redraws for all 360 warm-up and measured frames.
 - `scripts/test-benchmark-regression-gate.sh`
 - `scripts/fixtures/benchmark-regression-pass.txt`
 - `scripts/fixtures/benchmark-regression-fail.txt`
-- `benchmarks/macos15-arm64-baseline.tsv`
+- `benchmarks/owner-reference-macos15-arm64-baseline.tsv`
 - `.github/workflows/ci.yml`, job `benchmark`
 
 The committed baseline came from the accepted owner-reference run at `d68f415`.
 It is not represented as a hosted-runner baseline. BLOCK-006 needs a real hosted
 run, retained artifact and run URL.
 
+GitHub-hosted timing variance may make 1.25 flap. The threshold may only change
+through an explicit owner decision; it must never be silently loosened.
+
 ## Adversarial corpus reproducibility
 
 ### Generator
 
-- Seed for each corpus: `UInt64(0x00000000A110F00D)` = `2,703,229,965`.
+- Seed for each corpus: `UInt64(0x00000000A110F00D)` = `2,702,241,805`.
 - LCG: `state = state * 6,364,136,223,846,793,005 + 1`, wrapping UInt64.
 - Each mutation index `i` performs `1 + i % 8` byte edits.
 - Position: `state % input.count`.
@@ -331,7 +355,7 @@ Full paths and functions are in `docs/audits/findings-closure-matrix.md`.
 - `scripts/test-benchmark-regression-gate.sh`
 - `scripts/fixtures/benchmark-regression-pass.txt`
 - `scripts/fixtures/benchmark-regression-fail.txt`
-- `benchmarks/macos15-arm64-baseline.tsv`
+- `benchmarks/owner-reference-macos15-arm64-baseline.tsv`
 
 ### Corrected records
 
@@ -377,15 +401,18 @@ Before committing the artifact, remove serial number, hardware UUID,
 provisioning UDID and similar device identifiers. Retain model identifier, SoC,
 RAM, macOS build, toolchain, revision, command, 100 launch rows and summary.
 
-### BLOCK-006 — hosted benchmark proof
+### BLOCK-003/004/005/006 — first hosted execution and benchmark proof
 
 1. Configure/push to the intended Git remote.
-2. Run the `benchmark` CI job on the final candidate revision.
-3. Retain `benchmark-results` and `benchmark-comparison` artifacts and the run URL.
+2. Show `startup-memory`, `nightly-reliability`, `benchmark`, and
+   `adversarial-golden` green on the final candidate revision.
+3. Retain every corresponding artifact, including `benchmark-results`,
+   `benchmark-comparison`, startup/memory, reliability and adversarial/golden
+   output, plus the run URL.
 4. Replace/bootstrap the baseline only from that reviewed green hosted run,
    recording source commit, URL/artifact, date and 90-day expiry.
 5. Rerun the ratio gate against the hosted baseline.
-6. Commit the proof and update BLOCK-006.
+6. Commit the proof and update BLOCK-003/004/005/006.
 
 ### Final closure sequence
 

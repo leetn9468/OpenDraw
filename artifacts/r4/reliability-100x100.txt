@@ -1,102 +1,103 @@
-revision=f854389e3f7be89f237f80cb5ce13c3af65750c3 model=MacBookPro18,2 chip=Apple M1 Max memory_bytes=68719476736 os=15.7.5 build=24G624 arch=arm64 swift=swift-driver version: 1.120.5 Apple Swift version 6.1.2 (swiftlang-6.1.2.1.2 clang-1700.0.13.5) timeout_seconds=30
-launch=1 exit=0 round_trips=100
-launch=2 exit=0 round_trips=200
-launch=3 exit=0 round_trips=300
-launch=4 exit=0 round_trips=400
-launch=5 exit=0 round_trips=500
-launch=6 exit=0 round_trips=600
-launch=7 exit=0 round_trips=700
-launch=8 exit=0 round_trips=800
-launch=9 exit=0 round_trips=900
-launch=10 exit=0 round_trips=1000
-launch=11 exit=0 round_trips=1100
-launch=12 exit=0 round_trips=1200
-launch=13 exit=0 round_trips=1300
-launch=14 exit=0 round_trips=1400
-launch=15 exit=0 round_trips=1500
-launch=16 exit=0 round_trips=1600
-launch=17 exit=0 round_trips=1700
-launch=18 exit=0 round_trips=1800
-launch=19 exit=0 round_trips=1900
-launch=20 exit=0 round_trips=2000
-launch=21 exit=0 round_trips=2100
-launch=22 exit=0 round_trips=2200
-launch=23 exit=0 round_trips=2300
-launch=24 exit=0 round_trips=2400
-launch=25 exit=0 round_trips=2500
-launch=26 exit=0 round_trips=2600
-launch=27 exit=0 round_trips=2700
-launch=28 exit=0 round_trips=2800
-launch=29 exit=0 round_trips=2900
-launch=30 exit=0 round_trips=3000
-launch=31 exit=0 round_trips=3100
-launch=32 exit=0 round_trips=3200
-launch=33 exit=0 round_trips=3300
-launch=34 exit=0 round_trips=3400
-launch=35 exit=0 round_trips=3500
-launch=36 exit=0 round_trips=3600
-launch=37 exit=0 round_trips=3700
-launch=38 exit=0 round_trips=3800
-launch=39 exit=0 round_trips=3900
-launch=40 exit=0 round_trips=4000
-launch=41 exit=0 round_trips=4100
-launch=42 exit=0 round_trips=4200
-launch=43 exit=0 round_trips=4300
-launch=44 exit=0 round_trips=4400
-launch=45 exit=0 round_trips=4500
-launch=46 exit=0 round_trips=4600
-launch=47 exit=0 round_trips=4700
-launch=48 exit=0 round_trips=4800
-launch=49 exit=0 round_trips=4900
-launch=50 exit=0 round_trips=5000
-launch=51 exit=0 round_trips=5100
-launch=52 exit=0 round_trips=5200
-launch=53 exit=0 round_trips=5300
-launch=54 exit=0 round_trips=5400
-launch=55 exit=0 round_trips=5500
-launch=56 exit=0 round_trips=5600
-launch=57 exit=0 round_trips=5700
-launch=58 exit=0 round_trips=5800
-launch=59 exit=0 round_trips=5900
-launch=60 exit=0 round_trips=6000
-launch=61 exit=0 round_trips=6100
-launch=62 exit=0 round_trips=6200
-launch=63 exit=0 round_trips=6300
-launch=64 exit=0 round_trips=6400
-launch=65 exit=0 round_trips=6500
-launch=66 exit=0 round_trips=6600
-launch=67 exit=0 round_trips=6700
-launch=68 exit=0 round_trips=6800
-launch=69 exit=0 round_trips=6900
-launch=70 exit=0 round_trips=7000
-launch=71 exit=0 round_trips=7100
-launch=72 exit=0 round_trips=7200
-launch=73 exit=0 round_trips=7300
-launch=74 exit=0 round_trips=7400
-launch=75 exit=0 round_trips=7500
-launch=76 exit=0 round_trips=7600
-launch=77 exit=0 round_trips=7700
-launch=78 exit=0 round_trips=7800
-launch=79 exit=0 round_trips=7900
-launch=80 exit=0 round_trips=8000
-launch=81 exit=0 round_trips=8100
-launch=82 exit=0 round_trips=8200
-launch=83 exit=0 round_trips=8300
-launch=84 exit=0 round_trips=8400
-launch=85 exit=0 round_trips=8500
-launch=86 exit=0 round_trips=8600
-launch=87 exit=0 round_trips=8700
-launch=88 exit=0 round_trips=8800
-launch=89 exit=0 round_trips=8900
-launch=90 exit=0 round_trips=9000
-launch=91 exit=0 round_trips=9100
-launch=92 exit=0 round_trips=9200
-launch=93 exit=0 round_trips=9300
-launch=94 exit=0 round_trips=9400
-launch=95 exit=0 round_trips=9500
-launch=96 exit=0 round_trips=9600
-launch=97 exit=0 round_trips=9700
-launch=98 exit=0 round_trips=9800
-launch=99 exit=0 round_trips=9900
-launch=100 exit=0 round_trips=10000
-summary launches=100 round_trips=10000 crashes=0 nonzero_exits=0 timeouts=0 corruption_failures=0 duration_seconds=3 result=PASS
+revision=2884a545604e59b17b81db676fe86d3c707276e5 model=MacBookPro18,2 chip=Apple M1 Max memory_bytes=68719476736 os=15.7.5 build=24G624 arch=arm64 swift=swift-driver version: 1.120.5 Apple Swift version 6.1.2 (swiftlang-6.1.2.1.2 clang-1700.0.13.5) timeout_seconds=30
+execution=sequential smoke_path=codec-only ui_initialized=false wall_clock=aggregate-loop-elapsed
+launch=1 pid=96436 process_wall_ms=20.000 smoke_ms=16.331 exit=0 round_trips=100
+launch=2 pid=96451 process_wall_ms=20.000 smoke_ms=16.688 exit=0 round_trips=200
+launch=3 pid=96466 process_wall_ms=20.000 smoke_ms=16.875 exit=0 round_trips=300
+launch=4 pid=96481 process_wall_ms=20.000 smoke_ms=16.853 exit=0 round_trips=400
+launch=5 pid=96496 process_wall_ms=20.000 smoke_ms=16.377 exit=0 round_trips=500
+launch=6 pid=96513 process_wall_ms=20.000 smoke_ms=16.239 exit=0 round_trips=600
+launch=7 pid=96528 process_wall_ms=20.000 smoke_ms=16.364 exit=0 round_trips=700
+launch=8 pid=96543 process_wall_ms=20.000 smoke_ms=16.692 exit=0 round_trips=800
+launch=9 pid=96558 process_wall_ms=20.000 smoke_ms=16.208 exit=0 round_trips=900
+launch=10 pid=96573 process_wall_ms=20.000 smoke_ms=16.376 exit=0 round_trips=1000
+launch=11 pid=96595 process_wall_ms=20.000 smoke_ms=17.115 exit=0 round_trips=1100
+launch=12 pid=96610 process_wall_ms=20.000 smoke_ms=16.098 exit=0 round_trips=1200
+launch=13 pid=96631 process_wall_ms=20.000 smoke_ms=16.566 exit=0 round_trips=1300
+launch=14 pid=96660 process_wall_ms=20.000 smoke_ms=16.531 exit=0 round_trips=1400
+launch=15 pid=96685 process_wall_ms=20.000 smoke_ms=17.083 exit=0 round_trips=1500
+launch=16 pid=96709 process_wall_ms=20.000 smoke_ms=16.464 exit=0 round_trips=1600
+launch=17 pid=96727 process_wall_ms=20.000 smoke_ms=16.127 exit=0 round_trips=1700
+launch=18 pid=96742 process_wall_ms=20.000 smoke_ms=16.269 exit=0 round_trips=1800
+launch=19 pid=96757 process_wall_ms=20.000 smoke_ms=16.627 exit=0 round_trips=1900
+launch=20 pid=96772 process_wall_ms=20.000 smoke_ms=16.321 exit=0 round_trips=2000
+launch=21 pid=96787 process_wall_ms=20.000 smoke_ms=16.234 exit=0 round_trips=2100
+launch=22 pid=96802 process_wall_ms=20.000 smoke_ms=16.631 exit=0 round_trips=2200
+launch=23 pid=96817 process_wall_ms=20.000 smoke_ms=16.099 exit=0 round_trips=2300
+launch=24 pid=96832 process_wall_ms=20.000 smoke_ms=16.350 exit=0 round_trips=2400
+launch=25 pid=96847 process_wall_ms=20.000 smoke_ms=16.375 exit=0 round_trips=2500
+launch=26 pid=96862 process_wall_ms=20.000 smoke_ms=16.409 exit=0 round_trips=2600
+launch=27 pid=96877 process_wall_ms=20.000 smoke_ms=16.437 exit=0 round_trips=2700
+launch=28 pid=96892 process_wall_ms=20.000 smoke_ms=16.881 exit=0 round_trips=2800
+launch=29 pid=96907 process_wall_ms=20.000 smoke_ms=16.357 exit=0 round_trips=2900
+launch=30 pid=96922 process_wall_ms=20.000 smoke_ms=15.979 exit=0 round_trips=3000
+launch=31 pid=96937 process_wall_ms=20.000 smoke_ms=16.583 exit=0 round_trips=3100
+launch=32 pid=96958 process_wall_ms=20.000 smoke_ms=16.768 exit=0 round_trips=3200
+launch=33 pid=96973 process_wall_ms=20.000 smoke_ms=16.584 exit=0 round_trips=3300
+launch=34 pid=96988 process_wall_ms=20.000 smoke_ms=16.948 exit=0 round_trips=3400
+launch=35 pid=97023 process_wall_ms=20.000 smoke_ms=16.623 exit=0 round_trips=3500
+launch=36 pid=97045 process_wall_ms=20.000 smoke_ms=16.465 exit=0 round_trips=3600
+launch=37 pid=97072 process_wall_ms=20.000 smoke_ms=16.550 exit=0 round_trips=3700
+launch=38 pid=97090 process_wall_ms=20.000 smoke_ms=16.464 exit=0 round_trips=3800
+launch=39 pid=97105 process_wall_ms=20.000 smoke_ms=16.798 exit=0 round_trips=3900
+launch=40 pid=97120 process_wall_ms=20.000 smoke_ms=16.456 exit=0 round_trips=4000
+launch=41 pid=97135 process_wall_ms=20.000 smoke_ms=16.423 exit=0 round_trips=4100
+launch=42 pid=97150 process_wall_ms=20.000 smoke_ms=16.119 exit=0 round_trips=4200
+launch=43 pid=97165 process_wall_ms=20.000 smoke_ms=16.274 exit=0 round_trips=4300
+launch=44 pid=97180 process_wall_ms=20.000 smoke_ms=15.919 exit=0 round_trips=4400
+launch=45 pid=97195 process_wall_ms=20.000 smoke_ms=16.305 exit=0 round_trips=4500
+launch=46 pid=97210 process_wall_ms=20.000 smoke_ms=16.316 exit=0 round_trips=4600
+launch=47 pid=97225 process_wall_ms=20.000 smoke_ms=16.591 exit=0 round_trips=4700
+launch=48 pid=97240 process_wall_ms=20.000 smoke_ms=16.963 exit=0 round_trips=4800
+launch=49 pid=97255 process_wall_ms=20.000 smoke_ms=16.086 exit=0 round_trips=4900
+launch=50 pid=97270 process_wall_ms=20.000 smoke_ms=16.131 exit=0 round_trips=5000
+launch=51 pid=97285 process_wall_ms=20.000 smoke_ms=16.545 exit=0 round_trips=5100
+launch=52 pid=97300 process_wall_ms=20.000 smoke_ms=16.461 exit=0 round_trips=5200
+launch=53 pid=97315 process_wall_ms=20.000 smoke_ms=16.313 exit=0 round_trips=5300
+launch=54 pid=97336 process_wall_ms=20.000 smoke_ms=16.254 exit=0 round_trips=5400
+launch=55 pid=97351 process_wall_ms=20.000 smoke_ms=16.375 exit=0 round_trips=5500
+launch=56 pid=97372 process_wall_ms=20.000 smoke_ms=16.714 exit=0 round_trips=5600
+launch=57 pid=97401 process_wall_ms=20.000 smoke_ms=16.437 exit=0 round_trips=5700
+launch=58 pid=97426 process_wall_ms=20.000 smoke_ms=16.791 exit=0 round_trips=5800
+launch=59 pid=97450 process_wall_ms=20.000 smoke_ms=16.724 exit=0 round_trips=5900
+launch=60 pid=97468 process_wall_ms=20.000 smoke_ms=16.335 exit=0 round_trips=6000
+launch=61 pid=97483 process_wall_ms=20.000 smoke_ms=16.079 exit=0 round_trips=6100
+launch=62 pid=97498 process_wall_ms=20.000 smoke_ms=16.511 exit=0 round_trips=6200
+launch=63 pid=97513 process_wall_ms=20.000 smoke_ms=16.235 exit=0 round_trips=6300
+launch=64 pid=97528 process_wall_ms=20.000 smoke_ms=16.087 exit=0 round_trips=6400
+launch=65 pid=97543 process_wall_ms=20.000 smoke_ms=16.385 exit=0 round_trips=6500
+launch=66 pid=97558 process_wall_ms=20.000 smoke_ms=17.037 exit=0 round_trips=6600
+launch=67 pid=97573 process_wall_ms=20.000 smoke_ms=15.979 exit=0 round_trips=6700
+launch=68 pid=97588 process_wall_ms=20.000 smoke_ms=15.978 exit=0 round_trips=6800
+launch=69 pid=97603 process_wall_ms=20.000 smoke_ms=16.749 exit=0 round_trips=6900
+launch=70 pid=97618 process_wall_ms=20.000 smoke_ms=16.642 exit=0 round_trips=7000
+launch=71 pid=97633 process_wall_ms=20.000 smoke_ms=16.828 exit=0 round_trips=7100
+launch=72 pid=97648 process_wall_ms=20.000 smoke_ms=16.838 exit=0 round_trips=7200
+launch=73 pid=97663 process_wall_ms=20.000 smoke_ms=16.482 exit=0 round_trips=7300
+launch=74 pid=97678 process_wall_ms=20.000 smoke_ms=16.271 exit=0 round_trips=7400
+launch=75 pid=97699 process_wall_ms=20.000 smoke_ms=16.142 exit=0 round_trips=7500
+launch=76 pid=97716 process_wall_ms=20.000 smoke_ms=16.541 exit=0 round_trips=7600
+launch=77 pid=97731 process_wall_ms=20.000 smoke_ms=17.042 exit=0 round_trips=7700
+launch=78 pid=97763 process_wall_ms=20.000 smoke_ms=16.938 exit=0 round_trips=7800
+launch=79 pid=97784 process_wall_ms=20.000 smoke_ms=17.162 exit=0 round_trips=7900
+launch=80 pid=97812 process_wall_ms=20.000 smoke_ms=16.729 exit=0 round_trips=8000
+launch=81 pid=97833 process_wall_ms=20.000 smoke_ms=16.363 exit=0 round_trips=8100
+launch=82 pid=97848 process_wall_ms=20.000 smoke_ms=16.303 exit=0 round_trips=8200
+launch=83 pid=97863 process_wall_ms=20.000 smoke_ms=16.795 exit=0 round_trips=8300
+launch=84 pid=97878 process_wall_ms=20.000 smoke_ms=16.477 exit=0 round_trips=8400
+launch=85 pid=97893 process_wall_ms=20.000 smoke_ms=16.486 exit=0 round_trips=8500
+launch=86 pid=97908 process_wall_ms=20.000 smoke_ms=16.579 exit=0 round_trips=8600
+launch=87 pid=97923 process_wall_ms=20.000 smoke_ms=16.886 exit=0 round_trips=8700
+launch=88 pid=97938 process_wall_ms=20.000 smoke_ms=16.284 exit=0 round_trips=8800
+launch=89 pid=97953 process_wall_ms=20.000 smoke_ms=16.621 exit=0 round_trips=8900
+launch=90 pid=97968 process_wall_ms=20.000 smoke_ms=16.432 exit=0 round_trips=9000
+launch=91 pid=97983 process_wall_ms=20.000 smoke_ms=16.296 exit=0 round_trips=9100
+launch=92 pid=97998 process_wall_ms=20.000 smoke_ms=15.969 exit=0 round_trips=9200
+launch=93 pid=98013 process_wall_ms=20.000 smoke_ms=16.743 exit=0 round_trips=9300
+launch=94 pid=98028 process_wall_ms=20.000 smoke_ms=15.896 exit=0 round_trips=9400
+launch=95 pid=98043 process_wall_ms=20.000 smoke_ms=17.510 exit=0 round_trips=9500
+launch=96 pid=98058 process_wall_ms=20.000 smoke_ms=16.788 exit=0 round_trips=9600
+launch=97 pid=98079 process_wall_ms=20.000 smoke_ms=16.925 exit=0 round_trips=9700
+launch=98 pid=98094 process_wall_ms=20.000 smoke_ms=17.319 exit=0 round_trips=9800
+launch=99 pid=98115 process_wall_ms=20.000 smoke_ms=17.328 exit=0 round_trips=9900
+launch=100 pid=98144 process_wall_ms=20.000 smoke_ms=17.131 exit=0 round_trips=10000
+summary launches=100 distinct_pids=100 round_trips=10000 crashes=0 nonzero_exits=0 timeouts=0 corruption_failures=0 wall_clock_seconds=5 result=PASS

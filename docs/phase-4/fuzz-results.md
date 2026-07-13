@@ -2,7 +2,7 @@
 
 This is deterministic fixed-seed mutation testing, not coverage-guided fuzzing.
 `Tests/DocumentFormatsTests/AdversarialCorpusTests.swift` starts each native and
-SVG corpus at `UInt64(0x00000000A110F00D)` (`2,703,229,965`), then uses the LCG
+SVG corpus at `UInt64(0x00000000A110F00D)` (`2,702,241,805`), then uses the LCG
 `state = state * 6,364,136,223,846,793,005 + 1` with wrapping UInt64 arithmetic.
 For mutation index `i`, it performs `1 + i % 8` byte edits; each edit selects
 `state % input.count` and XORs the byte with the truncating low byte of
@@ -24,7 +24,7 @@ input/structure limits remain the primary hard resource control.
 
 The final local command was `swift test --filter
 'deterministicNativeAndSVG|fixedAdversarial'`; it passed on implementation
-revision `6de4bce`. Raw output is retained at
+complete-battery revision `b01364b`. Raw output is retained at
 `artifacts/r4/adversarial-tests.txt`. A reproducible failure record uses
 `CORPUS_FAILURE kind=<native|svg> index=<0-based> seed=0x00000000A110F00D` in
 the retained test log; the input is regenerated from the named seed, index,
@@ -35,3 +35,7 @@ unavailable because this checkout has no configured remote. That missing hosted
 evidence is recorded with BLOCK-006 rather than invented.
 
 No proprietary sample is permitted.
+
+This LCG is test-side numeric policy. It uses exact wrapping UInt64 operations
+to make corpus generation reproducible and introduces no production mathematical
+behavior or verification-queue obligation.

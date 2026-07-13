@@ -1,40 +1,40 @@
 Building for debugging...
 [0/10] Write swift-version--1AB21518FC5DEDBE.txt
-[2/13] Compiling EditorCore Diagnostics.swift
-[3/13] Emitting module EditorCore
+[2/13] Emitting module EditorCore
+[3/13] Compiling EditorCore Diagnostics.swift
 [4/13] Compiling EditorCore CoreTypes.swift
-[5/17] Compiling MacPlatform BackingScale.swift
-[6/17] Emitting module MacPlatform
+[5/17] Emitting module MacPlatform
+[6/17] Compiling MacPlatform BackingScale.swift
 [7/17] Emitting module Geometry
 [8/17] Compiling Geometry Geometry.swift
-[9/21] Emitting module TextEngine
-[10/21] Compiling TextEngine TextShaper.swift
+[9/21] Compiling TextEngine TextShaper.swift
+[10/21] Emitting module TextEngine
 [11/21] Compiling DocumentModel Document.swift
 [12/21] Emitting module DocumentModel
-[13/39] Compiling DocumentFormats AdversarialParserHarness.swift
+[13/39] Compiling DocumentFormats SVGLengthParser.swift
 [14/39] Compiling DocumentFormats RasterResourceLoader.swift
 [15/39] Emitting module DocumentFormats
-[16/39] Compiling DocumentFormats SVGLengthParser.swift
-[17/39] Compiling DocumentFormats ApprovedImages.swift
-[18/39] Compiling DocumentFormats DurablePersistence.swift
-[19/39] Compiling CanvasRender ViewportStripCache.swift
-[20/39] Compiling CanvasRender SceneBitmapCache.swift
+[16/39] Compiling CanvasRender ViewportStripCache.swift
+[17/39] Compiling CanvasRender SceneBitmapCache.swift
+[18/39] Compiling DocumentFormats InputLimits.swift
+[19/39] Compiling DocumentFormats DurablePersistence.swift
+[20/39] Compiling DocumentFormats SVGImporter.swift
 [21/39] Compiling EditorCommands SceneCommands.swift
 [22/39] Emitting module EditorCommands
 [23/39] Compiling EditorCommands AlignmentCommands.swift
 [24/39] Compiling EditorCommands CommandHistory.swift
-[25/39] Compiling DocumentFormats SVGImporter.swift
-[26/39] Emitting module CanvasRender
-[27/39] Compiling CanvasRender CoreGraphicsRenderer.swift
-[28/39] Compiling DocumentFormats InputLimits.swift
-[29/39] Compiling DocumentFormats NativeDocumentCodec.swift
+[25/39] Emitting module CanvasRender
+[26/39] Compiling CanvasRender CoreGraphicsRenderer.swift
+[27/39] Compiling DocumentFormats NativeDocumentCodec.swift
+[28/39] Compiling DocumentFormats ApprovedImages.swift
+[29/39] Compiling DocumentFormats AdversarialParserHarness.swift
 [30/39] Compiling DocumentFormats SVGExporter.swift
 [31/49] Compiling EditorTools TransformInteractions.swift
-[32/49] Compiling EditorTools SpatialIndex.swift
-[33/49] Compiling EditorTools SelectionTool.swift
+[32/49] Compiling EditorTools SelectionTool.swift
+[33/49] Compiling EditorTools SpatialIndex.swift
 [34/49] Compiling EditorTools AccessibilityTree.swift
-[35/49] Emitting module EditorTools
-[36/49] Compiling EditorTools CreationTools.swift
+[35/49] Compiling EditorTools CreationTools.swift
+[36/49] Emitting module EditorTools
 [37/49] Emitting module RenderBenchmark
 [38/49] Compiling RenderBenchmark main.swift
 [38/49] Write Objects.LinkFileList
@@ -50,7 +50,7 @@ Building for debugging...
 [48/51] Write Objects.LinkFileList
 [49/51] Linking VectorFoundry
 [50/51] Applying VectorFoundry
-Build complete! (5.06s)
+Build complete! (5.21s)
 -- Emitting symbol graph for DocumentFormats
 -- Emitting symbol graph for EditorTools
 -- Emitting symbol graph for MacPlatform

@@ -1,4 +1,4 @@
-revision=6de4bce
+revision=2884a54
 model=MacBookPro18,2
 chip=Apple M1 Max
 memory_bytes=68719476736

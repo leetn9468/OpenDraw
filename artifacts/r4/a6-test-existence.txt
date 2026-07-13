@@ -1,0 +1,39 @@
+revision=b01364b9dfa50bc6b66846bd8a313e2f67ec6433
+METHOD=preciseSelectionRejectsBoundsFalsePositiveAndRespectsLockedLayers
+Tests/EditorToolsTests/EditorToolsTests.swift:48:@Test func preciseSelectionRejectsBoundsFalsePositiveAndRespectsLockedLayers() throws {
+METHOD=headlessUIJourneyCreateStyleTransformSaveReopenAndExport
+Tests/DocumentFormatsTests/UIJourneyTests.swift:10:@Test func headlessUIJourneyCreateStyleTransformSaveReopenAndExport() throws {
+METHOD=verify019DocumentDeltaIncludesOwnAndAncestorTransforms
+Tests/DocumentModelTests/DirectAnchorVerifyTests.swift:16:@Test func verify019DocumentDeltaIncludesOwnAndAncestorTransforms() throws {
+METHOD=directAnchorDeletionIsUndoable
+Tests/DocumentModelTests/DirectAnchorVerifyTests.swift:76:@Test func directAnchorDeletionIsUndoable() throws {
+METHOD=directionHandleMovementUsesDocumentDeltaAndIsUndoable
+Tests/DocumentModelTests/DirectAnchorVerifyTests.swift:93:@Test func directionHandleMovementUsesDocumentDeltaAndIsUndoable() throws {
+METHOD=smoothPenCreatesMirroredHandlesPreviewAndClosedPath
+Tests/EditorToolsTests/EditorToolsTests.swift:18:@Test func smoothPenCreatesMirroredHandlesPreviewAndClosedPath() throws {
+METHOD=testVerify013PivotRotationAndHalfAwaySnapping
+Tests/EditorToolsTests/EditorToolsTests.swift:71:@Test func testVerify013PivotRotationAndHalfAwaySnapping() {
+METHOD=testVerify016EightHandleScaleMapping
+Tests/EditorToolsTests/EditorToolsTests.swift:129:@Test func testVerify016EightHandleScaleMapping() throws {
+METHOD=verify020NestedDocumentTransformComposition
+Tests/DocumentModelTests/DocumentTransformVerifyTests.swift:19:@Test func verify020NestedDocumentTransformComposition() throws {
+METHOD=testVerify018ScreenSpaceSnappingTolerance
+Tests/EditorToolsTests/EditorToolsTests.swift:202:@Test func testVerify018ScreenSpaceSnappingTolerance() {
+METHOD=verify021AxisSnapCandidates
+Tests/EditorToolsTests/EditorToolsTests.swift:214:@Test func verify021AxisSnapCandidates() {
+METHOD=advancedResourceInvariants
+Tests/DocumentModelTests/DocumentModelTests.swift:177:@Test func advancedResourceInvariants() throws {
+METHOD=alignmentIsUndoable
+Tests/DocumentModelTests/DocumentModelTests.swift:127:@Test func alignmentIsUndoable() throws {
+METHOD=expandedAppearanceTextAndImageRender
+Tests/CanvasRenderTests/CanvasRenderTests.swift:102:@Test func expandedAppearanceTextAndImageRender() throws {
+METHOD=rasterLoaderEnforcesLimitsAndSafeLinks
+Tests/DocumentFormatsTests/DocumentFormatsTests.swift:98:@Test func rasterLoaderEnforcesLimitsAndSafeLinks() throws {
+METHOD=rendererUsesOnlyApprovedImagesOrPlaceholder
+Tests/CanvasRenderTests/CanvasRenderTests.swift:128:@Test func rendererUsesOnlyApprovedImagesOrPlaceholder() throws {
+METHOD=directAnchorGroupUngroupAndCompoundCommandsAreUndoable
+Tests/DocumentModelTests/DocumentModelTests.swift:146:@Test func directAnchorGroupUngroupAndCompoundCommandsAreUndoable() throws {
+METHOD=groupUngroupAndCompoundReleasePreserveVisualBounds
+Tests/DocumentModelTests/DirectAnchorVerifyTests.swift:54:@Test func groupUngroupAndCompoundReleasePreserveVisualBounds() throws {
+METHOD=testVerify014ZoomAboutPointDomainAndInvariant
+Tests/EditorToolsTests/EditorToolsTests.swift:93:@Test func testVerify014ZoomAboutPointDomainAndInvariant() throws {

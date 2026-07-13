@@ -8,12 +8,12 @@ Identifier=org.opendraw.editor
 Format=app bundle with Mach-O thin (arm64)
 CodeDirectory v=20500 size=13940 flags=0x10002(adhoc,runtime) hashes=429+3 location=embedded
 Hash type=sha256 size=32
-CandidateCDHash sha256=10757d707723bea744f0210d4b53c9ee3ab16d00
-CandidateCDHashFull sha256=10757d707723bea744f0210d4b53c9ee3ab16d007a87438eeadd236299fb8be3
+CandidateCDHash sha256=582103dcffa14cdd51d15e10cfb8f4170988a326
+CandidateCDHashFull sha256=582103dcffa14cdd51d15e10cfb8f4170988a326f824d0d2df96631e6f72a87b
 Hash choices=sha256
-CMSDigest=10757d707723bea744f0210d4b53c9ee3ab16d007a87438eeadd236299fb8be3
+CMSDigest=582103dcffa14cdd51d15e10cfb8f4170988a326f824d0d2df96631e6f72a87b
 CMSDigestType=2
-CDHash=10757d707723bea744f0210d4b53c9ee3ab16d00
+CDHash=582103dcffa14cdd51d15e10cfb8f4170988a326
 Signature=adhoc
 Info.plist entries=8
 TeamIdentifier=not set

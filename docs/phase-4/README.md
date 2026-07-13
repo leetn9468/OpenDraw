@@ -13,7 +13,7 @@ Review date: 2026-07-13
 | R4.4 CI/release | Local gates implemented and passing; real macOS 13 runtime and hosted benchmark proof remain open |
 | R4.5 re-audit | Product-code closure matrix passes; acceptance blockers are tracked in `docs/PROJECT_STATE.md` |
 
-The permanent suite contains 88 tests. Coverage is 87.93%, above the enforced
+The permanent suite contains 89 tests. Coverage is 87.93%, above the enforced
 55% line-coverage floor. VERIFY-001 through VERIFY-021 are `VERIFIED` and frozen.
 
 ## Release-policy boundaries
@@ -38,6 +38,7 @@ The permanent suite contains 88 tests. Coverage is 87.93%, above the enforced
 | Clean-room implementation boundary | Pass; CI enforcement added |
 | Verification queue has no open entries | Pass |
 | Real macOS 13 Apple Silicon 100-launch runtime proof | **Open — BLOCK-002** |
+| Hosted execution of memory/startup/reliability jobs | **Open — BLOCK-003/004/005** |
 | Hosted-CI benchmark baseline and run artifact | **Open — BLOCK-006** |
 
 Therefore R4/A7 is not accepted, A8 remains blocked, and the

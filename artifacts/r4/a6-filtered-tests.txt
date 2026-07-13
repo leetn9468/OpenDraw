@@ -1,0 +1,46 @@
+[0/1] Planning build
+Building for debugging...
+[0/8] Write swift-version--1AB21518FC5DEDBE.txt
+Build complete! (0.26s)
+◇ Test run started.
+↳ Testing Library Version: 124.4
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test verify021AxisSnapCandidates() started.
+◇ Test preciseSelectionRejectsBoundsFalsePositiveAndRespectsLockedLayers() started.
+◇ Test testVerify016EightHandleScaleMapping() started.
+◇ Test testVerify018ScreenSpaceSnappingTolerance() started.
+◇ Test testVerify014ZoomAboutPointDomainAndInvariant() started.
+◇ Test directAnchorDeletionIsUndoable() started.
+◇ Test testVerify013PivotRotationAndHalfAwaySnapping() started.
+◇ Test alignmentIsUndoable() started.
+◇ Test verify020NestedDocumentTransformComposition() started.
+◇ Test rasterLoaderEnforcesLimitsAndSafeLinks() started.
+◇ Test advancedResourceInvariants() started.
+◇ Test expandedAppearanceTextAndImageRender() started.
+◇ Test rendererUsesOnlyApprovedImagesOrPlaceholder() started.
+◇ Test verify019DocumentDeltaIncludesOwnAndAncestorTransforms() started.
+◇ Test groupUngroupAndCompoundReleasePreserveVisualBounds() started.
+◇ Test directionHandleMovementUsesDocumentDeltaAndIsUndoable() started.
+◇ Test headlessUIJourneyCreateStyleTransformSaveReopenAndExport() started.
+◇ Test smoothPenCreatesMirroredHandlesPreviewAndClosedPath() started.
+◇ Test directAnchorGroupUngroupAndCompoundCommandsAreUndoable() started.
+✔ Test verify021AxisSnapCandidates() passed after 0.001 seconds.
+✔ Test testVerify018ScreenSpaceSnappingTolerance() passed after 0.001 seconds.
+✔ Test testVerify016EightHandleScaleMapping() passed after 0.001 seconds.
+✔ Test testVerify013PivotRotationAndHalfAwaySnapping() passed after 0.001 seconds.
+✔ Test verify020NestedDocumentTransformComposition() passed after 0.001 seconds.
+✔ Test advancedResourceInvariants() passed after 0.001 seconds.
+✔ Test testVerify014ZoomAboutPointDomainAndInvariant() passed after 0.001 seconds.
+✔ Test directionHandleMovementUsesDocumentDeltaAndIsUndoable() passed after 0.001 seconds.
+✔ Test verify019DocumentDeltaIncludesOwnAndAncestorTransforms() passed after 0.001 seconds.
+✔ Test directAnchorDeletionIsUndoable() passed after 0.001 seconds.
+✔ Test preciseSelectionRejectsBoundsFalsePositiveAndRespectsLockedLayers() passed after 0.001 seconds.
+✔ Test smoothPenCreatesMirroredHandlesPreviewAndClosedPath() passed after 0.001 seconds.
+✔ Test groupUngroupAndCompoundReleasePreserveVisualBounds() passed after 0.001 seconds.
+✔ Test alignmentIsUndoable() passed after 0.001 seconds.
+✔ Test directAnchorGroupUngroupAndCompoundCommandsAreUndoable() passed after 0.001 seconds.
+✔ Test rendererUsesOnlyApprovedImagesOrPlaceholder() passed after 0.004 seconds.
+✔ Test rasterLoaderEnforcesLimitsAndSafeLinks() passed after 0.005 seconds.
+✔ Test expandedAppearanceTextAndImageRender() passed after 0.011 seconds.
+✔ Test headlessUIJourneyCreateStyleTransformSaveReopenAndExport() passed after 0.021 seconds.
+✔ Test run with 19 tests passed after 0.022 seconds.

@@ -12,9 +12,11 @@ no conditional pass and no Phase 5 entry tag is claimed.
 | `52c3295` | Memory/startup/reliability/benchmark gates, CI jobs, representative memory harness, expanded 14-group UI journey | Complete initial battery and all raw artifacts |
 | `f854389` | Script-only correction so Swift toolchain metadata captures stderr and is retained correctly | Startup, memory, 100-process reliability, fresh benchmark, ratio gate and failure fixture rerun |
 | `6de4bce` | Test-only reproducible mutation failure-index logging | Debug/release/ASan/coverage and adversarial filters rerun |
+| `b01364b` | Corrected decoded-image memory gate, failure fixture, numeric-policy pinning, PID evidence and baseline rename | Complete local battery rerun; all artifacts except the later reliability log |
+| `2884a54` | Reliability-script-only correction for external per-process wall duration | 100-process/10,000-cycle reliability gate rerun |
 | Documentation closure commit | Project state, A6 package, audit/checkpoint/policy corrections and retained logs only | Outside `Sources`, `Tests`, `Package.swift`, scripts and CI build inputs; formatting/diff/link checks rerun |
 
-The final implementation/gate revision is `6de4bce`. Documentation commits do
+The final implementation/gate revision is `2884a54`. Documentation commits do
 not conceal later code/config changes.
 
 ## Exact local environment
@@ -32,9 +34,9 @@ This is not macOS 13 runtime evidence.
 
 | Gate and exact command | Observed result | Artifact |
 |---|---|---|
-| `swift build -c debug`; `swift test` | PASS; 88 tests in 2.421 s | `debug-build.txt`, `debug-tests.txt` |
-| `swift build -c release`; `swift test -c release` | PASS; 88 tests in 1.113 s | `release-build.txt`, `release-tests.txt` |
-| `swift test --sanitize=address` | PASS; 88 tests in 11.270 s | `asan-tests.txt` |
+| `swift build -c debug`; `swift test` | PASS; 89 tests in 2.427 s | `debug-build.txt`, `debug-tests.txt` |
+| `swift build -c release`; `swift test -c release` | PASS; 89 tests in 1.135 s | `release-build.txt`, `release-tests.txt` |
+| `swift test --sanitize=address` | PASS; 89 tests in 11.317 s | `asan-tests.txt` |
 | `swift test --enable-code-coverage`; `scripts/check-coverage.sh 55` | PASS; 87.93% versus 55% floor | `coverage-tests.txt`, `coverage-summary.txt` |
 | `xcrun swift-format lint --recursive --strict Sources Tests Package.swift` | PASS | `format.txt` |
 | `scripts/check-module-dependencies.sh`; `scripts/check-clean-room.sh` | PASS | `module-dependencies.txt`, `clean-room.txt` |
@@ -44,10 +46,11 @@ This is not macOS 13 runtime evidence.
 | golden filter | PASS | `golden-test.txt` |
 | headless UI/accessibility filter | PASS | `ui-accessibility-tests.txt` |
 | `scripts/build-release-app.sh` and `codesign -dvvv` | PASS; arm64, ad-hoc hardened runtime | `release-integrity.txt` |
-| `scripts/check-startup-p95.sh 20 ...` | PASS; p50 140.815, p95 151.433, max 163.861 ms; target 2,000 ms | `startup-p95.txt` |
-| `scripts/check-peak-memory.sh ...` | PASS; settle 9,109,504 bytes <= 500 MiB; PNG export 19,939,328 bytes <= 650 MiB | `peak-memory.txt` |
-| `scripts/nightly-reliability.sh ...` | PASS; 100 clean processes, 10,000 cycles, zero crashes/nonzero exits/timeouts/corruption, 3 s | `reliability-100x100.txt` |
-| benchmark ratio gate and failure fixture | PASS locally; 1.25 threshold enforced and 1.314801 fixture fails | `benchmark-comparison.txt`, `benchmark-gate-fixtures.txt` |
+| `scripts/check-startup-p95.sh 20 ...` | LOCAL PASS; nearest-rank p50 139.778, p95 147.748, max 162.816 ms; target 2,000 ms | `startup-p95.txt` |
+| `scripts/check-peak-memory.sh ...` | LOCAL PASS; ten embedded 5 MP images decoded/retained/rendered; settle 214,433,792 bytes; PNG export 224,395,264 bytes | `peak-memory.txt` |
+| `scripts/test-peak-memory-gate.sh ...` | PASS; forced 550 MiB extra allocation reaches 791,822,336 bytes and gate exits nonzero | `peak-memory-failure-fixture.txt` |
+| `scripts/nightly-reliability.sh ...` | LOCAL PASS; sequential 100 distinct PIDs, 10,000 cycles, zero crashes/nonzero exits/timeouts/corruption, 5 s aggregate wall clock | `reliability-100x100.txt` |
+| benchmark ratio gate and fixtures | LOCAL PASS; exact 1.25 boundary passes and 1.314801 fails | `benchmark-comparison.txt`, `benchmark-gate-fixtures.txt` |
 
 ## Fresh current-tree BENCH-R3.5 result
 
@@ -58,13 +61,13 @@ measured frames per timed scenario, display sleep inhibited, production paths.
 
 | Scenario | p50 | p95 | max / settle | Target | Result |
 |---|---:|---:|---:|---:|---|
-| BENCH-1 drag | 4.764 ms | 5.056 ms | 5.508 ms | p95 <= 16.7 ms | PASS |
-| BENCH-2 pan | 0.087 ms | 0.108 ms | 0.181 ms | p95 <= 16.7 ms | PASS |
-| BENCH-2b forced exposure | 5.203 ms | 5.827 ms | 8.853 ms | p95 <= 16.7 ms; nonzero strips every frame | PASS; 360/360 strip frames |
-| BENCH-3 zoom | 2.408 ms | 8.763 ms | 10.214 ms | p95 <= 33 ms | PASS |
-| BENCH-3 settle | — | — | 2.833 ms | <= 100 ms | PASS |
-| BENCH-4 cold full redraw | — | — | 8.166 ms | informational | RECORDED |
-| Warm full redraw | — | — | 4.724 ms | informational | RECORDED |
+| BENCH-1 drag | 4.960 ms | 5.496 ms | 12.056 ms | p95 <= 16.7 ms | PASS |
+| BENCH-2 pan | 0.088 ms | 0.108 ms | 0.180 ms | p95 <= 16.7 ms | PASS |
+| BENCH-2b forced exposure | 5.375 ms | 5.950 ms | 23.265 ms | p95 <= 16.7 ms; nonzero strips every frame | PASS; source precondition covers 360/360 frames |
+| BENCH-3 zoom | 2.399 ms | 8.953 ms | 10.186 ms | p95 <= 33 ms | PASS |
+| BENCH-3 settle | — | — | 2.745 ms | <= 100 ms | PASS |
+| BENCH-4 cold full redraw | — | — | 8.236 ms | informational | RECORDED |
+| Warm full redraw | — | — | 4.510 ms | informational | RECORDED |
 
 ## Open blockers
 
@@ -74,6 +77,10 @@ measured frames per timed scenario, display sleep inhibited, production paths.
 - BLOCK-006: ratio enforcement exists, but this checkout has no Git remote and
   therefore no hosted macOS 15 run/baseline artifact or CI run URL. The committed
   baseline is truthfully labelled owner-reference, not hosted proof.
+- BLOCK-003/004/005: corrected local gates pass, but their hosted-CI execution
+  components remain open until the first push shows `startup-memory`,
+  `nightly-reliability`, `benchmark`, and `adversarial-golden` green with a run
+  URL and retained artifacts.
 - BLOCK-012: `pre-phase5-remediation` is absent by rule while blockers remain.
 
 Developer ID/notarization, manual VoiceOver, multi-display review and

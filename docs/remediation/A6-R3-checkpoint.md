@@ -1,6 +1,6 @@
 # A6 — R3/R3-B checkpoint closure package
 
-Status: **CLOSED locally at final implementation/gate revision `6de4bce`**
+Status: **CLOSED locally at final implementation/gate revision `2884a54`**
 
 The original owner directive defines fourteen R3-B feature groups. This table
 uses those groups without merging them into R4 labels. Swift Testing functions
@@ -10,36 +10,49 @@ of inventing an XCTest class.
 | # | Required feature | Exact production symbol and file | Exact permanent integration test(s) | Implementation commits | Result |
 |---:|---|---|---|---|---|
 | 1 | Precise selection, visibility and locking | `SelectionTool.hitTest` in `Sources/EditorTools/SelectionTool.swift`; `CanvasView.mouseDown` in `Sources/VectorFoundryApp/main.swift` | `Tests/EditorToolsTests/EditorToolsTests.swift::preciseSelectionRejectsBoundsFalsePositiveAndRespectsLockedLayers`; `Tests/DocumentFormatsTests/UIJourneyTests.swift::headlessUIJourneyCreateStyleTransformSaveReopenAndExport` | `f12920f`, `3815904` | PASS |
-| 2 | Direct selection: anchors, handles, multi-drag, delete, toolbar | `SceneCommands.moveAnchor`, `moveControl`, `deleteAnchor` in `Sources/EditorCommands/SceneCommands.swift`; `CanvasView.mouseDown/mouseDragged` | `Tests/DocumentModelTests/DirectAnchorVerifyTests.swift::verify019DocumentDeltaIncludesOwnAndAncestorTransforms`, `directAnchorDeletionIsUndoable`, `directionHandleMovementUsesDocumentDeltaAndIsUndoable`; headless UI journey | `8ed6d00`, `73b16bf`, `95fd622`, `b99aa94`, `8df64e4` | PASS |
-| 3 | Pen corner/smooth anchors, preview, close/open finish | `SmoothPenToolState.addCorner/addSmooth/preview/finish` in `Sources/EditorTools/CreationTools.swift`; `CanvasView.mouseDown/mouseDragged/keyDown` | `Tests/EditorToolsTests/EditorToolsTests.swift::smoothPenCreatesMirroredHandlesPreviewAndClosedPath`; headless UI journey | `455eac7`, `d416162` | PASS |
-| 4 | Eight-handle scale and pivot rotation | `TransformInteractions.scale/rotation/snappedRotation` in `Sources/EditorTools/TransformInteractions.swift`; `EditorDocument.applyDocumentTransform` in `Sources/DocumentModel/Document.swift` | `Tests/EditorToolsTests/EditorToolsTests.swift::testVerify013PivotRotationAndHalfAwaySnapping`, `testVerify016EightHandleScaleMapping`; `Tests/DocumentModelTests/DocumentTransformVerifyTests.swift::verify020NestedDocumentTransformComposition`; headless UI journey | `9fdd523`, `21051fb`, `d85ae4b` | PASS |
-| 5 | Guide/grid/object snapping, indicators and toggle | `SnapPolicy.snap` in `Sources/EditorTools/CreationTools.swift`; `CanvasView.snappedPoint/toggleSnapping` | `Tests/EditorToolsTests/EditorToolsTests.swift::testVerify018ScreenSpaceSnappingTolerance`, `verify021AxisSnapCandidates`; headless UI journey | `1731c6a`, `72bd44d` | PASS |
+| 2 | Direct selection: anchors, handles, multi-drag, delete, toolbar | `SceneCommands.moveAnchor`, `moveControl`, `deleteAnchor` in `Sources/EditorCommands/SceneCommands.swift`; `CanvasView.mouseDown/mouseDragged` | `Tests/DocumentModelTests/DirectAnchorVerifyTests.swift::verify019DocumentDeltaIncludesOwnAndAncestorTransforms`; `Tests/DocumentModelTests/DirectAnchorVerifyTests.swift::directAnchorDeletionIsUndoable`; `Tests/DocumentModelTests/DirectAnchorVerifyTests.swift::directionHandleMovementUsesDocumentDeltaAndIsUndoable`; `Tests/DocumentFormatsTests/UIJourneyTests.swift::headlessUIJourneyCreateStyleTransformSaveReopenAndExport` | `8ed6d00`, `73b16bf`, `95fd622`, `b99aa94`, `8df64e4` | PASS |
+| 3 | Pen corner/smooth anchors, preview, close/open finish | `SmoothPenToolState.addCorner/addSmooth/preview/finish` in `Sources/EditorTools/CreationTools.swift`; `CanvasView.mouseDown/mouseDragged/keyDown` | `Tests/EditorToolsTests/EditorToolsTests.swift::smoothPenCreatesMirroredHandlesPreviewAndClosedPath`; `Tests/DocumentFormatsTests/UIJourneyTests.swift::headlessUIJourneyCreateStyleTransformSaveReopenAndExport` | `455eac7`, `d416162` | PASS |
+| 4 | Eight-handle scale and pivot rotation | `TransformInteractions.scale/rotation/snappedRotation` in `Sources/EditorTools/TransformInteractions.swift`; `EditorDocument.applyDocumentTransform` in `Sources/DocumentModel/Document.swift` | `Tests/EditorToolsTests/EditorToolsTests.swift::testVerify013PivotRotationAndHalfAwaySnapping`; `Tests/EditorToolsTests/EditorToolsTests.swift::testVerify016EightHandleScaleMapping`; `Tests/DocumentModelTests/DocumentTransformVerifyTests.swift::verify020NestedDocumentTransformComposition`; `Tests/DocumentFormatsTests/UIJourneyTests.swift::headlessUIJourneyCreateStyleTransformSaveReopenAndExport` | `9fdd523`, `21051fb`, `d85ae4b` | PASS |
+| 5 | Guide/grid/object snapping, indicators and toggle | `SnapPolicy.snap` in `Sources/EditorTools/CreationTools.swift`; `CanvasView.snappedPoint/toggleSnapping` | `Tests/EditorToolsTests/EditorToolsTests.swift::testVerify018ScreenSpaceSnappingTolerance`; `Tests/EditorToolsTests/EditorToolsTests.swift::verify021AxisSnapCandidates`; `Tests/DocumentFormatsTests/UIJourneyTests.swift::headlessUIJourneyCreateStyleTransformSaveReopenAndExport` | `1731c6a`, `72bd44d` | PASS |
 | 6 | Validated New-document flow | `AppDelegate.newDocument/promptForNewDocument` in `Sources/VectorFoundryApp/main.swift`; `EditorDocument.init` in `Sources/DocumentModel/Document.swift` | `Tests/DocumentFormatsTests/UIJourneyTests.swift::headlessUIJourneyCreateStyleTransformSaveReopenAndExport` | `32c110a` | PASS |
-| 7 | Complete implemented path-properties panel | `CanvasView.editSelectedProperties` in `Sources/VectorFoundryApp/main.swift`; `EditorDocument.mutatePath` | headless UI journey; `Tests/DocumentModelTests/DocumentModelTests.swift::advancedResourceInvariants` | `ef052fc`, `d416162` | PASS |
-| 8 | Layer list/reorder/rename/visibility/lock/active layer | `CanvasView.editLayers` in `Sources/VectorFoundryApp/main.swift`; `Layer` in `Sources/DocumentModel/Document.swift` | headless UI journey; `preciseSelectionRejectsBoundsFalsePositiveAndRespectsLockedLayers` | `c4135bd` | PASS |
-| 9 | Alignment UI | `CanvasView.alignSelectedLeft`; `AlignmentCommands.align` in `Sources/EditorCommands/AlignmentCommands.swift` | `Tests/DocumentModelTests/DocumentModelTests.swift::alignmentIsUndoable`; headless UI journey | `3815904` | PASS |
-| 10 | Gradient assignment and stop editor | `CanvasView.editGradient`; `GradientResource/ColorStop` in `Sources/DocumentModel/Document.swift` | `Tests/DocumentModelTests/DocumentModelTests.swift::advancedResourceInvariants`; headless UI journey | `9e75ed4` | PASS |
-| 11 | Point-text creation and font/size editing | `CanvasView.createText/editSelectedProperties`; `TextObject` in `Sources/DocumentModel/Document.swift` | headless UI journey; `Tests/CanvasRenderTests/CanvasRenderTests.swift::expandedAppearanceTextAndImageRender` | `ef052fc`, `d416162` | PASS |
-| 12 | Safe linked/embedded image placement | `AppDelegate.placeImage`; `CanvasView.placeEmbeddedImage/placeLinkedImage`; `ApprovedImageCache` and `LinkedResourceResolver` | headless UI journey; `Tests/DocumentFormatsTests/DocumentFormatsTests.swift::rasterLoaderEnforcesLimitsAndSafeLinks`; `Tests/CanvasRenderTests/CanvasRenderTests.swift::rendererUsesOnlyApprovedImagesOrPlaceholder` | `ef052fc`, `c4135bd`, `b05a149` | PASS |
-| 13 | Group/Ungroup and Make/Release Compound | `CanvasView.groupSelected/ungroupSelected/makeCompoundSelected/releaseCompoundSelected`; corresponding `SceneCommands` | `Tests/DocumentModelTests/DocumentModelTests.swift::directAnchorGroupUngroupAndCompoundCommandsAreUndoable`; `Tests/DocumentModelTests/DirectAnchorVerifyTests.swift::groupUngroupAndCompoundReleasePreserveVisualBounds`; headless UI journey | `8ed6d00`, `3815904`, `c4135bd`, `95fd622` | PASS |
-| 14 | Zoom/pan: commands, cursor zoom, pinch/scroll and space drag | `CanvasView.setZoom/zoomIn/zoomOut/actualSize/zoomToFit/scrollWheel/magnify/keyDown`; `TransformInteractions.zoomAbout` | `Tests/EditorToolsTests/EditorToolsTests.swift::testVerify014ZoomAboutPointDomainAndInvariant`; headless UI journey | `ce4b329`, `bf9daa0` | PASS |
+| 7 | Complete implemented path-properties panel | `CanvasView.editSelectedProperties` in `Sources/VectorFoundryApp/main.swift`; `EditorDocument.mutatePath` | `Tests/DocumentFormatsTests/UIJourneyTests.swift::headlessUIJourneyCreateStyleTransformSaveReopenAndExport`; `Tests/DocumentModelTests/DocumentModelTests.swift::advancedResourceInvariants` | `ef052fc`, `d416162` | PASS |
+| 8 | Layer list/reorder/rename/visibility/lock/active layer | `CanvasView.editLayers` in `Sources/VectorFoundryApp/main.swift`; `Layer` in `Sources/DocumentModel/Document.swift` | `Tests/DocumentFormatsTests/UIJourneyTests.swift::headlessUIJourneyCreateStyleTransformSaveReopenAndExport`; `Tests/EditorToolsTests/EditorToolsTests.swift::preciseSelectionRejectsBoundsFalsePositiveAndRespectsLockedLayers` | `c4135bd` | PASS |
+| 9 | Alignment UI | `CanvasView.alignSelectedLeft`; `AlignmentCommands.align` in `Sources/EditorCommands/AlignmentCommands.swift` | `Tests/DocumentModelTests/DocumentModelTests.swift::alignmentIsUndoable`; `Tests/DocumentFormatsTests/UIJourneyTests.swift::headlessUIJourneyCreateStyleTransformSaveReopenAndExport` | `3815904` | PASS |
+| 10 | Gradient assignment and stop editor | `CanvasView.editGradient`; `GradientResource/ColorStop` in `Sources/DocumentModel/Document.swift` | `Tests/DocumentModelTests/DocumentModelTests.swift::advancedResourceInvariants`; `Tests/DocumentFormatsTests/UIJourneyTests.swift::headlessUIJourneyCreateStyleTransformSaveReopenAndExport` | `9e75ed4` | PASS |
+| 11 | Point-text creation and font/size editing | `CanvasView.createText/editSelectedProperties`; `TextObject` in `Sources/DocumentModel/Document.swift` | `Tests/DocumentFormatsTests/UIJourneyTests.swift::headlessUIJourneyCreateStyleTransformSaveReopenAndExport`; `Tests/CanvasRenderTests/CanvasRenderTests.swift::expandedAppearanceTextAndImageRender` | `ef052fc`, `d416162` | PASS |
+| 12 | Safe linked/embedded image placement | `AppDelegate.placeImage`; `CanvasView.placeEmbeddedImage/placeLinkedImage`; `ApprovedImageCache` and `LinkedResourceResolver` | `Tests/DocumentFormatsTests/UIJourneyTests.swift::headlessUIJourneyCreateStyleTransformSaveReopenAndExport`; `Tests/DocumentFormatsTests/DocumentFormatsTests.swift::rasterLoaderEnforcesLimitsAndSafeLinks`; `Tests/CanvasRenderTests/CanvasRenderTests.swift::rendererUsesOnlyApprovedImagesOrPlaceholder` | `ef052fc`, `c4135bd`, `b05a149` | PASS |
+| 13 | Group/Ungroup and Make/Release Compound | `CanvasView.groupSelected/ungroupSelected/makeCompoundSelected/releaseCompoundSelected`; corresponding `SceneCommands` | `Tests/DocumentModelTests/DocumentModelTests.swift::directAnchorGroupUngroupAndCompoundCommandsAreUndoable`; `Tests/DocumentModelTests/DirectAnchorVerifyTests.swift::groupUngroupAndCompoundReleasePreserveVisualBounds`; `Tests/DocumentFormatsTests/UIJourneyTests.swift::headlessUIJourneyCreateStyleTransformSaveReopenAndExport` | `8ed6d00`, `3815904`, `c4135bd`, `95fd622` | PASS |
+| 14 | Zoom/pan: commands, cursor zoom, pinch/scroll and space drag | `CanvasView.setZoom/zoomIn/zoomOut/actualSize/zoomToFit/scrollWheel/magnify/keyDown`; `TransformInteractions.zoomAbout` | `Tests/EditorToolsTests/EditorToolsTests.swift::testVerify014ZoomAboutPointDomainAndInvariant`; `Tests/DocumentFormatsTests/UIJourneyTests.swift::headlessUIJourneyCreateStyleTransformSaveReopenAndExport` | `ce4b329`, `bf9daa0` | PASS |
+
+Grep-level existence proof for every unique method named above is retained at
+`artifacts/r4/a6-test-existence.txt`. The exact combined filter and its 19-test
+pass output are retained at `artifacts/r4/a6-filtered-tests.txt`, both produced
+on `b01364b`.
 
 ## A6 final-revision gates
 
-Final implementation/gate revision `6de4bce` was tested on `MacBookPro18,2`, Apple
+The complete battery ran on `b01364b`; the only later implementation/gate
+revision, `2884a54`, changes reliability duration capture and that affected gate
+was rerun. Environment: `MacBookPro18,2`, Apple
 M1 Max, 64 GB RAM, macOS 15.7.5 build 24G624, arm64, Apple Swift 6.1.2.
 
 | Gate | Result |
 |---|---|
-| Debug build/tests | PASS; 88 tests, 2.421 s |
-| Release build/tests | PASS; 88 tests, 1.113 s |
-| AddressSanitizer | PASS; 88 tests, 11.270 s |
+| Debug build/tests | PASS; 89 tests, 2.427 s |
+| Release build/tests | PASS; 89 tests, 1.135 s |
+| AddressSanitizer | PASS; 89 tests, 11.317 s |
 | Module dependency and forbidden-import scripts | PASS |
 | VERIFY-020 / VERIFY-021 | PASS in the all-tests runs; values unchanged |
 
+### VERIFY / numeric-policy declaration
+
 No additional production mathematical surface was introduced after
-VERIFY-020/021. R4 numeric CI/test policies are documented separately and do
-not alter product geometry or document semantics.
+VERIFY-020/021. The startup/benchmark nearest-rank percentile, exact-decimal
+inclusive ratio threshold, inclusive/floored golden tolerance, and wrapping LCG
+are explicitly classified as gate/test-side numeric policies. Their computation
+sites contain policy comments and their worked boundary/degenerate examples are
+documented in `docs/phase-4/ci-policy.md`. They do not alter product geometry or
+document semantics and therefore do not require VERIFY-022.
 
 ## Fresh current-tree BENCH-R3.5 run
 
@@ -50,13 +63,13 @@ and 300 measured frames.
 
 | Scenario | p50 | p95 | max / settle | Target | Result |
 |---|---:|---:|---:|---:|---|
-| BENCH-1 drag | 4.764 ms | 5.056 ms | 5.508 ms | p95 <= 16.7 ms | PASS |
-| BENCH-2 pan | 0.087 ms | 0.108 ms | 0.181 ms | p95 <= 16.7 ms | PASS |
-| BENCH-2b forced exposure | 5.203 ms | 5.827 ms | 8.853 ms | p95 <= 16.7 ms and strips every frame | PASS; 360/360 frames redrew strips |
-| BENCH-3 zoom | 2.408 ms | 8.763 ms | 10.214 ms | p95 <= 33 ms | PASS |
-| BENCH-3 settle | — | — | 2.833 ms | <= 100 ms | PASS |
-| BENCH-4 cold full redraw | — | — | 8.166 ms | informational | RECORDED |
-| Warm full redraw | — | — | 4.724 ms | informational | RECORDED |
+| BENCH-1 drag | 4.960 ms | 5.496 ms | 12.056 ms | p95 <= 16.7 ms | PASS |
+| BENCH-2 pan | 0.088 ms | 0.108 ms | 0.180 ms | p95 <= 16.7 ms | PASS |
+| BENCH-2b forced exposure | 5.375 ms | 5.950 ms | 23.265 ms | p95 <= 16.7 ms and strips every frame | PASS; precondition covers 360/360 frames |
+| BENCH-3 zoom | 2.399 ms | 8.953 ms | 10.186 ms | p95 <= 33 ms | PASS |
+| BENCH-3 settle | — | — | 2.745 ms | <= 100 ms | PASS |
+| BENCH-4 cold full redraw | — | — | 8.236 ms | informational | RECORDED |
+| Warm full redraw | — | — | 4.510 ms | informational | RECORDED |
 
 ## R3/R3-B audit-finding closure mapping
 

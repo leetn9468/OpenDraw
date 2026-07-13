@@ -1,0 +1,59 @@
+6de4bce R4 adversarial: retain reproducible mutation failure indices
+ .../AdversarialCorpusTests.swift                     | 20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
+f44b7e4 R4 evidence: restore A6 and record unresolved acceptance blockers
+ README.md                                 |  15 +-
+ artifacts/r4/adversarial-tests.txt        | 100 +++++++++++
+ artifacts/r4/asan-tests.txt               | 272 ++++++++++++++++++++++++++++++
+ artifacts/r4/benchmark-comparison.txt     |   5 +
+ artifacts/r4/benchmark-gate-fixtures.txt  |  10 ++
+ artifacts/r4/clean-room.txt               |   4 +
+ artifacts/r4/coverage-summary.txt         |   1 +
+ artifacts/r4/coverage-tests.txt           | 271 +++++++++++++++++++++++++++++
+ artifacts/r4/debug-build.txt              |   4 +
+ artifacts/r4/debug-tests.txt              | 184 ++++++++++++++++++++
+ artifacts/r4/environment.txt              |   9 +
+ artifacts/r4/format.txt                   |   4 +
+ artifacts/r4/golden-test.txt              |   9 +
+ artifacts/r4/macos13-deployment-build.txt |  22 +++
+ artifacts/r4/module-dependencies.txt      |   4 +
+ artifacts/r4/peak-memory.txt              |   3 +
+ artifacts/r4/release-build.txt            |   4 +
+ artifacts/r4/release-integrity.txt        |  22 +++
+ artifacts/r4/release-tests.txt            | 212 +++++++++++++++++++++++
+ artifacts/r4/reliability-100x100.txt      | 102 +++++++++++
+ artifacts/r4/render-benchmark.txt         |  10 ++
+ artifacts/r4/startup-p95.txt              |  22 +++
+ artifacts/r4/symbol-graph.txt             |  64 +++++++
+ artifacts/r4/ui-accessibility-tests.txt   |  11 ++
+ docs/PROJECT_STATE.md                     |  36 ++++
+ docs/audits/R4-final-reaudit.md           |  38 +++--
+ docs/audits/findings-closure-matrix.md    |  27 +--
+ docs/phase-4/R4-checkpoint.md             | 141 +++++++++-------
+ docs/phase-4/README.md                    |  15 +-
+ docs/phase-4/ci-policy.md                 |  80 +++++++--
+ docs/phase-4/fuzz-results.md              |  48 ++++--
+ docs/phase-4/performance-dashboard.md     |  23 +--
+ docs/remediation/A6-R3-checkpoint.md      |  74 ++++++++
+ docs/verification/GOLDEN_RENDERING.md     |  10 +-
+ 34 files changed, 1713 insertions(+), 143 deletions(-)
+b01364b R4 gates: decode representative images and pin numeric policies
+ .github/workflows/ci.yml                           |  3 +-
+ Sources/R4GateHarness/main.swift                   | 81 ++++++++++++++++------
+ Sources/RenderBenchmark/main.swift                 | 11 ++-
+ Sources/VectorFoundryApp/main.swift                |  7 +-
+ Tests/CanvasRenderTests/GoldenRenderingTests.swift | 16 ++++-
+ .../AdversarialCorpusTests.swift                   |  2 +
+ ... => owner-reference-macos15-arm64-baseline.tsv} |  2 +-
+ scripts/check-benchmark-regression.sh              | 10 ++-
+ scripts/check-peak-memory.sh                       | 12 ++--
+ scripts/check-startup-p95.sh                       |  2 +
+ scripts/fixtures/benchmark-regression-boundary.txt |  5 ++
+ scripts/nightly-reliability.sh                     | 22 ++++--
+ scripts/test-benchmark-regression-gate.sh          |  6 +-
+ scripts/test-peak-memory-gate.sh                   | 10 +++
+ 14 files changed, 150 insertions(+), 39 deletions(-)
+2884a54 R4 reliability: record per-process wall durations
+ scripts/nightly-reliability.sh | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+merge-base --is-ancestor 14de9b3 f44b7e4 exit=0

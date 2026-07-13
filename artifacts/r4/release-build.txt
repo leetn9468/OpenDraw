@@ -1,4 +1,14 @@
 [0/1] Planning build
 Building for production...
-[0/4] Write swift-version--1AB21518FC5DEDBE.txt
-Build complete! (0.26s)
+[0/6] Write sources
+[2/6] Write swift-version--1AB21518FC5DEDBE.txt
+[4/10] Compiling MacPlatform BackingScale.swift
+[5/10] Compiling RenderBenchmark main.swift
+[5/10] Write Objects.LinkFileList
+[7/10] Compiling EditorCommands AlignmentCommands.swift
+[7/10] Linking RenderBenchmark
+[9/11] Compiling EditorTools AccessibilityTree.swift
+[10/12] Compiling VectorFoundryApp main.swift
+[10/12] Write Objects.LinkFileList
+[11/12] Linking VectorFoundry
+Build complete! (6.43s)
