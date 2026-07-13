@@ -9,6 +9,9 @@ import Geometry
 import TextEngine
 import UniformTypeIdentifiers
 
+private let processStartupStart = ProcessInfo.processInfo.systemUptime
+private let startupProbeEnabled = CommandLine.arguments.contains("--startup-probe")
+
 @MainActor
 final class CanvasView: NSView {
     private struct AnchorRef: Hashable {
@@ -843,6 +846,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             [weak self] _ in Task { @MainActor in self?.writeRecoveryIfDirty() }
         }
         NSApp.activate(ignoringOtherApps: true)
+        if startupProbeEnabled {
+            let elapsed = (ProcessInfo.processInfo.systemUptime - processStartupStart) * 1_000
+            print(String(format: "STARTUP_READY_MS=%.3f", elapsed))
+            fflush(stdout)
+            NSApp.terminate(nil)
+        }
     }
     private func writeRecoveryIfDirty() {
         guard let canvas, canvas.history.isDirty else { return }

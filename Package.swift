@@ -8,6 +8,7 @@ let package = Package(
     products: [
         .executable(name: "VectorFoundry", targets: ["VectorFoundryApp"]),
         .executable(name: "RenderBenchmark", targets: ["RenderBenchmark"]),
+        .executable(name: "R4GateHarness", targets: ["R4GateHarness"]),
         .library(name: "EditorCore", targets: ["EditorCore"]),
         .library(name: "Geometry", targets: ["Geometry"]),
         .library(name: "DocumentModel", targets: ["DocumentModel"]),
@@ -34,6 +35,9 @@ let package = Package(
         .executableTarget(
             name: "RenderBenchmark",
             dependencies: ["CanvasRender", "DocumentModel", "EditorCore", "Geometry"]),
+        .executableTarget(
+            name: "R4GateHarness",
+            dependencies: ["CanvasRender", "DocumentFormats", "DocumentModel", "EditorCore", "Geometry"]),
         .testTarget(name: "GeometryTests", dependencies: ["Geometry"]),
         .testTarget(
             name: "DocumentModelTests", dependencies: ["EditorCore", "DocumentModel", "EditorCommands", "Geometry"]),

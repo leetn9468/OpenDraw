@@ -35,9 +35,24 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
-      - run: swift run -c release RenderBenchmark | tee benchmark.txt
+      - run: scripts/run-render-benchmark.sh benchmark.txt
+      - run: scripts/test-benchmark-regression-gate.sh
+      - run: scripts/check-benchmark-regression.sh benchmarks/macos15-arm64-baseline.tsv benchmark.txt benchmark-comparison.txt
       - uses: actions/upload-artifact@v4
+        if: always()
         with: { name: benchmark-results, path: benchmark.txt }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: benchmark-comparison, path: benchmark-comparison.txt }
+  startup-memory:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: scripts/check-startup-p95.sh 20 artifacts/r4/startup-p95.txt
+      - run: scripts/check-peak-memory.sh artifacts/r4/peak-memory.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: startup-memory-results, path: artifacts/r4 }
   coverage:
     runs-on: macos-15
     steps:
@@ -56,4 +71,7 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
-      - run: scripts/nightly-reliability.sh
+      - run: scripts/nightly-reliability.sh artifacts/r4/reliability-100x100.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: reliability-100x100, path: artifacts/r4/reliability-100x100.txt }

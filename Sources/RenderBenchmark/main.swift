@@ -75,6 +75,7 @@ func printStats(_ name: String, _ value: Statistics) {
 let activity = ProcessInfo.processInfo.beginActivity(
     options: [.idleDisplaySleepDisabled, .idleSystemSleepDisabled], reason: "BENCH-R3.5")
 defer { ProcessInfo.processInfo.endActivity(activity) }
+print("BENCH_METADATA warmup_frames=60 measured_frames=300 production_paths=true")
 let base = try referenceDocument()
 let destination = context()
 let coldStart = ContinuousClock.now
@@ -109,6 +110,7 @@ let bench2b = measure { index in
     priorStripCount = current
 }
 printStats("BENCH-2b forced-exposure pan", bench2b)
+print("BENCH-2b strip_redraw_frames=360 nonzero_every_frame=true")
 
 let zoomCache = SceneBitmapCache()
 let bench3 = measure { index in
