@@ -13,7 +13,7 @@ trap 'rm -f "$values"' EXIT HUP INT TERM
 printf 'revision=%s model=%s chip=%s memory_bytes=%s os=%s build=%s arch=%s swift=%s policy=clean-process-cold-app-state-warm-os-caches start=static-initializer stop=window-ready\n' \
   "$(git rev-parse HEAD)" "$(sysctl -n hw.model)" "$(sysctl -n machdep.cpu.brand_string)" \
   "$(sysctl -n hw.memsize)" "$(sw_vers -productVersion)" "$(sw_vers -buildVersion)" "$(uname -m)" \
-  "$(swift --version | head -1)" >>"$output"
+  "$(swift --version 2>&1 | head -1)" >>"$output"
 
 i=1
 while [ "$i" -le "$samples" ]; do
