@@ -22,13 +22,14 @@ trap 'rm -f "$seen_pids"' EXIT HUP INT TERM
 
 while [ "$launches" -lt 100 ]; do
   launch=$((launches + 1))
-  launch_start=$(python3 -c 'import time; print(time.monotonic_ns())')
+  timing=$(mktemp)
   set +e
-  line=$(perl -e '$SIG{ALRM}=sub{exit 124}; alarm shift; exec @ARGV' 30 .build/release/VectorFoundry --smoke 2>&1)
+  line=$(/usr/bin/time -p perl -e '$SIG{ALRM}=sub{exit 124}; alarm shift; exec @ARGV' \
+    30 .build/release/VectorFoundry --smoke 2>"$timing")
   status=$?
   set -e
-  launch_end=$(python3 -c 'import time; print(time.monotonic_ns())')
-  duration_ms=$(( (launch_end - launch_start) / 1000000 ))
+  duration_ms=$(awk '/^real / { printf "%.3f", $2 * 1000; exit }' "$timing")
+  rm -f "$timing"
   pid=$(printf '%s\n' "$line" | sed -n 's/.*pid=\([0-9][0-9]*\).*/\1/p')
   smoke_ms=$(printf '%s\n' "$line" | sed -n 's/.*duration_ms=\([0-9.][0-9.]*\).*/\1/p')
   pid_is_unique=true
