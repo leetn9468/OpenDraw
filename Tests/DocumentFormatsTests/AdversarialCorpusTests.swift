@@ -17,13 +17,29 @@ private func mutations(of seed: Data, count: Int) -> [Data] {
     }
 }
 
+private func checkMutation(
+    kind: String, index: Int, operation: () async throws -> Void
+) async {
+    let start = ContinuousClock.now
+    _ = try? await operation()
+    let elapsed = start.duration(to: .now)
+    if elapsed >= .seconds(3) {
+        print("CORPUS_FAILURE kind=\(kind) index=\(index) seed=0x00000000A110F00D")
+    }
+    #expect(elapsed < .seconds(3))
+}
+
 @Test func deterministicNativeAndSVGMutationCorpusMeetsDeadline() async throws {
     let native = try NativeDocumentCodec().encode(try EditorDocument.sample())
     let svg = Data("<svg xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"10\" height=\"10\"/></svg>".utf8)
     let harness = AdversarialParserHarness()
     let start = ContinuousClock.now
-    for input in mutations(of: native, count: 256) { _ = try? await harness.decodeNative(input) }
-    for input in mutations(of: svg, count: 256) { _ = try? await harness.importSVG(input) }
+    for (index, input) in mutations(of: native, count: 256).enumerated() {
+        await checkMutation(kind: "native", index: index) { _ = try await harness.decodeNative(input) }
+    }
+    for (index, input) in mutations(of: svg, count: 256).enumerated() {
+        await checkMutation(kind: "svg", index: index) { _ = try await harness.importSVG(input) }
+    }
     #expect(start.duration(to: .now) < .seconds(10))
 }
 
