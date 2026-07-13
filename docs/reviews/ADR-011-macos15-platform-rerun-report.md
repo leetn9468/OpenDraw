@@ -131,6 +131,118 @@ or the frozen verification queue.
 
 RESOLVED
 
+## Consolidated code-area inventory
+
+This inventory is the review index for the platform-floor decision and its R4
+proof. It distinguishes build inputs from runtime measurement paths,
+gate/test-side policy, permanent product tests, documentation, and artifacts.
+
+### Platform and release build inputs
+
+| Area | File and symbol/location | Reviewed behavior |
+|---|---|---|
+| Swift package platform | `Package.swift:7`, `Package.platforms` | Declares `.macOS(.v15)`; controls SwiftPM deployment target. |
+| App bundle floor | `resources/Info.plist:9`, `LSMinimumSystemVersion` | Declares 15.0 for the assembled OpenDraw app. |
+| Hosted runner | `.github/workflows/ci.yml`, every `runs-on` | All eight jobs are pinned to `macos-15`. |
+| Explicit target build | `.github/workflows/ci.yml:22–23` | Runs `MACOSX_DEPLOYMENT_TARGET=15.0 swift build -c release`. |
+| Release assembly | `scripts/build-release-app.sh` | Builds release, creates the `.app`, copies the plist, signs with hardened runtime, verifies signature, and asserts arm64. |
+| Binary minimum proof | `artifacts/r4/release-integrity.txt` | `LC_BUILD_VERSION minos 15.0`; plist value 15.0; SDK 15.5. |
+
+No `Sources/` file changed for the platform revision. In particular, no newer
+framework API, availability assumption, editor behavior, geometry behavior, or
+document-format behavior was introduced.
+
+### Full-app startup path
+
+| Area | File and symbol/location | Reviewed behavior |
+|---|---|---|
+| Probe selection | `Sources/VectorFoundryApp/main.swift:13`, `startupProbeEnabled` | Enables the dedicated full-app startup probe through `--startup-probe`. |
+| Ready boundary | `Sources/VectorFoundryApp/main.swift:849–852` | Emits `STARTUP_READY_MS` only after sample document, canvas, window, toolbar, autosave timer, and window-front work. |
+| Measurement driver | `scripts/check-startup-p95.sh` | Builds release, creates a fresh HOME per launch, runs 20 clean processes, parses the ready marker, and fails above 2,000 ms. |
+| Percentile policy | `scripts/check-startup-p95.sh:30–41` | Nearest-rank one-based index; 20-sample p95 selects sorted item 19. |
+| Minimum-OS evidence | `artifacts/r4/macos15-startup-p95.txt` | Same-session 20-launch result: p50 142.652, p95 152.286, max 183.569 ms. |
+| CI consumer | `.github/workflows/ci.yml`, `startup-memory` | Runs the same production startup script on the hosted `macos-15` lane. |
+
+The measurement begins at the Swift static initializer and excludes exec,
+dyld, and other pre-main work. This boundary is recorded in
+`docs/phase-4/ci-policy.md` and is not represented as click-to-window time.
+
+### Codec reliability path
+
+| Area | File and symbol/location | Reviewed behavior |
+|---|---|---|
+| Smoke entry | `Sources/VectorFoundryApp/main.swift:1099`, `--smoke` branch | Runs native encode/decode reliability before AppKit UI initialization. |
+| Process driver | `scripts/nightly-reliability.sh` | Launches 100 sequential processes under 30-second watchdogs; requires unique PIDs and 100 round trips each. |
+| Per-process proof | `scripts/nightly-reliability.sh:23–60` | Retains PID, external process-wall time, inner smoke time, exit code, cumulative cycles, and failure counters. |
+| Minimum-OS evidence | `artifacts/r4/macos15-reliability-100x100.txt` | 100 distinct PIDs, 10,000 cycles, zero crashes, nonzero exits, timeouts, or corruption failures. |
+| CI consumer | `.github/workflows/ci.yml`, `nightly-reliability` | Scheduled execution of the same script on `macos-15`. |
+
+The codec path and full-app path are intentionally distinct. Frozen Option A
+requires both, preventing codec-only smoke from substituting for UI runtime
+proof.
+
+### Peak-memory path
+
+| Area | File and symbol/location | Reviewed behavior |
+|---|---|---|
+| Representative document | `Sources/R4GateHarness/main.swift`, `representativeDocument()` | Creates 1,000 objects, 10,000 anchors, and ten embedded 2,500×2,000 images. |
+| Production decode/cache | `Sources/R4GateHarness/main.swift:58–93`, `settle(_:)` | Uses `RasterResourceLoader` and `ApprovedImageCache`; asserts ten decoded images and 50,000,000 pixels; renders the approved snapshot. |
+| Export path | `Sources/R4GateHarness/main.swift:96–105`, `exportPNG(_:)` | Exercises production Core Graphics/ImageIO PNG export. |
+| Failure injection | `Sources/R4GateHarness/main.swift:112–117`, `R4_MEMORY_EXTRA_BYTES` | Retains an explicit extra allocation so the gate can be proven to fail. |
+| Ceiling enforcement | `scripts/check-peak-memory.sh` | Enforces unchanged 500 MiB settle and 650 MiB export ceilings. |
+| Failure fixture | `scripts/test-peak-memory-gate.sh` | Forces 550 MiB extra and requires the underlying settle gate to exit nonzero. |
+| Evidence | `artifacts/r4/peak-memory.txt`; `peak-memory-failure-fixture.txt` | Settle/export pass; forced allocation exceeds the unchanged ceiling and fails. |
+
+### Rendering and benchmark path
+
+| Area | File and symbol/location | Reviewed behavior |
+|---|---|---|
+| Reference scene | `Sources/RenderBenchmark/main.swift:41–71`, `referenceDocument()` | Fixed unique-ID, mixed-node 1,000-object document. |
+| Statistics | `Sources/RenderBenchmark/main.swift:17–35`, `nearestRank`/`measure` | 60 warm-up plus 300 measured frames; nearest-rank p50/p95. |
+| Drag and cached pan | `Sources/RenderBenchmark/main.swift:92–106` | BENCH-1 and BENCH-2 use production document translation and bitmap-cache paths. |
+| Forced-exposure pan | `Sources/RenderBenchmark/main.swift:108–120` | BENCH-2b zoom/pan construction; per-frame precondition requires strip count to increase for all 360 frames. |
+| Strip redraw implementation | `Sources/CanvasRender/ViewportStripCache.swift` | Production retained-bitmap pan and exposed-strip redraw path. |
+| Retained cache budget | `Sources/DocumentModel/Document.swift:31`, `maximumRetainedBitmapPixels`; `Sources/CanvasRender/SceneBitmapCache.swift:34–44` | Independent 67,108,864-pixel retained-bitmap budget; separate concern from the image cap. |
+| Benchmark driver | `scripts/run-render-benchmark.sh` | Builds release, records environment/revision, and executes the production benchmark. |
+| Ratio enforcement | `scripts/check-benchmark-regression.sh` | Exact-decimal inclusive `observed <= baseline × 1.25`; display ratio does not decide pass/fail. |
+| Ratio fixtures | `scripts/test-benchmark-regression-gate.sh`; `scripts/fixtures/benchmark-regression-*.txt` | Below-boundary and exact-boundary cases pass; 1.314801 case fails. |
+| Owner baseline | `benchmarks/owner-reference-macos15-arm64-baseline.tsv` | Explicit owner-reference/non-hosted provenance and unchanged 1.25 ratios. |
+| Evidence | `artifacts/r4/render-benchmark.txt`; `benchmark-comparison.txt`; `benchmark-gate-fixtures.txt` | All absolute and current ratio gates pass; BENCH-2b reports 360/360 asserted strip frames. |
+
+### Test and verification areas
+
+| Area | File/artifact | Reviewed behavior |
+|---|---|---|
+| Full permanent suite | `Tests/`; `debug-tests.txt`, `release-tests.txt`, `asan-tests.txt` | 89 tests pass in debug, release, and ASan configurations. |
+| Adversarial seed | `Tests/DocumentFormatsTests/AdversarialCorpusTests.swift:6–18` | Seed remains `0xA110F00D`; fixed wrapping LCG; no expected value changed. |
+| Golden boundaries | `Tests/CanvasRenderTests/GoldenRenderingTests.swift:70–80` | Inclusive 92-pixel/channel-12 boundaries remain unchanged. |
+| A6 exact names | `docs/remediation/A6-R3-checkpoint.md`; `a6-test-existence.txt`; `a6-filtered-tests.txt` | Every named method exists; combined 19-test filter passes. |
+| AUDIT-005/006 | `audit-005-006-test-existence.txt`; `audit-005-006-filtered-tests.txt` | Both exact regression methods exist and pass. |
+| Frozen queue | `docs/verification/VERIFICATION_QUEUE.md` | VERIFY-001–021 unchanged; no new production math was introduced. |
+| Scope proof | `artifacts/r4/revision-scope-proof.txt` | Zero changes under `Sources`, `Tests`, or the frozen verification queue in build-input commit `f6ec81a`. |
+
+### State, decision, and review records
+
+| Record | Purpose |
+|---|---|
+| `docs/adr/ADR-011-platform-support.md` | Preserves the original ADR and appends the dated macOS 15 supersession verbatim. |
+| `docs/PROJECT_STATE.md` | Authoritative frozen owner decisions and BLOCK-001–012 state; BLOCK-002 closed, BLOCK-006 open. |
+| `docs/phase-4/ci-policy.md` | Runner image, startup boundary, memory rules, reliability semantics, ratio policy, and hosted closure procedure. |
+| `docs/phase-4/R4-checkpoint.md` | Current complete-battery and BENCH tables plus open hosted blockers. |
+| `docs/reviews/R4-A6-A7-A8-review-package.md` | Operator and human-acceptance package, including the mandatory A7 artifact spot-check. |
+| `artifacts/r4/revision-map.md` | Maps every retained R4 artifact to exact battery revision `f6ec81a`. |
+
+### Explicitly unchanged areas
+
+- No production file under `Sources/` changed.
+- No permanent test under `Tests/` changed.
+- No script changed; existing gate semantics were rerun unchanged.
+- No VERIFY entry or frozen worked value changed.
+- No startup, memory, benchmark, ratio, coverage, golden, timeout, or document
+  limit changed.
+- No new macOS-only API was adopted.
+- No Phase 5 tag was created.
+
 ## C5 — State and verdict
 
 `docs/PROJECT_STATE.md` now records:
