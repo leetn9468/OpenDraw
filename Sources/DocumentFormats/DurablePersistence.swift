@@ -18,6 +18,7 @@ public struct DurableFileWriter: Sendable {
         let temporary = directory.appendingPathComponent(".\(url.lastPathComponent).\(UUID().uuidString).tmp")
         let descriptor = open(temporary.path, O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR)
         guard descriptor >= 0 else { throw DurableWriteError.systemCall("open", errno) }
+        var descriptorIsOpen = true
         do {
             try data.withUnsafeBytes { bytes in
                 var offset = 0
@@ -30,7 +31,10 @@ public struct DurableFileWriter: Sendable {
             guard fcntl(descriptor, F_FULLFSYNC) == 0 || fsync(descriptor) == 0 else {
                 throw DurableWriteError.systemCall("fsync", errno)
             }
-            guard close(descriptor) == 0 else { throw DurableWriteError.systemCall("close", errno) }
+            let closeResult = close(descriptor)
+            let closeError = errno
+            descriptorIsOpen = false
+            guard closeResult == 0 else { throw DurableWriteError.systemCall("close", closeError) }
             try fault?(.afterTemporarySync)
             if backup, fm.fileExists(atPath: url.path) {
                 let backupURL = url.appendingPathExtension("bak")
@@ -45,7 +49,7 @@ public struct DurableFileWriter: Sendable {
             defer { close(directoryFD) }
             guard fsync(directoryFD) == 0 else { throw DurableWriteError.systemCall("fsync-directory", errno) }
         } catch {
-            close(descriptor)
+            if descriptorIsOpen { close(descriptor) }
             try? fm.removeItem(at: temporary)
             throw error
         }

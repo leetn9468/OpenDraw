@@ -1,5 +1,6 @@
 import CanvasRender
 import CoreGraphics
+import Darwin
 import DocumentFormats
 import DocumentModel
 import EditorCore
@@ -109,10 +110,19 @@ private func require<T>(_ value: T?) throws -> T {
     return value
 }
 
+private func residentExtraAllocation(byteCount: Int) -> [UInt8] {
+    guard byteCount > 0 else { return [] }
+    var allocation = [UInt8](repeating: 0, count: byteCount)
+    allocation.withUnsafeMutableBytes { buffer in
+        arc4random_buf(buffer.baseAddress!, buffer.count)
+    }
+    return allocation
+}
+
 let mode = CommandLine.arguments.dropFirst().first ?? "settle"
 let document = try representativeDocument()
 let extraByteCount = Int(ProcessInfo.processInfo.environment["R4_MEMORY_EXTRA_BYTES"] ?? "0") ?? 0
-let extraAllocation = [UInt8](repeating: 0xA5, count: extraByteCount)
+let extraAllocation = residentExtraAllocation(byteCount: extraByteCount)
 private let scenario = try await settle(document)
 withExtendedLifetime((scenario.approvedImages, extraAllocation)) {
     switch mode {

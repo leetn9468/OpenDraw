@@ -1,7 +1,51 @@
+import Darwin
 import DocumentFormats
 import DocumentModel
 import Foundation
 import Testing
+
+private final class DescriptorBox: @unchecked Sendable {
+    private let lock = NSLock()
+    private var descriptor: Int32 = -1
+
+    func store(_ value: Int32) {
+        lock.lock()
+        descriptor = value
+        lock.unlock()
+    }
+
+    func load() -> Int32 {
+        lock.lock()
+        defer { lock.unlock() }
+        return descriptor
+    }
+}
+
+@Test func cleanupAfterPostCloseFaultDoesNotCloseReusedDescriptor() throws {
+    let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: directory) }
+    let target = directory.appendingPathComponent("drawing.odraw")
+    let sentinel = directory.appendingPathComponent("sentinel")
+    #expect(FileManager.default.createFile(atPath: sentinel.path, contents: Data()))
+    let box = DescriptorBox()
+
+    #expect(throws: DurableWriteError.injected(.afterTemporarySync)) {
+        try DurableFileWriter { stage in
+            guard stage == .afterTemporarySync else { return }
+            let descriptor = open(sentinel.path, O_WRONLY | O_APPEND)
+            guard descriptor >= 0 else { throw DurableWriteError.systemCall("open-sentinel", errno) }
+            box.store(descriptor)
+            throw DurableWriteError.injected(stage)
+        }.write(Data("payload".utf8), to: target, backup: false)
+    }
+
+    let descriptor = box.load()
+    #expect(descriptor >= 0)
+    defer { close(descriptor) }
+    var byte: UInt8 = 0x5A
+    #expect(Darwin.write(descriptor, &byte, 1) == 1)
+}
 
 @Test func durableSaveKeepsBackupAndInterruptedPreRenameSaveKeepsOriginal() throws {
     let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
