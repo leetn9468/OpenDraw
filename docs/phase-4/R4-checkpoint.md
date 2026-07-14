@@ -1,10 +1,10 @@
 # R4 checkpoint — owner rejection remediation
 
-Status: **A7 ACCEPTED — PHASE 5 ENTRY TAG AUTHORIZED**
+Status: **PASSED — PHASE 5 ENTRY AUTHORIZED**
 
 The prior checkpoint claim at `c5072e0` was rejected. This report supersedes it.
-All technical proof is closed and the mandatory named-human inspection is now
-recorded; tag creation is the remaining final action.
+All technical proof is closed, the mandatory named-human inspection is
+recorded, and the annotated Phase 5 entry tag has been created.
 
 ## Revision accounting
 
@@ -27,7 +27,7 @@ recorded; tag creation is the remaining final action.
 | `e8724aa` | Correct all-eight-job closure wording and ADR-011 artifact commit accounting | Pre-evaluation documentation only |
 | `88c3d58` | Retain qualifying CI #8 artifacts/logs and commit the hosted benchmark baseline | All eight hosted jobs green; baseline/ratio fixtures validated |
 | `6303428` | Close hosted R4 gates and record the then-outstanding human acceptance blocker | Documentation only; no build input changed |
-| Acceptance evidence commit | Record TN LEE's direct three-file inspection and accept A6/A7 | Documentation/evidence only; authorizes the Phase 5 entry tag |
+| `6dea372` | Record TN LEE's direct three-file inspection and accept A6/A7 | Documentation/evidence only; exact target of the annotated Phase 5 entry tag |
 
 The current final build-input/evidence revision is `88c3d58`; the current complete local
 battery revision is `ce3b4b3`. Hosted-only CI #5 inputs required no local rerun.
@@ -108,8 +108,17 @@ measured frames per timed scenario, display sleep inhibited, production paths.
   exact 14-row table in `A6-R3-checkpoint.md` on 2026-07-15 at 00:38 UTC+08:00.
   Existence-proof format, per-artifact revision accounting, and exact per-row
   test names were confirmed. The record is `artifacts/r4/a7-human-spot-check.md`.
-- A6 and A7 are accepted. BLOCK-012 is ready for the authorized annotated tag;
-  its exact target will be recorded immediately after tag creation.
+- A6 and A7 are accepted. BLOCK-012 is closed. Annotated tag
+  `pre-phase5-remediation` resolves to exact acceptance-evidence revision
+  `6dea372fc90d7474dc1f5db0085dd03bfdc046ea`.
+
+## Phase 5 entry tag
+
+Annotated tag: `pre-phase5-remediation`
+
+Exact target: `6dea372fc90d7474dc1f5db0085dd03bfdc046ea`
+
+Overall verdict: **PASSED — PHASE 5 ENTRY AUTHORIZED**.
 
 Developer ID/notarization, manual VoiceOver, multi-display review and
 long-duration Instruments checks remain explicit operator/environment boundaries;

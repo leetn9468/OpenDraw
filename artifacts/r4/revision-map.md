@@ -29,6 +29,7 @@
 | `asan-tests-run6-fix.txt` | `5d2ea50` | `bd4524f` |
 | `hosted/ci-8-*` | Qualifying dispatched run `29347892897` at `94fb0f0` | `88c3d58` |
 | `benchmarks/hosted-macos15-arm64-baseline.tsv` | Run `29347892897` artifact 8316881233 at `94fb0f0` | `88c3d58` |
+| `a7-human-spot-check.md` | TN LEE direct inspection, 2026-07-15 00:38 UTC+08:00 | `6dea372` |
 
 `f6ec81a` remains the macOS 15 platform-floor revision. The complete-battery
 revision is `ce3b4b3`; evidence commit
@@ -63,6 +64,11 @@ hosted-sourced baseline produced by qualifying run `29347892897`; no
 ratio checker accepts the same-run bootstrap values at 1.000000, the exact
 1.25 fixture passes, and the 1.314801 fixture fails. The next hosted run will
 therefore enter blocking `ENFORCE` mode.
+
+Acceptance-evidence revision `6dea372fc90d7474dc1f5db0085dd03bfdc046ea`
+records the mandatory named-human A7 inspection. Annotated tag
+`pre-phase5-remediation` resolves exactly to that revision. The later state
+recording commit is documentation-only and does not change the proven target.
 
 ## Post-platform build-input rerun accounting
 

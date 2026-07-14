@@ -12,7 +12,7 @@ that directive. A row is closed only by committed, directly named evidence.
 |---|---|---|
 | A6 — R3/R3-B checkpoint package | `ACCEPTED` | Exact 14-row table, zero-new-production-math declaration, grep proof and 19-test combined pass; revalidated in the complete `f6ec81a` battery and directly inspected by TN LEE. |
 | A7 — R4 CI/reliability acceptance | `ACCEPTED` | Technical hosted requirements closed through CI #8. TN LEE completed the mandatory three-file inspection on 2026-07-15 at 00:38 UTC+08:00; record: `artifacts/r4/a7-human-spot-check.md`. |
-| A8 — Phase 5 entry | `AUTHORIZED — TAG CREATION PENDING` | BLOCK-001–011 are closed and A6/A7 are accepted. The annotated Phase 5 entry tag is now authorized as the final action. |
+| A8 — Phase 5 entry | `CLOSED — AUTHORIZED` | Annotated tag `pre-phase5-remediation` targets acceptance-evidence revision `6dea372fc90d7474dc1f5db0085dd03bfdc046ea`. |
 
 ## Hard blockers
 
@@ -29,11 +29,14 @@ that directive. A row is closed only by committed, directly named evidence.
 | BLOCK-009 | Exact audit closure-matrix traceability | `CLOSED` | `docs/audits/findings-closure-matrix.md` names exact test files/functions and commits |
 | BLOCK-010 | Correct and internally consistent R4 documents | `CLOSED` | Documentation closure commit containing this tracker and the corrected checkpoint/audit/policy files |
 | BLOCK-011 | Exact revision accounting | `CLOSED` | `revision-map.md` maps the complete battery and every later affected-gate rerun through qualifying CI #8 and evidence commit `88c3d58`. CI #8 directly passes dependency, clean-room, symbol-graph and release assembly/signature on `94fb0f0`. |
-| BLOCK-012 | Annotated Phase 5 entry tag | `READY — TAG CREATION PENDING` | Human inspection is recorded at `artifacts/r4/a7-human-spot-check.md`; create the authorized annotated tag on the acceptance-evidence revision, then record its target. |
+| BLOCK-012 | Annotated Phase 5 entry tag | `CLOSED` | Annotated tag `pre-phase5-remediation` exists and resolves to exact acceptance-evidence revision `6dea372fc90d7474dc1f5db0085dd03bfdc046ea`. |
 
 ## Tag state
 
-`pre-phase5-remediation`: **AUTHORIZED — CREATION PENDING**.
+`pre-phase5-remediation`: **PRESENT — ANNOTATED**, target
+`6dea372fc90d7474dc1f5db0085dd03bfdc046ea`.
+
+Overall verdict: **PASSED — PHASE 5 ENTRY AUTHORIZED**.
 
 ## A7 human inspection record
 

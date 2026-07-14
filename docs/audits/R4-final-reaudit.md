@@ -16,8 +16,9 @@ CI #5's cross-hardware baseline substitution is corrected in the hosted-only
 workflow revisions `b57293c`/`59eec99`. CI #6's contended ASan deadline test is
 corrected at `5d2ea50` with an exact-revision 89-plus-1 ASan pass and no numeric
 gate change.
-R4/A7 is not yet finally accepted because the mandatory named human three-file
-spot-check is not recorded. No Phase 5 entry tag exists.
+TN LEE completed the mandatory named-human three-file inspection on 2026-07-15
+at 00:38 UTC+08:00. A6/A7 are accepted. Annotated Phase 5 entry tag
+`pre-phase5-remediation` targets `6dea372fc90d7474dc1f5db0085dd03bfdc046ea`.
 
 No new production mathematical behavior requires a verification-queue entry.
 Numeric CI/test policies are documented separately and do not alter product
@@ -46,11 +47,12 @@ geometry or document semantics.
 The remaining operator boundaries are credentialed distribution signing/
 notarization, manual assistive-technology and multi-display checks, and
 long-duration Instruments observation. The technical hosted blockers are
-closed. Final A7 acceptance remains blocked only on the required named human
-artifact spot-check. None changes a frozen value or weakens an assertion boundary.
+closed. The required named-human artifact spot-check is recorded and final A7
+acceptance is complete. None changes a frozen value or weakens an assertion boundary.
 
 ## Checkpoint requirements
 
-The local battery is recorded in `docs/phase-4/R4-checkpoint.md`. R4 remains open
-until the named human A7 spot-check is recorded and the owner-authorized Phase
-5 tag is created.
+The local battery is recorded in `docs/phase-4/R4-checkpoint.md`. R4 is closed;
+the named-human A7 spot-check and annotated Phase 5 tag are both recorded.
+
+Final verdict: **PASSED — PHASE 5 ENTRY AUTHORIZED**.

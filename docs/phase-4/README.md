@@ -1,6 +1,6 @@
 # Phase 4 verification, hardening, and release review
 
-Status: **Hosted R4 proof closed; Phase 5 blocked by human A7 spot-check**
+Status: **PASSED — PHASE 5 ENTRY AUTHORIZED**
 Review date: 2026-07-15
 
 ## Completed work
@@ -42,5 +42,6 @@ The permanent suite contains 90 tests. Coverage is 87.94%, above the enforced
 | Hosted execution of memory/startup/reliability jobs | **Closed — BLOCK-003/004/005** |
 | Hosted-CI benchmark baseline and run artifact | **Closed — BLOCK-006** |
 
-R4/A7 final acceptance still requires the named human three-file spot-check.
-A8 remains blocked and the `pre-phase5-remediation` tag does not exist.
+TN LEE completed the mandatory three-file A7 inspection on 2026-07-15 at
+00:38 UTC+08:00. A6/A7 are accepted, A8 and BLOCK-012 are closed, and annotated
+tag `pre-phase5-remediation` targets `6dea372fc90d7474dc1f5db0085dd03bfdc046ea`.

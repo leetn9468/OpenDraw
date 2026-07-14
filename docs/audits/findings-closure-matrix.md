@@ -17,8 +17,9 @@ external R4 acceptance blockers are tracked separately in `docs/PROJECT_STATE.md
 All exact tests above passed in the 90-test debug, release, and AddressSanitizer
 runs on complete-battery revision `ce3b4b3`. VERIFY-001 through VERIFY-021 remain
 frozen and verified. BLOCK-002 minimum-OS runtime proof and technical hosted
-BLOCK-003–006 evidence are closed. Final A7 acceptance and BLOCK-012 remain
-separately gated on the required named-human three-file inspection.
+BLOCK-003–006 evidence are closed. TN LEE completed the required named-human
+three-file inspection at 2026-07-15 00:38 UTC+08:00; A7 and BLOCK-012 are
+closed, and annotated tag `pre-phase5-remediation` targets `6dea372`.
 
 Grep-level existence proof and the focused two-test pass for AUDIT-005/006 are
 retained at `artifacts/r4/audit-005-006-test-existence.txt` and

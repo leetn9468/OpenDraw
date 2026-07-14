@@ -9,18 +9,18 @@ Detailed issue response revision: `076e1ef`
 
 ## Review outcome
 
-All eleven cross-verification issues have committed local resolutions and proof.
-Technical hosted closure does not by itself authorize Phase 5. The current
-project verdict remains:
+All eleven cross-verification issues have committed resolutions and proof. The
+technical hosted closure, mandatory human inspection, and annotated entry tag
+are complete. The current project verdict is:
 
-> **FAILED — PHASE 5 BLOCKED**
+> **PASSED — PHASE 5 ENTRY AUTHORIZED**
 
 BLOCK-002 is closed by same-session codec reliability and full-app startup on
 the owner-reference real macOS 15 Apple Silicon machine at `f6ec81a`.
 BLOCK-003/004/005/006 are closed by qualifying CI #8 and evidence `88c3d58`.
-BLOCK-012 prohibits the Phase 5 tag until the mandatory named human A7
-spot-check is recorded. No
-`pre-phase5-remediation` tag has been created.
+TN LEE completed the mandatory A7 spot-check on 2026-07-15 at 00:38 UTC+08:00.
+BLOCK-012 is closed; annotated tag `pre-phase5-remediation` targets
+`6dea372fc90d7474dc1f5db0085dd03bfdc046ea`.
 
 ## Commit map
 
@@ -443,13 +443,12 @@ Status: **RESOLVED**
 | BENCH-3 | p50 2.391; p95 9.162; max 10.436 ms; settle 2.776 ms |
 | Ratio boundary | Exact `1.25×` passes; `1.314801×` fails |
 
-## Remaining actions before Phase 5
+## Phase 5 closure record
 
-1. At A7 final acceptance, the human reviewer must open
-   `artifacts/r4/a6-test-existence.txt`, `artifacts/r4/revision-map.md`, and the
-   exact 14-row table in `docs/remediation/A6-R3-checkpoint.md`.
-2. Record reviewer identity/time, mark A6/A7 accepted, close BLOCK-012, then
-   create and record `pre-phase5-remediation` on the proven revision.
+TN LEE directly opened and reviewed `artifacts/r4/a6-test-existence.txt`,
+`artifacts/r4/revision-map.md`, and the exact 14-row table in
+`docs/remediation/A6-R3-checkpoint.md` at 2026-07-15 00:38 UTC+08:00. A6/A7 are
+accepted, BLOCK-012 is closed, and annotated tag `pre-phase5-remediation`
+targets `6dea372fc90d7474dc1f5db0085dd03bfdc046ea`.
 
-Until those actions are complete, A8 remains blocked and the final verdict is
-**FAILED — PHASE 5 BLOCKED**.
+Final verdict: **PASSED — PHASE 5 ENTRY AUTHORIZED**.

@@ -6,20 +6,18 @@ Documentation revision at preparation: `f44b7e4`
 
 ## Executive verdict
 
-The local engineering work and technical hosted proof are complete. R4/A7 is
-not yet finally accepted because the mandatory named human three-file
-spot-check has not been recorded. A8 and Phase 5 entry remain blocked on that
-acceptance step and the annotated tag.
-
-The annotated tag `pre-phase5-remediation` has therefore not been created.
+The local engineering work, technical hosted proof, and mandatory named-human
+inspection are complete. A6/A7 are accepted and Phase 5 entry is authorized.
+Annotated tag `pre-phase5-remediation` targets acceptance-evidence revision
+`6dea372fc90d7474dc1f5db0085dd03bfdc046ea`.
 
 ## Acceptance state
 
 | Acceptance | State | Evidence / reason |
 |---|---|---|
-| A6 — R3/R3-B checkpoint package | `CLOSED` | The original 14 feature groups are mapped to exact production symbols, tests and commits in `docs/remediation/A6-R3-checkpoint.md`. |
-| A7 — R4 CI/reliability acceptance | `NOT ACCEPTED — HUMAN SPOT-CHECK PENDING` | CI #8 closes the technical hosted requirements; the named human must inspect the three mandatory files directly. |
-| A8 — Phase 5 entry | `BLOCKED` | BLOCK-012/tag creation waits for recorded human A7 acceptance. |
+| A6 — R3/R3-B checkpoint package | `ACCEPTED` | The original 14 feature groups are mapped to exact production symbols, tests and commits and were directly inspected by TN LEE. |
+| A7 — R4 CI/reliability acceptance | `ACCEPTED` | CI #8 closes the technical hosted requirements; TN LEE completed the mandatory inspection at 2026-07-15 00:38 UTC+08:00. |
+| A8 — Phase 5 entry | `CLOSED — AUTHORIZED` | Annotated tag `pre-phase5-remediation` targets `6dea372fc90d7474dc1f5db0085dd03bfdc046ea`. |
 
 ## BLOCK-001–012 status
 
@@ -36,7 +34,7 @@ The annotated tag `pre-phase5-remediation` has therefore not been created.
 | BLOCK-009 | Audit traceability | `CLOSED` | `docs/audits/findings-closure-matrix.md` |
 | BLOCK-010 | Correct R4 documentation | `CLOSED` | Incorrect unconditional pass language was removed. |
 | BLOCK-011 | Exact revision accounting | `CLOSED` | Complete battery `ce3b4b3`/`8da5ee8`; CI #5 evidence `e01ac1b`; affected ASan rerun `5d2ea50` with evidence `bd4524f`; see `revision-map.md`. |
-| BLOCK-012 | Phase 5 entry tag | **OPEN — HUMAN SPOT-CHECK PENDING** | `pre-phase5-remediation` is intentionally absent. |
+| BLOCK-012 | Phase 5 entry tag | **CLOSED** | Annotated tag `pre-phase5-remediation` targets `6dea372fc90d7474dc1f5db0085dd03bfdc046ea`. |
 
 ## Revision model
 
@@ -424,20 +422,13 @@ substituted without another explicit owner decision.
 
 Qualifying CI #8 and evidence commit `88c3d58` complete these requirements.
 
-### Final closure sequence
+### Final closure record
 
-The hosted proof has passed. The remaining sequence is:
-
-1. As a mandatory A7 human spot-check, open and inspect
-   `artifacts/r4/a6-test-existence.txt`, `artifacts/r4/revision-map.md`, and the
-   exact 14-row test-name table in `docs/remediation/A6-R3-checkpoint.md`; do
-   not accept a summary in place of these files.
-2. Record the human reviewer and inspection time.
-3. Mark A6/A7 accepted, close BLOCK-012, and authorize A8.
-4. Commit the final acceptance evidence.
-5. Create annotated tag `pre-phase5-remediation` on the proven revision.
-6. Record the exact tag target in `docs/PROJECT_STATE.md` and the checkpoint.
+TN LEE directly inspected the three required files at 2026-07-15 00:38
+UTC+08:00. Acceptance evidence is committed at `6dea372`, which is the exact
+target of annotated tag `pre-phase5-remediation`. The tag target is recorded in
+`docs/PROJECT_STATE.md` and `docs/phase-4/R4-checkpoint.md`.
 
 ## Review conclusion
 
-Current verdict: **FAILED — PHASE 5 REMAINS BLOCKED**.
+Current verdict: **PASSED — PHASE 5 ENTRY AUTHORIZED**.
