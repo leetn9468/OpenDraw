@@ -5,7 +5,7 @@ fail=0
 reject_import() {
   directory="$1"
   pattern="$2"
-  if rg -n "^import (${pattern})$" "$directory"; then
+  if grep -Ern "^import (${pattern})$" "$directory"; then
     echo "Forbidden dependency in $directory" >&2
     fail=1
   fi

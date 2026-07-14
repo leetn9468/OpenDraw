@@ -33,9 +33,9 @@ while [ "$launches" -lt 100 ]; do
   pid=$(printf '%s\n' "$line" | sed -n 's/.*pid=\([0-9][0-9]*\).*/\1/p')
   smoke_ms=$(printf '%s\n' "$line" | sed -n 's/.*duration_ms=\([0-9.][0-9.]*\).*/\1/p')
   pid_is_unique=true
-  if [ -n "$pid" ] && rg -qx "$pid" "$seen_pids"; then pid_is_unique=false; fi
+  if [ -n "$pid" ] && grep -Eqx "$pid" "$seen_pids"; then pid_is_unique=false; fi
   if [ "$status" -eq 0 ] && [ -n "$pid" ] && [ -n "$smoke_ms" ] \
-    && [ "$pid_is_unique" = true ] && printf '%s' "$line" | rg -q '100 native round trips passed'; then
+    && [ "$pid_is_unique" = true ] && printf '%s' "$line" | grep -Eq '100 native round trips passed'; then
     round_trips=$((round_trips + 100))
     printf '%s\n' "$pid" >>"$seen_pids"
   else

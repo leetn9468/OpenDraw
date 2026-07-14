@@ -7,4 +7,4 @@ if R4_MEMORY_EXTRA_BYTES="$extra_bytes" scripts/check-peak-memory.sh "$output"; 
   echo "Expected forced over-allocation scenario to fail" >&2
   exit 1
 fi
-rg -q 'settle .*result=FAIL' "$output"
+grep -Eq 'settle .*result=FAIL' "$output"

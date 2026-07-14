@@ -12,4 +12,4 @@ if scripts/check-benchmark-regression.sh \
   echo "Expected regression fixture to fail" >&2
   exit 1
 fi
-rg -q 'bench1_p95 .*result=FAIL' "$directory/fail.txt"
+grep -Eq 'bench1_p95 .*result=FAIL' "$directory/fail.txt"

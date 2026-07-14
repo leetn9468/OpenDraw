@@ -13,6 +13,17 @@ the owner-reference MacBookPro18,2 at final build-input revision `f6ec81a`, so
 BLOCK-002 is closed by `macos15-reliability-100x100.txt` and
 `macos15-startup-p95.txt`.
 
+The workflow supports `workflow_dispatch`. The scheduled reliability job also
+runs for a manual dispatch, so a single qualifying BLOCK-006 run executes all
+eight jobs. Push and pull-request runs may still skip that scheduled-only lane;
+they are not qualifying closure runs.
+
+Workflow JavaScript actions are pinned to Node.js 24-based current majors:
+`actions/checkout@v6` and `actions/upload-artifact@v7`. Shared shell gates use
+POSIX `/bin/sh` utilities and do not require Homebrew or ripgrep. This keeps
+local and hosted commands, thresholds, artifact formats, and failure behavior
+identical without runner provisioning.
+
 ## Enforced jobs
 
 CI separates debug/release, ASan, adversarial/golden, benchmark, coverage,
@@ -75,6 +86,15 @@ The first hosted run must show `startup-memory`, `nightly-reliability`,
 `benchmark`, and `adversarial-golden` green and retain their artifact IDs and run
 URL. That run closes the hosted-execution components of BLOCK-003/004/005 while
 the hosted baseline/comparison closes BLOCK-006.
+
+Hosted run CI #1 at commit `834526c` did not qualify. Benchmark and
+startup-memory completed their substantive production measurements but their
+final failure-fixture assertions exited 127 because they invoked `rg`, which is
+not provided by the `macos-15` runner image. The dependency and clean-room
+scripts also used `rg` inside shell conditionals, which could mask the missing
+command, and the skipped reliability lane was limited to scheduled events.
+The portability correction replaces those uses with POSIX `grep`; it does not
+change any matching expression or gate decision.
 
 ## Numeric-policy classification
 

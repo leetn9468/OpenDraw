@@ -2,6 +2,7 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
   schedule:
     - cron: "23 3 * * *"
 
@@ -9,7 +10,7 @@ jobs:
   debug-release:
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: swift --version
       - run: test "$(uname -m)" = arm64
       - run: xcrun swift-format lint --recursive --strict Sources Tests Package.swift
@@ -24,55 +25,55 @@ jobs:
   sanitizer:
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: swift test --sanitize=address
   adversarial-golden:
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: swift test --filter 'deterministicNativeAndSVG|fixedAdversarial|compositeSceneMatchesProjectGolden'
   benchmark:
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: scripts/run-render-benchmark.sh benchmark.txt
       - run: scripts/test-benchmark-regression-gate.sh
       - run: scripts/check-benchmark-regression.sh benchmarks/owner-reference-macos15-arm64-baseline.tsv benchmark.txt benchmark-comparison.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with: { name: benchmark-results, path: benchmark.txt }
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with: { name: benchmark-comparison, path: benchmark-comparison.txt }
   startup-memory:
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: scripts/check-startup-p95.sh 20 artifacts/r4/startup-p95.txt
       - run: scripts/check-peak-memory.sh artifacts/r4/peak-memory.txt
       - run: scripts/test-peak-memory-gate.sh artifacts/r4/peak-memory-failure-fixture.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with: { name: startup-memory-results, path: artifacts/r4 }
   coverage:
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: swift test --enable-code-coverage
       - run: scripts/check-coverage.sh 55
   release-integrity:
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: scripts/build-release-app.sh
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with: { name: OpenDraw-app, path: dist/OpenDraw.app }
   nightly-reliability:
-    if: github.event_name == 'schedule'
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: scripts/nightly-reliability.sh artifacts/r4/reliability-100x100.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with: { name: reliability-100x100, path: artifacts/r4/reliability-100x100.txt }

@@ -75,9 +75,12 @@ measured frames per timed scenario, display sleep inhibited, production paths.
 - BLOCK-002 is closed at `f6ec81a`: the same MacBookPro18,2/macOS 15.7.5
   session produced `macos15-reliability-100x100.txt` and
   `macos15-startup-p95.txt`, satisfying frozen owner decision Option A.
-- BLOCK-006: ratio enforcement exists, but this checkout has no Git remote and
-  therefore no hosted macOS 15 run/baseline artifact or CI run URL. The committed
-  baseline is truthfully labelled owner-reference, not hosted proof.
+- BLOCK-006: CI #1 at `834526c` exists but did not qualify. Benchmark and
+  startup-memory exited 127 at final ripgrep-based fixture assertions and the
+  push-triggered reliability lane was skipped. A new manually dispatched run
+  must execute all eight jobs green and provide the hosted baseline/comparison
+  artifact and run URL. The committed baseline remains truthfully labelled
+  owner-reference, not hosted proof.
 - BLOCK-003/004/005: corrected local gates pass, but their hosted-CI execution
   components remain open until the first push shows `startup-memory`,
   `nightly-reliability`, `benchmark`, and `adversarial-golden` green with a run
