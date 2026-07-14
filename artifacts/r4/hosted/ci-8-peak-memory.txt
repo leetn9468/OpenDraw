@@ -1,0 +1,7 @@
+run_url=https://github.com/leetn9468/OpenDraw/actions/runs/29347892897
+artifact_id=8316895945
+revision=94fb0f057510639b93d9802fe93ab4aa5f0b18de model=VirtualMac2,1 chip=Apple M1 (Virtual) memory_bytes=7516192768 os=15.7.7 build=24G720 arch=arm64 swift=swift-driver version: 1.120.5 Apple Swift version 6.1.2 (swiftlang-6.1.2.1.2 clang-1700.0.13.5)
+R4_MEMORY_SCENARIO=settle objects=1000 anchors=10000 decodedImages=10 decodedPixels=50000000 extraBytes=0
+settle peak_bytes=214106112 limit_bytes=524288000 result=PASS
+R4_MEMORY_SCENARIO=export objects=1000 anchors=10000 decodedImages=10 decodedPixels=50000000 extraBytes=0
+export peak_bytes=223936512 limit_bytes=681574400 result=PASS

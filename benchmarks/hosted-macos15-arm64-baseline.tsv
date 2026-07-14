@@ -1,0 +1,12 @@
+# mode=BOOTSTRAP_CANDIDATE
+# source_commit=94fb0f057510639b93d9802fe93ab4aa5f0b18de
+# source=github-hosted-macos15-arm64
+# runner_image=macos-15
+# run_url=https://github.com/leetn9468/OpenDraw/actions/runs/29347892897
+# measured_on=2026-07-14
+# valid_until=2026-10-12
+bench1_p95	5.259	1.25
+bench2_p95	0.104	1.25
+bench2b_p95	4.837	1.25
+bench3_p95	7.867	1.25
+bench3_settle	2.622	1.25

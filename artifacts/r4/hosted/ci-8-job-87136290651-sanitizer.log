@@ -1,0 +1,453 @@
+run_url=https://github.com/leetn9468/OpenDraw/actions/runs/29347892897
+job_id=87136290651
+﻿2026-07-14T16:01:38.9600530Z Current runner version: '2.335.1'
+2026-07-14T16:01:38.9621780Z ##[group]Runner Image Provisioner
+2026-07-14T16:01:38.9622430Z Hosted Compute Agent
+2026-07-14T16:01:38.9622790Z Version: 20260624.560
+2026-07-14T16:01:38.9623190Z Commit: 925d229a51159bc391ae97e54a2dd1fe20af789d
+2026-07-14T16:01:38.9623660Z Build Date: 2026-06-24T18:26:47Z
+2026-07-14T16:01:38.9624100Z Worker ID: {f2976ffc-50eb-45e7-aef0-394b8e35c15e}
+2026-07-14T16:01:38.9624550Z Azure Region: westus
+2026-07-14T16:01:38.9624900Z ##[endgroup]
+2026-07-14T16:01:38.9626090Z ##[group]Operating System
+2026-07-14T16:01:38.9626480Z macOS
+2026-07-14T16:01:38.9626810Z 15.7.7
+2026-07-14T16:01:38.9627120Z 24G720
+2026-07-14T16:01:38.9627450Z ##[endgroup]
+2026-07-14T16:01:38.9627790Z ##[group]Runner Image
+2026-07-14T16:01:38.9628150Z Image: macos-15-arm64
+2026-07-14T16:01:38.9628520Z Version: 20260706.0213.1
+2026-07-14T16:01:38.9629430Z Included Software: https://github.com/actions/runner-images/blob/macos-15-arm64/20260706.0213/images/macos/macos-15-arm64-Readme.md
+2026-07-14T16:01:38.9630450Z Image Release: https://github.com/actions/runner-images/releases/tag/macos-15-arm64%2F20260706.0213
+2026-07-14T16:01:38.9631080Z ##[endgroup]
+2026-07-14T16:01:38.9631870Z ##[group]GITHUB_TOKEN Permissions
+2026-07-14T16:01:38.9633700Z Contents: read
+2026-07-14T16:01:38.9634070Z Metadata: read
+2026-07-14T16:01:38.9634420Z Packages: read
+2026-07-14T16:01:38.9634780Z ##[endgroup]
+2026-07-14T16:01:38.9636380Z Secret source: Actions
+2026-07-14T16:01:38.9636850Z Prepare workflow directory
+2026-07-14T16:01:39.0045680Z Prepare all required actions
+2026-07-14T16:01:39.0079330Z Getting action download info
+2026-07-14T16:01:39.3820550Z Download action repository 'actions/checkout@v6' (SHA:df4cb1c069e1874edd31b4311f1884172cec0e10)
+2026-07-14T16:01:39.8818700Z Complete job name: sanitizer
+2026-07-14T16:01:39.9492270Z ##[group]Run actions/checkout@v6
+2026-07-14T16:01:39.9492990Z with:
+2026-07-14T16:01:39.9493420Z   repository: leetn9468/OpenDraw
+2026-07-14T16:01:39.9496290Z   token: ***
+2026-07-14T16:01:39.9496680Z   ssh-strict: true
+2026-07-14T16:01:39.9497040Z   ssh-user: git
+2026-07-14T16:01:39.9521140Z   persist-credentials: true
+2026-07-14T16:01:39.9521700Z   clean: true
+2026-07-14T16:01:39.9522070Z   sparse-checkout-cone-mode: true
+2026-07-14T16:01:39.9522550Z   fetch-depth: 1
+2026-07-14T16:01:39.9522890Z   fetch-tags: false
+2026-07-14T16:01:39.9523220Z   show-progress: true
+2026-07-14T16:01:39.9523550Z   lfs: false
+2026-07-14T16:01:39.9523860Z   submodules: false
+2026-07-14T16:01:39.9524190Z   set-safe-directory: true
+2026-07-14T16:01:39.9525810Z ##[endgroup]
+2026-07-14T16:01:40.4783350Z Syncing repository: leetn9468/OpenDraw
+2026-07-14T16:01:40.4785040Z ##[group]Getting Git version info
+2026-07-14T16:01:40.4786670Z Working directory is '/Users/runner/work/OpenDraw/OpenDraw'
+2026-07-14T16:01:40.4788140Z [command]/opt/homebrew/bin/git version
+2026-07-14T16:01:40.5507880Z git version 2.55.0
+2026-07-14T16:01:40.5523420Z ##[endgroup]
+2026-07-14T16:01:40.5539940Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/c169ac4a-08e3-49cf-a8d9-8062e2c2a111/.gitconfig'
+2026-07-14T16:01:40.5549580Z Temporarily overriding HOME='/Users/runner/work/_temp/c169ac4a-08e3-49cf-a8d9-8062e2c2a111' before making global git config changes
+2026-07-14T16:01:40.5551180Z Adding repository directory to the temporary git global config as a safe directory
+2026-07-14T16:01:40.5552290Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/OpenDraw/OpenDraw
+2026-07-14T16:01:40.5747230Z Deleting the contents of '/Users/runner/work/OpenDraw/OpenDraw'
+2026-07-14T16:01:40.5751530Z ##[group]Determining repository object format
+2026-07-14T16:01:40.5756560Z ##[endgroup]
+2026-07-14T16:01:40.5757780Z ##[group]Initializing the repository
+2026-07-14T16:01:40.5760030Z [command]/opt/homebrew/bin/git init /Users/runner/work/OpenDraw/OpenDraw
+2026-07-14T16:01:40.6061250Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-07-14T16:01:40.6062650Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-07-14T16:01:40.6064000Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-07-14T16:01:40.6064580Z hint: call:
+2026-07-14T16:01:40.6064890Z hint:
+2026-07-14T16:01:40.6065310Z hint: 	git config --global init.defaultBranch <name>
+2026-07-14T16:01:40.6065770Z hint:
+2026-07-14T16:01:40.6066280Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-07-14T16:01:40.6067090Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-07-14T16:01:40.6067690Z hint:
+2026-07-14T16:01:40.6068330Z hint: 	git branch -m <name>
+2026-07-14T16:01:40.6069860Z hint:
+2026-07-14T16:01:40.6071150Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-07-14T16:01:40.6076960Z Initialized empty Git repository in /Users/runner/work/OpenDraw/OpenDraw/.git/
+2026-07-14T16:01:40.6084360Z [command]/opt/homebrew/bin/git remote add origin https://github.com/leetn9468/OpenDraw
+2026-07-14T16:01:40.6199990Z ##[endgroup]
+2026-07-14T16:01:40.6202790Z ##[group]Disabling automatic garbage collection
+2026-07-14T16:01:40.6212380Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+2026-07-14T16:01:40.6316250Z ##[endgroup]
+2026-07-14T16:01:40.6316900Z ##[group]Setting up auth
+2026-07-14T16:01:40.6317360Z Removing SSH command configuration
+2026-07-14T16:01:40.6323920Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-07-14T16:01:40.6445830Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-07-14T16:01:40.7714440Z Removing HTTP extra header
+2026-07-14T16:01:40.7720620Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-07-14T16:01:40.7815610Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-07-14T16:01:40.8814570Z Removing includeIf entries pointing to credentials config files
+2026-07-14T16:01:40.8816890Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-07-14T16:01:40.8909890Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-07-14T16:01:41.0456900Z [command]/opt/homebrew/bin/git config --file /Users/runner/work/_temp/git-credentials-7dc901ce-1a9e-4543-9c9f-c49dd0e4da41.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-07-14T16:01:41.0575790Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git.path /Users/runner/work/_temp/git-credentials-7dc901ce-1a9e-4543-9c9f-c49dd0e4da41.config
+2026-07-14T16:01:41.0695710Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git/worktrees/*.path /Users/runner/work/_temp/git-credentials-7dc901ce-1a9e-4543-9c9f-c49dd0e4da41.config
+2026-07-14T16:01:41.0780530Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-7dc901ce-1a9e-4543-9c9f-c49dd0e4da41.config
+2026-07-14T16:01:41.0859220Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-7dc901ce-1a9e-4543-9c9f-c49dd0e4da41.config
+2026-07-14T16:01:41.0945480Z ##[endgroup]
+2026-07-14T16:01:41.0947950Z ##[group]Fetching the repository
+2026-07-14T16:01:41.0957820Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +94fb0f057510639b93d9802fe93ab4aa5f0b18de:refs/remotes/origin/remediation/pre-phase5
+2026-07-14T16:01:41.6759360Z From https://github.com/leetn9468/OpenDraw
+2026-07-14T16:01:41.6763430Z  * [new ref]         94fb0f057510639b93d9802fe93ab4aa5f0b18de -> origin/remediation/pre-phase5
+2026-07-14T16:01:41.6765940Z [command]/opt/homebrew/bin/git branch --list --remote origin/remediation/pre-phase5
+2026-07-14T16:01:41.6873260Z   origin/remediation/pre-phase5
+2026-07-14T16:01:41.6881010Z [command]/opt/homebrew/bin/git rev-parse refs/remotes/origin/remediation/pre-phase5
+2026-07-14T16:01:41.6959420Z 94fb0f057510639b93d9802fe93ab4aa5f0b18de
+2026-07-14T16:01:41.6964040Z ##[endgroup]
+2026-07-14T16:01:41.6964840Z ##[group]Determining the checkout info
+2026-07-14T16:01:41.6966490Z ##[endgroup]
+2026-07-14T16:01:41.6977560Z [command]/opt/homebrew/bin/git sparse-checkout disable
+2026-07-14T16:01:41.7085990Z [command]/opt/homebrew/bin/git config --local --unset-all extensions.worktreeConfig
+2026-07-14T16:01:41.7173020Z ##[group]Checking out the ref
+2026-07-14T16:01:41.7174980Z [command]/opt/homebrew/bin/git checkout --progress --force -B remediation/pre-phase5 refs/remotes/origin/remediation/pre-phase5
+2026-07-14T16:01:41.7530940Z Switched to a new branch 'remediation/pre-phase5'
+2026-07-14T16:01:41.7538340Z branch 'remediation/pre-phase5' set up to track 'origin/remediation/pre-phase5'.
+2026-07-14T16:01:41.7547190Z ##[endgroup]
+2026-07-14T16:01:41.7661140Z [command]/opt/homebrew/bin/git log -1 --format=%H
+2026-07-14T16:01:41.7743340Z 94fb0f057510639b93d9802fe93ab4aa5f0b18de
+2026-07-14T16:01:41.8026100Z ##[group]Run scripts/run-address-sanitizer-tests.sh
+2026-07-14T16:01:41.8026760Z [36;1mscripts/run-address-sanitizer-tests.sh[0m
+2026-07-14T16:01:41.8073170Z shell: /bin/bash -e {0}
+2026-07-14T16:01:41.8073640Z ##[endgroup]
+2026-07-14T16:01:49.2119090Z Building for debugging...
+2026-07-14T16:01:49.2215550Z [0/36] /Users/runner/work/OpenDraw/OpenDraw/.build/arm64-apple-macosx/debug/VectorFoundryPackageTests.derived/runner.swift
+2026-07-14T16:01:49.2255090Z [1/36] Write sources
+2026-07-14T16:01:49.2257030Z [3/36] Write VectorFoundry-entitlement.plist
+2026-07-14T16:01:49.2258400Z [3/36] Copying Fixtures
+2026-07-14T16:01:49.2260270Z [4/36] Write sources
+2026-07-14T16:01:49.2262170Z [8/36] Write RenderBenchmark-entitlement.plist
+2026-07-14T16:01:49.2263350Z [10/36] Write sources
+2026-07-14T16:01:49.2264460Z [10/36] Write R4GateHarness-entitlement.plist
+2026-07-14T16:01:49.2265520Z [10/36] Write sources
+2026-07-14T16:01:49.4438780Z [24/36] Write swift-version--79AA4F9932D1E87A.txt
+2026-07-14T16:01:57.9172060Z [26/39] Compiling EditorCore Diagnostics.swift
+2026-07-14T16:01:57.9281460Z [27/39] Compiling EditorCore CoreTypes.swift
+2026-07-14T16:01:57.9315300Z [28/39] Emitting module EditorCore
+2026-07-14T16:01:59.7393440Z [29/43] Emitting module Geometry
+2026-07-14T16:01:59.7520440Z [30/43] Compiling Geometry Geometry.swift
+2026-07-14T16:02:01.5231380Z [31/50] Emitting module TextEngine
+2026-07-14T16:02:01.5329370Z [32/50] Compiling TextEngine TextShaper.swift
+2026-07-14T16:02:07.4197490Z [33/52] Compiling GeometryTests AffineTransformVerifyTests.swift
+2026-07-14T16:02:07.4300650Z [34/52] Compiling GeometryTests BezierBoundsVerifyTests.swift
+2026-07-14T16:02:07.4405570Z [35/52] Emitting module GeometryTests
+2026-07-14T16:02:07.4509910Z [36/52] Compiling GeometryTests BezierEvaluationVerifyTests.swift
+2026-07-14T16:02:07.4608100Z [37/52] Compiling GeometryTests FillRuleVerifyTests.swift
+2026-07-14T16:02:08.2462000Z [38/53] Emitting module DocumentModel
+2026-07-14T16:02:08.2565390Z [39/53] Compiling DocumentModel Document.swift
+2026-07-14T16:02:09.1804620Z [40/55] Emitting module TextEngineTests
+2026-07-14T16:02:09.1908310Z [41/55] Compiling TextEngineTests TextEngineTests.swift
+2026-07-14T16:02:09.6856780Z [42/58] Compiling GeometryTests GeometryTests.swift
+2026-07-14T16:02:10.3803410Z [43/65] Compiling EditorCommands AlignmentCommands.swift
+2026-07-14T16:02:10.4932830Z [44/66] Compiling MacPlatform BackingScale.swift
+2026-07-14T16:02:10.5032930Z [45/66] Emitting module MacPlatform
+2026-07-14T16:02:10.9962430Z [46/69] Emitting module DocumentFormats
+2026-07-14T16:02:11.2000920Z [47/72] Emitting module EditorCommands
+2026-07-14T16:02:11.2037870Z [48/72] Compiling EditorCommands CommandHistory.swift
+2026-07-14T16:02:11.5016420Z [49/72] Compiling EditorCommands SceneCommands.swift
+2026-07-14T16:02:12.2985710Z [50/77] Emitting module CanvasRender
+2026-07-14T16:02:12.3087670Z [51/77] Compiling CanvasRender SceneBitmapCache.swift
+2026-07-14T16:02:12.3187970Z [52/77] Compiling CanvasRender CoreGraphicsRenderer.swift
+2026-07-14T16:02:12.5722200Z [53/78] Compiling EditorTools AccessibilityTree.swift
+2026-07-14T16:02:12.5822660Z [54/78] Compiling EditorTools CreationTools.swift
+2026-07-14T16:02:12.5923210Z [55/78] Compiling EditorTools SelectionTool.swift
+2026-07-14T16:02:12.6024590Z [56/78] Compiling EditorTools SpatialIndex.swift
+2026-07-14T16:02:12.6124840Z [57/78] Compiling DocumentFormats NativeDocumentCodec.swift
+2026-07-14T16:02:12.6227480Z [58/78] Compiling DocumentFormats RasterResourceLoader.swift
+2026-07-14T16:02:12.7030430Z [59/78] Emitting module EditorTools
+2026-07-14T16:02:12.8056520Z [64/79] Compiling CanvasRender ViewportStripCache.swift
+2026-07-14T16:02:12.9488250Z [65/79] Compiling EditorTools TransformInteractions.swift
+2026-07-14T16:02:13.6845920Z [66/88] Compiling DocumentFormats SVGExporter.swift
+2026-07-14T16:02:13.6972850Z [67/88] Compiling DocumentFormats SVGImporter.swift
+2026-07-14T16:02:13.7076550Z [68/88] Compiling DocumentFormats SVGLengthParser.swift
+2026-07-14T16:02:14.1274050Z [69/91] Emitting module RenderBenchmark
+2026-07-14T16:02:14.1373770Z [70/91] Compiling RenderBenchmark main.swift
+2026-07-14T16:02:15.8621960Z [71/93] Emitting module DocumentModelTests
+2026-07-14T16:02:15.8723820Z [72/93] Compiling DocumentModelTests DocumentTransformVerifyTests.swift
+2026-07-14T16:02:15.8824270Z [73/93] Compiling DocumentModelTests GroupBoundsVerifyTests.swift
+2026-07-14T16:02:15.8940310Z [74/93] Compiling DocumentModelTests NestedTranslationVerifyTests.swift
+2026-07-14T16:02:16.9447200Z [75/96] Compiling DocumentModelTests PixelOverflowVerifyTests.swift
+2026-07-14T16:02:16.9551190Z [76/96] Compiling DocumentModelTests StrictValidationTests.swift
+2026-07-14T16:02:16.9657620Z [77/96] Compiling DocumentModelTests VisualBoundsVerifyTests.swift
+2026-07-14T16:02:17.0362530Z [78/96] Compiling EditorToolsTests AccessibilityTests.swift
+2026-07-14T16:02:17.0464240Z [79/96] Emitting module EditorToolsTests
+2026-07-14T16:02:17.0566510Z [80/96] Compiling EditorToolsTests EditorToolsTests.swift
+2026-07-14T16:02:17.1816840Z [81/96] Compiling DocumentModelTests DirectAnchorVerifyTests.swift
+2026-07-14T16:02:17.1918310Z [82/96] Compiling DocumentModelTests DocumentLimitsVerifyTests.swift
+2026-07-14T16:02:17.2019630Z [83/96] Compiling DocumentModelTests DocumentModelTests.swift
+2026-07-14T16:02:17.9524080Z [84/105] Emitting module DocumentFormatsTests
+2026-07-14T16:02:18.1048940Z [85/108] Compiling R4GateHarness main.swift
+2026-07-14T16:02:18.1151760Z [86/108] Emitting module R4GateHarness
+2026-07-14T16:02:18.6235130Z [87/111] Compiling VectorFoundryApp main.swift
+2026-07-14T16:02:18.6335010Z [88/111] Emitting module VectorFoundryApp
+2026-07-14T16:02:18.6636400Z [88/111] Write Objects.LinkFileList
+2026-07-14T16:02:19.4864980Z [90/111] Linking RenderBenchmark
+2026-07-14T16:02:20.3805270Z [91/111] Linking VectorFoundry
+2026-07-14T16:02:20.4113870Z [92/111] Applying RenderBenchmark
+2026-07-14T16:02:20.4518460Z [93/111] Applying VectorFoundry
+2026-07-14T16:02:20.4619850Z [94/111] Write Objects.LinkFileList
+2026-07-14T16:02:20.8237250Z [96/111] Compiling DocumentFormatsTests SceneMigrationTests.swift
+2026-07-14T16:02:20.8339760Z [97/111] Compiling DocumentFormatsTests UIJourneyTests.swift
+2026-07-14T16:02:20.8440590Z [98/111] Compiling DocumentFormatsTests resource_bundle_accessor.swift
+2026-07-14T16:02:20.9948180Z [98/111] Linking R4GateHarness
+2026-07-14T16:02:21.0352180Z [99/111] Applying R4GateHarness
+2026-07-14T16:02:21.1324640Z [101/111] Compiling CanvasRenderTests GoldenRenderingTests.swift
+2026-07-14T16:02:21.1426030Z [102/111] Emitting module CanvasRenderTests
+2026-07-14T16:02:21.1527710Z [103/111] Compiling CanvasRenderTests CanvasRenderTests.swift
+2026-07-14T16:02:21.2196880Z [104/111] Compiling DocumentFormatsTests DurablePersistenceTests.swift
+2026-07-14T16:02:21.2299530Z [105/111] Compiling DocumentFormatsTests InputLimitsVerifyTests.swift
+2026-07-14T16:02:21.2337830Z [106/111] Compiling DocumentFormatsTests SVGLengthVerifyTests.swift
+2026-07-14T16:02:21.5737680Z [107/111] Compiling DocumentFormatsTests AdversarialCorpusTests.swift
+2026-07-14T16:02:21.5740240Z [108/111] Compiling DocumentFormatsTests ApprovedImageCacheVerifyTests.swift
+2026-07-14T16:02:21.5741420Z [109/111] Compiling DocumentFormatsTests DocumentFormatsTests.swift
+2026-07-14T16:02:23.8952810Z [110/113] Emitting module VectorFoundryPackageTests
+2026-07-14T16:02:23.8953360Z [111/113] Compiling VectorFoundryPackageTests runner.swift
+2026-07-14T16:02:23.8991470Z [111/113] Write Objects.LinkFileList
+2026-07-14T16:02:24.6840940Z [112/113] Linking VectorFoundryPackageTests
+2026-07-14T16:02:24.7107250Z Build complete! (35.62s)
+2026-07-14T16:02:39.5707930Z Test Suite 'Selected tests' started at 2026-07-14 16:02:26.220.
+2026-07-14T16:02:39.5709320Z Test Suite 'VectorFoundryPackageTests.xctest' started at 2026-07-14 16:02:26.222.
+2026-07-14T16:02:39.5710340Z Test Suite 'VectorFoundryPackageTests.xctest' passed at 2026-07-14 16:02:26.222.
+2026-07-14T16:02:39.5711340Z 	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+2026-07-14T16:02:39.5734530Z Test Suite 'Selected tests' passed at 2026-07-14 16:02:26.222.
+2026-07-14T16:02:39.5737400Z 	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.003) seconds
+2026-07-14T16:02:39.5748490Z ◇ Test run started.
+2026-07-14T16:02:39.5750010Z ↳ Testing Library Version: 124.4
+2026-07-14T16:02:39.5750660Z ↳ Target Platform: arm64e-apple-macos14.0
+2026-07-14T16:02:39.5753940Z ◇ Test verify005GroupBoundsFrozenExamples() started.
+2026-07-14T16:02:39.5756420Z ◇ Test revisionGestureAndChangeStreamSemantics() started.
+2026-07-14T16:02:39.5759770Z ◇ Test snapshotHistorySharesEmbeddedAssetsAndHonorsMemorySafetyNet() started.
+2026-07-14T16:02:39.5760280Z ◇ Test documentInvariants() started.
+2026-07-14T16:02:39.5761420Z ◇ Test verify008DirectAggregateAssetBoundaryFixtures() started.
+2026-07-14T16:02:39.5764300Z ◇ Test strictValidationEnforcesGlobalIDsAndImageStructure() started.
+2026-07-14T16:02:39.5768340Z ◇ Test verify019DocumentDeltaIncludesOwnAndAncestorTransforms() started.
+2026-07-14T16:02:39.5769140Z ◇ Test alignmentIsUndoable() started.
+2026-07-14T16:02:39.5769880Z ◇ Test directAnchorGroupUngroupAndCompoundCommandsAreUndoable() started.
+2026-07-14T16:02:39.5770970Z ◇ Test verify007PixelCountFrozenExamples() started.
+2026-07-14T16:02:39.5771500Z ◇ Test verify020NestedDocumentTransformComposition() started.
+2026-07-14T16:02:39.5772080Z ◇ Test unsavedCoordinatorsAreIndependentAndCancelPreventsReplacement() started.
+2026-07-14T16:02:39.5774630Z ◇ Test verify008DocumentLimitsFrozenExamples() started.
+2026-07-14T16:02:39.5776620Z ◇ Test verify004VisualBoundsFrozenExamples() started.
+2026-07-14T16:02:39.5780420Z ◇ Test verify009TwoLevelAccumulatedAncestorExample() started.
+2026-07-14T16:02:39.5781900Z ◇ Test failedFirstGestureDoesNotCorruptLaterCoalescing() started.
+2026-07-14T16:02:39.5785900Z ◇ Test directAnchorDeletionIsUndoable() started.
+2026-07-14T16:02:39.5787990Z ◇ Test headlessUIJourneyCreateStyleTransformSaveReopenAndExport() started.
+2026-07-14T16:02:39.5790010Z ◇ Test strictValidationRejectsGeometryStyleAndReferences() started.
+2026-07-14T16:02:39.5791540Z ◇ Test verify010SVGLengthFrozenExamples() started.
+2026-07-14T16:02:39.5792960Z ◇ Test advancedResourceInvariants() started.
+2026-07-14T16:02:39.5794880Z ◇ Test verify009NestedTranslationExamples() started.
+2026-07-14T16:02:39.5796740Z ◇ Test historyLimitIsImmutableAndCappedAtThirty() started.
+2026-07-14T16:02:39.5798510Z ◇ Test svgImportIsIsolatedSafeAndDiagnosable() started.
+2026-07-14T16:02:39.5800620Z ◇ Test historyDirtyCoalescingRollbackAndLimit() started.
+2026-07-14T16:02:39.5806510Z ◇ Test v4CanonicalGoldenBytes() started.
+2026-07-14T16:02:39.5808270Z ◇ Test migratesVersionTwoDocument() started.
+2026-07-14T16:02:39.5809760Z ◇ Test boundedReaderRejectsMetadataBeforeReadAndTruncation() started.
+2026-07-14T16:02:39.5811740Z ◇ Test commandUndoRedoAndBranch() started.
+2026-07-14T16:02:39.5813640Z ◇ Test nativeDecoderDeterministicMalformedCorpus() started.
+2026-07-14T16:02:39.5815680Z ◇ Test rejectsUnknownVersion() started.
+2026-07-14T16:02:39.5819420Z ◇ Test v4RoundTripPreservesMixedOrderGroupsAndCompoundPaths() started.
+2026-07-14T16:02:39.5821080Z ◇ Test directionHandleMovementUsesDocumentDeltaAndIsUndoable() started.
+2026-07-14T16:02:39.5824620Z ◇ Test strictValidationPinsNodeCountCeiling() started.
+2026-07-14T16:02:39.5825130Z ◇ Test migratesVersionThreeDocumentAndRoundTripsHistoricalFixtures() started.
+2026-07-14T16:02:39.5827090Z ◇ Test durableSaveKeepsBackupAndInterruptedPreRenameSaveKeepsOriginal() started.
+2026-07-14T16:02:39.5827650Z ◇ Test groupUngroupAndCompoundReleasePreserveVisualBounds() started.
+2026-07-14T16:02:39.5830880Z ◇ Test svgExportIsDeterministicAndEscaped() started.
+2026-07-14T16:02:39.5831410Z ◇ Test verify012ApprovedImageBudgetExamples() started.
+2026-07-14T16:02:39.5832510Z ◇ Test fixedAdversarialClassesFailSafely() started.
+2026-07-14T16:02:39.5832900Z ◇ Test cachedPanMeetsInteractiveFrameBudget() started.
+2026-07-14T16:02:39.5834140Z ◇ Test nativeRoundTripIsDeterministic() started.
+2026-07-14T16:02:39.5835060Z ◇ Test approvedImageCacheDecodesOffActorAndPublishesSnapshot() started.
+2026-07-14T16:02:39.5838050Z ◇ Test atomicSaveAndLoad() started.
+2026-07-14T16:02:39.5839750Z ◇ Test forcedExposurePanRedrawsNonzeroStrips() started.
+2026-07-14T16:02:39.5840290Z ◇ Test rendererUsesOnlyApprovedImagesOrPlaceholder() started.
+2026-07-14T16:02:39.5840780Z ◇ Test verify011SVGStringBoundaries() started.
+2026-07-14T16:02:39.5841490Z ◇ Test goldenToleranceBoundaryPolicyIsInclusive() started.
+2026-07-14T16:02:39.5843680Z ◇ Test linkedResourceResolverRejectsTraversalAndSymlinkEscape() started.
+2026-07-14T16:02:39.5844240Z ◇ Test representativeDocumentRenderBenchmark() started.
+2026-07-14T16:02:39.5844720Z ◇ Test verify011SVGElementAndNodeBoundaries() started.
+2026-07-14T16:02:39.5845210Z ◇ Test compositeSceneMatchesProjectGoldenWithExplicitTolerance() started.
+2026-07-14T16:02:39.5848100Z ◇ Test verify011JSONDepthAndValueBoundaries() started.
+2026-07-14T16:02:39.5848530Z ◇ Test bezierRendersAtMultipleScales() started.
+2026-07-14T16:02:39.5849970Z ◇ Test rasterLoaderEnforcesLimitsAndSafeLinks() started.
+2026-07-14T16:02:39.5851470Z ◇ Test coreGraphicsSupportsRequiredCompositingPrimitives() started.
+2026-07-14T16:02:39.5854970Z ◇ Test svgRejectsWrongNamespaceRepeatedRootAndEntityDeclaration() started.
+2026-07-14T16:02:39.5855460Z ◇ Test verify012AutosaveAndRecoveryPolicy() started.
+2026-07-14T16:02:39.5857310Z ◇ Test cleanupAfterPostCloseFaultDoesNotCloseReusedDescriptor() started.
+2026-07-14T16:02:39.5857920Z ◇ Test transformedStrokeInkIsContainedByVisualBounds() started.
+2026-07-14T16:02:39.5858360Z ◇ Test expandedAppearanceTextAndImageRender() started.
+2026-07-14T16:02:39.5858730Z ◇ Test verify011SVGWarningAndDepthBoundaries() started.
+2026-07-14T16:02:39.5859070Z ◇ Test damageRegionStatesAreExplicit() started.
+2026-07-14T16:02:39.5859350Z ◇ Test svgReportsFeatureLoss() started.
+2026-07-14T16:02:39.5859730Z ◇ Test representativeUnicodeShapes() started.
+2026-07-14T16:02:39.5862660Z ◇ Test primitiveAndSnapPolicies() started.
+2026-07-14T16:02:39.5863050Z ◇ Test penStateCreatesOpenAndClosedPaths() started.
+2026-07-14T16:02:39.5863470Z ◇ Test verify021AxisSnapCandidates() started.
+2026-07-14T16:02:39.5863880Z ◇ Test accessibilityTreeExposesDocumentLayersSelectionAndFrames() started.
+2026-07-14T16:02:39.5864370Z ◇ Test testVerify017SmoothAnchorSymmetry() started.
+2026-07-14T16:02:39.5864700Z ◇ Test testVerify016EightHandleScaleMapping() started.
+2026-07-14T16:02:39.5865130Z ◇ Test testVerify014ZoomAboutPointDomainAndInvariant() started.
+2026-07-14T16:02:39.5866140Z ◇ Test testVerify013PivotRotationAndHalfAwaySnapping() started.
+2026-07-14T16:02:39.5866610Z ◇ Test spatialIndexReturnsNearbyCandidates() started.
+2026-07-14T16:02:39.5867570Z ◇ Test preciseSelectionRejectsBoundsFalsePositiveAndRespectsLockedLayers() started.
+2026-07-14T16:02:39.5909510Z ◇ Test testVerify018ScreenSpaceSnappingTolerance() started.
+2026-07-14T16:02:39.5910390Z ◇ Test smoothPenCreatesMirroredHandlesPreviewAndClosedPath() started.
+2026-07-14T16:02:39.5910830Z ◇ Test subdivisionFlatteningAndBounds() started.
+2026-07-14T16:02:39.5911200Z ◇ Test degenerateCurveIsStable() started.
+2026-07-14T16:02:39.5911490Z ◇ Test identityTransformPropertySamples() started.
+2026-07-14T16:02:39.5911910Z ◇ Test testVerify015DamageRectangleUnionAndIntersection() started.
+2026-07-14T16:02:39.5912430Z ◇ Test curveAndZoomInvariantAnchorHitTesting() started.
+2026-07-14T16:02:39.5912750Z ◇ Test swiftGeometryBenchmark() started.
+2026-07-14T16:02:39.5913140Z ◇ Test verify001AffineTransformFrozenExamples() started.
+2026-07-14T16:02:39.5913500Z ◇ Test verify006FillRuleFrozenExamples() started.
+2026-07-14T16:02:39.5913920Z ◇ Test bezierEndpointsAndMidpoint() started.
+2026-07-14T16:02:39.5914340Z ◇ Test verify002BezierEvaluationFrozenExamples() started.
+2026-07-14T16:02:39.5914880Z ◇ Test collinearBacktrackingAndSubdivisionCountAreHonored() started.
+2026-07-14T16:02:39.5915330Z ◇ Test verify003BezierBoundsFrozenExamples() started.
+2026-07-14T16:02:39.5916210Z ✔ Test documentInvariants() passed after 7.577 seconds.
+2026-07-14T16:02:39.5916690Z ✔ Test revisionGestureAndChangeStreamSemantics() passed after 7.578 seconds.
+2026-07-14T16:02:39.5917180Z ✔ Test verify005GroupBoundsFrozenExamples() passed after 7.578 seconds.
+2026-07-14T16:02:39.5917760Z ✔ Test verify019DocumentDeltaIncludesOwnAndAncestorTransforms() passed after 7.578 seconds.
+2026-07-14T16:02:39.5918380Z ✔ Test strictValidationEnforcesGlobalIDsAndImageStructure() passed after 7.578 seconds.
+2026-07-14T16:02:39.5918810Z ✔ Test alignmentIsUndoable() passed after 7.578 seconds.
+2026-07-14T16:02:39.5919310Z ✔ Test directAnchorGroupUngroupAndCompoundCommandsAreUndoable() passed after 7.578 seconds.
+2026-07-14T16:02:39.5919820Z ✔ Test verify007PixelCountFrozenExamples() passed after 7.580 seconds.
+2026-07-14T16:02:39.5920270Z ✔ Test verify020NestedDocumentTransformComposition() passed after 8.586 seconds.
+2026-07-14T16:02:39.5920730Z ✔ Test verify008DocumentLimitsFrozenExamples() passed after 8.586 seconds.
+2026-07-14T16:02:39.5921350Z ✔ Test unsavedCoordinatorsAreIndependentAndCancelPreventsReplacement() passed after 8.586 seconds.
+2026-07-14T16:02:39.5921990Z ✔ Test verify004VisualBoundsFrozenExamples() passed after 8.586 seconds.
+2026-07-14T16:02:39.5922460Z ✔ Test verify009TwoLevelAccumulatedAncestorExample() passed after 8.590 seconds.
+2026-07-14T16:02:39.5923100Z ✔ Test failedFirstGestureDoesNotCorruptLaterCoalescing() passed after 8.590 seconds.
+2026-07-14T16:02:39.5923640Z ✔ Test directAnchorDeletionIsUndoable() passed after 8.590 seconds.
+2026-07-14T16:02:39.5924230Z ✔ Test snapshotHistorySharesEmbeddedAssetsAndHonorsMemorySafetyNet() passed after 8.591 seconds.
+2026-07-14T16:02:39.5924900Z ✔ Test strictValidationRejectsGeometryStyleAndReferences() passed after 8.591 seconds.
+2026-07-14T16:02:39.5925500Z ✔ Test verify010SVGLengthFrozenExamples() passed after 8.591 seconds.
+2026-07-14T16:02:39.5925960Z ✔ Test advancedResourceInvariants() passed after 8.591 seconds.
+2026-07-14T16:02:39.5926510Z ✔ Test verify009NestedTranslationExamples() passed after 8.591 seconds.
+2026-07-14T16:02:39.5927090Z ✔ Test historyLimitIsImmutableAndCappedAtThirty() passed after 8.591 seconds.
+2026-07-14T16:02:39.5927790Z ✔ Test svgImportIsIsolatedSafeAndDiagnosable() passed after 8.591 seconds.
+2026-07-14T16:02:39.5930150Z ✔ Test historyDirtyCoalescingRollbackAndLimit() passed after 8.592 seconds.
+2026-07-14T16:02:39.5931980Z ✔ Test v4CanonicalGoldenBytes() passed after 8.592 seconds.
+2026-07-14T16:02:39.5933400Z ✔ Test migratesVersionTwoDocument() passed after 8.592 seconds.
+2026-07-14T16:02:39.5935690Z ✔ Test boundedReaderRejectsMetadataBeforeReadAndTruncation() passed after 8.592 seconds.
+2026-07-14T16:02:39.5938990Z ✔ Test verify008DirectAggregateAssetBoundaryFixtures() passed after 8.593 seconds.
+2026-07-14T16:02:39.5940360Z ✔ Test commandUndoRedoAndBranch() passed after 8.593 seconds.
+2026-07-14T16:02:39.5941410Z ✔ Test rejectsUnknownVersion() passed after 8.593 seconds.
+2026-07-14T16:02:39.5943020Z ✔ Test v4RoundTripPreservesMixedOrderGroupsAndCompoundPaths() passed after 8.593 seconds.
+2026-07-14T16:02:39.5944950Z ✔ Test directionHandleMovementUsesDocumentDeltaAndIsUndoable() passed after 8.593 seconds.
+2026-07-14T16:02:39.5946800Z ✔ Test headlessUIJourneyCreateStyleTransformSaveReopenAndExport() passed after 8.594 seconds.
+2026-07-14T16:02:39.5948790Z ✔ Test migratesVersionThreeDocumentAndRoundTripsHistoricalFixtures() passed after 8.594 seconds.
+2026-07-14T16:02:39.5950780Z ✔ Test nativeDecoderDeterministicMalformedCorpus() passed after 8.594 seconds.
+2026-07-14T16:02:39.5952430Z ✔ Test groupUngroupAndCompoundReleasePreserveVisualBounds() passed after 8.594 seconds.
+2026-07-14T16:02:39.5954550Z ✔ Test svgExportIsDeterministicAndEscaped() passed after 8.594 seconds.
+2026-07-14T16:02:39.5955320Z ✔ Test durableSaveKeepsBackupAndInterruptedPreRenameSaveKeepsOriginal() passed after 8.595 seconds.
+2026-07-14T16:02:39.5955920Z ✔ Test verify012ApprovedImageBudgetExamples() passed after 8.595 seconds.
+2026-07-14T16:02:39.5957150Z ✔ Test nativeRoundTripIsDeterministic() passed after 8.595 seconds.
+2026-07-14T16:02:39.5957660Z ✔ Test forcedExposurePanRedrawsNonzeroStrips() passed after 8.595 seconds.
+2026-07-14T16:02:39.5958300Z ✔ Test rendererUsesOnlyApprovedImagesOrPlaceholder() passed after 8.596 seconds.
+2026-07-14T16:02:39.5958780Z ✔ Test atomicSaveAndLoad() passed after 8.597 seconds.
+2026-07-14T16:02:39.5959260Z ✔ Test verify011SVGStringBoundaries() passed after 8.597 seconds.
+2026-07-14T16:02:39.5959770Z ✔ Test goldenToleranceBoundaryPolicyIsInclusive() passed after 8.597 seconds.
+2026-07-14T16:02:39.5961320Z ✔ Test cachedPanMeetsInteractiveFrameBudget() passed after 8.597 seconds.
+2026-07-14T16:02:39.5962370Z ✔ Test representativeDocumentRenderBenchmark() passed after 8.597 seconds.
+2026-07-14T16:02:39.5963130Z ✔ Test linkedResourceResolverRejectsTraversalAndSymlinkEscape() passed after 8.597 seconds.
+2026-07-14T16:02:39.5963950Z ✔ Test compositeSceneMatchesProjectGoldenWithExplicitTolerance() passed after 8.597 seconds.
+2026-07-14T16:02:39.5964550Z ✔ Test strictValidationPinsNodeCountCeiling() passed after 8.598 seconds.
+2026-07-14T16:02:39.5965110Z ✔ Test bezierRendersAtMultipleScales() passed after 8.598 seconds.
+2026-07-14T16:02:39.5965560Z ✔ Test rasterLoaderEnforcesLimitsAndSafeLinks() passed after 8.598 seconds.
+2026-07-14T16:02:39.5966180Z ✔ Test svgRejectsWrongNamespaceRepeatedRootAndEntityDeclaration() passed after 8.599 seconds.
+2026-07-14T16:02:39.5967600Z ✔ Test coreGraphicsSupportsRequiredCompositingPrimitives() passed after 8.599 seconds.
+2026-07-14T16:02:39.5969630Z ✔ Test verify012AutosaveAndRecoveryPolicy() passed after 8.599 seconds.
+2026-07-14T16:02:39.5971190Z ✔ Test cleanupAfterPostCloseFaultDoesNotCloseReusedDescriptor() passed after 8.599 seconds.
+2026-07-14T16:02:39.5972670Z ✔ Test transformedStrokeInkIsContainedByVisualBounds() passed after 8.599 seconds.
+2026-07-14T16:02:39.5973220Z ✔ Test expandedAppearanceTextAndImageRender() passed after 8.599 seconds.
+2026-07-14T16:02:39.5973790Z ✔ Test verify011SVGWarningAndDepthBoundaries() passed after 8.599 seconds.
+2026-07-14T16:02:39.5974280Z ✔ Test damageRegionStatesAreExplicit() passed after 8.599 seconds.
+2026-07-14T16:02:39.5974950Z ✔ Test svgReportsFeatureLoss() passed after 8.599 seconds.
+2026-07-14T16:02:39.5975370Z ✔ Test primitiveAndSnapPolicies() passed after 8.599 seconds.
+2026-07-14T16:02:39.5975890Z ✔ Test representativeUnicodeShapes() passed after 8.600 seconds.
+2026-07-14T16:02:39.5976400Z ✔ Test penStateCreatesOpenAndClosedPaths() passed after 8.600 seconds.
+2026-07-14T16:02:39.5976910Z ✔ Test verify021AxisSnapCandidates() passed after 8.600 seconds.
+2026-07-14T16:02:39.5977460Z ✔ Test accessibilityTreeExposesDocumentLayersSelectionAndFrames() passed after 8.600 seconds.
+2026-07-14T16:02:39.5978650Z ✔ Test testVerify016EightHandleScaleMapping() passed after 8.600 seconds.
+2026-07-14T16:02:39.5979140Z ✔ Test testVerify017SmoothAnchorSymmetry() passed after 8.600 seconds.
+2026-07-14T16:02:39.5980220Z ✔ Test testVerify013PivotRotationAndHalfAwaySnapping() passed after 8.600 seconds.
+2026-07-14T16:02:39.5980800Z ✔ Test spatialIndexReturnsNearbyCandidates() passed after 8.600 seconds.
+2026-07-14T16:02:39.5981460Z ✔ Test testVerify014ZoomAboutPointDomainAndInvariant() passed after 8.601 seconds.
+2026-07-14T16:02:39.5982130Z ✔ Test preciseSelectionRejectsBoundsFalsePositiveAndRespectsLockedLayers() passed after 8.601 seconds.
+2026-07-14T16:02:39.5982850Z ✔ Test testVerify018ScreenSpaceSnappingTolerance() passed after 8.601 seconds.
+2026-07-14T16:02:39.5983470Z ✔ Test smoothPenCreatesMirroredHandlesPreviewAndClosedPath() passed after 8.601 seconds.
+2026-07-14T16:02:39.5984110Z ✔ Test subdivisionFlatteningAndBounds() passed after 8.599 seconds.
+2026-07-14T16:02:39.5984670Z ✔ Test degenerateCurveIsStable() passed after 8.597 seconds.
+2026-07-14T16:02:39.5985110Z ✔ Test identityTransformPropertySamples() passed after 8.596 seconds.
+2026-07-14T16:02:39.5985680Z ✔ Test testVerify015DamageRectangleUnionAndIntersection() passed after 8.596 seconds.
+2026-07-14T16:02:39.5986580Z ✔ Test curveAndZoomInvariantAnchorHitTesting() passed after 8.596 seconds.
+2026-07-14T16:02:39.5987180Z ✔ Test verify011JSONDepthAndValueBoundaries() passed after 8.603 seconds.
+2026-07-14T16:02:39.5987700Z ✔ Test verify001AffineTransformFrozenExamples() passed after 8.595 seconds.
+2026-07-14T16:02:39.5988270Z ✔ Test verify006FillRuleFrozenExamples() passed after 8.595 seconds.
+2026-07-14T16:02:39.5988750Z ✔ Test bezierEndpointsAndMidpoint() passed after 8.595 seconds.
+2026-07-14T16:02:39.5989300Z ✔ Test verify002BezierEvaluationFrozenExamples() passed after 8.595 seconds.
+2026-07-14T16:02:39.5989860Z ✔ Test collinearBacktrackingAndSubdivisionCountAreHonored() passed after 8.595 seconds.
+2026-07-14T16:02:39.5990480Z ✔ Test verify003BezierBoundsFrozenExamples() passed after 8.596 seconds.
+2026-07-14T16:02:39.5991060Z ✔ Test approvedImageCacheDecodesOffActorAndPublishesSnapshot() passed after 8.605 seconds.
+2026-07-14T16:02:39.5991710Z ✔ Test fixedAdversarialClassesFailSafely() passed after 8.610 seconds.
+2026-07-14T16:02:39.5992170Z ✔ Test swiftGeometryBenchmark() passed after 10.705 seconds.
+2026-07-14T16:02:39.5992700Z ✔ Test verify011SVGElementAndNodeBoundaries() passed after 13.221 seconds.
+2026-07-14T16:02:39.5993140Z ✔ Test run with 89 tests passed after 13.223 seconds.
+2026-07-14T16:02:40.5748220Z [0/1] Planning build
+2026-07-14T16:02:41.1265790Z Test Suite 'Selected tests' started at 2026-07-14 16:02:40.980.
+2026-07-14T16:02:41.1267770Z Test Suite 'VectorFoundryPackageTests.xctest' started at 2026-07-14 16:02:40.986.
+2026-07-14T16:02:41.1269580Z Test Suite 'VectorFoundryPackageTests.xctest' passed at 2026-07-14 16:02:40.986.
+2026-07-14T16:02:41.1272000Z 	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+2026-07-14T16:02:41.1273550Z Test Suite 'Selected tests' passed at 2026-07-14 16:02:40.986.
+2026-07-14T16:02:41.1274730Z 	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.006) seconds
+2026-07-14T16:02:41.1276120Z ◇ Test run started.
+2026-07-14T16:02:41.1276870Z ↳ Testing Library Version: 124.4
+2026-07-14T16:02:41.1278050Z ↳ Target Platform: arm64e-apple-macos14.0
+2026-07-14T16:02:41.1279430Z ◇ Test deterministicNativeAndSVGMutationCorpusMeetsDeadline() started.
+2026-07-14T16:02:41.1281860Z ✔ Test deterministicNativeAndSVGMutationCorpusMeetsDeadline() passed after 0.069 seconds.
+2026-07-14T16:02:41.1283270Z ✔ Test run with 1 test passed after 0.069 seconds.
+2026-07-14T16:02:41.1581420Z Post job cleanup.
+2026-07-14T16:02:41.5366310Z [command]/opt/homebrew/bin/git version
+2026-07-14T16:02:41.5619710Z git version 2.55.0
+2026-07-14T16:02:41.5659400Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/d5da3ea5-bef9-4848-9a21-58aafbf7bb95/.gitconfig'
+2026-07-14T16:02:41.5686680Z Temporarily overriding HOME='/Users/runner/work/_temp/d5da3ea5-bef9-4848-9a21-58aafbf7bb95' before making global git config changes
+2026-07-14T16:02:41.5688690Z Adding repository directory to the temporary git global config as a safe directory
+2026-07-14T16:02:41.5697920Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/OpenDraw/OpenDraw
+2026-07-14T16:02:41.6036800Z Removing SSH command configuration
+2026-07-14T16:02:41.6143880Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-07-14T16:02:41.6173490Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-07-14T16:02:41.7665120Z Removing HTTP extra header
+2026-07-14T16:02:41.7673960Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-07-14T16:02:41.7770410Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-07-14T16:02:41.8997590Z Removing includeIf entries pointing to credentials config files
+2026-07-14T16:02:41.9097570Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-07-14T16:02:41.9111790Z includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git.path
+2026-07-14T16:02:41.9112770Z includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git/worktrees/*.path
+2026-07-14T16:02:41.9113260Z includeif.gitdir:/github/workspace/.git.path
+2026-07-14T16:02:41.9113940Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-07-14T16:02:41.9116470Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git.path
+2026-07-14T16:02:41.9117610Z /Users/runner/work/_temp/git-credentials-7dc901ce-1a9e-4543-9c9f-c49dd0e4da41.config
+2026-07-14T16:02:41.9118860Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git.path /Users/runner/work/_temp/git-credentials-7dc901ce-1a9e-4543-9c9f-c49dd0e4da41.config
+2026-07-14T16:02:41.9120130Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git/worktrees/*.path
+2026-07-14T16:02:41.9179230Z /Users/runner/work/_temp/git-credentials-7dc901ce-1a9e-4543-9c9f-c49dd0e4da41.config
+2026-07-14T16:02:41.9194360Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git/worktrees/*.path /Users/runner/work/_temp/git-credentials-7dc901ce-1a9e-4543-9c9f-c49dd0e4da41.config
+2026-07-14T16:02:41.9271580Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-07-14T16:02:41.9346480Z /github/runner_temp/git-credentials-7dc901ce-1a9e-4543-9c9f-c49dd0e4da41.config
+2026-07-14T16:02:41.9361520Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-7dc901ce-1a9e-4543-9c9f-c49dd0e4da41.config
+2026-07-14T16:02:41.9444480Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-07-14T16:02:41.9503260Z /github/runner_temp/git-credentials-7dc901ce-1a9e-4543-9c9f-c49dd0e4da41.config
+2026-07-14T16:02:41.9510550Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-7dc901ce-1a9e-4543-9c9f-c49dd0e4da41.config
+2026-07-14T16:02:41.9579980Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-07-14T16:02:42.0529600Z Removing credentials config '/Users/runner/work/_temp/git-credentials-7dc901ce-1a9e-4543-9c9f-c49dd0e4da41.config'
+2026-07-14T16:02:42.0677100Z Cleaning up orphan processes

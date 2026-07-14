@@ -99,6 +99,11 @@ in runs #3/#4 and 13.049 ms in run #5, approximately 2× variation. Therefore a
 hosted-specific thresholds, or informational-only hosted ratios are not
 implemented; each remains owner-decision-only after more qualifying samples.
 
+CI #8 timing-headroom review found no gate within 10% of its absolute target:
+BENCH-1/2/2b/3 and settle retained at least 68.51% headroom, and startup p95
+retained 88.70%. No new near-boundary flap risk is recorded. The existing
+approximately 2x hosted cross-run variance warning remains in force unchanged.
+
 The qualifying manually dispatched hosted run must execute and pass all jobs
 defined by the workflow on the final revision (currently eight), including `startup-memory`,
 `nightly-reliability`, `benchmark`, and `adversarial-golden`, and retain their

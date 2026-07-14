@@ -1,0 +1,12 @@
+run_url=https://github.com/leetn9468/OpenDraw/actions/runs/29347892897
+artifact_id=8316880203
+revision=94fb0f057510639b93d9802fe93ab4aa5f0b18de model=VirtualMac2,1 chip=Apple M1 (Virtual) memory_bytes=7516192768 os=15.7.7 build=24G720 arch=arm64 swift=swift-driver version: 1.120.5 Apple Swift version 6.1.2 (swiftlang-6.1.2.1.2 clang-1700.0.13.5)
+BENCH_METADATA warmup_frames=60 measured_frames=300 production_paths=true
+BENCH-1 drag: p50 4.228 ms | p95 5.259 ms | max 6.702 ms
+BENCH-2 pan: p50 0.084 ms | p95 0.104 ms | max 0.112 ms
+BENCH-2b forced-exposure pan: p50 4.365 ms | p95 4.837 ms | max 5.426 ms
+BENCH-2b strip_redraw_frames=360 nonzero_every_frame=true
+BENCH-3 zoom: p50 2.216 ms | p95 7.867 ms | max 9.258 ms
+BENCH-3 settle: 2.622 ms
+BENCH-4 cold-open: 18.458 ms
+Warm full redraw: 3.943 ms

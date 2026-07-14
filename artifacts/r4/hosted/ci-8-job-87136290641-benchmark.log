@@ -1,0 +1,309 @@
+run_url=https://github.com/leetn9468/OpenDraw/actions/runs/29347892897
+job_id=87136290641
+﻿2026-07-14T16:02:22.9187540Z Current runner version: '2.335.1'
+2026-07-14T16:02:22.9200170Z ##[group]Runner Image Provisioner
+2026-07-14T16:02:22.9200630Z Hosted Compute Agent
+2026-07-14T16:02:22.9200960Z Version: 20260624.560
+2026-07-14T16:02:22.9201310Z Commit: 925d229a51159bc391ae97e54a2dd1fe20af789d
+2026-07-14T16:02:22.9201730Z Build Date: 2026-06-24T18:26:47Z
+2026-07-14T16:02:22.9202120Z Worker ID: {a76bf17a-8706-4d7b-96f5-37bcecc0ecb5}
+2026-07-14T16:02:22.9202530Z Azure Region: westus
+2026-07-14T16:02:22.9202850Z ##[endgroup]
+2026-07-14T16:02:22.9203570Z ##[group]Operating System
+2026-07-14T16:02:22.9203910Z macOS
+2026-07-14T16:02:22.9204200Z 15.7.7
+2026-07-14T16:02:22.9204480Z 24G720
+2026-07-14T16:02:22.9204780Z ##[endgroup]
+2026-07-14T16:02:22.9205080Z ##[group]Runner Image
+2026-07-14T16:02:22.9205420Z Image: macos-15-arm64
+2026-07-14T16:02:22.9205740Z Version: 20260706.0213.1
+2026-07-14T16:02:22.9206460Z Included Software: https://github.com/actions/runner-images/blob/macos-15-arm64/20260706.0213/images/macos/macos-15-arm64-Readme.md
+2026-07-14T16:02:22.9207380Z Image Release: https://github.com/actions/runner-images/releases/tag/macos-15-arm64%2F20260706.0213
+2026-07-14T16:02:22.9208090Z ##[endgroup]
+2026-07-14T16:02:22.9208760Z ##[group]GITHUB_TOKEN Permissions
+2026-07-14T16:02:22.9209610Z Contents: read
+2026-07-14T16:02:22.9209920Z Metadata: read
+2026-07-14T16:02:22.9210230Z Packages: read
+2026-07-14T16:02:22.9210540Z ##[endgroup]
+2026-07-14T16:02:22.9211680Z Secret source: Actions
+2026-07-14T16:02:22.9212070Z Prepare workflow directory
+2026-07-14T16:02:22.9399340Z Prepare all required actions
+2026-07-14T16:02:22.9424540Z Getting action download info
+2026-07-14T16:02:23.2183460Z Download action repository 'actions/checkout@v6' (SHA:df4cb1c069e1874edd31b4311f1884172cec0e10)
+2026-07-14T16:02:23.4797830Z Download action repository 'actions/upload-artifact@v7' (SHA:043fb46d1a93c77aae656e7c1c64a875d1fc6a0a)
+2026-07-14T16:02:23.6425360Z Complete job name: benchmark
+2026-07-14T16:02:23.6807210Z ##[group]Run actions/checkout@v6
+2026-07-14T16:02:23.6807700Z with:
+2026-07-14T16:02:23.6807990Z   repository: leetn9468/OpenDraw
+2026-07-14T16:02:23.6810550Z   token: ***
+2026-07-14T16:02:23.6810830Z   ssh-strict: true
+2026-07-14T16:02:23.6811120Z   ssh-user: git
+2026-07-14T16:02:23.6811420Z   persist-credentials: true
+2026-07-14T16:02:23.6811740Z   clean: true
+2026-07-14T16:02:23.6812030Z   sparse-checkout-cone-mode: true
+2026-07-14T16:02:23.6812370Z   fetch-depth: 1
+2026-07-14T16:02:23.6812660Z   fetch-tags: false
+2026-07-14T16:02:23.6812950Z   show-progress: true
+2026-07-14T16:02:23.6813240Z   lfs: false
+2026-07-14T16:02:23.6813520Z   submodules: false
+2026-07-14T16:02:23.6813820Z   set-safe-directory: true
+2026-07-14T16:02:23.6814230Z ##[endgroup]
+2026-07-14T16:02:24.0090550Z Syncing repository: leetn9468/OpenDraw
+2026-07-14T16:02:24.0092090Z ##[group]Getting Git version info
+2026-07-14T16:02:24.0092640Z Working directory is '/Users/runner/work/OpenDraw/OpenDraw'
+2026-07-14T16:02:24.0093550Z [command]/opt/homebrew/bin/git version
+2026-07-14T16:02:24.0334140Z git version 2.55.0
+2026-07-14T16:02:24.0349940Z ##[endgroup]
+2026-07-14T16:02:24.0356840Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/d4987b0a-2b27-4f86-bf6b-80ebd616da6f/.gitconfig'
+2026-07-14T16:02:24.0390080Z Temporarily overriding HOME='/Users/runner/work/_temp/d4987b0a-2b27-4f86-bf6b-80ebd616da6f' before making global git config changes
+2026-07-14T16:02:24.0392750Z Adding repository directory to the temporary git global config as a safe directory
+2026-07-14T16:02:24.0393870Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/OpenDraw/OpenDraw
+2026-07-14T16:02:24.0467540Z Deleting the contents of '/Users/runner/work/OpenDraw/OpenDraw'
+2026-07-14T16:02:24.0469790Z ##[group]Determining repository object format
+2026-07-14T16:02:24.0471410Z ##[endgroup]
+2026-07-14T16:02:24.0471970Z ##[group]Initializing the repository
+2026-07-14T16:02:24.0474470Z [command]/opt/homebrew/bin/git init /Users/runner/work/OpenDraw/OpenDraw
+2026-07-14T16:02:24.0652380Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-07-14T16:02:24.0653870Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-07-14T16:02:24.0654770Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-07-14T16:02:24.0656920Z hint: call:
+2026-07-14T16:02:24.0659230Z hint:
+2026-07-14T16:02:24.0661150Z hint: 	git config --global init.defaultBranch <name>
+2026-07-14T16:02:24.0661800Z hint:
+2026-07-14T16:02:24.0662320Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-07-14T16:02:24.0665010Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-07-14T16:02:24.0665770Z hint:
+2026-07-14T16:02:24.0666260Z hint: 	git branch -m <name>
+2026-07-14T16:02:24.0666630Z hint:
+2026-07-14T16:02:24.0667190Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-07-14T16:02:24.0668350Z Initialized empty Git repository in /Users/runner/work/OpenDraw/OpenDraw/.git/
+2026-07-14T16:02:24.0671140Z [command]/opt/homebrew/bin/git remote add origin https://github.com/leetn9468/OpenDraw
+2026-07-14T16:02:24.0995450Z ##[endgroup]
+2026-07-14T16:02:24.0996210Z ##[group]Disabling automatic garbage collection
+2026-07-14T16:02:24.0998460Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+2026-07-14T16:02:24.1083200Z ##[endgroup]
+2026-07-14T16:02:24.1083990Z ##[group]Setting up auth
+2026-07-14T16:02:24.1084520Z Removing SSH command configuration
+2026-07-14T16:02:24.1086720Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-07-14T16:02:24.1156000Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-07-14T16:02:24.2239360Z Removing HTTP extra header
+2026-07-14T16:02:24.2244750Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-07-14T16:02:24.2300280Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-07-14T16:02:24.3163760Z Removing includeIf entries pointing to credentials config files
+2026-07-14T16:02:24.3164540Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-07-14T16:02:24.3222640Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-07-14T16:02:24.3902330Z [command]/opt/homebrew/bin/git config --file /Users/runner/work/_temp/git-credentials-105fdca3-bfb6-4be6-af9c-791ab161db24.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-07-14T16:02:24.3954620Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git.path /Users/runner/work/_temp/git-credentials-105fdca3-bfb6-4be6-af9c-791ab161db24.config
+2026-07-14T16:02:24.4002890Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git/worktrees/*.path /Users/runner/work/_temp/git-credentials-105fdca3-bfb6-4be6-af9c-791ab161db24.config
+2026-07-14T16:02:24.4058410Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-105fdca3-bfb6-4be6-af9c-791ab161db24.config
+2026-07-14T16:02:24.4109900Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-105fdca3-bfb6-4be6-af9c-791ab161db24.config
+2026-07-14T16:02:24.4157240Z ##[endgroup]
+2026-07-14T16:02:24.4157920Z ##[group]Fetching the repository
+2026-07-14T16:02:24.4163030Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +94fb0f057510639b93d9802fe93ab4aa5f0b18de:refs/remotes/origin/remediation/pre-phase5
+2026-07-14T16:02:26.2316290Z From https://github.com/leetn9468/OpenDraw
+2026-07-14T16:02:26.2318950Z  * [new ref]         94fb0f057510639b93d9802fe93ab4aa5f0b18de -> origin/remediation/pre-phase5
+2026-07-14T16:02:26.2328180Z [command]/opt/homebrew/bin/git branch --list --remote origin/remediation/pre-phase5
+2026-07-14T16:02:26.2459810Z   origin/remediation/pre-phase5
+2026-07-14T16:02:26.2468180Z [command]/opt/homebrew/bin/git rev-parse refs/remotes/origin/remediation/pre-phase5
+2026-07-14T16:02:26.2542860Z 94fb0f057510639b93d9802fe93ab4aa5f0b18de
+2026-07-14T16:02:26.2546150Z ##[endgroup]
+2026-07-14T16:02:26.2547280Z ##[group]Determining the checkout info
+2026-07-14T16:02:26.2548630Z ##[endgroup]
+2026-07-14T16:02:26.2552850Z [command]/opt/homebrew/bin/git sparse-checkout disable
+2026-07-14T16:02:26.2642530Z [command]/opt/homebrew/bin/git config --local --unset-all extensions.worktreeConfig
+2026-07-14T16:02:26.2707390Z ##[group]Checking out the ref
+2026-07-14T16:02:26.2710400Z [command]/opt/homebrew/bin/git checkout --progress --force -B remediation/pre-phase5 refs/remotes/origin/remediation/pre-phase5
+2026-07-14T16:02:26.3026520Z Switched to a new branch 'remediation/pre-phase5'
+2026-07-14T16:02:26.3128770Z branch 'remediation/pre-phase5' set up to track 'origin/remediation/pre-phase5'.
+2026-07-14T16:02:26.3438230Z ##[endgroup]
+2026-07-14T16:02:26.3450900Z [command]/opt/homebrew/bin/git log -1 --format=%H
+2026-07-14T16:02:26.3452170Z 94fb0f057510639b93d9802fe93ab4aa5f0b18de
+2026-07-14T16:02:26.3566260Z ##[group]Run scripts/run-render-benchmark.sh benchmark.txt
+2026-07-14T16:02:26.3567230Z [36;1mscripts/run-render-benchmark.sh benchmark.txt[0m
+2026-07-14T16:02:26.3613970Z shell: /bin/bash -e {0}
+2026-07-14T16:02:26.3614510Z ##[endgroup]
+2026-07-14T16:02:44.6675810Z BENCH_METADATA warmup_frames=60 measured_frames=300 production_paths=true
+2026-07-14T16:02:44.6677920Z BENCH-1 drag: p50 4.228 ms | p95 5.259 ms | max 6.702 ms
+2026-07-14T16:02:44.6678400Z BENCH-2 pan: p50 0.084 ms | p95 0.104 ms | max 0.112 ms
+2026-07-14T16:02:44.6679040Z BENCH-2b forced-exposure pan: p50 4.365 ms | p95 4.837 ms | max 5.426 ms
+2026-07-14T16:02:44.6679600Z BENCH-2b strip_redraw_frames=360 nonzero_every_frame=true
+2026-07-14T16:02:44.6680140Z BENCH-3 zoom: p50 2.216 ms | p95 7.867 ms | max 9.258 ms
+2026-07-14T16:02:44.6680550Z BENCH-3 settle: 2.622 ms
+2026-07-14T16:02:44.6680900Z BENCH-4 cold-open: 18.458 ms
+2026-07-14T16:02:44.6681210Z Warm full redraw: 3.943 ms
+2026-07-14T16:02:44.6951750Z ##[group]Run scripts/test-benchmark-regression-gate.sh
+2026-07-14T16:02:44.6952190Z [36;1mscripts/test-benchmark-regression-gate.sh[0m
+2026-07-14T16:02:44.6999410Z shell: /bin/bash -e {0}
+2026-07-14T16:02:44.6999640Z ##[endgroup]
+2026-07-14T16:02:44.8771110Z bench1_p95 baseline_ms=5.324 observed_ms=5.300 ratio=0.995492 allowed_ratio=1.25 result=PASS
+2026-07-14T16:02:44.9130580Z bench2_p95 baseline_ms=0.109 observed_ms=0.100 ratio=0.917431 allowed_ratio=1.25 result=PASS
+2026-07-14T16:02:44.9467560Z bench2b_p95 baseline_ms=5.831 observed_ms=5.700 ratio=0.977534 allowed_ratio=1.25 result=PASS
+2026-07-14T16:02:44.9800390Z bench3_p95 baseline_ms=8.853 observed_ms=8.700 ratio=0.982718 allowed_ratio=1.25 result=PASS
+2026-07-14T16:02:45.0180540Z bench3_settle baseline_ms=2.778 observed_ms=2.700 ratio=0.971922 allowed_ratio=1.25 result=PASS
+2026-07-14T16:02:45.0624090Z bench1_p95 baseline_ms=5.324 observed_ms=6.655 ratio=1.250000 allowed_ratio=1.25 result=PASS
+2026-07-14T16:02:45.0944290Z bench2_p95 baseline_ms=0.109 observed_ms=0.13625 ratio=1.250000 allowed_ratio=1.25 result=PASS
+2026-07-14T16:02:45.1278070Z bench2b_p95 baseline_ms=5.831 observed_ms=7.28875 ratio=1.250000 allowed_ratio=1.25 result=PASS
+2026-07-14T16:02:45.1618040Z bench3_p95 baseline_ms=8.853 observed_ms=11.06625 ratio=1.250000 allowed_ratio=1.25 result=PASS
+2026-07-14T16:02:45.1958740Z bench3_settle baseline_ms=2.778 observed_ms=3.4725 ratio=1.250000 allowed_ratio=1.25 result=PASS
+2026-07-14T16:02:45.2415830Z bench1_p95 baseline_ms=5.324 observed_ms=7.000 ratio=1.314801 allowed_ratio=1.25 result=FAIL
+2026-07-14T16:02:45.2784730Z bench2_p95 baseline_ms=0.109 observed_ms=0.100 ratio=0.917431 allowed_ratio=1.25 result=PASS
+2026-07-14T16:02:45.3139350Z bench2b_p95 baseline_ms=5.831 observed_ms=5.700 ratio=0.977534 allowed_ratio=1.25 result=PASS
+2026-07-14T16:02:45.3479390Z bench3_p95 baseline_ms=8.853 observed_ms=8.700 ratio=0.982718 allowed_ratio=1.25 result=PASS
+2026-07-14T16:02:45.3819240Z bench3_settle baseline_ms=2.778 observed_ms=2.700 ratio=0.971922 allowed_ratio=1.25 result=PASS
+2026-07-14T16:02:45.4111250Z ##[group]Run set -eu
+2026-07-14T16:02:45.4111500Z [36;1mset -eu[0m
+2026-07-14T16:02:45.4111800Z [36;1mrun_url="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"[0m
+2026-07-14T16:02:45.4112160Z [36;1mvalidate_hosted_baseline() {[0m
+2026-07-14T16:02:45.4112350Z [36;1m  baseline_file=$1[0m
+2026-07-14T16:02:45.4112720Z [36;1m  data_count=$(awk -F "$(printf '\t')" '$1 !~ /^#/ && NF { count += 1 } END { print count + 0 }' "$baseline_file")[0m
+2026-07-14T16:02:45.4113090Z [36;1m  test "$data_count" -eq 5[0m
+2026-07-14T16:02:45.4113470Z [36;1m  for metric in bench1_p95 bench2_p95 bench2b_p95 bench3_p95 bench3_settle; do[0m
+2026-07-14T16:02:45.4113990Z [36;1m    metric_count=$(awk -F "$(printf '\t')" -v metric="$metric" '$1 == metric { count += 1 } END { print count + 0 }' "$baseline_file")[0m
+2026-07-14T16:02:45.4114410Z [36;1m    test "$metric_count" -eq 1[0m
+2026-07-14T16:02:45.4114600Z [36;1m  done[0m
+2026-07-14T16:02:45.4114760Z [36;1m}[0m
+2026-07-14T16:02:45.4114970Z [36;1mif [ -s "$HOSTED_BASELINE" ]; then[0m
+2026-07-14T16:02:45.4115330Z [36;1m  validate_hosted_baseline "$HOSTED_BASELINE"[0m
+2026-07-14T16:02:45.4115640Z [36;1m  ratio_status=0[0m
+2026-07-14T16:02:45.4115840Z [36;1m  scripts/check-benchmark-regression.sh \[0m
+2026-07-14T16:02:45.4116200Z [36;1m    "$HOSTED_BASELINE" benchmark.txt benchmark-ratio-body.txt || ratio_status=$?[0m
+2026-07-14T16:02:45.4116510Z [36;1m  {[0m
+2026-07-14T16:02:45.4116700Z [36;1m    printf 'mode=ENFORCE ratio_enforcement=ON\n'[0m
+2026-07-14T16:02:45.4116960Z [36;1m    printf 'baseline=%s\n' "$HOSTED_BASELINE"[0m
+2026-07-14T16:02:45.4117210Z [36;1m    printf 'run_url=%s\n' "$run_url"[0m
+2026-07-14T16:02:45.4117440Z [36;1m    cat benchmark-ratio-body.txt[0m
+2026-07-14T16:02:45.4117670Z [36;1m  } > benchmark-comparison.txt[0m
+2026-07-14T16:02:45.4117870Z [36;1m  exit "$ratio_status"[0m
+2026-07-14T16:02:45.4118060Z [36;1mfi[0m
+2026-07-14T16:02:45.4118200Z [36;1m[0m
+2026-07-14T16:02:45.4118360Z [36;1mmeasured_on=$(date -u +%Y-%m-%d)[0m
+2026-07-14T16:02:45.4118580Z [36;1mvalid_until=$(date -u -v+90d +%Y-%m-%d)[0m
+2026-07-14T16:02:45.4118800Z [36;1m{[0m
+2026-07-14T16:02:45.4119050Z [36;1m  printf '# mode=BOOTSTRAP_CANDIDATE\n'[0m
+2026-07-14T16:02:45.4119330Z [36;1m  printf '# source_commit=%s\n' "$GITHUB_SHA"[0m
+2026-07-14T16:02:45.4119600Z [36;1m  printf '# source=github-hosted-macos15-arm64\n'[0m
+2026-07-14T16:02:45.4119870Z [36;1m  printf '# runner_image=macos-15\n'[0m
+2026-07-14T16:02:45.4120110Z [36;1m  printf '# run_url=%s\n' "$run_url"[0m
+2026-07-14T16:02:45.4120370Z [36;1m  printf '# measured_on=%s\n' "$measured_on"[0m
+2026-07-14T16:02:45.4120630Z [36;1m  printf '# valid_until=%s\n' "$valid_until"[0m
+2026-07-14T16:02:45.4121020Z [36;1m  awk '/BENCH-1 drag:/ { print "bench1_p95\t" $8 "\t1.25" }' benchmark.txt[0m
+2026-07-14T16:02:45.4121390Z [36;1m  awk '/BENCH-2 pan:/ { print "bench2_p95\t" $8 "\t1.25" }' benchmark.txt[0m
+2026-07-14T16:02:45.4121820Z [36;1m  awk '/BENCH-2b forced-exposure pan:/ { print "bench2b_p95\t" $9 "\t1.25" }' benchmark.txt[0m
+2026-07-14T16:02:45.4122240Z [36;1m  awk '/BENCH-3 zoom:/ { print "bench3_p95\t" $8 "\t1.25" }' benchmark.txt[0m
+2026-07-14T16:02:45.4122630Z [36;1m  awk '/BENCH-3 settle:/ { print "bench3_settle\t" $3 "\t1.25" }' benchmark.txt[0m
+2026-07-14T16:02:45.4122950Z [36;1m} > hosted-baseline-candidate.tsv[0m
+2026-07-14T16:02:45.4123240Z [36;1mvalidate_hosted_baseline hosted-baseline-candidate.tsv[0m
+2026-07-14T16:02:45.4123640Z [36;1m{[0m
+2026-07-14T16:02:45.4123830Z [36;1m  printf 'mode=BOOTSTRAP ratio_enforcement=OFF\n'[0m
+2026-07-14T16:02:45.4124130Z [36;1m  printf 'candidate=hosted-baseline-candidate.tsv\n'[0m
+2026-07-14T16:02:45.4124500Z [36;1m  printf 'run_url=%s\n' "$run_url"[0m
+2026-07-14T16:02:45.4124860Z [36;1m  while IFS="$(printf '\t')" read -r metric observed allowed; do[0m
+2026-07-14T16:02:45.4125230Z [36;1m    case "$metric" in ''|'#'*) continue ;; esac[0m
+2026-07-14T16:02:45.4125790Z [36;1m    printf '%s baseline_ms=%s observed_ms=%s ratio=1.000000 allowed_ratio=%s result=BOOTSTRAP\n' \[0m
+2026-07-14T16:02:45.4126260Z [36;1m      "$metric" "$observed" "$observed" "$allowed"[0m
+2026-07-14T16:02:45.4126550Z [36;1m  done < hosted-baseline-candidate.tsv[0m
+2026-07-14T16:02:45.4126790Z [36;1m} > benchmark-comparison.txt[0m
+2026-07-14T16:02:45.4155770Z shell: /bin/bash -e {0}
+2026-07-14T16:02:45.4155940Z env:
+2026-07-14T16:02:45.4156170Z   HOSTED_BASELINE: benchmarks/hosted-macos15-arm64-baseline.tsv
+2026-07-14T16:02:45.4156450Z ##[endgroup]
+2026-07-14T16:02:45.4755600Z ##[group]Run actions/upload-artifact@v7
+2026-07-14T16:02:45.4755880Z with:
+2026-07-14T16:02:45.4756040Z   name: benchmark-results
+2026-07-14T16:02:45.4756230Z   path: benchmark.txt
+2026-07-14T16:02:45.4756400Z   if-no-files-found: warn
+2026-07-14T16:02:45.4756590Z   compression-level: 6
+2026-07-14T16:02:45.4756760Z   overwrite: false
+2026-07-14T16:02:45.4756930Z   include-hidden-files: false
+2026-07-14T16:02:45.4757120Z   archive: true
+2026-07-14T16:02:45.4757270Z ##[endgroup]
+2026-07-14T16:02:45.5981120Z With the provided path, there will be 1 file uploaded
+2026-07-14T16:02:45.5983410Z Artifact name is valid!
+2026-07-14T16:02:45.5983700Z Root directory input is valid!
+2026-07-14T16:02:45.8299190Z Uploading artifact: benchmark-results.zip
+2026-07-14T16:02:45.8328420Z Beginning upload of artifact content to blob storage
+2026-07-14T16:02:46.0040000Z Uploaded bytes 562
+2026-07-14T16:02:46.0434940Z Finished uploading artifact content to blob storage!
+2026-07-14T16:02:46.0436820Z SHA256 digest of uploaded artifact is dbec9f05681649ff78499914cc5da0f15cca31ed3daf462305e66b27bf6c1aa1
+2026-07-14T16:02:46.0438050Z Finalizing artifact upload
+2026-07-14T16:02:46.3623550Z Artifact benchmark-results successfully finalized. Artifact ID 8316880203
+2026-07-14T16:02:46.3624670Z Artifact benchmark-results has been successfully uploaded! Final size is 562 bytes. Artifact ID is 8316880203
+2026-07-14T16:02:46.3629870Z Artifact download URL: https://github.com/leetn9468/OpenDraw/actions/runs/29347892897/artifacts/8316880203
+2026-07-14T16:02:46.3763770Z ##[group]Run actions/upload-artifact@v7
+2026-07-14T16:02:46.3764250Z with:
+2026-07-14T16:02:46.3764560Z   name: benchmark-comparison
+2026-07-14T16:02:46.3764930Z   path: benchmark-comparison.txt
+2026-07-14T16:02:46.3765280Z   if-no-files-found: warn
+2026-07-14T16:02:46.3765590Z   compression-level: 6
+2026-07-14T16:02:46.3765950Z   overwrite: false
+2026-07-14T16:02:46.3766280Z   include-hidden-files: false
+2026-07-14T16:02:46.3766670Z   archive: true
+2026-07-14T16:02:46.3766950Z ##[endgroup]
+2026-07-14T16:02:46.4853690Z With the provided path, there will be 1 file uploaded
+2026-07-14T16:02:46.4855370Z Artifact name is valid!
+2026-07-14T16:02:46.4855710Z Root directory input is valid!
+2026-07-14T16:02:46.7220460Z Uploading artifact: benchmark-comparison.zip
+2026-07-14T16:02:46.7255370Z Beginning upload of artifact content to blob storage
+2026-07-14T16:02:46.8659820Z Uploaded bytes 396
+2026-07-14T16:02:46.9030110Z Finished uploading artifact content to blob storage!
+2026-07-14T16:02:46.9030790Z SHA256 digest of uploaded artifact is bd447393b4490f252e238cf4fb002b503880f9e4140f08217a9f07f98ddbd60f
+2026-07-14T16:02:46.9031300Z Finalizing artifact upload
+2026-07-14T16:02:47.1925070Z Artifact benchmark-comparison successfully finalized. Artifact ID 8316880628
+2026-07-14T16:02:47.1929390Z Artifact benchmark-comparison has been successfully uploaded! Final size is 396 bytes. Artifact ID is 8316880628
+2026-07-14T16:02:47.1952580Z Artifact download URL: https://github.com/leetn9468/OpenDraw/actions/runs/29347892897/artifacts/8316880628
+2026-07-14T16:02:47.4536810Z ##[group]Run actions/upload-artifact@v7
+2026-07-14T16:02:47.4537060Z with:
+2026-07-14T16:02:47.4537230Z   name: hosted-benchmark-baseline-candidate
+2026-07-14T16:02:47.4537470Z   path: hosted-baseline-candidate.tsv
+2026-07-14T16:02:47.4537690Z   if-no-files-found: warn
+2026-07-14T16:02:47.4537880Z   compression-level: 6
+2026-07-14T16:02:47.4538040Z   overwrite: false
+2026-07-14T16:02:47.4538210Z   include-hidden-files: false
+2026-07-14T16:02:47.4538400Z   archive: true
+2026-07-14T16:02:47.4538530Z ##[endgroup]
+2026-07-14T16:02:47.5534680Z With the provided path, there will be 1 file uploaded
+2026-07-14T16:02:47.5536210Z Artifact name is valid!
+2026-07-14T16:02:47.5536520Z Root directory input is valid!
+2026-07-14T16:02:47.7864370Z Uploading artifact: hosted-benchmark-baseline-candidate.zip
+2026-07-14T16:02:47.7952450Z Beginning upload of artifact content to blob storage
+2026-07-14T16:02:47.9700410Z Uploaded bytes 435
+2026-07-14T16:02:48.0115470Z Finished uploading artifact content to blob storage!
+2026-07-14T16:02:48.0117550Z SHA256 digest of uploaded artifact is 5f59f693cf64982fe1d2218a5789878cdb8f9c44c6f1661cbf32085ea4e4b538
+2026-07-14T16:02:48.0124230Z Finalizing artifact upload
+2026-07-14T16:02:48.3119820Z Artifact hosted-benchmark-baseline-candidate successfully finalized. Artifact ID 8316881233
+2026-07-14T16:02:48.3121610Z Artifact hosted-benchmark-baseline-candidate has been successfully uploaded! Final size is 435 bytes. Artifact ID is 8316881233
+2026-07-14T16:02:48.3130660Z Artifact download URL: https://github.com/leetn9468/OpenDraw/actions/runs/29347892897/artifacts/8316881233
+2026-07-14T16:02:48.3508940Z Post job cleanup.
+2026-07-14T16:02:48.4429930Z [command]/opt/homebrew/bin/git version
+2026-07-14T16:02:48.4479210Z git version 2.55.0
+2026-07-14T16:02:48.4495880Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/55303436-0a70-4059-8098-5740d6ea7c6d/.gitconfig'
+2026-07-14T16:02:48.4501630Z Temporarily overriding HOME='/Users/runner/work/_temp/55303436-0a70-4059-8098-5740d6ea7c6d' before making global git config changes
+2026-07-14T16:02:48.4502410Z Adding repository directory to the temporary git global config as a safe directory
+2026-07-14T16:02:48.4504670Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/OpenDraw/OpenDraw
+2026-07-14T16:02:48.4552620Z Removing SSH command configuration
+2026-07-14T16:02:48.4556380Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-07-14T16:02:48.4603400Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-07-14T16:02:48.5212260Z Removing HTTP extra header
+2026-07-14T16:02:48.5215650Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-07-14T16:02:48.5261570Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-07-14T16:02:48.5806590Z Removing includeIf entries pointing to credentials config files
+2026-07-14T16:02:48.5810370Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-07-14T16:02:48.5850650Z includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git.path
+2026-07-14T16:02:48.5851330Z includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git/worktrees/*.path
+2026-07-14T16:02:48.5851760Z includeif.gitdir:/github/workspace/.git.path
+2026-07-14T16:02:48.5852090Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-07-14T16:02:48.5854820Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git.path
+2026-07-14T16:02:48.5895150Z /Users/runner/work/_temp/git-credentials-105fdca3-bfb6-4be6-af9c-791ab161db24.config
+2026-07-14T16:02:48.5899910Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git.path /Users/runner/work/_temp/git-credentials-105fdca3-bfb6-4be6-af9c-791ab161db24.config
+2026-07-14T16:02:48.5946050Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git/worktrees/*.path
+2026-07-14T16:02:48.5985350Z /Users/runner/work/_temp/git-credentials-105fdca3-bfb6-4be6-af9c-791ab161db24.config
+2026-07-14T16:02:48.5989920Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git/worktrees/*.path /Users/runner/work/_temp/git-credentials-105fdca3-bfb6-4be6-af9c-791ab161db24.config
+2026-07-14T16:02:48.6034160Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-07-14T16:02:48.6072840Z /github/runner_temp/git-credentials-105fdca3-bfb6-4be6-af9c-791ab161db24.config
+2026-07-14T16:02:48.6076670Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-105fdca3-bfb6-4be6-af9c-791ab161db24.config
+2026-07-14T16:02:48.6120480Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-07-14T16:02:48.6158810Z /github/runner_temp/git-credentials-105fdca3-bfb6-4be6-af9c-791ab161db24.config
+2026-07-14T16:02:48.6162400Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-105fdca3-bfb6-4be6-af9c-791ab161db24.config
+2026-07-14T16:02:48.6208980Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-07-14T16:02:48.6792950Z Removing credentials config '/Users/runner/work/_temp/git-credentials-105fdca3-bfb6-4be6-af9c-791ab161db24.config'
+2026-07-14T16:02:48.6867250Z Cleaning up orphan processes

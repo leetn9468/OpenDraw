@@ -1,0 +1,268 @@
+run_url=https://github.com/leetn9468/OpenDraw/actions/runs/29347892897
+job_id=87136290612
+﻿2026-07-14T16:01:38.8179910Z Current runner version: '2.335.1'
+2026-07-14T16:01:38.8195470Z ##[group]Runner Image Provisioner
+2026-07-14T16:01:38.8196020Z Hosted Compute Agent
+2026-07-14T16:01:38.8196370Z Version: 20260624.560
+2026-07-14T16:01:38.8196770Z Commit: 925d229a51159bc391ae97e54a2dd1fe20af789d
+2026-07-14T16:01:38.8197230Z Build Date: 2026-06-24T18:26:47Z
+2026-07-14T16:01:38.8197670Z Worker ID: {3c6c2a1c-ed76-4b7e-a852-2e8d22212fff}
+2026-07-14T16:01:38.8198190Z Azure Region: westus
+2026-07-14T16:01:38.8198550Z ##[endgroup]
+2026-07-14T16:01:38.8199490Z ##[group]Operating System
+2026-07-14T16:01:38.8199860Z macOS
+2026-07-14T16:01:38.8200170Z 15.7.7
+2026-07-14T16:01:38.8200470Z 24G720
+2026-07-14T16:01:38.8200790Z ##[endgroup]
+2026-07-14T16:01:38.8201120Z ##[group]Runner Image
+2026-07-14T16:01:38.8201490Z Image: macos-15-arm64
+2026-07-14T16:01:38.8201840Z Version: 20260706.0213.1
+2026-07-14T16:01:38.8202820Z Included Software: https://github.com/actions/runner-images/blob/macos-15-arm64/20260706.0213/images/macos/macos-15-arm64-Readme.md
+2026-07-14T16:01:38.8203830Z Image Release: https://github.com/actions/runner-images/releases/tag/macos-15-arm64%2F20260706.0213
+2026-07-14T16:01:38.8204490Z ##[endgroup]
+2026-07-14T16:01:38.8205370Z ##[group]GITHUB_TOKEN Permissions
+2026-07-14T16:01:38.8206590Z Contents: read
+2026-07-14T16:01:38.8206960Z Metadata: read
+2026-07-14T16:01:38.8207320Z Packages: read
+2026-07-14T16:01:38.8207670Z ##[endgroup]
+2026-07-14T16:01:38.8209080Z Secret source: Actions
+2026-07-14T16:01:38.8209540Z Prepare workflow directory
+2026-07-14T16:01:38.8548270Z Prepare all required actions
+2026-07-14T16:01:38.8610010Z Getting action download info
+2026-07-14T16:01:39.1336290Z Download action repository 'actions/checkout@v6' (SHA:df4cb1c069e1874edd31b4311f1884172cec0e10)
+2026-07-14T16:01:39.4376410Z Complete job name: adversarial-golden
+2026-07-14T16:01:39.4835350Z ##[group]Run actions/checkout@v6
+2026-07-14T16:01:39.4835940Z with:
+2026-07-14T16:01:39.4836290Z   repository: leetn9468/OpenDraw
+2026-07-14T16:01:39.4839310Z   token: ***
+2026-07-14T16:01:39.4839660Z   ssh-strict: true
+2026-07-14T16:01:39.4840030Z   ssh-user: git
+2026-07-14T16:01:39.4840370Z   persist-credentials: true
+2026-07-14T16:01:39.4840790Z   clean: true
+2026-07-14T16:01:39.4841160Z   sparse-checkout-cone-mode: true
+2026-07-14T16:01:39.4858790Z   fetch-depth: 1
+2026-07-14T16:01:39.4859130Z   fetch-tags: false
+2026-07-14T16:01:39.4859450Z   show-progress: true
+2026-07-14T16:01:39.4859780Z   lfs: false
+2026-07-14T16:01:39.4860080Z   submodules: false
+2026-07-14T16:01:39.4860410Z   set-safe-directory: true
+2026-07-14T16:01:39.4861020Z ##[endgroup]
+2026-07-14T16:01:39.9884830Z Syncing repository: leetn9468/OpenDraw
+2026-07-14T16:01:39.9887090Z ##[group]Getting Git version info
+2026-07-14T16:01:39.9887960Z Working directory is '/Users/runner/work/OpenDraw/OpenDraw'
+2026-07-14T16:01:39.9889070Z [command]/opt/homebrew/bin/git version
+2026-07-14T16:01:40.0128360Z git version 2.55.0
+2026-07-14T16:01:40.0144100Z ##[endgroup]
+2026-07-14T16:01:40.0151110Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/0acae910-2710-4849-853c-32691fef88bf/.gitconfig'
+2026-07-14T16:01:40.0157510Z Temporarily overriding HOME='/Users/runner/work/_temp/0acae910-2710-4849-853c-32691fef88bf' before making global git config changes
+2026-07-14T16:01:40.0158690Z Adding repository directory to the temporary git global config as a safe directory
+2026-07-14T16:01:40.0160830Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/OpenDraw/OpenDraw
+2026-07-14T16:01:40.0260040Z Deleting the contents of '/Users/runner/work/OpenDraw/OpenDraw'
+2026-07-14T16:01:40.0263620Z ##[group]Determining repository object format
+2026-07-14T16:01:40.0264490Z ##[endgroup]
+2026-07-14T16:01:40.0265110Z ##[group]Initializing the repository
+2026-07-14T16:01:40.0268210Z [command]/opt/homebrew/bin/git init /Users/runner/work/OpenDraw/OpenDraw
+2026-07-14T16:01:40.0474920Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-07-14T16:01:40.0475900Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-07-14T16:01:40.0477290Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-07-14T16:01:40.0478000Z hint: call:
+2026-07-14T16:01:40.0478360Z hint:
+2026-07-14T16:01:40.0478850Z hint: 	git config --global init.defaultBranch <name>
+2026-07-14T16:01:40.0479390Z hint:
+2026-07-14T16:01:40.0480280Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-07-14T16:01:40.0481050Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-07-14T16:01:40.0481650Z hint:
+2026-07-14T16:01:40.0482010Z hint: 	git branch -m <name>
+2026-07-14T16:01:40.0482410Z hint:
+2026-07-14T16:01:40.0483000Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-07-14T16:01:40.0483890Z Initialized empty Git repository in /Users/runner/work/OpenDraw/OpenDraw/.git/
+2026-07-14T16:01:40.0485530Z [command]/opt/homebrew/bin/git remote add origin https://github.com/leetn9468/OpenDraw
+2026-07-14T16:01:40.0559290Z ##[endgroup]
+2026-07-14T16:01:40.0560000Z ##[group]Disabling automatic garbage collection
+2026-07-14T16:01:40.0561270Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+2026-07-14T16:01:40.0624490Z ##[endgroup]
+2026-07-14T16:01:40.0625130Z ##[group]Setting up auth
+2026-07-14T16:01:40.0628320Z Removing SSH command configuration
+2026-07-14T16:01:40.0629030Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-07-14T16:01:40.0692700Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-07-14T16:01:40.1595280Z Removing HTTP extra header
+2026-07-14T16:01:40.1599990Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-07-14T16:01:40.1654540Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-07-14T16:01:40.2313120Z Removing includeIf entries pointing to credentials config files
+2026-07-14T16:01:40.2316460Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-07-14T16:01:40.2369400Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-07-14T16:01:40.3215500Z [command]/opt/homebrew/bin/git config --file /Users/runner/work/_temp/git-credentials-af03f3b1-5055-4f53-9408-356cec6c54cb.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-07-14T16:01:40.3271270Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git.path /Users/runner/work/_temp/git-credentials-af03f3b1-5055-4f53-9408-356cec6c54cb.config
+2026-07-14T16:01:40.3324010Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git/worktrees/*.path /Users/runner/work/_temp/git-credentials-af03f3b1-5055-4f53-9408-356cec6c54cb.config
+2026-07-14T16:01:40.3373850Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-af03f3b1-5055-4f53-9408-356cec6c54cb.config
+2026-07-14T16:01:40.3429980Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-af03f3b1-5055-4f53-9408-356cec6c54cb.config
+2026-07-14T16:01:40.3484800Z ##[endgroup]
+2026-07-14T16:01:40.3485470Z ##[group]Fetching the repository
+2026-07-14T16:01:40.3490040Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +94fb0f057510639b93d9802fe93ab4aa5f0b18de:refs/remotes/origin/remediation/pre-phase5
+2026-07-14T16:01:41.1347170Z From https://github.com/leetn9468/OpenDraw
+2026-07-14T16:01:41.1349750Z  * [new ref]         94fb0f057510639b93d9802fe93ab4aa5f0b18de -> origin/remediation/pre-phase5
+2026-07-14T16:01:41.1352040Z [command]/opt/homebrew/bin/git branch --list --remote origin/remediation/pre-phase5
+2026-07-14T16:01:41.1405870Z   origin/remediation/pre-phase5
+2026-07-14T16:01:41.1411520Z [command]/opt/homebrew/bin/git rev-parse refs/remotes/origin/remediation/pre-phase5
+2026-07-14T16:01:41.1455790Z 94fb0f057510639b93d9802fe93ab4aa5f0b18de
+2026-07-14T16:01:41.1457980Z ##[endgroup]
+2026-07-14T16:01:41.1458810Z ##[group]Determining the checkout info
+2026-07-14T16:01:41.1459760Z ##[endgroup]
+2026-07-14T16:01:41.1461110Z [command]/opt/homebrew/bin/git sparse-checkout disable
+2026-07-14T16:01:41.1520550Z [command]/opt/homebrew/bin/git config --local --unset-all extensions.worktreeConfig
+2026-07-14T16:01:41.1566280Z ##[group]Checking out the ref
+2026-07-14T16:01:41.1567960Z [command]/opt/homebrew/bin/git checkout --progress --force -B remediation/pre-phase5 refs/remotes/origin/remediation/pre-phase5
+2026-07-14T16:01:41.1813760Z Switched to a new branch 'remediation/pre-phase5'
+2026-07-14T16:01:41.1821690Z branch 'remediation/pre-phase5' set up to track 'origin/remediation/pre-phase5'.
+2026-07-14T16:01:41.1826170Z ##[endgroup]
+2026-07-14T16:01:41.1900300Z [command]/opt/homebrew/bin/git log -1 --format=%H
+2026-07-14T16:01:41.1963970Z 94fb0f057510639b93d9802fe93ab4aa5f0b18de
+2026-07-14T16:01:41.2164420Z ##[group]Run swift test --filter 'deterministicNativeAndSVG|fixedAdversarial|compositeSceneMatchesProjectGolden'
+2026-07-14T16:01:41.2166870Z [36;1mswift test --filter 'deterministicNativeAndSVG|fixedAdversarial|compositeSceneMatchesProjectGolden'[0m
+2026-07-14T16:01:41.2205280Z shell: /bin/bash -e {0}
+2026-07-14T16:01:41.2206060Z ##[endgroup]
+2026-07-14T16:01:46.6354310Z Building for debugging...
+2026-07-14T16:01:46.6426040Z [0/36] /Users/runner/work/OpenDraw/OpenDraw/.build/arm64-apple-macosx/debug/VectorFoundryPackageTests.derived/runner.swift
+2026-07-14T16:01:46.6457460Z [1/36] Write sources
+2026-07-14T16:01:46.6484260Z [3/36] Write VectorFoundry-entitlement.plist
+2026-07-14T16:01:46.6485490Z [4/36] Write sources
+2026-07-14T16:01:46.6486210Z [5/36] Copying Fixtures
+2026-07-14T16:01:46.6489340Z [5/36] Write sources
+2026-07-14T16:01:46.6490240Z [8/36] Write RenderBenchmark-entitlement.plist
+2026-07-14T16:01:46.6491450Z [8/36] Write R4GateHarness-entitlement.plist
+2026-07-14T16:01:46.6492570Z [8/36] Write sources
+2026-07-14T16:01:46.8367580Z [24/36] Write swift-version--79AA4F9932D1E87A.txt
+2026-07-14T16:01:54.5984240Z [26/39] Compiling EditorCore CoreTypes.swift
+2026-07-14T16:01:54.5985530Z [27/39] Emitting module EditorCore
+2026-07-14T16:01:54.5993680Z [28/39] Compiling EditorCore Diagnostics.swift
+2026-07-14T16:01:56.2575920Z [29/43] Compiling Geometry Geometry.swift
+2026-07-14T16:01:56.2650610Z [30/43] Emitting module Geometry
+2026-07-14T16:01:57.9291720Z [31/50] Emitting module TextEngine
+2026-07-14T16:01:57.9394990Z [32/50] Compiling TextEngine TextShaper.swift
+2026-07-14T16:02:01.0711160Z [33/52] Emitting module GeometryTests
+2026-07-14T16:02:01.0810190Z [34/52] Compiling GeometryTests AffineTransformVerifyTests.swift
+2026-07-14T16:02:01.0913640Z [35/52] Compiling GeometryTests BezierBoundsVerifyTests.swift
+2026-07-14T16:02:01.1018990Z [36/52] Compiling GeometryTests BezierEvaluationVerifyTests.swift
+2026-07-14T16:02:01.1121580Z [37/52] Compiling GeometryTests FillRuleVerifyTests.swift
+2026-07-14T16:02:02.3038730Z [38/53] Emitting module DocumentModel
+2026-07-14T16:02:02.3143680Z [39/53] Compiling DocumentModel Document.swift
+2026-07-14T16:02:02.4420870Z [40/53] Compiling GeometryTests GeometryTests.swift
+2026-07-14T16:02:02.9077640Z [41/58] Compiling MacPlatform BackingScale.swift
+2026-07-14T16:02:02.9180160Z [42/58] Emitting module MacPlatform
+2026-07-14T16:02:03.6376760Z [43/65] Compiling EditorCommands AlignmentCommands.swift
+2026-07-14T16:02:03.6579700Z [44/66] Emitting module TextEngineTests
+2026-07-14T16:02:03.6679860Z [45/66] Compiling TextEngineTests TextEngineTests.swift
+2026-07-14T16:02:04.4077440Z [46/69] Compiling EditorCommands CommandHistory.swift
+2026-07-14T16:02:04.4184040Z [47/69] Emitting module EditorCommands
+2026-07-14T16:02:04.7771700Z [48/69] Compiling EditorCommands SceneCommands.swift
+2026-07-14T16:02:05.1302080Z [49/74] Compiling CanvasRender SceneBitmapCache.swift
+2026-07-14T16:02:05.6221510Z [50/75] Compiling EditorTools CreationTools.swift
+2026-07-14T16:02:05.6330720Z [51/75] Compiling DocumentFormats ApprovedImages.swift
+2026-07-14T16:02:05.6432170Z [52/75] Compiling DocumentFormats DurablePersistence.swift
+2026-07-14T16:02:05.6540000Z [53/75] Compiling EditorTools SelectionTool.swift
+2026-07-14T16:02:05.6641530Z [54/75] Compiling EditorTools SpatialIndex.swift
+2026-07-14T16:02:05.6762670Z [55/75] Compiling EditorTools AccessibilityTree.swift
+2026-07-14T16:02:05.6865670Z [56/75] Emitting module DocumentFormats
+2026-07-14T16:02:05.6968160Z [57/78] Compiling CanvasRender CoreGraphicsRenderer.swift
+2026-07-14T16:02:05.7071130Z [58/78] Emitting module CanvasRender
+2026-07-14T16:02:05.8813990Z [59/78] Compiling CanvasRender ViewportStripCache.swift
+2026-07-14T16:02:06.2713640Z [60/85] Emitting module EditorTools
+2026-07-14T16:02:06.2814420Z [61/85] Compiling DocumentModelTests NestedTranslationVerifyTests.swift
+2026-07-14T16:02:06.2915080Z [62/85] Compiling DocumentModelTests DirectAnchorVerifyTests.swift
+2026-07-14T16:02:06.3032260Z [63/85] Compiling DocumentModelTests DocumentTransformVerifyTests.swift
+2026-07-14T16:02:06.3129650Z [64/85] Compiling DocumentModelTests GroupBoundsVerifyTests.swift
+2026-07-14T16:02:06.8258640Z [65/86] Compiling EditorTools TransformInteractions.swift
+2026-07-14T16:02:07.9233520Z [66/88] Emitting module RenderBenchmark
+2026-07-14T16:02:07.9335990Z [67/88] Compiling RenderBenchmark main.swift
+2026-07-14T16:02:08.3453090Z [68/91] Compiling DocumentFormats SVGExporter.swift
+2026-07-14T16:02:08.3554250Z [69/91] Compiling DocumentFormats SVGImporter.swift
+2026-07-14T16:02:08.3656050Z [70/91] Compiling DocumentFormats SVGLengthParser.swift
+2026-07-14T16:02:08.9687860Z [71/94] Emitting module EditorToolsTests
+2026-07-14T16:02:09.9988730Z [72/94] Emitting module DocumentModelTests
+2026-07-14T16:02:10.7424360Z [73/97] Compiling CanvasRenderTests GoldenRenderingTests.swift
+2026-07-14T16:02:11.3831780Z [74/97] Compiling CanvasRenderTests CanvasRenderTests.swift
+2026-07-14T16:02:11.3935730Z [75/97] Emitting module CanvasRenderTests
+2026-07-14T16:02:11.8769410Z [80/99] Compiling DocumentModelTests DocumentLimitsVerifyTests.swift
+2026-07-14T16:02:11.8874830Z [81/99] Compiling DocumentModelTests DocumentModelTests.swift
+2026-07-14T16:02:11.8976580Z [82/99] Compiling DocumentModelTests PixelOverflowVerifyTests.swift
+2026-07-14T16:02:11.9080040Z [83/99] Compiling DocumentModelTests StrictValidationTests.swift
+2026-07-14T16:02:11.9183510Z [84/99] Compiling DocumentModelTests VisualBoundsVerifyTests.swift
+2026-07-14T16:02:12.8458460Z [85/101] Compiling EditorToolsTests EditorToolsTests.swift
+2026-07-14T16:02:12.8561500Z [86/101] Compiling EditorToolsTests AccessibilityTests.swift
+2026-07-14T16:02:13.0170640Z [87/101] Emitting module R4GateHarness
+2026-07-14T16:02:13.0271750Z [88/101] Compiling R4GateHarness main.swift
+2026-07-14T16:02:13.0373760Z [88/101] Write Objects.LinkFileList
+2026-07-14T16:02:14.1311570Z [91/108] Emitting module DocumentFormatsTests
+2026-07-14T16:02:14.2121290Z [91/111] Linking RenderBenchmark
+2026-07-14T16:02:14.9241690Z [92/111] Linking R4GateHarness
+2026-07-14T16:02:14.9680430Z [93/111] Applying RenderBenchmark
+2026-07-14T16:02:15.0077810Z [94/111] Applying R4GateHarness
+2026-07-14T16:02:16.2257520Z [96/111] Compiling DocumentFormatsTests SceneMigrationTests.swift
+2026-07-14T16:02:16.2357720Z [97/111] Compiling DocumentFormatsTests UIJourneyTests.swift
+2026-07-14T16:02:16.2459200Z [98/111] Compiling DocumentFormatsTests resource_bundle_accessor.swift
+2026-07-14T16:02:16.6312350Z [99/111] Compiling DocumentFormatsTests DurablePersistenceTests.swift
+2026-07-14T16:02:16.6419100Z [100/111] Compiling DocumentFormatsTests InputLimitsVerifyTests.swift
+2026-07-14T16:02:16.6518370Z [101/111] Compiling DocumentFormatsTests SVGLengthVerifyTests.swift
+2026-07-14T16:02:16.7521720Z [102/111] Compiling VectorFoundryApp main.swift
+2026-07-14T16:02:16.7626480Z [103/111] Emitting module VectorFoundryApp
+2026-07-14T16:02:16.8030600Z [103/111] Write Objects.LinkFileList
+2026-07-14T16:02:16.8415950Z [105/111] Compiling DocumentFormatsTests AdversarialCorpusTests.swift
+2026-07-14T16:02:16.8482790Z [106/111] Compiling DocumentFormatsTests ApprovedImageCacheVerifyTests.swift
+2026-07-14T16:02:16.8548860Z [107/111] Compiling DocumentFormatsTests DocumentFormatsTests.swift
+2026-07-14T16:02:17.5427620Z [107/113] Linking VectorFoundry
+2026-07-14T16:02:17.5653700Z [108/113] Applying VectorFoundry
+2026-07-14T16:02:19.1369150Z [110/113] Emitting module VectorFoundryPackageTests
+2026-07-14T16:02:19.1472230Z [111/113] Compiling VectorFoundryPackageTests runner.swift
+2026-07-14T16:02:19.1574420Z [111/113] Write Objects.LinkFileList
+2026-07-14T16:02:19.8894310Z [112/113] Linking VectorFoundryPackageTests
+2026-07-14T16:02:19.8939250Z Build complete! (33.37s)
+2026-07-14T16:02:20.6744850Z Test Suite 'Selected tests' started at 2026-07-14 16:02:20.563.
+2026-07-14T16:02:20.6751770Z Test Suite 'VectorFoundryPackageTests.xctest' started at 2026-07-14 16:02:20.566.
+2026-07-14T16:02:20.6752680Z Test Suite 'VectorFoundryPackageTests.xctest' passed at 2026-07-14 16:02:20.566.
+2026-07-14T16:02:20.6761250Z 	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+2026-07-14T16:02:20.6763570Z Test Suite 'Selected tests' passed at 2026-07-14 16:02:20.566.
+2026-07-14T16:02:20.6764260Z 	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.002) seconds
+2026-07-14T16:02:20.6773880Z ◇ Test run started.
+2026-07-14T16:02:20.6775140Z ↳ Testing Library Version: 124.4
+2026-07-14T16:02:20.6777940Z ↳ Target Platform: arm64e-apple-macos14.0
+2026-07-14T16:02:20.6780440Z ◇ Test fixedAdversarialClassesFailSafely() started.
+2026-07-14T16:02:20.6781210Z ◇ Test compositeSceneMatchesProjectGoldenWithExplicitTolerance() started.
+2026-07-14T16:02:20.6786110Z ◇ Test deterministicNativeAndSVGMutationCorpusMeetsDeadline() started.
+2026-07-14T16:02:20.6787930Z ✔ Test fixedAdversarialClassesFailSafely() passed after 0.005 seconds.
+2026-07-14T16:02:20.6791130Z ✔ Test deterministicNativeAndSVGMutationCorpusMeetsDeadline() passed after 0.062 seconds.
+2026-07-14T16:02:20.6792640Z ✔ Test compositeSceneMatchesProjectGoldenWithExplicitTolerance() passed after 0.066 seconds.
+2026-07-14T16:02:20.6795180Z ✔ Test run with 3 tests passed after 0.067 seconds.
+2026-07-14T16:02:20.7164250Z Post job cleanup.
+2026-07-14T16:02:21.2083540Z [command]/opt/homebrew/bin/git version
+2026-07-14T16:02:21.2421380Z git version 2.55.0
+2026-07-14T16:02:21.2536490Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/cbf2ad72-9361-400d-8d8a-03ceb61a405d/.gitconfig'
+2026-07-14T16:02:21.2538940Z Temporarily overriding HOME='/Users/runner/work/_temp/cbf2ad72-9361-400d-8d8a-03ceb61a405d' before making global git config changes
+2026-07-14T16:02:21.2541530Z Adding repository directory to the temporary git global config as a safe directory
+2026-07-14T16:02:21.2543050Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/OpenDraw/OpenDraw
+2026-07-14T16:02:21.2715530Z Removing SSH command configuration
+2026-07-14T16:02:21.2720860Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-07-14T16:02:21.2928290Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-07-14T16:02:21.4966470Z Removing HTTP extra header
+2026-07-14T16:02:21.5048480Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-07-14T16:02:21.5101890Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-07-14T16:02:21.6589990Z Removing includeIf entries pointing to credentials config files
+2026-07-14T16:02:21.6681040Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-07-14T16:02:21.6781020Z includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git.path
+2026-07-14T16:02:21.6852350Z includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git/worktrees/*.path
+2026-07-14T16:02:21.6853100Z includeif.gitdir:/github/workspace/.git.path
+2026-07-14T16:02:21.6853860Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-07-14T16:02:21.6856340Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git.path
+2026-07-14T16:02:21.6858010Z /Users/runner/work/_temp/git-credentials-af03f3b1-5055-4f53-9408-356cec6c54cb.config
+2026-07-14T16:02:21.6859670Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git.path /Users/runner/work/_temp/git-credentials-af03f3b1-5055-4f53-9408-356cec6c54cb.config
+2026-07-14T16:02:21.6861370Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git/worktrees/*.path
+2026-07-14T16:02:21.6862940Z /Users/runner/work/_temp/git-credentials-af03f3b1-5055-4f53-9408-356cec6c54cb.config
+2026-07-14T16:02:21.6868330Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git/worktrees/*.path /Users/runner/work/_temp/git-credentials-af03f3b1-5055-4f53-9408-356cec6c54cb.config
+2026-07-14T16:02:21.6880160Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-07-14T16:02:21.6936240Z /github/runner_temp/git-credentials-af03f3b1-5055-4f53-9408-356cec6c54cb.config
+2026-07-14T16:02:21.6948120Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-af03f3b1-5055-4f53-9408-356cec6c54cb.config
+2026-07-14T16:02:21.7015210Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-07-14T16:02:21.7076460Z /github/runner_temp/git-credentials-af03f3b1-5055-4f53-9408-356cec6c54cb.config
+2026-07-14T16:02:21.7101530Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-af03f3b1-5055-4f53-9408-356cec6c54cb.config
+2026-07-14T16:02:21.7206370Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-07-14T16:02:21.8981130Z Removing credentials config '/Users/runner/work/_temp/git-credentials-af03f3b1-5055-4f53-9408-356cec6c54cb.config'
+2026-07-14T16:02:21.9182760Z Cleaning up orphan processes

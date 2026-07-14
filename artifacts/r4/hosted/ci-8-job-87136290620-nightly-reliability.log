@@ -1,0 +1,181 @@
+run_url=https://github.com/leetn9468/OpenDraw/actions/runs/29347892897
+job_id=87136290620
+﻿2026-07-14T16:01:37.7198040Z Current runner version: '2.335.1'
+2026-07-14T16:01:37.7213010Z ##[group]Runner Image Provisioner
+2026-07-14T16:01:37.7213500Z Hosted Compute Agent
+2026-07-14T16:01:37.7213860Z Version: 20260624.560
+2026-07-14T16:01:37.7214230Z Commit: 925d229a51159bc391ae97e54a2dd1fe20af789d
+2026-07-14T16:01:37.7214660Z Build Date: 2026-06-24T18:26:47Z
+2026-07-14T16:01:37.7215090Z Worker ID: {8d5bd898-8e11-4ad8-b88d-246fe3be8e06}
+2026-07-14T16:01:37.7215710Z Azure Region: westus
+2026-07-14T16:01:37.7216060Z ##[endgroup]
+2026-07-14T16:01:37.7217300Z ##[group]Operating System
+2026-07-14T16:01:37.7217710Z macOS
+2026-07-14T16:01:37.7218020Z 15.7.7
+2026-07-14T16:01:37.7218320Z 24G720
+2026-07-14T16:01:37.7218640Z ##[endgroup]
+2026-07-14T16:01:37.7218970Z ##[group]Runner Image
+2026-07-14T16:01:37.7219350Z Image: macos-15-arm64
+2026-07-14T16:01:37.7219690Z Version: 20260706.0213.1
+2026-07-14T16:01:37.7220470Z Included Software: https://github.com/actions/runner-images/blob/macos-15-arm64/20260706.0213/images/macos/macos-15-arm64-Readme.md
+2026-07-14T16:01:37.7221430Z Image Release: https://github.com/actions/runner-images/releases/tag/macos-15-arm64%2F20260706.0213
+2026-07-14T16:01:37.7222050Z ##[endgroup]
+2026-07-14T16:01:37.7222780Z ##[group]GITHUB_TOKEN Permissions
+2026-07-14T16:01:37.7223870Z Contents: read
+2026-07-14T16:01:37.7224230Z Metadata: read
+2026-07-14T16:01:37.7224570Z Packages: read
+2026-07-14T16:01:37.7224920Z ##[endgroup]
+2026-07-14T16:01:37.7226210Z Secret source: Actions
+2026-07-14T16:01:37.7226660Z Prepare workflow directory
+2026-07-14T16:01:37.7421400Z Prepare all required actions
+2026-07-14T16:01:37.7445950Z Getting action download info
+2026-07-14T16:01:37.9153560Z Download action repository 'actions/checkout@v6' (SHA:df4cb1c069e1874edd31b4311f1884172cec0e10)
+2026-07-14T16:01:38.1281720Z Download action repository 'actions/upload-artifact@v7' (SHA:043fb46d1a93c77aae656e7c1c64a875d1fc6a0a)
+2026-07-14T16:01:38.2684640Z Complete job name: nightly-reliability
+2026-07-14T16:01:38.3070590Z ##[group]Run actions/checkout@v6
+2026-07-14T16:01:38.3071160Z with:
+2026-07-14T16:01:38.3071460Z   repository: leetn9468/OpenDraw
+2026-07-14T16:01:38.3073990Z   token: ***
+2026-07-14T16:01:38.3074280Z   ssh-strict: true
+2026-07-14T16:01:38.3074570Z   ssh-user: git
+2026-07-14T16:01:38.3074870Z   persist-credentials: true
+2026-07-14T16:01:38.3075200Z   clean: true
+2026-07-14T16:01:38.3075490Z   sparse-checkout-cone-mode: true
+2026-07-14T16:01:38.3075840Z   fetch-depth: 1
+2026-07-14T16:01:38.3076130Z   fetch-tags: false
+2026-07-14T16:01:38.3076430Z   show-progress: true
+2026-07-14T16:01:38.3076720Z   lfs: false
+2026-07-14T16:01:38.3077000Z   submodules: false
+2026-07-14T16:01:38.3077300Z   set-safe-directory: true
+2026-07-14T16:01:38.3077720Z ##[endgroup]
+2026-07-14T16:01:38.6340530Z Syncing repository: leetn9468/OpenDraw
+2026-07-14T16:01:38.6342030Z ##[group]Getting Git version info
+2026-07-14T16:01:38.6342610Z Working directory is '/Users/runner/work/OpenDraw/OpenDraw'
+2026-07-14T16:01:38.6364480Z [command]/opt/homebrew/bin/git version
+2026-07-14T16:01:38.6811120Z git version 2.55.0
+2026-07-14T16:01:38.6896300Z ##[endgroup]
+2026-07-14T16:01:38.6912530Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/249c720d-5a36-4fe6-bcd9-53b1ae2e5da8/.gitconfig'
+2026-07-14T16:01:38.6919960Z Temporarily overriding HOME='/Users/runner/work/_temp/249c720d-5a36-4fe6-bcd9-53b1ae2e5da8' before making global git config changes
+2026-07-14T16:01:38.6923420Z Adding repository directory to the temporary git global config as a safe directory
+2026-07-14T16:01:38.6926410Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/OpenDraw/OpenDraw
+2026-07-14T16:01:38.6982170Z Deleting the contents of '/Users/runner/work/OpenDraw/OpenDraw'
+2026-07-14T16:01:38.6993660Z ##[group]Determining repository object format
+2026-07-14T16:01:38.7001200Z ##[endgroup]
+2026-07-14T16:01:38.7002350Z ##[group]Initializing the repository
+2026-07-14T16:01:38.7005780Z [command]/opt/homebrew/bin/git init /Users/runner/work/OpenDraw/OpenDraw
+2026-07-14T16:01:38.7341670Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-07-14T16:01:38.7344900Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-07-14T16:01:38.7346600Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-07-14T16:01:38.7348310Z hint: call:
+2026-07-14T16:01:38.7348710Z hint:
+2026-07-14T16:01:38.7349230Z hint: 	git config --global init.defaultBranch <name>
+2026-07-14T16:01:38.7349750Z hint:
+2026-07-14T16:01:38.7350390Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-07-14T16:01:38.7351540Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-07-14T16:01:38.7352220Z hint:
+2026-07-14T16:01:38.7352630Z hint: 	git branch -m <name>
+2026-07-14T16:01:38.7353090Z hint:
+2026-07-14T16:01:38.7353560Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-07-14T16:01:38.7354530Z Initialized empty Git repository in /Users/runner/work/OpenDraw/OpenDraw/.git/
+2026-07-14T16:01:38.7358570Z [command]/opt/homebrew/bin/git remote add origin https://github.com/leetn9468/OpenDraw
+2026-07-14T16:01:38.7464990Z ##[endgroup]
+2026-07-14T16:01:38.7473110Z ##[group]Disabling automatic garbage collection
+2026-07-14T16:01:38.7475100Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+2026-07-14T16:01:38.7576130Z ##[endgroup]
+2026-07-14T16:01:38.7577040Z ##[group]Setting up auth
+2026-07-14T16:01:38.7578940Z Removing SSH command configuration
+2026-07-14T16:01:38.7581130Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-07-14T16:01:38.7740830Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-07-14T16:01:38.9002950Z Removing HTTP extra header
+2026-07-14T16:01:38.9007650Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-07-14T16:01:38.9131360Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-07-14T16:01:39.0012640Z Removing includeIf entries pointing to credentials config files
+2026-07-14T16:01:39.0013750Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-07-14T16:01:39.0066350Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-07-14T16:01:39.0875530Z [command]/opt/homebrew/bin/git config --file /Users/runner/work/_temp/git-credentials-deac4223-8650-44d5-a215-5f0f00d4d50c.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-07-14T16:01:39.0936390Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git.path /Users/runner/work/_temp/git-credentials-deac4223-8650-44d5-a215-5f0f00d4d50c.config
+2026-07-14T16:01:39.0993370Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git/worktrees/*.path /Users/runner/work/_temp/git-credentials-deac4223-8650-44d5-a215-5f0f00d4d50c.config
+2026-07-14T16:01:39.1051430Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-deac4223-8650-44d5-a215-5f0f00d4d50c.config
+2026-07-14T16:01:39.1110410Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-deac4223-8650-44d5-a215-5f0f00d4d50c.config
+2026-07-14T16:01:39.1164830Z ##[endgroup]
+2026-07-14T16:01:39.1165450Z ##[group]Fetching the repository
+2026-07-14T16:01:39.1170020Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +94fb0f057510639b93d9802fe93ab4aa5f0b18de:refs/remotes/origin/remediation/pre-phase5
+2026-07-14T16:01:40.1277970Z From https://github.com/leetn9468/OpenDraw
+2026-07-14T16:01:40.1279180Z  * [new ref]         94fb0f057510639b93d9802fe93ab4aa5f0b18de -> origin/remediation/pre-phase5
+2026-07-14T16:01:40.1284240Z [command]/opt/homebrew/bin/git branch --list --remote origin/remediation/pre-phase5
+2026-07-14T16:01:40.1365090Z   origin/remediation/pre-phase5
+2026-07-14T16:01:40.1370740Z [command]/opt/homebrew/bin/git rev-parse refs/remotes/origin/remediation/pre-phase5
+2026-07-14T16:01:40.1424100Z 94fb0f057510639b93d9802fe93ab4aa5f0b18de
+2026-07-14T16:01:40.1426040Z ##[endgroup]
+2026-07-14T16:01:40.1426840Z ##[group]Determining the checkout info
+2026-07-14T16:01:40.1442990Z ##[endgroup]
+2026-07-14T16:01:40.1443580Z [command]/opt/homebrew/bin/git sparse-checkout disable
+2026-07-14T16:01:40.1512190Z [command]/opt/homebrew/bin/git config --local --unset-all extensions.worktreeConfig
+2026-07-14T16:01:40.1583280Z ##[group]Checking out the ref
+2026-07-14T16:01:40.1589280Z [command]/opt/homebrew/bin/git checkout --progress --force -B remediation/pre-phase5 refs/remotes/origin/remediation/pre-phase5
+2026-07-14T16:01:40.1949600Z Switched to a new branch 'remediation/pre-phase5'
+2026-07-14T16:01:40.1958130Z branch 'remediation/pre-phase5' set up to track 'origin/remediation/pre-phase5'.
+2026-07-14T16:01:40.2041430Z ##[endgroup]
+2026-07-14T16:01:40.2043020Z [command]/opt/homebrew/bin/git log -1 --format=%H
+2026-07-14T16:01:40.2103220Z 94fb0f057510639b93d9802fe93ab4aa5f0b18de
+2026-07-14T16:01:40.2264670Z ##[group]Run scripts/nightly-reliability.sh artifacts/r4/reliability-100x100.txt
+2026-07-14T16:01:40.2266130Z [36;1mscripts/nightly-reliability.sh artifacts/r4/reliability-100x100.txt[0m
+2026-07-14T16:01:40.2306130Z shell: /bin/bash -e {0}
+2026-07-14T16:01:40.2306660Z ##[endgroup]
+2026-07-14T16:02:12.8042330Z summary launches=100 distinct_pids=100 round_trips=10000 crashes=0 nonzero_exits=0 timeouts=0 corruption_failures=0 wall_clock_seconds=5 result=PASS
+2026-07-14T16:02:12.8401270Z ##[group]Run actions/upload-artifact@v7
+2026-07-14T16:02:12.8401690Z with:
+2026-07-14T16:02:12.8401920Z   name: reliability-100x100
+2026-07-14T16:02:12.8402260Z   path: artifacts/r4/reliability-100x100.txt
+2026-07-14T16:02:12.8402560Z   if-no-files-found: warn
+2026-07-14T16:02:12.8402860Z   compression-level: 6
+2026-07-14T16:02:12.8403110Z   overwrite: false
+2026-07-14T16:02:12.8403410Z   include-hidden-files: false
+2026-07-14T16:02:12.8403670Z   archive: true
+2026-07-14T16:02:12.8403960Z ##[endgroup]
+2026-07-14T16:02:13.1739770Z With the provided path, there will be 1 file uploaded
+2026-07-14T16:02:13.1742300Z Artifact name is valid!
+2026-07-14T16:02:13.1744050Z Root directory input is valid!
+2026-07-14T16:02:13.3031770Z Uploading artifact: reliability-100x100.zip
+2026-07-14T16:02:13.3064150Z Beginning upload of artifact content to blob storage
+2026-07-14T16:02:13.3803850Z Uploaded bytes 1769
+2026-07-14T16:02:13.3996070Z Finished uploading artifact content to blob storage!
+2026-07-14T16:02:13.3997750Z SHA256 digest of uploaded artifact is 2c3e1fa473861bf6aaa1cc94b76e0b871c9806957692ec753ed67ae7d3e9cb1f
+2026-07-14T16:02:13.3999040Z Finalizing artifact upload
+2026-07-14T16:02:13.6233090Z Artifact reliability-100x100 successfully finalized. Artifact ID 8316864146
+2026-07-14T16:02:13.6250930Z Artifact reliability-100x100 has been successfully uploaded! Final size is 1769 bytes. Artifact ID is 8316864146
+2026-07-14T16:02:13.6252490Z Artifact download URL: https://github.com/leetn9468/OpenDraw/actions/runs/29347892897/artifacts/8316864146
+2026-07-14T16:02:13.6368060Z Post job cleanup.
+2026-07-14T16:02:13.7368650Z [command]/opt/homebrew/bin/git version
+2026-07-14T16:02:13.7434530Z git version 2.55.0
+2026-07-14T16:02:13.7454160Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/e83c0aee-a2b9-4033-b534-bd701359440a/.gitconfig'
+2026-07-14T16:02:13.7463090Z Temporarily overriding HOME='/Users/runner/work/_temp/e83c0aee-a2b9-4033-b534-bd701359440a' before making global git config changes
+2026-07-14T16:02:13.7470650Z Adding repository directory to the temporary git global config as a safe directory
+2026-07-14T16:02:13.7471270Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/OpenDraw/OpenDraw
+2026-07-14T16:02:13.7593110Z Removing SSH command configuration
+2026-07-14T16:02:13.7602600Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-07-14T16:02:13.7668150Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-07-14T16:02:13.8496320Z Removing HTTP extra header
+2026-07-14T16:02:13.8500180Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-07-14T16:02:13.8558910Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-07-14T16:02:13.9252330Z Removing includeIf entries pointing to credentials config files
+2026-07-14T16:02:13.9256770Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-07-14T16:02:13.9319220Z includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git.path
+2026-07-14T16:02:13.9319820Z includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git/worktrees/*.path
+2026-07-14T16:02:13.9320460Z includeif.gitdir:/github/workspace/.git.path
+2026-07-14T16:02:13.9320810Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-07-14T16:02:13.9332690Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git.path
+2026-07-14T16:02:13.9401170Z /Users/runner/work/_temp/git-credentials-deac4223-8650-44d5-a215-5f0f00d4d50c.config
+2026-07-14T16:02:13.9429590Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git.path /Users/runner/work/_temp/git-credentials-deac4223-8650-44d5-a215-5f0f00d4d50c.config
+2026-07-14T16:02:13.9473880Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git/worktrees/*.path
+2026-07-14T16:02:13.9603480Z /Users/runner/work/_temp/git-credentials-deac4223-8650-44d5-a215-5f0f00d4d50c.config
+2026-07-14T16:02:13.9668580Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/Users/runner/work/OpenDraw/OpenDraw/.git/worktrees/*.path /Users/runner/work/_temp/git-credentials-deac4223-8650-44d5-a215-5f0f00d4d50c.config
+2026-07-14T16:02:13.9733820Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-07-14T16:02:13.9789140Z /github/runner_temp/git-credentials-deac4223-8650-44d5-a215-5f0f00d4d50c.config
+2026-07-14T16:02:13.9793330Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-deac4223-8650-44d5-a215-5f0f00d4d50c.config
+2026-07-14T16:02:13.9859370Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-07-14T16:02:13.9916430Z /github/runner_temp/git-credentials-deac4223-8650-44d5-a215-5f0f00d4d50c.config
+2026-07-14T16:02:13.9921600Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-deac4223-8650-44d5-a215-5f0f00d4d50c.config
+2026-07-14T16:02:13.9999450Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-07-14T16:02:14.0819800Z Removing credentials config '/Users/runner/work/_temp/git-credentials-deac4223-8650-44d5-a215-5f0f00d4d50c.config'
+2026-07-14T16:02:14.0910330Z Cleaning up orphan processes

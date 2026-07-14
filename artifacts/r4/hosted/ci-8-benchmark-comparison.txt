@@ -1,0 +1,8 @@
+mode=BOOTSTRAP ratio_enforcement=OFF
+candidate=hosted-baseline-candidate.tsv
+run_url=https://github.com/leetn9468/OpenDraw/actions/runs/29347892897
+bench1_p95 baseline_ms=5.259 observed_ms=5.259 ratio=1.000000 allowed_ratio=1.25 result=BOOTSTRAP
+bench2_p95 baseline_ms=0.104 observed_ms=0.104 ratio=1.000000 allowed_ratio=1.25 result=BOOTSTRAP
+bench2b_p95 baseline_ms=4.837 observed_ms=4.837 ratio=1.000000 allowed_ratio=1.25 result=BOOTSTRAP
+bench3_p95 baseline_ms=7.867 observed_ms=7.867 ratio=1.000000 allowed_ratio=1.25 result=BOOTSTRAP
+bench3_settle baseline_ms=2.622 observed_ms=2.622 ratio=1.000000 allowed_ratio=1.25 result=BOOTSTRAP
