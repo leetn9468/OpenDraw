@@ -1,0 +1,654 @@
+{
+  "total_count": 8,
+  "jobs": [
+    {
+      "id": 87127394242,
+      "run_id": 29345329291,
+      "workflow_name": "CI",
+      "head_branch": "remediation/pre-phase5",
+      "run_url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/runs/29345329291",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTX68_s8AAAAUSTKHwg",
+      "head_sha": "2cfa8453d87d69d64f03b5a5c435aeca01afcedc",
+      "url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/jobs/87127394242",
+      "html_url": "https://github.com/leetn9468/OpenDraw/actions/runs/29345329291/job/87127394242",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-07-14T15:26:23Z",
+      "started_at": "2026-07-14T15:26:26Z",
+      "completed_at": "2026-07-14T15:26:55Z",
+      "name": "benchmark",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-07-14T15:26:27Z",
+          "completed_at": "2026-07-14T15:26:28Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-07-14T15:26:28Z",
+          "completed_at": "2026-07-14T15:26:29Z"
+        },
+        {
+          "name": "Run benchmark with frozen absolute targets",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-07-14T15:26:29Z",
+          "completed_at": "2026-07-14T15:26:49Z"
+        },
+        {
+          "name": "Prove inclusive ratio gate remains falsifiable",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-07-14T15:26:49Z",
+          "completed_at": "2026-07-14T15:26:50Z"
+        },
+        {
+          "name": "Enforce hosted ratio or prepare hosted baseline bootstrap",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-07-14T15:26:50Z",
+          "completed_at": "2026-07-14T15:26:50Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-07-14T15:26:50Z",
+          "completed_at": "2026-07-14T15:26:51Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-07-14T15:26:51Z",
+          "completed_at": "2026-07-14T15:26:52Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-07-14T15:26:52Z",
+          "completed_at": "2026-07-14T15:26:53Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16,
+          "started_at": "2026-07-14T15:26:53Z",
+          "completed_at": "2026-07-14T15:26:53Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17,
+          "started_at": "2026-07-14T15:26:53Z",
+          "completed_at": "2026-07-14T15:26:54Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/leetn9468/OpenDraw/check-runs/87127394242",
+      "labels": [
+        "macos-15"
+      ],
+      "runner_id": 1000000031,
+      "runner_name": "GitHub Actions 1000000031",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 87127394252,
+      "run_id": 29345329291,
+      "workflow_name": "CI",
+      "head_branch": "remediation/pre-phase5",
+      "run_url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/runs/29345329291",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTX68_s8AAAAUSTKHzA",
+      "head_sha": "2cfa8453d87d69d64f03b5a5c435aeca01afcedc",
+      "url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/jobs/87127394252",
+      "html_url": "https://github.com/leetn9468/OpenDraw/actions/runs/29345329291/job/87127394252",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-07-14T15:26:23Z",
+      "started_at": "2026-07-14T15:26:26Z",
+      "completed_at": "2026-07-14T15:26:52Z",
+      "name": "adversarial-golden",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-07-14T15:26:25Z",
+          "completed_at": "2026-07-14T15:26:26Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-07-14T15:26:26Z",
+          "completed_at": "2026-07-14T15:26:28Z"
+        },
+        {
+          "name": "Run swift test --filter 'deterministicNativeAndSVG|fixedAdversarial|compositeSceneMatchesProjectGolden'",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-07-14T15:26:28Z",
+          "completed_at": "2026-07-14T15:26:49Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-07-14T15:26:49Z",
+          "completed_at": "2026-07-14T15:26:49Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-07-14T15:26:49Z",
+          "completed_at": "2026-07-14T15:26:49Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/leetn9468/OpenDraw/check-runs/87127394252",
+      "labels": [
+        "macos-15"
+      ],
+      "runner_id": 1000000030,
+      "runner_name": "GitHub Actions 1000000030",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 87127394253,
+      "run_id": 29345329291,
+      "workflow_name": "CI",
+      "head_branch": "remediation/pre-phase5",
+      "run_url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/runs/29345329291",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTX68_s8AAAAUSTKHzQ",
+      "head_sha": "2cfa8453d87d69d64f03b5a5c435aeca01afcedc",
+      "url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/jobs/87127394253",
+      "html_url": "https://github.com/leetn9468/OpenDraw/actions/runs/29345329291/job/87127394253",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-07-14T15:26:23Z",
+      "started_at": "2026-07-14T15:26:26Z",
+      "completed_at": "2026-07-14T15:28:10Z",
+      "name": "debug-release",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-07-14T15:26:26Z",
+          "completed_at": "2026-07-14T15:26:27Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-07-14T15:26:27Z",
+          "completed_at": "2026-07-14T15:26:29Z"
+        },
+        {
+          "name": "Run swift --version",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-07-14T15:26:29Z",
+          "completed_at": "2026-07-14T15:26:32Z"
+        },
+        {
+          "name": "Run test \"$(uname -m)\" = arm64",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-07-14T15:26:32Z",
+          "completed_at": "2026-07-14T15:26:32Z"
+        },
+        {
+          "name": "Run xcrun swift-format lint --recursive --strict Sources Tests Package.swift",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-07-14T15:26:32Z",
+          "completed_at": "2026-07-14T15:26:34Z"
+        },
+        {
+          "name": "Run swift build -c debug && swift build -c release",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-07-14T15:26:34Z",
+          "completed_at": "2026-07-14T15:27:11Z"
+        },
+        {
+          "name": "Run swift test && swift test -c release",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-07-14T15:27:11Z",
+          "completed_at": "2026-07-14T15:27:48Z"
+        },
+        {
+          "name": "Run scripts/check-module-dependencies.sh",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-07-14T15:27:48Z",
+          "completed_at": "2026-07-14T15:27:48Z"
+        },
+        {
+          "name": "Run scripts/check-clean-room.sh",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-07-14T15:27:48Z",
+          "completed_at": "2026-07-14T15:27:48Z"
+        },
+        {
+          "name": "Public API symbol documentation surface",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-07-14T15:27:48Z",
+          "completed_at": "2026-07-14T15:27:53Z"
+        },
+        {
+          "name": "macOS 15 minimum-deployment-target compile",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-07-14T15:27:53Z",
+          "completed_at": "2026-07-14T15:28:06Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22,
+          "started_at": "2026-07-14T15:28:06Z",
+          "completed_at": "2026-07-14T15:28:07Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23,
+          "started_at": "2026-07-14T15:28:07Z",
+          "completed_at": "2026-07-14T15:28:07Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/leetn9468/OpenDraw/check-runs/87127394253",
+      "labels": [
+        "macos-15"
+      ],
+      "runner_id": 1000000029,
+      "runner_name": "GitHub Actions 1000000029",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 87127394271,
+      "run_id": 29345329291,
+      "workflow_name": "CI",
+      "head_branch": "remediation/pre-phase5",
+      "run_url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/runs/29345329291",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTX68_s8AAAAUSTKH3w",
+      "head_sha": "2cfa8453d87d69d64f03b5a5c435aeca01afcedc",
+      "url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/jobs/87127394271",
+      "html_url": "https://github.com/leetn9468/OpenDraw/actions/runs/29345329291/job/87127394271",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-07-14T15:26:23Z",
+      "started_at": "2026-07-14T15:26:27Z",
+      "completed_at": "2026-07-14T15:27:07Z",
+      "name": "release-integrity",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-07-14T15:26:27Z",
+          "completed_at": "2026-07-14T15:26:28Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-07-14T15:26:28Z",
+          "completed_at": "2026-07-14T15:26:30Z"
+        },
+        {
+          "name": "Run scripts/build-release-app.sh",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-07-14T15:26:30Z",
+          "completed_at": "2026-07-14T15:27:02Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-07-14T15:27:02Z",
+          "completed_at": "2026-07-14T15:27:04Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-07-14T15:27:04Z",
+          "completed_at": "2026-07-14T15:27:04Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-07-14T15:27:04Z",
+          "completed_at": "2026-07-14T15:27:04Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/leetn9468/OpenDraw/check-runs/87127394271",
+      "labels": [
+        "macos-15"
+      ],
+      "runner_id": 1000000033,
+      "runner_name": "GitHub Actions 1000000033",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 87127394274,
+      "run_id": 29345329291,
+      "workflow_name": "CI",
+      "head_branch": "remediation/pre-phase5",
+      "run_url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/runs/29345329291",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTX68_s8AAAAUSTKH4g",
+      "head_sha": "2cfa8453d87d69d64f03b5a5c435aeca01afcedc",
+      "url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/jobs/87127394274",
+      "html_url": "https://github.com/leetn9468/OpenDraw/actions/runs/29345329291/job/87127394274",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-07-14T15:26:23Z",
+      "started_at": "2026-07-14T15:26:26Z",
+      "completed_at": "2026-07-14T15:27:08Z",
+      "name": "startup-memory",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-07-14T15:26:27Z",
+          "completed_at": "2026-07-14T15:26:28Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-07-14T15:26:28Z",
+          "completed_at": "2026-07-14T15:26:30Z"
+        },
+        {
+          "name": "Run scripts/check-startup-p95.sh 20 artifacts/r4/startup-p95.txt",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-07-14T15:26:30Z",
+          "completed_at": "2026-07-14T15:26:56Z"
+        },
+        {
+          "name": "Run scripts/check-peak-memory.sh artifacts/r4/peak-memory.txt",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-07-14T15:26:57Z",
+          "completed_at": "2026-07-14T15:27:00Z"
+        },
+        {
+          "name": "Run scripts/test-peak-memory-gate.sh artifacts/r4/peak-memory-failure-fixture.txt",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-07-14T15:27:00Z",
+          "completed_at": "2026-07-14T15:27:03Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-07-14T15:27:03Z",
+          "completed_at": "2026-07-14T15:27:04Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-07-14T15:27:04Z",
+          "completed_at": "2026-07-14T15:27:05Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-07-14T15:27:05Z",
+          "completed_at": "2026-07-14T15:27:06Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/leetn9468/OpenDraw/check-runs/87127394274",
+      "labels": [
+        "macos-15"
+      ],
+      "runner_id": 1000000032,
+      "runner_name": "GitHub Actions 1000000032",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 87127394397,
+      "run_id": 29345329291,
+      "workflow_name": "CI",
+      "head_branch": "remediation/pre-phase5",
+      "run_url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/runs/29345329291",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTX68_s8AAAAUSTKIXQ",
+      "head_sha": "2cfa8453d87d69d64f03b5a5c435aeca01afcedc",
+      "url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/jobs/87127394397",
+      "html_url": "https://github.com/leetn9468/OpenDraw/actions/runs/29345329291/job/87127394397",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-07-14T15:26:23Z",
+      "started_at": "2026-07-14T15:26:59Z",
+      "completed_at": "2026-07-14T15:27:55Z",
+      "name": "sanitizer",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-07-14T15:26:59Z",
+          "completed_at": "2026-07-14T15:27:00Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-07-14T15:27:00Z",
+          "completed_at": "2026-07-14T15:27:02Z"
+        },
+        {
+          "name": "Run swift test --sanitize=address",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 3,
+          "started_at": "2026-07-14T15:27:02Z",
+          "completed_at": "2026-07-14T15:27:51Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-07-14T15:27:51Z",
+          "completed_at": "2026-07-14T15:27:52Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-07-14T15:27:52Z",
+          "completed_at": "2026-07-14T15:27:53Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/leetn9468/OpenDraw/check-runs/87127394397",
+      "labels": [
+        "macos-15"
+      ],
+      "runner_id": 1000000035,
+      "runner_name": "GitHub Actions 1000000035",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 87127394458,
+      "run_id": 29345329291,
+      "workflow_name": "CI",
+      "head_branch": "remediation/pre-phase5",
+      "run_url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/runs/29345329291",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTX68_s8AAAAUSTKImg",
+      "head_sha": "2cfa8453d87d69d64f03b5a5c435aeca01afcedc",
+      "url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/jobs/87127394458",
+      "html_url": "https://github.com/leetn9468/OpenDraw/actions/runs/29345329291/job/87127394458",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-07-14T15:26:23Z",
+      "started_at": "2026-07-14T15:26:55Z",
+      "completed_at": "2026-07-14T15:27:31Z",
+      "name": "coverage",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-07-14T15:26:55Z",
+          "completed_at": "2026-07-14T15:26:55Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-07-14T15:26:55Z",
+          "completed_at": "2026-07-14T15:26:57Z"
+        },
+        {
+          "name": "Run swift test --enable-code-coverage",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-07-14T15:26:57Z",
+          "completed_at": "2026-07-14T15:27:27Z"
+        },
+        {
+          "name": "Run scripts/check-coverage.sh 55",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-07-14T15:27:27Z",
+          "completed_at": "2026-07-14T15:27:28Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-07-14T15:27:28Z",
+          "completed_at": "2026-07-14T15:27:29Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-07-14T15:27:29Z",
+          "completed_at": "2026-07-14T15:27:29Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/leetn9468/OpenDraw/check-runs/87127394458",
+      "labels": [
+        "macos-15"
+      ],
+      "runner_id": 1000000034,
+      "runner_name": "GitHub Actions 1000000034",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 87127421617,
+      "run_id": 29345329291,
+      "workflow_name": "CI",
+      "head_branch": "remediation/pre-phase5",
+      "run_url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/runs/29345329291",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTX68_s8AAAAUSTLysQ",
+      "head_sha": "2cfa8453d87d69d64f03b5a5c435aeca01afcedc",
+      "url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/jobs/87127421617",
+      "html_url": "https://github.com/leetn9468/OpenDraw/actions/runs/29345329291/job/87127421617",
+      "status": "completed",
+      "conclusion": "skipped",
+      "created_at": "2026-07-14T15:26:29Z",
+      "started_at": "2026-07-14T15:26:29Z",
+      "completed_at": "2026-07-14T15:26:23Z",
+      "name": "nightly-reliability",
+      "steps": [
+
+      ],
+      "check_run_url": "https://api.github.com/repos/leetn9468/OpenDraw/check-runs/87127421617",
+      "labels": [
+        "macos-15"
+      ],
+      "runner_id": null,
+      "runner_name": null,
+      "runner_group_id": null,
+      "runner_group_name": null
+    }
+  ]
+}

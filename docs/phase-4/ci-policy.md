@@ -134,6 +134,16 @@ previously ratified hosted bootstrap/enforcement split and require exactly the
 five named metrics without changing the shared ratio script or any numeric
 policy.
 
+Hosted run CI #6 at commit `2cfa845` did not qualify. The benchmark bootstrap
+path passed, but the ASan job ran the adversarial per-mutation wall-clock gate
+inside the contended whole suite. The first mutation was charged 7.901786791
+seconds while many unrelated trivial tests simultaneously reported about 8.52
+seconds. No ASan diagnostic occurred. Revision `5d2ea50` keeps every corpus
+count and the unchanged 3/10-second deadlines, but runs the deadline-sensitive
+test in an isolated ASan invocation after the other 89 instrumented tests.
+`make sanitize` and hosted CI use the same script; no retry or gate waiver was
+introduced.
+
 ## Numeric-policy classification
 
 The following are gate/test-side policies, not production editor mathematics:
