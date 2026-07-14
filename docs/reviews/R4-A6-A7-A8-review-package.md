@@ -32,12 +32,12 @@ The annotated tag `pre-phase5-remediation` has therefore not been created.
 | BLOCK-003 | Peak-memory assertions | `OPEN — LOCAL PASS, HOSTED PENDING` | Corrected decoded-image gate passes locally; qualifying dispatch must pass `startup-memory`. |
 | BLOCK-004 | Startup-p95 enforcement | `OPEN — LOCAL PASS, HOSTED PENDING` | Local 20-process gate passes; qualifying dispatch must pass `startup-memory`. |
 | BLOCK-005 | 100 launches / 10,000 round trips | `OPEN — LOCAL PASS, HOSTED PENDING` | Local sequential process proof passes; qualifying dispatch must execute and pass `nightly-reliability`. |
-| BLOCK-006 | Hosted benchmark ratio proof | **OPEN** | CI #1 and CI #4 are retained failed attempts. CI #4 exposed two real defects fixed at `ce3b4b3`; a manually dispatched all-eight-jobs-green run plus hosted baseline/comparison artifacts and URL is still required. |
-| BLOCK-007 | Fresh final-revision battery | `CLOSED` | Complete local battery and all retained gate artifacts at `ce3b4b3` |
+| BLOCK-006 | Hosted benchmark ratio proof | **OPEN** | CI #1/#4/#5 are retained failed attempts. Workflow-only fixes `b57293c`/`59eec99` correct CI #5's cross-hardware substitution and validate baseline completeness; a manually dispatched all-eight-jobs-green bootstrap run plus artifacts and URL is still required. |
+| BLOCK-007 | Fresh final-revision battery | `CLOSED` | Complete local battery at `ce3b4b3`; later `b57293c`/`59eec99` are hosted-workflow-only and require no local rerun under the CI #5 directive |
 | BLOCK-008 | Reproducibility metadata | `CLOSED` | `docs/phase-4/fuzz-results.md`; environment and benchmark artifacts |
 | BLOCK-009 | Audit traceability | `CLOSED` | `docs/audits/findings-closure-matrix.md` |
 | BLOCK-010 | Correct R4 documentation | `CLOSED` | Incorrect unconditional pass language was removed. |
-| BLOCK-011 | Exact revision accounting | `CLOSED` | Complete battery at final build-input revision `ce3b4b3`, retained by `8da5ee8`; see `revision-map.md` and `revision-scope-proof.txt` |
+| BLOCK-011 | Exact revision accounting | `CLOSED` | Complete battery `ce3b4b3`/`8da5ee8`; hosted-only final input chain `b57293c`/`59eec99` with evidence `e01ac1b`; see `revision-map.md` |
 | BLOCK-012 | Phase 5 entry tag | **OPEN** | `pre-phase5-remediation` is intentionally absent. |
 
 ## Revision model
@@ -54,6 +54,9 @@ The annotated tag `pre-phase5-remediation` has therefore not been created.
 | `b6cee43` | Replaced unavailable ripgrep calls with equivalent POSIX grep, added dispatch reliability, and updated actions to Node.js 24 majors. | Affected dependency, clean-room, benchmark/ratio/fixture, memory/failure-fixture, and reliability gates rerun. |
 | `ce3b4b3` | Fixed stale descriptor cleanup and the compressible forced-memory allocation exposed by CI #4. | Complete local battery plus focused and 30-run release stress rerun. |
 | `8da5ee8` | Retained CI #4 logs, stress proof, and the complete corrective battery. | Evidence only; no build input changed. |
+| `b57293c` | Added hosted-only bootstrap/enforcement baseline selection without changing the shared ratio checker. | No local battery rerun; new hosted run required. |
+| `59eec99` | Added fail-closed completeness validation for the five hosted baseline metrics. | No local battery rerun; actual workflow block revalidated in both modes. |
+| `e01ac1b` | Retained CI #5 evidence, variance record, and actual workflow-mode dry-run proof. | Evidence only; no build input changed. |
 
 ## Environment
 

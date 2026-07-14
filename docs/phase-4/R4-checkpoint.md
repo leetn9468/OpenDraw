@@ -18,12 +18,17 @@ no conditional pass and no Phase 5 entry tag is claimed.
 | `b6cee43` | Portable POSIX shell assertions, manually dispatched reliability lane, and Node.js 24 action majors after CI #1 | Affected dependency, clean-room, benchmark/ratio/fixture, peak-memory/failure-fixture, and 100×100 reliability gates rerun |
 | `ce3b4b3` | Eliminate the durable-writer stale-descriptor cleanup race and make the unchanged 550 MiB forced-memory allocation incompressible after CI #4 | Complete local battery rerun; focused pre/post regression and 30-run release stress retained |
 | `8da5ee8` | Retain CI #4 logs, corrective battery, stress evidence, and triage report | Evidence only; no later build-input change |
+| `b57293c` | Workflow-only hosted benchmark bootstrap/enforcement selection after CI #5 | No local rerun by directive; actual workflow block dry-run in BOOTSTRAP and failing ENFORCE modes |
+| `59eec99` | Workflow-only fail-closed validation for exactly five unique hosted baseline metrics | No local rerun by directive; BOOTSTRAP/ENFORCE extraction and syntax dry-runs repeated |
+| `e01ac1b` | Retain CI #5 logs/artifacts, mode proof, policy, and triage report | Evidence/documentation only |
 | Documentation closure commit | Project state, A6 package, audit/checkpoint/policy corrections and retained logs only | Outside `Sources`, `Tests`, `Package.swift`, scripts and CI build inputs; formatting/diff/link checks rerun |
 
-The current final build-input and complete-battery revision is `ce3b4b3`.
-Frozen targets, ceilings, tolerances, retry policy, workflow semantics, and
-VERIFY-001–021 are unchanged. Evidence commit `8da5ee8` retains the exact
-corrective battery and CI #4 triage.
+The current final build-input revision is `59eec99`; the current complete local
+battery revision is `ce3b4b3`. The difference is one hosted-only workflow file,
+governed by the CI #5 directive's no-local-rerun rule. Frozen targets, ceilings,
+tolerances, retry policy, shared ratio semantics, and VERIFY-001–021 are
+unchanged. Evidence commits `8da5ee8` and `e01ac1b` retain the exact local
+battery plus CI #4/#5 triage.
 
 ## Exact local environment
 
@@ -86,6 +91,10 @@ measured frames per timed scenario, display sleep inhibited, production paths.
   on the final pushed revision must execute all eight jobs green and provide
   the hosted baseline/comparison artifact and run URL. The committed baseline
   remains truthfully labelled owner-reference, not hosted proof.
+- CI #5 is also a retained failed attempt: absolute benchmarks passed, but the
+  workflow compared hosted observations with the owner-local baseline.
+  Workflow-only fixes `b57293c`/`59eec99` now bootstrap and validate a hosted candidate and preserve
+  blocking 1.25 enforcement once that candidate is reviewed and committed.
 - BLOCK-003/004/005: corrected local gates pass, but their hosted-CI execution
   components remain open until the qualifying manual dispatch shows `startup-memory`,
   `nightly-reliability`, `benchmark`, and `adversarial-golden` green with a run

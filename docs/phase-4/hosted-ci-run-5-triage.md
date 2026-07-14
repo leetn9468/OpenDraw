@@ -6,7 +6,8 @@ Run: <https://github.com/leetn9468/OpenDraw/actions/runs/29340697610>
 
 Run revision: `9471562ce54a7d326599fe349ab2eba382fb281b`
 
-Workflow correction: `b57293c444695984ae71f7ad385b1186d046ac24`
+Workflow corrections: `b57293c444695984ae71f7ad385b1186d046ac24`,
+`59eec994261768eba53488bfd075bb101bf5d8f0`
 
 Disposition: CI #5 is a failed, non-qualifying push run. Seven jobs executed;
 six passed, benchmark failed, and nightly-reliability was skipped as expected
@@ -61,6 +62,7 @@ bench1_p95 baseline_ms=<hosted> observed_ms=<hosted> ratio=1.000000 allowed_rati
 Candidate baseline format:
 
 ```text
+# mode=BOOTSTRAP_CANDIDATE
 # source_commit=<qualifying SHA>
 # source=github-hosted-macos15-arm64
 # runner_image=macos-15
@@ -91,6 +93,10 @@ proved both branches:
 - present baseline plus `benchmark-regression-fail.txt`: exit 1,
   `mode=ENFORCE ratio_enforcement=ON`, BENCH-1 ratio 1.314801 marked `FAIL`.
 
+Both modes additionally require exactly one row for each of the five named
+metrics; missing, duplicate, or extra data rows fail before publication or
+ratio comparison.
+
 No shared script changed, so no local gate rerun was required by the directive.
 
 ## Variance watch
@@ -115,4 +121,3 @@ The post-`ce3b4b3` complete local battery explicitly reran and retained:
 
 No `Sources/`, `Tests/`, script, threshold, target, tolerance, ceiling, retry
 policy, fixture value, or VERIFY entry changed in the CI #5 correction.
-

@@ -1,6 +1,6 @@
 # A6 — R3/R3-B checkpoint closure package
 
-Status: **CLOSED locally and revalidated at final build-input revision `ce3b4b3`**
+Status: **CLOSED locally and revalidated at complete-battery revision `ce3b4b3`**
 
 The original owner directive defines fourteen R3-B feature groups. This table
 uses those groups without merging them into R4 labels. Swift Testing functions

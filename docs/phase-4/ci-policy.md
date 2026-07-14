@@ -9,8 +9,9 @@ requires runtime evidence on real macOS 15 Apple Silicon before A7/R4
 acceptance. Frozen owner decision Option A (TN LEE, 2026-07-13) requires both
 the 100-launch codec reliability script and the 20-launch full-app startup gate
 from the same machine/session; codec-only Option B was rejected. Both ran on
-the owner-reference MacBookPro18,2 and were revalidated at current final
-build-input revision `ce3b4b3`, so
+the owner-reference MacBookPro18,2 and were revalidated at complete-battery
+revision `ce3b4b3` (the later `b57293c`/`59eec99` chain is
+hosted-workflow-only), so
 BLOCK-002 is closed by `macos15-reliability-100x100.txt` and
 `macos15-startup-p95.txt`.
 
@@ -128,9 +129,10 @@ unchanged 2,000 ms target. No retry or hosted-specific policy was introduced.
 Hosted run CI #5 at commit `9471562` did not qualify. Every absolute benchmark
 target passed, but the workflow incorrectly compared hosted observations to
 the owner-local baseline, producing ratios 2.450977, 2.587156, and 2.257589 for
-BENCH-1/2/2b. Workflow-only correction `b57293c` implements the previously
-ratified hosted bootstrap/enforcement split without changing the shared ratio
-script or any numeric policy.
+BENCH-1/2/2b. Workflow-only corrections `b57293c`/`59eec99` implement the
+previously ratified hosted bootstrap/enforcement split and require exactly the
+five named metrics without changing the shared ratio script or any numeric
+policy.
 
 ## Numeric-policy classification
 

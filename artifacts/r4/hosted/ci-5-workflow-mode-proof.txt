@@ -1,4 +1,5 @@
-workflow_revision=b57293c444695984ae71f7ad385b1186d046ac24
+workflow_bootstrap_revision=b57293c444695984ae71f7ad385b1186d046ac24
+workflow_final_revision=59eec994261768eba53488bfd075bb101bf5d8f0
 shared_ratio_script_changed=false
 absolute_target_step_present=true
 fixture_step_present=true
@@ -8,8 +9,11 @@ bootstrap_candidate=hosted-baseline-candidate.tsv
 bootstrap_ratios=1.000000
 bootstrap_runner_image=macos-15
 bootstrap_expiry_days=90
+bootstrap_metric_count=5
+bootstrap_unique_required_metrics=true
 enforce_fixture=benchmark-regression-fail.txt
 enforce_header=mode=ENFORCE ratio_enforcement=ON
 enforce_observed_ratio=1.314801
 enforce_status=1
+enforce_incomplete_baseline_status=1
 result=PASS

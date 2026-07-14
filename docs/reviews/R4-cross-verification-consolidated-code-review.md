@@ -388,7 +388,7 @@ Status: **RESOLVED**
 | Concern | Code area | Reason for review |
 |---|---|---|
 | Retained bitmap budget | `Sources/DocumentModel/Document.swift:31`; `Sources/CanvasRender/SceneBitmapCache.swift:34–44` | `maximumRetainedBitmapPixels = 67_108_864` is independent from the image pixel cap even though the current numeric values match. |
-| Hosted job definitions | `.github/workflows/ci.yml` | Defines all eight `macos-15` jobs; CI #1 and CI #4 did not qualify, and a manual dispatch after corrective revision `ce3b4b3` remains pending. |
+| Hosted job definitions | `.github/workflows/ci.yml` | Defines all eight `macos-15` jobs; CI #1/#4/#5 did not qualify, and a manual dispatch after workflow corrections `b57293c`/`59eec99` remains pending. |
 | Startup result interpretation | `docs/phase-4/ci-policy.md` | Prevents the static-initializer probe from being represented as click-to-window startup. |
 | Performance results | `docs/phase-4/R4-checkpoint.md`; `docs/remediation/A6-R3-checkpoint.md` | Records the final BENCH and startup numbers and distinguishes local proof from hosted enforcement. |
 | Project status | `docs/PROJECT_STATE.md` | Authoritative blocker and Phase 5 entry state. |

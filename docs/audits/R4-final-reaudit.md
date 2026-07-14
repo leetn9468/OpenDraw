@@ -10,9 +10,10 @@ The product-code re-audit closes the eight pre-Phase-5 findings, and
 VERIFY-001 through VERIFY-021 remain verified and frozen. R4 acceptance is
 nevertheless **failed**: BLOCK-002 real minimum-OS runtime evidence now passes,
 but a qualifying all-eight-jobs-green hosted execution plus a hosted
-baseline/run artifact (BLOCK-003–006) is missing. CI #1 and CI #4 did not
-qualify; CI #4's defects are corrected with a complete local battery at
-`ce3b4b3`.
+baseline/run artifact (BLOCK-003–006) is missing. CI #1/#4/#5 did not qualify;
+CI #4's defects are corrected with a complete local battery at `ce3b4b3`, and
+CI #5's cross-hardware baseline substitution is corrected in the hosted-only
+workflow revisions `b57293c`/`59eec99`.
 No Phase 5 entry tag exists.
 
 No new production mathematical behavior requires a verification-queue entry.
