@@ -9,7 +9,8 @@ requires runtime evidence on real macOS 15 Apple Silicon before A7/R4
 acceptance. Frozen owner decision Option A (TN LEE, 2026-07-13) requires both
 the 100-launch codec reliability script and the 20-launch full-app startup gate
 from the same machine/session; codec-only Option B was rejected. Both ran on
-the owner-reference MacBookPro18,2 at final build-input revision `f6ec81a`, so
+the owner-reference MacBookPro18,2 and were revalidated at current final
+build-input revision `ce3b4b3`, so
 BLOCK-002 is closed by `macos15-reliability-100x100.txt` and
 `macos15-startup-p95.txt`.
 
@@ -98,6 +99,16 @@ scripts also used `rg` inside shell conditionals, which could mask the missing
 command, and the skipped reliability lane was limited to scheduled events.
 The portability correction replaces those uses with POSIX `grep`; it does not
 change any matching expression or gate decision.
+
+Hosted run CI #4 at commit `8c157cb` also did not qualify. It executed code
+identical to the preceding green push run but exposed two real defects:
+release-mode concurrent tests could trigger stale file-descriptor cleanup in
+`DurableFileWriter`, and the forced-memory fixture's uniform `0xA5` pages could
+compress enough to stay below the ceiling. Corrective revision `ce3b4b3`
+tracks descriptor ownership and makes the unchanged 550 MiB fixture allocation
+incompressible. The complete local battery passes at that revision. This was
+not a timing flap: hosted startup p95 remained at most 234.344 ms against the
+unchanged 2,000 ms target. No retry or hosted-specific policy was introduced.
 
 ## Numeric-policy classification
 

@@ -1,6 +1,6 @@
 # A6 — R3/R3-B checkpoint closure package
 
-Status: **CLOSED locally and revalidated at final build-input revision `f6ec81a`**
+Status: **CLOSED locally and revalidated at final build-input revision `ce3b4b3`**
 
 The original owner directive defines fourteen R3-B feature groups. This table
 uses those groups without merging them into R4 labels. Swift Testing functions
@@ -27,19 +27,19 @@ of inventing an XCTest class.
 Grep-level existence proof for every unique method named above is retained at
 `artifacts/r4/a6-test-existence.txt`. The exact combined filter and its 19-test
 pass output are retained at `artifacts/r4/a6-filtered-tests.txt`, both produced
-on `f6ec81a`.
+on `ce3b4b3`.
 
 ## A6 final-revision gates
 
-The complete battery reran on `f6ec81a` after the owner-directed macOS 15
-platform-floor change. Environment: `MacBookPro18,2`, Apple
+The complete battery reran on `ce3b4b3` after the CI #4 corrective changes.
+Environment: `MacBookPro18,2`, Apple
 M1 Max, 64 GB RAM, macOS 15.7.5 build 24G624, arm64, Apple Swift 6.1.2.
 
 | Gate | Result |
 |---|---|
-| Debug build/tests | PASS; 89 tests, 2.419 s |
-| Release build/tests | PASS; 89 tests, 1.136 s |
-| AddressSanitizer | PASS; 89 tests, 11.715 s |
+| Debug build/tests | PASS; 90 tests, 2.409 s |
+| Release build/tests | PASS; 90 tests, 1.109 s |
+| AddressSanitizer | PASS; 90 tests, 11.082 s |
 | Module dependency and forbidden-import scripts | PASS |
 | VERIFY-020 / VERIFY-021 | PASS in the all-tests runs; values unchanged |
 

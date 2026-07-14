@@ -24,15 +24,16 @@ input/structure limits remain the primary hard resource control.
 
 The final local command was `swift test --filter
 'deterministicNativeAndSVG|fixedAdversarial'`; it passed on implementation
-complete-battery revision `f6ec81a`. Raw output is retained at
+complete-battery revision `ce3b4b3`. Raw output is retained at
 `artifacts/r4/adversarial-tests.txt`. A reproducible failure record uses
 `CORPUS_FAILURE kind=<native|svg> index=<0-based> seed=0x00000000A110F00D` in
 the retained test log; the input is regenerated from the named seed, index,
 LCG, and project-created base fixture rather than retaining untrusted bytes.
 
-CI artifact name is `adversarial-golden`; a final hosted CI run reference is
-unavailable because this checkout has no configured remote. That missing hosted
-evidence is recorded with BLOCK-006 rather than invented.
+CI artifact name is `adversarial-golden`. Push run CI #4 executed this job
+successfully, but the overall run did not qualify because two other jobs
+failed. The required all-jobs-green dispatched evidence remains tracked by
+BLOCK-006.
 
 No proprietary sample is permitted.
 

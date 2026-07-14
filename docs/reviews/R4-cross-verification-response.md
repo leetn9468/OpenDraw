@@ -9,6 +9,8 @@ Evidence/documentation revision: `7cfbf00`
 Platform-floor follow-up: the complete battery was subsequently rerun at
 `f6ec81a`; BLOCK-002 is closed by the same-session
 `macos15-reliability-100x100.txt` and `macos15-startup-p95.txt` artifacts.
+CI #4 corrective follow-up: the current build-input and complete-battery
+revision is `ce3b4b3`, retained by evidence commit `8da5ee8`.
 
 Overall verdict remains **FAILED — PHASE 5 BLOCKED**. No
 `pre-phase5-remediation` tag exists.

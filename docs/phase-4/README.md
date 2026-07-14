@@ -13,7 +13,7 @@ Review date: 2026-07-13
 | R4.4 CI/release | Local gates and real minimum-OS runtime proof pass; hosted execution and hosted benchmark proof remain open |
 | R4.5 re-audit | Product-code closure matrix passes; acceptance blockers are tracked in `docs/PROJECT_STATE.md` |
 
-The permanent suite contains 89 tests. Coverage is 87.93%, above the enforced
+The permanent suite contains 90 tests. Coverage is 87.94%, above the enforced
 55% line-coverage floor. VERIFY-001 through VERIFY-021 are `VERIFIED` and frozen.
 
 ## Release-policy boundaries

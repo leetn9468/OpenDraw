@@ -14,11 +14,17 @@ external R4 acceptance blockers are tracked separately in `docs/PROJECT_STATE.md
 | AUDIT-007 mixed stacking impossible | Closed | `8e98346` | `Tests/DocumentFormatsTests/DocumentFormatsTests.swift::v4RoundTripPreservesMixedOrderGroupsAndCompoundPaths`; `Tests/DocumentModelTests/DirectAnchorVerifyTests.swift::groupUngroupAndCompoundReleasePreserveVisualBounds` | VERIFY-005/009 |
 | AUDIT-008 unsafe embedded images | Closed | `b05a149` | `Tests/DocumentFormatsTests/DocumentFormatsTests.swift::rasterLoaderEnforcesLimitsAndSafeLinks`; `Tests/DocumentFormatsTests/ApprovedImageCacheVerifyTests.swift::approvedImageCacheDecodesOffActorAndPublishesSnapshot`; `Tests/CanvasRenderTests/CanvasRenderTests.swift::rendererUsesOnlyApprovedImagesOrPlaceholder` | VERIFY-007/012 |
 
-All exact tests above passed in the 89-test debug, release, and AddressSanitizer
-runs on complete-battery revision `f6ec81a`. VERIFY-001 through VERIFY-021 remain
+All exact tests above passed in the 90-test debug, release, and AddressSanitizer
+runs on complete-battery revision `ce3b4b3`. VERIFY-001 through VERIFY-021 remain
 frozen and verified. BLOCK-002 minimum-OS runtime proof is closed; this matrix
 does not close the hosted-CI evidence blockers.
 
 Grep-level existence proof and the focused two-test pass for AUDIT-005/006 are
 retained at `artifacts/r4/audit-005-006-test-existence.txt` and
 `artifacts/r4/audit-005-006-filtered-tests.txt`.
+
+CI #4 follow-up regression
+`Tests/DocumentFormatsTests/DurablePersistenceTests.swift::cleanupAfterPostCloseFaultDoesNotCloseReusedDescriptor`
+pins descriptor ownership after a post-close injected fault. It passes in the
+90-test debug/release/ASan runs at `ce3b4b3`; focused pre/post and 30-run stress
+evidence is retained in `descriptor-race-regression.txt`.

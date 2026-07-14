@@ -2,34 +2,32 @@
 
 | Artifact | Producing revision | Retaining evidence/state commit |
 |---|---|---|
-| `debug-build.txt`, `debug-tests.txt` | `f6ec81a` | `4f156b9` |
-| `release-build.txt`, `release-tests.txt` | `f6ec81a` | `4f156b9` |
-| `asan-tests.txt` | `f6ec81a` | `4f156b9` |
-| `coverage-tests.txt`, `coverage-summary.txt` | `f6ec81a` | `4f156b9` (battery evidence set; unchanged summary blob originated at `f44b7e4`) |
-| `format.txt` | `f6ec81a` | `4f156b9` battery evidence set |
-| `module-dependencies.txt`, `clean-room.txt` | `b6cee43` | `d1edd2f` rerun attestation; output blobs were unchanged |
-| `macos15-deployment-build.txt`, `symbol-graph.txt` | `f6ec81a` | `4f156b9` |
-| `adversarial-tests.txt` | `f6ec81a` | `4f156b9` |
-| `golden-test.txt` | `f6ec81a` | `4f156b9` |
-| `ui-accessibility-tests.txt` | `f6ec81a` | `4f156b9` |
-| `release-integrity.txt` | `f6ec81a` | `4f156b9` |
-| `macos15-startup-p95.txt`, `startup-p95.txt` | `f6ec81a` | `4f156b9` |
-| `peak-memory.txt`, `peak-memory-failure-fixture.txt` | `b6cee43` | `d1edd2f` |
-| `render-benchmark.txt`, `benchmark-comparison.txt`, `benchmark-gate-fixtures.txt` | `b6cee43` | `d1edd2f` rerun evidence; fixture blob remained unchanged |
-| `a6-test-existence.txt`, `a6-filtered-tests.txt` | `f6ec81a` | `4f156b9` |
-| `audit-005-006-test-existence.txt`, `audit-005-006-filtered-tests.txt` | `f6ec81a` | `4f156b9` |
-| `macos15-reliability-100x100.txt` | `f6ec81a` | `4f156b9` |
-| `reliability-100x100.txt` | `b6cee43` | `d1edd2f` |
-| `environment.txt`, `revision-scope-proof.txt` | `f6ec81a` | `4f156b9` |
+| `debug-build.txt`, `debug-tests.txt` | `ce3b4b3` | `8da5ee8` |
+| `release-build.txt`, `release-tests.txt` | `ce3b4b3` | `8da5ee8` |
+| `asan-tests.txt` | `ce3b4b3` | `8da5ee8` |
+| `coverage-tests.txt`, `coverage-summary.txt` | `ce3b4b3` | `8da5ee8` |
+| `format.txt`, `module-dependencies.txt`, `clean-room.txt` | `ce3b4b3` | `8da5ee8` complete-battery attestation; zero-output blobs were unchanged |
+| `macos15-deployment-build.txt`, `symbol-graph.txt` | `ce3b4b3` | `8da5ee8` |
+| `adversarial-tests.txt` | `ce3b4b3` | `8da5ee8` |
+| `golden-test.txt` | `ce3b4b3` | `8da5ee8` |
+| `ui-accessibility-tests.txt` | `ce3b4b3` | `8da5ee8` |
+| `release-integrity.txt` | `ce3b4b3` | `8da5ee8` |
+| `macos15-startup-p95.txt`, `startup-p95.txt` | `ce3b4b3` | `8da5ee8` |
+| `peak-memory.txt`, `peak-memory-failure-fixture.txt`, `memory-fixture-stress.txt` | `ce3b4b3` | `8da5ee8` |
+| `render-benchmark.txt`, `benchmark-comparison.txt`, `benchmark-gate-fixtures.txt` | `ce3b4b3` | `8da5ee8`; fixture blob remained unchanged |
+| `a6-test-existence.txt`, `a6-filtered-tests.txt` | `ce3b4b3` | `8da5ee8` |
+| `audit-005-006-test-existence.txt`, `audit-005-006-filtered-tests.txt` | `ce3b4b3` | `8da5ee8` |
+| `macos15-reliability-100x100.txt`, `reliability-100x100.txt` | `ce3b4b3` | `8da5ee8` |
+| `descriptor-race-regression.txt` | `ce3b4b3` | `8da5ee8` |
+| `environment.txt`, `revision-scope-proof.txt` | `ce3b4b3` | `8da5ee8` |
 | `hosted/ci-1-run.json`, `hosted/ci-1-jobs.json`, `hosted/ci-1-*-annotations.json`, `hosted/ci-1-job-*.log` | Hosted run `29315797697` at `834526c` | `d1edd2f` |
+| `hosted/ci-4-*` | Hosted run `29327190429` at `8c157cb` | `8da5ee8` |
 
-`f6ec81a` is the final build-input revision for the macOS 15 platform-floor
-change. The complete local battery was rerun at this exact revision. Evidence
-commits `4f156b9` and `834526c` contain no build-input change.
+`f6ec81a` remains the macOS 15 platform-floor revision. The current final
+build-input and complete-battery revision is `ce3b4b3`; evidence commit
+`8da5ee8` retains its complete local battery and the CI #4 triage records.
 
-`b6cee43` changes only hosted-workflow configuration, documentation, and shared
-shell portability (`rg` to POSIX `grep`) without changing expressions or gate
-semantics. The affected dependency, clean-room, benchmark/ratio/fixture,
-peak-memory/failure-fixture, and 100×100 reliability gates were rerun at that
-exact revision. Unaffected complete-battery artifacts remain mapped to
-`f6ec81a`.
+`ce3b4b3` fixes the stale file-descriptor cleanup race and makes the existing
+550 MiB forced-memory allocation incompressible. It changes no threshold,
+target, tolerance, ceiling, benchmark, retry policy, workflow semantic, or
+VERIFY value. The complete local battery was rerun at that exact revision.

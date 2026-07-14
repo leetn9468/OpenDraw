@@ -6,6 +6,12 @@ Final build-input and battery revision: `f6ec81a88bee6a6b3055da850d08a6243061d09
 Owner-reference environment: MacBookPro18,2, Apple M1 Max, 64 GB,
 macOS 15.7.5 build 24G624, arm64, Apple Swift 6.1.2
 
+Post-report revision note (2026-07-14): CI #4 exposed a durable-writer
+descriptor race and compressible memory-fixture allocation. Corrective
+build-input revision `ce3b4b3` changes no platform floor or frozen gate value;
+the complete battery was rerun there and retained by `8da5ee8`. The original
+`f6ec81a` platform-floor history below is preserved rather than rewritten.
+
 ## C1 — Build configuration
 
 Commit `f6ec81a` changes only the supported platform floor and related active

@@ -28,16 +28,16 @@ The annotated tag `pre-phase5-remediation` has therefore not been created.
 | ID | Requirement | State | Direct evidence / required action |
 |---|---|---|---|
 | BLOCK-001 | Restore the exact 14-item A6 package | `CLOSED` | `docs/remediation/A6-R3-checkpoint.md` |
-| BLOCK-002 | Real minimum-OS macOS 15 Apple Silicon runtime proof | **CLOSED** | At `f6ec81a`, the owner-reference MacBookPro18,2/macOS 15.7.5 session produced `macos15-reliability-100x100.txt` (100 distinct PIDs/10,000 round trips/zero failures) and `macos15-startup-p95.txt` (20 launches, p95 152.286 ms ≤ 2,000 ms). |
+| BLOCK-002 | Real minimum-OS macOS 15 Apple Silicon runtime proof | **CLOSED** | Revalidated at `ce3b4b3` on the owner-reference MacBookPro18,2/macOS 15.7.5: 100 distinct PIDs/10,000 round trips/zero failures and 20 launches with p95 143.960 ms ≤ 2,000 ms. |
 | BLOCK-003 | Peak-memory assertions | `OPEN — LOCAL PASS, HOSTED PENDING` | Corrected decoded-image gate passes locally; qualifying dispatch must pass `startup-memory`. |
 | BLOCK-004 | Startup-p95 enforcement | `OPEN — LOCAL PASS, HOSTED PENDING` | Local 20-process gate passes; qualifying dispatch must pass `startup-memory`. |
 | BLOCK-005 | 100 launches / 10,000 round trips | `OPEN — LOCAL PASS, HOSTED PENDING` | Local sequential process proof passes; qualifying dispatch must execute and pass `nightly-reliability`. |
-| BLOCK-006 | Hosted benchmark ratio proof | **OPEN** | CI #1 at `834526c` did not qualify: benchmark/startup-memory exited 127 at final ripgrep assertions and reliability was skipped. Portable fix `b6cee43` requires a manually dispatched all-eight-jobs-green run plus hosted baseline/comparison artifacts and URL. |
-| BLOCK-007 | Fresh final-revision battery | `CLOSED` | Complete local battery and all retained gate artifacts at `f6ec81a` |
+| BLOCK-006 | Hosted benchmark ratio proof | **OPEN** | CI #1 and CI #4 are retained failed attempts. CI #4 exposed two real defects fixed at `ce3b4b3`; a manually dispatched all-eight-jobs-green run plus hosted baseline/comparison artifacts and URL is still required. |
+| BLOCK-007 | Fresh final-revision battery | `CLOSED` | Complete local battery and all retained gate artifacts at `ce3b4b3` |
 | BLOCK-008 | Reproducibility metadata | `CLOSED` | `docs/phase-4/fuzz-results.md`; environment and benchmark artifacts |
 | BLOCK-009 | Audit traceability | `CLOSED` | `docs/audits/findings-closure-matrix.md` |
 | BLOCK-010 | Correct R4 documentation | `CLOSED` | Incorrect unconditional pass language was removed. |
-| BLOCK-011 | Exact revision accounting | `CLOSED` | Complete battery at final build-input revision `f6ec81a`; see `revision-map.md` and `revision-scope-proof.txt` |
+| BLOCK-011 | Exact revision accounting | `CLOSED` | Complete battery at final build-input revision `ce3b4b3`, retained by `8da5ee8`; see `revision-map.md` and `revision-scope-proof.txt` |
 | BLOCK-012 | Phase 5 entry tag | **OPEN** | `pre-phase5-remediation` is intentionally absent. |
 
 ## Revision model
@@ -52,6 +52,8 @@ The annotated tag `pre-phase5-remediation` has therefore not been created.
 | `2884a54` | Reliability-only external process-duration correction. | 100-process/10,000-cycle reliability gate rerun. |
 | `f6ec81a` | Raised only the platform floor to macOS 15 in package/release/CI inputs and swept active documentation. | Complete local battery and every retained R4 artifact regenerated. |
 | `b6cee43` | Replaced unavailable ripgrep calls with equivalent POSIX grep, added dispatch reliability, and updated actions to Node.js 24 majors. | Affected dependency, clean-room, benchmark/ratio/fixture, memory/failure-fixture, and reliability gates rerun. |
+| `ce3b4b3` | Fixed stale descriptor cleanup and the compressible forced-memory allocation exposed by CI #4. | Complete local battery plus focused and 30-run release stress rerun. |
+| `8da5ee8` | Retained CI #4 logs, stress proof, and the complete corrective battery. | Evidence only; no build input changed. |
 
 ## Environment
 
