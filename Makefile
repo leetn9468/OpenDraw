@@ -16,7 +16,7 @@ format:
 	xcrun swift-format format --recursive --in-place Sources Tests Package.swift
 
 sanitize:
-	swift test --sanitize=address
+	scripts/run-address-sanitizer-tests.sh
 
 dependency-check:
 	swift package show-dependencies

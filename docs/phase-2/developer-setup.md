@@ -22,6 +22,9 @@ make run
 
 AddressSanitizer is available through `make sanitize`. Run it separately from normal
 tests because macOS system-framework behavior and startup cost differ under ASan.
+The command instruments every test but runs the adversarial corpus deadline test in
+an isolated second invocation, preventing unrelated test scheduling from consuming
+its unchanged per-mutation and full-corpus wall-clock limits.
 
 The package has debug/release configurations without generated files or network
 dependencies. A clean checkout should reproduce the build. The executable opens an

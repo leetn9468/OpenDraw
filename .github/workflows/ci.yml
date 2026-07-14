@@ -26,7 +26,8 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v6
-      - run: swift test --sanitize=address
+      - name: Run AddressSanitizer suite with isolated wall-clock corpus gate
+        run: scripts/run-address-sanitizer-tests.sh
   adversarial-golden:
     runs-on: macos-15
     steps:
