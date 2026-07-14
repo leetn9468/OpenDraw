@@ -1,0 +1,85 @@
+{
+  "total_count": 4,
+  "artifacts": [
+    {
+      "id": 8313911487,
+      "node_id": "MDg6QXJ0aWZhY3Q4MzEzOTExNDg3",
+      "name": "benchmark-comparison",
+      "size_in_bytes": 346,
+      "url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/artifacts/8313911487",
+      "archive_download_url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/artifacts/8313911487/zip",
+      "expired": false,
+      "digest": "sha256:9650752e0c336fe555eaa326b27a720f16066399434f6ab0c3aa26c599099cb9",
+      "created_at": "2026-07-14T14:25:47Z",
+      "updated_at": "2026-07-14T14:25:47Z",
+      "expires_at": "2026-10-12T14:24:24Z",
+      "workflow_run": {
+        "id": 29340697610,
+        "repository_id": 1300151550,
+        "head_repository_id": 1300151550,
+        "head_branch": "remediation/pre-phase5",
+        "head_sha": "9471562ce54a7d326599fe349ab2eba382fb281b"
+      }
+    },
+    {
+      "id": 8313910950,
+      "node_id": "MDg6QXJ0aWZhY3Q4MzEzOTEwOTUw",
+      "name": "benchmark-results",
+      "size_in_bytes": 563,
+      "url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/artifacts/8313910950",
+      "archive_download_url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/artifacts/8313910950/zip",
+      "expired": false,
+      "digest": "sha256:2cf226b93fde3e3daa6f0fb082b5dd5d90c4bef295766ca51acecc559d9186ab",
+      "created_at": "2026-07-14T14:25:46Z",
+      "updated_at": "2026-07-14T14:25:46Z",
+      "expires_at": "2026-10-12T14:24:24Z",
+      "workflow_run": {
+        "id": 29340697610,
+        "repository_id": 1300151550,
+        "head_repository_id": 1300151550,
+        "head_branch": "remediation/pre-phase5",
+        "head_sha": "9471562ce54a7d326599fe349ab2eba382fb281b"
+      }
+    },
+    {
+      "id": 8313887255,
+      "node_id": "MDg6QXJ0aWZhY3Q4MzEzODg3MjU1",
+      "name": "startup-memory-results",
+      "size_in_bytes": 108434,
+      "url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/artifacts/8313887255",
+      "archive_download_url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/artifacts/8313887255/zip",
+      "expired": false,
+      "digest": "sha256:4bc55462c5398b0727f2d3820ab608d27d6f6b1e26d3c7666127c775ba8d0c37",
+      "created_at": "2026-07-14T14:25:01Z",
+      "updated_at": "2026-07-14T14:25:01Z",
+      "expires_at": "2026-10-12T14:24:24Z",
+      "workflow_run": {
+        "id": 29340697610,
+        "repository_id": 1300151550,
+        "head_repository_id": 1300151550,
+        "head_branch": "remediation/pre-phase5",
+        "head_sha": "9471562ce54a7d326599fe349ab2eba382fb281b"
+      }
+    },
+    {
+      "id": 8313885363,
+      "node_id": "MDg6QXJ0aWZhY3Q4MzEzODg1MzYz",
+      "name": "OpenDraw-app",
+      "size_in_bytes": 500992,
+      "url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/artifacts/8313885363",
+      "archive_download_url": "https://api.github.com/repos/leetn9468/OpenDraw/actions/artifacts/8313885363/zip",
+      "expired": false,
+      "digest": "sha256:ca05e4c63213ba74252d98e283d94bd6d64409cd7d4ece7540467342fe8345e6",
+      "created_at": "2026-07-14T14:24:57Z",
+      "updated_at": "2026-07-14T14:24:57Z",
+      "expires_at": "2026-10-12T14:24:24Z",
+      "workflow_run": {
+        "id": 29340697610,
+        "repository_id": 1300151550,
+        "head_repository_id": 1300151550,
+        "head_branch": "remediation/pre-phase5",
+        "head_sha": "9471562ce54a7d326599fe349ab2eba382fb281b"
+      }
+    }
+  ]
+}

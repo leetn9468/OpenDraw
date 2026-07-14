@@ -62,26 +62,41 @@ and summary log is uploaded.
 
 ## Benchmark regression policy
 
-The absolute BENCH-R3.5 targets bind on owner reference hardware. Hosted CI also
-runs `scripts/check-benchmark-regression.sh`. Each BENCH-1/2/2b/3 p95 and
-BENCH-3 settle value must be <= 1.25 times its baseline. Equality at exactly
-1.25 is accepted using exact decimal arithmetic; the six-decimal printed ratio
-is display-only. Missing, empty, unknown,
-or past-`valid_until` baselines fail closed. The comparison log is uploaded even
-on failure. `scripts/test-benchmark-regression-gate.sh` proves a below-threshold
-fixture passes and a 1.314801 ratio fails.
+The frozen absolute BENCH-R3.5 targets remain blocking wherever the benchmark
+runs, including hosted CI. Local ratio checks use
+`owner-reference-macos15-arm64-baseline.tsv`. Hosted ratio checks must never use
+that owner-local baseline: they use only
+`hosted-macos15-arm64-baseline.tsv`. Each BENCH-1/2/2b/3 p95 and BENCH-3 settle
+value must be <= 1.25 times the provenance-matched baseline. Equality at
+exactly 1.25 is accepted using exact decimal arithmetic; the six-decimal
+printed ratio is display-only. Missing, empty, unknown, or past-`valid_until`
+committed baselines fail closed. The comparison log is uploaded even on
+failure. `scripts/test-benchmark-regression-gate.sh` proves a below-threshold
+fixture passes, exact 1.25 passes, and a 1.314801 ratio fails.
 
 The clearly named `owner-reference-macos15-arm64-baseline.tsv` records the
-accepted owner-reference run at `d68f415`;
-it is explicitly not a hosted-runner artifact. Baseline updates require a reviewed
-commit containing a green known-good hosted run, unchanged scenario/sample
-semantics, source run URL/artifact, measurement date and 90-day expiry. Hosted
-CI #1 at `834526c` did not qualify, so BLOCK-006 remains open even though
-enforcement and failure behavior are implemented.
+accepted owner-reference run at `d68f415`; it is explicitly not a hosted-runner
+artifact and remains the local baseline only. When no committed hosted baseline
+exists, the hosted workflow enters explicit bootstrap mode after the absolute
+gate passes: it writes `mode=BOOTSTRAP ratio_enforcement=OFF`, emits
+definitionally 1.000000 comparisons, and uploads a candidate TSV whose header
+contains the source SHA, `macos-15` runner image, run URL, measurement date, and
+90-day expiry. This first comparison establishes a candidate and is not
+independent regression evidence. After review and commit as
+`hosted-macos15-arm64-baseline.tsv`, subsequent hosted runs enter
+`mode=ENFORCE ratio_enforcement=ON` and invoke the unchanged shared checker.
+Baseline updates require a green known-good hosted run and unchanged
+scenario/sample semantics.
 
 GitHub-hosted macOS timing can have high variance, so 1.25 may flap. It must not
 be loosened silently: any threshold change requires an explicit owner decision,
 rationale, and reviewed baseline-policy update.
+
+Variance watch recorded from CI #5: hosted BENCH-1 p95 was at most about 6.6 ms
+in runs #3/#4 and 13.049 ms in run #5, approximately 2× variation. Therefore a
+1.25 hosted-vs-hosted threshold is a plausible future flap risk. N-of-M,
+hosted-specific thresholds, or informational-only hosted ratios are not
+implemented; each remains owner-decision-only after more qualifying samples.
 
 The qualifying manually dispatched hosted run must execute and pass every job
 defined by the workflow on the final revision, including `startup-memory`,
@@ -109,6 +124,13 @@ tracks descriptor ownership and makes the unchanged 550 MiB fixture allocation
 incompressible. The complete local battery passes at that revision. This was
 not a timing flap: hosted startup p95 remained at most 234.344 ms against the
 unchanged 2,000 ms target. No retry or hosted-specific policy was introduced.
+
+Hosted run CI #5 at commit `9471562` did not qualify. Every absolute benchmark
+target passed, but the workflow incorrectly compared hosted observations to
+the owner-local baseline, producing ratios 2.450977, 2.587156, and 2.257589 for
+BENCH-1/2/2b. Workflow-only correction `b57293c` implements the previously
+ratified hosted bootstrap/enforcement split without changing the shared ratio
+script or any numeric policy.
 
 ## Numeric-policy classification
 
