@@ -32,12 +32,12 @@ The annotated tag `pre-phase5-remediation` has therefore not been created.
 | BLOCK-003 | Peak-memory assertions | `OPEN — LOCAL PASS, HOSTED PENDING` | Corrected decoded-image gate passes locally; qualifying dispatch must pass `startup-memory`. |
 | BLOCK-004 | Startup-p95 enforcement | `OPEN — LOCAL PASS, HOSTED PENDING` | Local 20-process gate passes; qualifying dispatch must pass `startup-memory`. |
 | BLOCK-005 | 100 launches / 10,000 round trips | `OPEN — LOCAL PASS, HOSTED PENDING` | Local sequential process proof passes; qualifying dispatch must execute and pass `nightly-reliability`. |
-| BLOCK-006 | Hosted benchmark ratio proof | **OPEN** | CI #1/#4/#5 are retained failed attempts. Workflow-only fixes `b57293c`/`59eec99` correct CI #5's cross-hardware substitution and validate baseline completeness; a manually dispatched all-eight-jobs-green bootstrap run plus artifacts and URL is still required. |
-| BLOCK-007 | Fresh final-revision battery | `CLOSED` | Complete local battery at `ce3b4b3`; later `b57293c`/`59eec99` are hosted-workflow-only and require no local rerun under the CI #5 directive |
+| BLOCK-006 | Hosted benchmark ratio proof | **OPEN** | CI #1/#4/#5/#6 are retained failed attempts. Corrections through `5d2ea50` address CI #5 baseline provenance and CI #6 ASan deadline isolation; a manually dispatched all-eight-jobs-green bootstrap run plus artifacts and URL is still required. |
+| BLOCK-007 | Fresh final-revision battery | `CLOSED` | Complete local battery at `ce3b4b3`; hosted-only CI #5 inputs required no local rerun, and the affected ASan gate passed 89/89 plus isolated 1/1 at `5d2ea50`. |
 | BLOCK-008 | Reproducibility metadata | `CLOSED` | `docs/phase-4/fuzz-results.md`; environment and benchmark artifacts |
 | BLOCK-009 | Audit traceability | `CLOSED` | `docs/audits/findings-closure-matrix.md` |
 | BLOCK-010 | Correct R4 documentation | `CLOSED` | Incorrect unconditional pass language was removed. |
-| BLOCK-011 | Exact revision accounting | `CLOSED` | Complete battery `ce3b4b3`/`8da5ee8`; hosted-only final input chain `b57293c`/`59eec99` with evidence `e01ac1b`; see `revision-map.md` |
+| BLOCK-011 | Exact revision accounting | `CLOSED` | Complete battery `ce3b4b3`/`8da5ee8`; CI #5 evidence `e01ac1b`; affected ASan rerun `5d2ea50` with evidence `bd4524f`; see `revision-map.md`. |
 | BLOCK-012 | Phase 5 entry tag | **OPEN** | `pre-phase5-remediation` is intentionally absent. |
 
 ## Revision model
@@ -57,6 +57,8 @@ The annotated tag `pre-phase5-remediation` has therefore not been created.
 | `b57293c` | Added hosted-only bootstrap/enforcement baseline selection without changing the shared ratio checker. | No local battery rerun; new hosted run required. |
 | `59eec99` | Added fail-closed completeness validation for the five hosted baseline metrics. | No local battery rerun; actual workflow block revalidated in both modes. |
 | `e01ac1b` | Retained CI #5 evidence, variance record, and actual workflow-mode dry-run proof. | Evidence only; no build input changed. |
+| `5d2ea50` | Isolated the unchanged adversarial deadline test within the shared ASan gate. | Affected local gate rerun: 89/89 plus isolated 1/1 PASS. |
+| `bd4524f` | Retained CI #6 failure and exact-revision corrective evidence. | Evidence only; no build input changed. |
 
 ## Environment
 
@@ -80,7 +82,7 @@ This is the owner-approved minimum-OS runtime-proof environment.
 | Debug tests | `swift test` | 89/89, 2.419 s | `artifacts/r4/debug-tests.txt` |
 | Release build | `swift build -c release` | PASS | `artifacts/r4/release-build.txt` |
 | Release tests | `swift test -c release` | 89/89, 1.136 s | `artifacts/r4/release-tests.txt` |
-| AddressSanitizer | `swift test --sanitize=address` | 89/89, 11.715 s | `artifacts/r4/asan-tests.txt` |
+| AddressSanitizer | `scripts/run-address-sanitizer-tests.sh` | 89/89 plus isolated deadline test 1/1 at `5d2ea50` | `artifacts/r4/asan-tests-run6-fix.txt` |
 | Coverage | `swift test --enable-code-coverage`; `scripts/check-coverage.sh 55` | 87.93% versus 55% floor | `coverage-tests.txt`, `coverage-summary.txt` |
 | Formatting | `xcrun swift-format lint --recursive --strict Sources Tests Package.swift` | PASS | `format.txt` |
 | Module direction | `scripts/check-module-dependencies.sh` | PASS | `module-dependencies.txt` |

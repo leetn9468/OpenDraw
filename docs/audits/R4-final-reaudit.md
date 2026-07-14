@@ -10,10 +10,12 @@ The product-code re-audit closes the eight pre-Phase-5 findings, and
 VERIFY-001 through VERIFY-021 remain verified and frozen. R4 acceptance is
 nevertheless **failed**: BLOCK-002 real minimum-OS runtime evidence now passes,
 but a qualifying all-eight-jobs-green hosted execution plus a hosted
-baseline/run artifact (BLOCK-003–006) is missing. CI #1/#4/#5 did not qualify;
+baseline/run artifact (BLOCK-003–006) is missing. CI #1/#4/#5/#6 did not qualify;
 CI #4's defects are corrected with a complete local battery at `ce3b4b3`, and
 CI #5's cross-hardware baseline substitution is corrected in the hosted-only
-workflow revisions `b57293c`/`59eec99`.
+workflow revisions `b57293c`/`59eec99`. CI #6's contended ASan deadline test is
+corrected at `5d2ea50` with an exact-revision 89-plus-1 ASan pass and no numeric
+gate change.
 No Phase 5 entry tag exists.
 
 No new production mathematical behavior requires a verification-queue entry.
@@ -32,7 +34,7 @@ geometry or document semantics.
 | Interaction/UI | Undo/coalescing, direct anchors, grouping/compound invariance, transform gestures, snapping, text/image, zoom/pan, headless journey | Pass. Automated AppKit behavior does not replace operator checks for every hardware/input-device combination. |
 | Accessibility | Deterministic document/layer/selection tree and application canvas metadata | Pass automated baseline. Manual VoiceOver interaction remains an explicit release-operator check. |
 | Performance | Fresh current-tree run using sealed BENCH-R3.5 definitions; BENCH-2b forces 360/360 nonzero strip redraws | Local absolute targets pass. Hosted ratio enforcement exists, but hosted baseline/run proof is missing (BLOCK-006). |
-| Concurrency/memory | Swift 6 checks, ASan suite, decoded 50 MP PRD-derived RSS gates, forced-failure fixture, bounded budgets, sequential 100-process/10,000-cycle loop | Local gates pass with direct failure/PID evidence. First hosted execution remains open. Long-duration Instruments remains an operator check. |
+| Concurrency/memory | Swift 6 checks, ASan suite, decoded 50 MP PRD-derived RSS gates, forced-failure fixture, bounded budgets, sequential 100-process/10,000-cycle loop | Local gates pass with direct failure/PID evidence. A qualifying hosted execution remains open. Long-duration Instruments remains an operator check. |
 | Architecture | Package dependency graph and forbidden-import script | Pass. No external package dependency or reverse core-to-UI dependency was found. |
 | Public API/release | Symbol-graph emission, macOS 15 minimum-target compile, arm64 app assembly and hardened-runtime signing verification | Local checks pass. The release binary and plist declare minimum 15.0, and same-session codec/full-app runtime artifacts close BLOCK-002. CI signing is ad hoc; Developer ID/notarization requires owner credentials. |
 | Verification protocol | Queue status review and process-violation record for VERIFY-019 | Pass. No pending/correction-required entry and no unqueued new mathematical reliance. |

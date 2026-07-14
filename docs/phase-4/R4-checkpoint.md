@@ -21,14 +21,16 @@ no conditional pass and no Phase 5 entry tag is claimed.
 | `b57293c` | Workflow-only hosted benchmark bootstrap/enforcement selection after CI #5 | No local rerun by directive; actual workflow block dry-run in BOOTSTRAP and failing ENFORCE modes |
 | `59eec99` | Workflow-only fail-closed validation for exactly five unique hosted baseline metrics | No local rerun by directive; BOOTSTRAP/ENFORCE extraction and syntax dry-runs repeated |
 | `e01ac1b` | Retain CI #5 logs/artifacts, mode proof, policy, and triage report | Evidence/documentation only |
+| `5d2ea50` | Isolate the unchanged adversarial wall-clock test from unrelated ASan-suite scheduling after CI #6 | Shared local/hosted ASan gate rerun: 89/89 plus isolated 1/1 PASS |
+| `bd4524f` | Retain CI #6 protected log, API metadata, corrective ASan output, policy, and triage report | Evidence/documentation only |
 | Documentation closure commit | Project state, A6 package, audit/checkpoint/policy corrections and retained logs only | Outside `Sources`, `Tests`, `Package.swift`, scripts and CI build inputs; formatting/diff/link checks rerun |
 
-The current final build-input revision is `59eec99`; the current complete local
-battery revision is `ce3b4b3`. The difference is one hosted-only workflow file,
-governed by the CI #5 directive's no-local-rerun rule. Frozen targets, ceilings,
-tolerances, retry policy, shared ratio semantics, and VERIFY-001–021 are
-unchanged. Evidence commits `8da5ee8` and `e01ac1b` retain the exact local
-battery plus CI #4/#5 triage.
+The current final build-input revision is `5d2ea50`; the current complete local
+battery revision is `ce3b4b3`. Hosted-only CI #5 inputs required no local rerun.
+The later shared ASan input was rerun at `5d2ea50`; no other local gate input
+changed. Frozen targets, ceilings, tolerances, retry policy, shared ratio
+semantics, and VERIFY-001–021 are unchanged. Evidence commits `8da5ee8`,
+`e01ac1b`, and `bd4524f` retain the local battery and CI #4/#5/#6 triage.
 
 ## Exact local environment
 
@@ -47,7 +49,7 @@ This is the owner-approved real minimum-OS runtime-proof environment.
 |---|---|---|
 | `swift build -c debug`; `swift test` | PASS; 90 tests in 2.409 s | `debug-build.txt`, `debug-tests.txt` |
 | `swift build -c release`; `swift test -c release` | PASS; 90 tests in 1.109 s | `release-build.txt`, `release-tests.txt` |
-| `swift test --sanitize=address` | PASS; 90 tests in 11.082 s | `asan-tests.txt` |
+| `scripts/run-address-sanitizer-tests.sh` | PASS at `5d2ea50`; 89/89 in 11.232 s plus isolated deadline test 1/1 in 0.036 s | `asan-tests-run6-fix.txt` |
 | `swift test --enable-code-coverage`; `scripts/check-coverage.sh 55` | PASS; 87.94% versus 55% floor | `coverage-tests.txt`, `coverage-summary.txt` |
 | `xcrun swift-format lint --recursive --strict Sources Tests Package.swift` | PASS | `format.txt` |
 | `scripts/check-module-dependencies.sh`; `scripts/check-clean-room.sh` | PASS | `module-dependencies.txt`, `clean-room.txt` |
@@ -95,6 +97,10 @@ measured frames per timed scenario, display sleep inhibited, production paths.
   workflow compared hosted observations with the owner-local baseline.
   Workflow-only fixes `b57293c`/`59eec99` now bootstrap and validate a hosted candidate and preserve
   blocking 1.25 enforcement once that candidate is reviewed and committed.
+- CI #6 is also a retained failed attempt: the benchmark bootstrap passed, but
+  the ASan whole-suite scheduler consumed the first mutation's wall-clock
+  deadline. Revision `5d2ea50` preserves the unchanged 3/10-second assertions
+  and runs that test in an isolated ASan invocation after the other 89 tests.
 - BLOCK-003/004/005: corrected local gates pass, but their hosted-CI execution
   components remain open until the qualifying manual dispatch shows `startup-memory`,
   `nightly-reliability`, `benchmark`, and `adversarial-golden` green with a run

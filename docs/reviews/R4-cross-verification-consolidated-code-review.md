@@ -388,7 +388,7 @@ Status: **RESOLVED**
 | Concern | Code area | Reason for review |
 |---|---|---|
 | Retained bitmap budget | `Sources/DocumentModel/Document.swift:31`; `Sources/CanvasRender/SceneBitmapCache.swift:34–44` | `maximumRetainedBitmapPixels = 67_108_864` is independent from the image pixel cap even though the current numeric values match. |
-| Hosted job definitions | `.github/workflows/ci.yml` | Defines all eight `macos-15` jobs; CI #1/#4/#5 did not qualify, and a manual dispatch after workflow corrections `b57293c`/`59eec99` remains pending. |
+| Hosted job definitions | `.github/workflows/ci.yml` | Defines all eight `macos-15` jobs; CI #1/#4/#5/#6 did not qualify, and a manual dispatch after corrections through `5d2ea50` remains pending. |
 | Startup result interpretation | `docs/phase-4/ci-policy.md` | Prevents the static-initializer probe from being represented as click-to-window startup. |
 | Performance results | `docs/phase-4/R4-checkpoint.md`; `docs/remediation/A6-R3-checkpoint.md` | Records the final BENCH and startup numbers and distinguishes local proof from hosted enforcement. |
 | Project status | `docs/PROJECT_STATE.md` | Authoritative blocker and Phase 5 entry state. |
@@ -432,7 +432,7 @@ Status: **RESOLVED**
 |---|---|
 | Debug | 89 tests passed, 2.419 s |
 | Release | 89 tests passed, 1.136 s |
-| ASan | 89 tests passed, 11.715 s |
+| ASan | 89 tests plus isolated deadline test 1 passed at `5d2ea50` |
 | Coverage | 87.93%, minimum 55% |
 | Startup | p50 142.652 ms; p95 152.286 ms; max 183.569 ms; target 2,000 ms |
 | Memory settle | 214,548,480 bytes; local pass |
@@ -447,8 +447,9 @@ Status: **RESOLVED**
 
 ## Remaining actions before Phase 5
 
-1. **BLOCK-006:** manually dispatch a hosted CI run after `b6cee43` with all
-   four required jobs green; retain its run URL and artifacts.
+1. **BLOCK-006:** manually dispatch hosted CI on the exact final revision after
+   `5d2ea50`, with all eight jobs executed and green; retain its run URL and
+   artifacts.
 2. Bootstrap a clearly identified hosted benchmark baseline and comparison
    artifact without overwriting the owner-reference provenance.
 3. Update BLOCK-003/004/005 only after their hosted jobs actually pass.
