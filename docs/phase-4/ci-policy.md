@@ -104,6 +104,14 @@ BENCH-1/2/2b/3 and settle retained at least 68.51% headroom, and startup p95
 retained 88.70%. No new near-boundary flap risk is recorded. The existing
 approximately 2x hosted cross-run variance warning remains in force unchanged.
 
+Manually dispatched CI #8 at `94fb0f0` is the qualifying hosted run: all eight
+`macos-15` jobs executed and passed. Its benchmark comparison was explicitly
+bootstrap-only (`mode=BOOTSTRAP`, `ratio_enforcement=OFF`), so the 1.000000
+ratios are baseline establishment rather than independent regression evidence.
+The reviewed candidate is retained as `hosted-macos15-arm64-baseline.tsv` by
+`88c3d58`; every later hosted run automatically enters enforcement mode and
+applies the unchanged inclusive 1.25 ratio.
+
 The qualifying manually dispatched hosted run must execute and pass all jobs
 defined by the workflow on the final revision (currently eight), including `startup-memory`,
 `nightly-reliability`, `benchmark`, and `adversarial-golden`, and retain their

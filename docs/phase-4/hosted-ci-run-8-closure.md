@@ -43,6 +43,17 @@ retained by `8da5ee8`. Later affected-gate accounting is explicit in
 `artifacts/r4/revision-map.md`: `b6cee43` to `d1edd2f`, `b57293c`/`59eec99` to
 `e01ac1b`/`2cfa845`, and `5d2ea50` to `bd4524f`.
 
+Superseded hosted attempts remain evidence, but none satisfies the all-eight-job
+closure rule:
+
+| Attempt | URL | Why it did not qualify |
+|---|---|---|
+| CI #1 | <https://github.com/leetn9468/OpenDraw/actions/runs/29315797697> | Benchmark and startup-memory failed on missing hosted commands; reliability was skipped. |
+| Run #3 | <https://github.com/leetn9468/OpenDraw/actions/runs/29325516216> | Seven push-triggered jobs passed; reliability was skipped. |
+| CI #4 | <https://github.com/leetn9468/OpenDraw/actions/runs/29327190429> | Debug-release and startup-memory failed; reliability was skipped. |
+| CI #5 | <https://github.com/leetn9468/OpenDraw/actions/runs/29340697610> | Hosted benchmark incorrectly compared against the owner-reference baseline; reliability was skipped. |
+| CI #6 | <https://github.com/leetn9468/OpenDraw/actions/runs/29345329291> | Sanitizer failed under cross-suite contention; reliability was skipped. |
+
 ## EVIDENCE-2 — all hosted jobs
 
 Every API job carries label `macos-15` and conclusion `success`:

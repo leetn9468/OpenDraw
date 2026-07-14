@@ -10,15 +10,16 @@ Detailed issue response revision: `076e1ef`
 ## Review outcome
 
 All eleven cross-verification issues have committed local resolutions and proof.
-This does not authorize Phase 5. The current project verdict remains:
+Technical hosted closure does not by itself authorize Phase 5. The current
+project verdict remains:
 
 > **FAILED — PHASE 5 BLOCKED**
 
 BLOCK-002 is closed by same-session codec reliability and full-app startup on
 the owner-reference real macOS 15 Apple Silicon machine at `f6ec81a`.
-BLOCK-003/004/005 retain hosted-execution components, BLOCK-006 remains open,
-and BLOCK-012 prohibits
-the Phase 5 tag until the external blockers close. No
+BLOCK-003/004/005/006 are closed by qualifying CI #8 and evidence `88c3d58`.
+BLOCK-012 prohibits the Phase 5 tag until the mandatory named human A7
+spot-check is recorded. No
 `pre-phase5-remediation` tag has been created.
 
 ## Commit map
@@ -186,7 +187,7 @@ The PRD ceilings were not altered. Evidence is retained in
 `artifacts/r4/peak-memory.txt` and
 `artifacts/r4/peak-memory-failure-fixture.txt`.
 
-Status: **RESOLVED LOCALLY — HOSTED COMPONENT PENDING**
+Status: **RESOLVED — HOSTED COMPONENT CLOSED BY CI #8**
 
 ## ISSUE-04 — Reliability-run semantics and timing
 
@@ -219,7 +220,7 @@ line=$(/usr/bin/time -p perl -e '$SIG{ALRM}=sub{exit 124}; alarm shift; exec @AR
   20-launch full-app startup gate in the same machine session.
 - Artifact: `artifacts/r4/reliability-100x100.txt`.
 
-Status: **RESOLVED LOCALLY — MACOS 13 RELIABILITY/STARTUP AND HOSTED RUNS PENDING**
+Status: **RESOLVED — MINIMUM-OS AND HOSTED RUNS CLOSED**
 
 ## ISSUE-05 — A6 exact permanent-test traceability
 
@@ -280,10 +281,9 @@ Status: **RESOLVED**
 
 ### Finding
 
-At the time of the consolidated review, no remote or hosted run existed, so
-BLOCK-003/004/005 could not be described as unconditionally closed. Hosted CI
-#1 later ran at `834526c`, but did not qualify: two jobs exited 127 and the
-reliability lane was skipped. The blockers therefore remain open.
+At the time of the consolidated review, no qualifying remote run existed.
+Manually dispatched CI #8 later executed all eight jobs successfully at
+`94fb0f0`; artifacts and the hosted baseline are retained by `88c3d58`.
 
 ### State area
 
@@ -291,18 +291,16 @@ reliability lane was skipped. The blockers therefore remain open.
 
 | Blocker | Current state |
 |---|---|
-| BLOCK-003 | `OPEN — LOCAL PASS, HOSTED PENDING` |
-| BLOCK-004 | `OPEN — LOCAL PASS, HOSTED PENDING` |
-| BLOCK-005 | `OPEN — LOCAL PASS, HOSTED PENDING` |
-| BLOCK-006 | `OPEN` |
+| BLOCK-003 | `CLOSED` |
+| BLOCK-004 | `CLOSED` |
+| BLOCK-005 | `CLOSED` |
+| BLOCK-006 | `CLOSED` |
 
-The qualifying manually dispatched hosted run must show all eight jobs green,
-including `startup-memory`, `nightly-reliability`, `benchmark`, and
-`adversarial-golden`, retain their artifacts and URL, and bootstrap a clearly
-hosted baseline. This closes the hosted portions of BLOCK-003/004/005
-simultaneously.
+CI #8 satisfies the all-eight-job rule, retains the artifacts and URL, and
+bootstraps the clearly hosted baseline. Its first comparison is definitionally
+1.0; meaningful ratio enforcement begins next run.
 
-Status: **RESOLVED AS DOCUMENTATION; EXTERNAL EXECUTION REMAINS OPEN**
+Status: **RESOLVED — EXTERNAL EXECUTION CLOSED BY CI #8**
 
 ## ISSUE-08 — AUDIT-005/006 regression proof
 
@@ -388,7 +386,7 @@ Status: **RESOLVED**
 | Concern | Code area | Reason for review |
 |---|---|---|
 | Retained bitmap budget | `Sources/DocumentModel/Document.swift:31`; `Sources/CanvasRender/SceneBitmapCache.swift:34–44` | `maximumRetainedBitmapPixels = 67_108_864` is independent from the image pixel cap even though the current numeric values match. |
-| Hosted job definitions | `.github/workflows/ci.yml` | Defines all eight `macos-15` jobs; CI #1/#4/#5/#6 did not qualify, and a manual dispatch after corrections through `5d2ea50` remains pending. |
+| Hosted job definitions | `.github/workflows/ci.yml` | Defines all eight `macos-15` jobs; CI #1/#4/#5/#6 did not qualify, while manually dispatched CI #8 passed all eight at `94fb0f0` and is retained by `88c3d58`. |
 | Startup result interpretation | `docs/phase-4/ci-policy.md` | Prevents the static-initializer probe from being represented as click-to-window startup. |
 | Performance results | `docs/phase-4/R4-checkpoint.md`; `docs/remediation/A6-R3-checkpoint.md` | Records the final BENCH and startup numbers and distinguishes local proof from hosted enforcement. |
 | Project status | `docs/PROJECT_STATE.md` | Authoritative blocker and Phase 5 entry state. |
@@ -447,17 +445,11 @@ Status: **RESOLVED**
 
 ## Remaining actions before Phase 5
 
-1. **BLOCK-006:** manually dispatch hosted CI on the exact final revision after
-   `5d2ea50`, with all eight jobs executed and green; retain its run URL and
-   artifacts.
-2. Bootstrap a clearly identified hosted benchmark baseline and comparison
-   artifact without overwriting the owner-reference provenance.
-3. Update BLOCK-003/004/005 only after their hosted jobs actually pass.
-4. At A7 final acceptance, the human reviewer must open
+1. At A7 final acceptance, the human reviewer must open
    `artifacts/r4/a6-test-existence.txt`, `artifacts/r4/revision-map.md`, and the
    exact 14-row table in `docs/remediation/A6-R3-checkpoint.md`.
-5. Keep BLOCK-012 open and do not create `pre-phase5-remediation` while any
-   prerequisite remains open.
+2. Record reviewer identity/time, mark A6/A7 accepted, close BLOCK-012, then
+   create and record `pre-phase5-remediation` on the proven revision.
 
 Until those actions are complete, A8 remains blocked and the final verdict is
 **FAILED — PHASE 5 BLOCKED**.

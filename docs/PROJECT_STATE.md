@@ -11,8 +11,8 @@ that directive. A row is closed only by committed, directly named evidence.
 | Acceptance | State | Evidence / blocker |
 |---|---|---|
 | A6 — R3/R3-B checkpoint package | `CLOSED` | Exact 14-row table, zero-new-production-math declaration, grep proof and 19-test combined pass; revalidated in the complete `f6ec81a` battery |
-| A7 — R4 CI/reliability acceptance | `NOT ACCEPTED` | BLOCK-003/004/005 hosted components and BLOCK-006 remain unresolved |
-| A8 — Phase 5 entry | `BLOCKED` | No tag may be created while any blocker is open |
+| A7 — R4 CI/reliability acceptance | `NOT ACCEPTED — HUMAN SPOT-CHECK PENDING` | Technical hosted requirements closed through CI #8; final acceptance requires a named human to inspect the three mandatory A7 files directly. |
+| A8 — Phase 5 entry | `BLOCKED` | BLOCK-012 and the annotated tag remain open until the human A7 spot-check is recorded. |
 
 ## Hard blockers
 
@@ -20,20 +20,20 @@ that directive. A row is closed only by committed, directly named evidence.
 |---|---|---|---|
 | BLOCK-001 | Restore the exact 14-item A6 closure package | `CLOSED` | `docs/remediation/A6-R3-checkpoint.md`; `a6-test-existence.txt`; `a6-filtered-tests.txt`; explicit test-side numeric-policy classification and zero-new-production-math declaration |
 | BLOCK-002 | Prove the real minimum-OS (macOS 15.x) Apple Silicon release smoke | `CLOSED` | On MacBookPro18,2 / Apple M1 Max / 64 GB / macOS 15.7.5 build 24G624 / Swift 6.1.2 at current build-input revision `ce3b4b3`: `macos15-reliability-100x100.txt` proves 100 distinct clean processes and 10,000 round trips with zero failures; `macos15-startup-p95.txt` proves 20 full-app launches with p95 143.960 ms ≤ 2,000 ms. Both retain environment metadata. |
-| BLOCK-003 | Enforced peak-memory assertions | `OPEN — LOCAL PASS, HOSTED PENDING` | At `ce3b4b3`, the production gate passes at 214,564,864/224,821,248 bytes and the unchanged 550 MiB forced fixture reliably fails at 791,560,192 bytes. CI #4 exposed and `ce3b4b3` fixed the compressible-allocation fixture defect without changing the 500/650 MiB ceilings. Hosted closure requires `startup-memory` to pass as part of one final-revision run in which all eight workflow jobs are green. |
-| BLOCK-004 | Enforced startup p95 | `OPEN — LOCAL PASS, HOSTED PENDING` | At `ce3b4b3`, the local nearest-rank 20-process gate passes with p95 143.960 ms. Hosted closure requires `startup-memory` to pass as part of one final-revision run in which all eight workflow jobs are green; static-initializer timing excludes exec/dyld/pre-main. |
-| BLOCK-005 | 100 clean launches and 10,000 aggregate native round trips | `OPEN — LOCAL PASS, HOSTED PENDING` | At `ce3b4b3`, the sequential local run records 100 distinct PIDs, 10,000 cycles, and zero failures. Hosted closure requires executed, green `nightly-reliability` as part of one final-revision run in which all eight workflow jobs are green. |
-| BLOCK-006 | Hosted-CI execution and ratio proof | `OPEN` | Closure requires all eight jobs currently defined by the workflow to execute and pass in one manually dispatched run on the final revision, with retained artifacts/run URL and a clearly hosted baseline/comparison bootstrap. Partial-green runs never qualify and are retained as failed attempts with their URLs. Failed attempts retained: CI #1 (`29315797697`, portability), CI #4 (`29327190429`, descriptor/memory-fixture defects), CI #5 (`29340697610`, cross-hardware benchmark baseline), and CI #6 (`29345329291`, contended ASan deadline test). Corrections through `5d2ea50` preserve all numeric gates; no qualifying run has been evaluated on the final revision. |
-| BLOCK-007 | Fresh final-revision full verification battery | `CLOSED LOCALLY` | The complete local battery passed at code revision `ce3b4b3`. Hosted-only benchmark corrections required no local rerun. The later shared ASan gate input at `5d2ea50` was rerun at that exact revision and passed 89/89 plus the isolated unchanged corpus test 1/1; no other local gate input changed. Artifact mapping is in `revision-map.md`. |
+| BLOCK-003 | Enforced peak-memory assertions | `CLOSED` | Local gate passes at `ce3b4b3`; qualifying CI #8 `startup-memory` passes on `94fb0f0` at 214,106,112/223,936,512 bytes and the unchanged forced fixture fails as required at 790,921,216 bytes. |
+| BLOCK-004 | Enforced startup p95 | `CLOSED` | Local gate passes at `ce3b4b3`; qualifying CI #8 passes 20 hosted launches at p95 225.979 ms against the unchanged 2,000 ms target. |
+| BLOCK-005 | 100 clean launches and 10,000 aggregate native round trips | `CLOSED` | Qualifying CI #8 executes `nightly-reliability`: 100 distinct processes, 10,000 cycles, zero crashes/nonzero exits/timeouts/corruption. |
+| BLOCK-006 | Hosted-CI execution and ratio proof | `CLOSED` | Manually dispatched CI #8 (`29347892897`) at `94fb0f0` executed all eight `macos-15` jobs successfully. Artifacts/logs are retained by `88c3d58`; the hosted candidate is committed at the enforced path with exact 90-day provenance. CI #8 was bootstrap-only (`ratio_enforcement=OFF`, definitionally 1.000000); the next hosted run automatically enforces the unchanged 1.25 ratio. Failed/non-qualifying attempts remain recorded: `29325516216`, CI #4, CI #5 and CI #6. |
+| BLOCK-007 | Fresh final-revision full verification battery | `CLOSED` | Complete local battery passed at `ce3b4b3`; the affected shared ASan gate passed at `5d2ea50`; qualifying CI #8 passed all eight jobs at `94fb0f0`; hosted baseline validation and ratio fixtures passed at `88c3d58`. Artifact mapping is in `revision-map.md`. |
 | BLOCK-008 | Reproducibility metadata for corpus and benchmarks | `CLOSED` | `docs/phase-4/fuzz-results.md`, benchmark runner metadata, and retained `artifacts/r4/` logs |
 | BLOCK-009 | Exact audit closure-matrix traceability | `CLOSED` | `docs/audits/findings-closure-matrix.md` names exact test files/functions and commits |
 | BLOCK-010 | Correct and internally consistent R4 documents | `CLOSED` | Documentation closure commit containing this tracker and the corrected checkpoint/audit/policy files |
-| BLOCK-011 | Exact revision accounting | `CLOSED` | `revision-map.md` maps the complete local battery to `ce3b4b3`/`8da5ee8`, CI #5 to `e01ac1b`, and the affected ASan rerun at `5d2ea50` to evidence `bd4524f`. Dependency, clean-room, symbol-graph, and release assembly/signature gates remain explicitly retained at the post-`ce3b4b3` battery. |
-| BLOCK-012 | Annotated Phase 5 entry tag | `OPEN` | `pre-phase5-remediation` intentionally does not exist because BLOCK-006 and the hosted components of BLOCK-003/004/005 remain open. |
+| BLOCK-011 | Exact revision accounting | `CLOSED` | `revision-map.md` maps the complete battery and every later affected-gate rerun through qualifying CI #8 and evidence commit `88c3d58`. CI #8 directly passes dependency, clean-room, symbol-graph and release assembly/signature on `94fb0f0`. |
+| BLOCK-012 | Annotated Phase 5 entry tag | `OPEN — HUMAN SPOT-CHECK PENDING` | `pre-phase5-remediation` remains absent until a named human directly inspects the three mandatory A7 files and that inspection is recorded. |
 
 ## Tag state
 
-`pre-phase5-remediation`: **ABSENT — REQUIRED WHILE A8 IS BLOCKED**.
+`pre-phase5-remediation`: **ABSENT — REQUIRED UNTIL HUMAN A7 SPOT-CHECK**.
 
 ## Frozen owner decisions
 

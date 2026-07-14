@@ -6,12 +6,10 @@ Documentation revision at preparation: `f44b7e4`
 
 ## Executive verdict
 
-The locally executable engineering work is complete and passing, but R4/A7 is
-not accepted. A8 and Phase 5 entry remain blocked because one required external
-proof does not exist:
-
-1. A hosted-CI benchmark baseline and comparison run with retained artifacts and
-   a run URL.
+The local engineering work and technical hosted proof are complete. R4/A7 is
+not yet finally accepted because the mandatory named human three-file
+spot-check has not been recorded. A8 and Phase 5 entry remain blocked on that
+acceptance step and the annotated tag.
 
 The annotated tag `pre-phase5-remediation` has therefore not been created.
 
@@ -20,8 +18,8 @@ The annotated tag `pre-phase5-remediation` has therefore not been created.
 | Acceptance | State | Evidence / reason |
 |---|---|---|
 | A6 — R3/R3-B checkpoint package | `CLOSED` | The original 14 feature groups are mapped to exact production symbols, tests and commits in `docs/remediation/A6-R3-checkpoint.md`. |
-| A7 — R4 CI/reliability acceptance | `NOT ACCEPTED` | BLOCK-003/004/005 hosted components and BLOCK-006 remain open. |
-| A8 — Phase 5 entry | `BLOCKED` | The required entry tag cannot exist while a hard blocker remains. |
+| A7 — R4 CI/reliability acceptance | `NOT ACCEPTED — HUMAN SPOT-CHECK PENDING` | CI #8 closes the technical hosted requirements; the named human must inspect the three mandatory files directly. |
+| A8 — Phase 5 entry | `BLOCKED` | BLOCK-012/tag creation waits for recorded human A7 acceptance. |
 
 ## BLOCK-001–012 status
 
@@ -29,16 +27,16 @@ The annotated tag `pre-phase5-remediation` has therefore not been created.
 |---|---|---|---|
 | BLOCK-001 | Restore the exact 14-item A6 package | `CLOSED` | `docs/remediation/A6-R3-checkpoint.md` |
 | BLOCK-002 | Real minimum-OS macOS 15 Apple Silicon runtime proof | **CLOSED** | Revalidated at `ce3b4b3` on the owner-reference MacBookPro18,2/macOS 15.7.5: 100 distinct PIDs/10,000 round trips/zero failures and 20 launches with p95 143.960 ms ≤ 2,000 ms. |
-| BLOCK-003 | Peak-memory assertions | `OPEN — LOCAL PASS, HOSTED PENDING` | Corrected decoded-image gate passes locally; qualifying dispatch must pass `startup-memory`. |
-| BLOCK-004 | Startup-p95 enforcement | `OPEN — LOCAL PASS, HOSTED PENDING` | Local 20-process gate passes; qualifying dispatch must pass `startup-memory`. |
-| BLOCK-005 | 100 launches / 10,000 round trips | `OPEN — LOCAL PASS, HOSTED PENDING` | Local sequential process proof passes; qualifying dispatch must execute and pass `nightly-reliability`. |
-| BLOCK-006 | Hosted benchmark ratio proof | **OPEN** | CI #1/#4/#5/#6 are retained failed attempts. Corrections through `5d2ea50` address CI #5 baseline provenance and CI #6 ASan deadline isolation; a manually dispatched all-eight-jobs-green bootstrap run plus artifacts and URL is still required. |
+| BLOCK-003 | Peak-memory assertions | `CLOSED` | Qualifying CI #8 `startup-memory` passes production settle/export and the required failing fixture. |
+| BLOCK-004 | Startup-p95 enforcement | `CLOSED` | Qualifying CI #8 passes 20 launches at p95 225.979 ms ≤ 2,000 ms. |
+| BLOCK-005 | 100 launches / 10,000 round trips | `CLOSED` | Qualifying CI #8 executes 100 distinct processes/10,000 cycles with zero failures. |
+| BLOCK-006 | Hosted benchmark ratio proof | **CLOSED** | CI #8 ran all eight jobs green at `94fb0f0`; `88c3d58` retains artifacts/logs and the hosted baseline with the bootstrap caveat. |
 | BLOCK-007 | Fresh final-revision battery | `CLOSED` | Complete local battery at `ce3b4b3`; hosted-only CI #5 inputs required no local rerun, and the affected ASan gate passed 89/89 plus isolated 1/1 at `5d2ea50`. |
 | BLOCK-008 | Reproducibility metadata | `CLOSED` | `docs/phase-4/fuzz-results.md`; environment and benchmark artifacts |
 | BLOCK-009 | Audit traceability | `CLOSED` | `docs/audits/findings-closure-matrix.md` |
 | BLOCK-010 | Correct R4 documentation | `CLOSED` | Incorrect unconditional pass language was removed. |
 | BLOCK-011 | Exact revision accounting | `CLOSED` | Complete battery `ce3b4b3`/`8da5ee8`; CI #5 evidence `e01ac1b`; affected ASan rerun `5d2ea50` with evidence `bd4524f`; see `revision-map.md`. |
-| BLOCK-012 | Phase 5 entry tag | **OPEN** | `pre-phase5-remediation` is intentionally absent. |
+| BLOCK-012 | Phase 5 entry tag | **OPEN — HUMAN SPOT-CHECK PENDING** | `pre-phase5-remediation` is intentionally absent. |
 
 ## Revision model
 
@@ -59,6 +57,8 @@ The annotated tag `pre-phase5-remediation` has therefore not been created.
 | `e01ac1b` | Retained CI #5 evidence, variance record, and actual workflow-mode dry-run proof. | Evidence only; no build input changed. |
 | `5d2ea50` | Isolated the unchanged adversarial deadline test within the shared ASan gate. | Affected local gate rerun: 89/89 plus isolated 1/1 PASS. |
 | `bd4524f` | Retained CI #6 failure and exact-revision corrective evidence. | Evidence only; no build input changed. |
+| `e8724aa` | Corrected all-eight-job closure wording and ADR-011 evidence accounting. | Pre-evaluation documentation only. |
+| `88c3d58` | Retained qualifying CI #8 artifacts/logs and committed the hosted baseline. | Hosted technical closure; affected ratio validation rerun. |
 
 ## Environment
 
@@ -93,8 +93,8 @@ This is the owner-approved minimum-OS runtime-proof environment.
 | Golden rendering | `swift test --filter compositeSceneMatchesProjectGolden` | PASS | `golden-test.txt` |
 | UI/accessibility | `swift test --filter 'headlessUIJourney|accessibilityTreeExposes'` | PASS | `ui-accessibility-tests.txt` |
 | Release integrity | `scripts/build-release-app.sh`; `codesign -dvvv dist/OpenDraw.app` | arm64, ad-hoc hardened-runtime signature | `release-integrity.txt` |
-| Startup | `scripts/check-startup-p95.sh 20 artifacts/r4/macos15-startup-p95.txt` | PASS; minimum-OS runtime proof; hosted job pending separately | `macos15-startup-p95.txt`, `startup-p95.txt` |
-| Peak memory | `scripts/check-peak-memory.sh artifacts/r4/peak-memory.txt` | LOCAL PASS at `b6cee43` with decoded images; hosted pending | `peak-memory.txt` |
+| Startup | `scripts/check-startup-p95.sh 20 ...` | Local proof plus qualifying hosted CI #8 p95 225.979 ms PASS | local and `hosted/ci-8-startup-p95.txt` |
+| Peak memory | `scripts/check-peak-memory.sh ...` | Local and qualifying hosted CI #8 settle/export PASS | local and `hosted/ci-8-peak-memory.txt` |
 | Memory failure fixture | `scripts/test-peak-memory-gate.sh artifacts/r4/peak-memory-failure-fixture.txt` | PASS: underlying gate fails as required | `peak-memory-failure-fixture.txt` |
 | Reliability | `scripts/nightly-reliability.sh artifacts/r4/reliability-100x100.txt` | PASS at `b6cee43` with 100 distinct PIDs; minimum-OS proof remains retained separately | `reliability-100x100.txt`, `macos15-reliability-100x100.txt` |
 | Benchmark | `scripts/run-render-benchmark.sh artifacts/r4/render-benchmark.txt` | All absolute targets pass at `b6cee43` | `render-benchmark.txt` |
@@ -197,7 +197,7 @@ differs from the roughly 140 ms UI startup probe. The artifact records every
 PID, external process-wall duration and inner smoke duration. This result was
 produced on the owner-approved minimum-OS environment, macOS 15.7.5, in the
 same session as the full-app startup artifact and closes BLOCK-002. The separate
-hosted reliability job remains pending.
+qualifying hosted CI #8 also executes the reliability job successfully.
 
 ## Benchmark and ratio gate
 
@@ -246,9 +246,11 @@ frame. A zero-strip frame traps the harness and produces a nonzero process exit.
 - `benchmarks/owner-reference-macos15-arm64-baseline.tsv`
 - `.github/workflows/ci.yml`, job `benchmark`
 
-The committed baseline came from the accepted owner-reference run at `d68f415`.
-It is not represented as a hosted-runner baseline. BLOCK-006 needs a real hosted
-run, retained artifact and run URL.
+The owner-reference baseline remains local-only. Qualifying CI #8 produced the
+separate hosted baseline now committed at
+`benchmarks/hosted-macos15-arm64-baseline.tsv`, with run URL, source SHA,
+runner image, date and 90-day expiry. CI #8 itself was bootstrap-only; the next
+hosted run enables blocking ratio enforcement.
 
 GitHub-hosted timing variance may make 1.25 flap. The threshold may only change
 through an explicit owner decision; it must never be silently loosened.
@@ -418,33 +420,23 @@ BLOCK-002 closed with both artifacts from the same session and machine.
 Option B, accepting codec-only smoke as sufficient, was rejected and may not be
 substituted without another explicit owner decision.
 
-### BLOCK-003/004/005/006 — qualifying hosted execution and benchmark proof
+### BLOCK-003/004/005/006 — completed
 
-1. Configure/push to the intended Git remote.
-2. Show `startup-memory`, `nightly-reliability`, `benchmark`, and
-   `adversarial-golden` green on the final candidate revision.
-3. Retain every corresponding artifact, including `benchmark-results`,
-   `benchmark-comparison`, startup/memory, reliability and adversarial/golden
-   output, plus the run URL.
-4. Replace/bootstrap the baseline only from that reviewed green hosted run,
-   recording source commit, URL/artifact, date and 90-day expiry.
-5. Rerun the ratio gate against the hosted baseline.
-6. Commit the proof and update BLOCK-003/004/005/006.
+Qualifying CI #8 and evidence commit `88c3d58` complete these requirements.
 
 ### Final closure sequence
 
-Only after the remaining hosted proof passes:
+The hosted proof has passed. The remaining sequence is:
 
 1. As a mandatory A7 human spot-check, open and inspect
    `artifacts/r4/a6-test-existence.txt`, `artifacts/r4/revision-map.md`, and the
    exact 14-row test-name table in `docs/remediation/A6-R3-checkpoint.md`; do
    not accept a summary in place of these files.
-2. Update A7 and A8 to `CLOSED` and BLOCK-003/004/005/006/012 to `CLOSED` as their hosted evidence permits.
-3. Update the checkpoint/re-audit with the exact hosted and macOS 15 results.
-4. Rerun every gate affected by any code/script/CI change.
-5. Commit the final evidence.
-6. Create annotated tag `pre-phase5-remediation` on the proven revision.
-7. Record the exact tag target in `docs/PROJECT_STATE.md` and the checkpoint.
+2. Record the human reviewer and inspection time.
+3. Mark A6/A7 accepted, close BLOCK-012, and authorize A8.
+4. Commit the final acceptance evidence.
+5. Create annotated tag `pre-phase5-remediation` on the proven revision.
+6. Record the exact tag target in `docs/PROJECT_STATE.md` and the checkpoint.
 
 ## Review conclusion
 

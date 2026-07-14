@@ -16,4 +16,5 @@ certification. Current raw results are in `artifacts/r4/`.
 Current BENCH-R3.5, memory, startup, and reliability results were rerun at
 complete-battery revision `ce3b4b3`. All use explicit warm-up/sample policies
 and are recorded in `docs/phase-4/R4-checkpoint.md`. Real minimum-OS runtime
-proof is closed; hosted-CI proof remains open in `docs/PROJECT_STATE.md`.
+proof and qualifying CI #8 hosted proof are closed. The hosted baseline is now
+committed; meaningful ratio enforcement begins with the next hosted run.

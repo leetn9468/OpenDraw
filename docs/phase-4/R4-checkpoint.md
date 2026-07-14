@@ -1,6 +1,6 @@
 # R4 checkpoint — owner rejection remediation
 
-Status: **FAILED — external proof blockers remain**
+Status: **FAILED — hosted proof closed; human A7 spot-check remains**
 
 The prior checkpoint claim at `c5072e0` was rejected. This report supersedes it;
 no conditional pass and no Phase 5 entry tag is claimed.
@@ -23,14 +23,18 @@ no conditional pass and no Phase 5 entry tag is claimed.
 | `e01ac1b` | Retain CI #5 logs/artifacts, mode proof, policy, and triage report | Evidence/documentation only |
 | `5d2ea50` | Isolate the unchanged adversarial wall-clock test from unrelated ASan-suite scheduling after CI #6 | Shared local/hosted ASan gate rerun: 89/89 plus isolated 1/1 PASS |
 | `bd4524f` | Retain CI #6 protected log, API metadata, corrective ASan output, policy, and triage report | Evidence/documentation only |
+| `e8724aa` | Correct all-eight-job closure wording and ADR-011 artifact commit accounting | Pre-evaluation documentation only |
+| `88c3d58` | Retain qualifying CI #8 artifacts/logs and commit the hosted benchmark baseline | All eight hosted jobs green; baseline/ratio fixtures validated |
 | Documentation closure commit | Project state, A6 package, audit/checkpoint/policy corrections and retained logs only | Outside `Sources`, `Tests`, `Package.swift`, scripts and CI build inputs; formatting/diff/link checks rerun |
 
-The current final build-input revision is `5d2ea50`; the current complete local
+The current final build-input/evidence revision is `88c3d58`; the current complete local
 battery revision is `ce3b4b3`. Hosted-only CI #5 inputs required no local rerun.
 The later shared ASan input was rerun at `5d2ea50`; no other local gate input
-changed. Frozen targets, ceilings, tolerances, retry policy, shared ratio
+changed. CI #8 passed all eight jobs at `94fb0f0`; `88c3d58` adds only its
+hosted baseline/evidence and reruns the affected ratio validation. Frozen
+targets, ceilings, tolerances, retry policy, shared ratio
 semantics, and VERIFY-001–021 are unchanged. Evidence commits `8da5ee8`,
-`e01ac1b`, and `bd4524f` retain the local battery and CI #4/#5/#6 triage.
+`e01ac1b`, `bd4524f`, and `88c3d58` retain the local battery and hosted history.
 
 ## Exact local environment
 
@@ -82,17 +86,14 @@ measured frames per timed scenario, display sleep inhibited, production paths.
 | BENCH-4 cold full redraw | — | — | 10.291 ms | informational | RECORDED |
 | Warm full redraw | — | — | 4.860 ms | informational | RECORDED |
 
-## Open blockers
+## Hosted closure and remaining blocker
 
 - BLOCK-002 remains closed and was revalidated at `ce3b4b3`: the same MacBookPro18,2/macOS 15.7.5
   session produced `macos15-reliability-100x100.txt` and
   `macos15-startup-p95.txt`, satisfying frozen owner decision Option A.
-- BLOCK-006: CI #1 and CI #4 are retained failed attempts. CI #4 exposed the
-  stale-descriptor race and compressible failure fixture; both are corrected at
-  `ce3b4b3` with a complete green local battery. A new manually dispatched run
-  on the final pushed revision must execute all eight jobs green and provide
-  the hosted baseline/comparison artifact and run URL. The committed baseline
-  remains truthfully labelled owner-reference, not hosted proof.
+- BLOCK-003/004/005/006 are closed by qualifying CI #8 at `94fb0f0`, retained
+  by `88c3d58`. All eight jobs executed successfully, the hosted baseline has
+  exact provenance, and the bootstrap-only first-run caveat is explicit.
 - CI #5 is also a retained failed attempt: absolute benchmarks passed, but the
   workflow compared hosted observations with the owner-local baseline.
   Workflow-only fixes `b57293c`/`59eec99` now bootstrap and validate a hosted candidate and preserve
@@ -101,11 +102,8 @@ measured frames per timed scenario, display sleep inhibited, production paths.
   the ASan whole-suite scheduler consumed the first mutation's wall-clock
   deadline. Revision `5d2ea50` preserves the unchanged 3/10-second assertions
   and runs that test in an isolated ASan invocation after the other 89 tests.
-- BLOCK-003/004/005: corrected local gates pass, but their hosted-CI execution
-  components remain open until the qualifying manual dispatch shows `startup-memory`,
-  `nightly-reliability`, `benchmark`, and `adversarial-golden` green with a run
-  URL and retained artifacts.
-- BLOCK-012: `pre-phase5-remediation` is absent by rule while blockers remain.
+- BLOCK-012 remains open solely because the required named human A7 spot-check
+  of the three exact files has not been recorded. No tag exists.
 
 Developer ID/notarization, manual VoiceOver, multi-display review and
 long-duration Instruments checks remain explicit operator/environment boundaries;

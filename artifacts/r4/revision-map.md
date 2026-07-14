@@ -27,6 +27,8 @@
 | `hosted/ci-5-*` | Hosted run `29340697610` at `9471562`; workflow-mode proof at `b57293c`/`59eec99` | `e01ac1b` plus final state evidence commit |
 | `hosted/ci-6-*` | Hosted run `29345329291` at `2cfa845` | `bd4524f` |
 | `asan-tests-run6-fix.txt` | `5d2ea50` | `bd4524f` |
+| `hosted/ci-8-*` | Qualifying dispatched run `29347892897` at `94fb0f0` | `88c3d58` |
+| `benchmarks/hosted-macos15-arm64-baseline.tsv` | Run `29347892897` artifact 8316881233 at `94fb0f0` | `88c3d58` |
 
 `f6ec81a` remains the macOS 15 platform-floor revision. The complete-battery
 revision is `ce3b4b3`; evidence commit
@@ -47,13 +49,30 @@ directive this hosted-only change requires a new hosted run, not a local
 battery rerun. Evidence commit `e01ac1b` retains CI #5 and both workflow-mode
 dry-run proofs.
 
-`5d2ea50` is the current final build-input revision. It corrects the CI #6 ASan
+`5d2ea50` corrects the CI #6 ASan
 test-harness defect by making `make sanitize` and hosted CI call the same
 two-invocation script: 89 ASan tests, then the unchanged deadline-sensitive
 corpus test in isolation. The affected local ASan gate passed 89/89 plus 1/1
 at that exact revision; `bd4524f` retains the failing hosted log and passing
 corrective log. The complete remainder of the local battery remains mapped to
 `ce3b4b3`/`8da5ee8` because no other gate input changed.
+
+`88c3d58` is the current final build-input/evidence revision. It adds the
+hosted-sourced baseline produced by qualifying run `29347892897`; no
+`Sources/`, `Tests/`, script, package or workflow file changes. The unchanged
+ratio checker accepts the same-run bootstrap values at 1.000000, the exact
+1.25 fixture passes, and the 1.314801 fixture fails. The next hosted run will
+therefore enter blocking `ENFORCE` mode.
+
+## Post-platform build-input rerun accounting
+
+| Build-input change | Affected gate rerun/evaluation | Retaining commit |
+|---|---|---|
+| `b6cee43` portable CI/scripts | dependency, clean-room, benchmark/ratio fixtures, peak-memory/failure fixture, reliability | `d1edd2f` |
+| `ce3b4b3` production/test + memory fixture | complete local battery, focused regression and release stress | `8da5ee8` |
+| `b57293c`/`59eec99` hosted baseline workflow | actual BOOTSTRAP and failing ENFORCE block proofs; five-metric fail-closed proof | `e01ac1b`/`2cfa845` |
+| `5d2ea50` shared ASan runner | 89/89 ASan plus isolated 1/1 deadline test | `bd4524f` |
+| `88c3d58` hosted baseline | five unique metrics, 90-day provenance, same-run 1.000000 validation, exact-1.25 pass and 1.314801 fail | `88c3d58` |
 
 ## ADR-011 macOS 15 rerun accounting
 

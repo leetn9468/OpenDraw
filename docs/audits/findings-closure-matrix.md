@@ -16,8 +16,9 @@ external R4 acceptance blockers are tracked separately in `docs/PROJECT_STATE.md
 
 All exact tests above passed in the 90-test debug, release, and AddressSanitizer
 runs on complete-battery revision `ce3b4b3`. VERIFY-001 through VERIFY-021 remain
-frozen and verified. BLOCK-002 minimum-OS runtime proof is closed; this matrix
-does not close the hosted-CI evidence blockers.
+frozen and verified. BLOCK-002 minimum-OS runtime proof and technical hosted
+BLOCK-003–006 evidence are closed. Final A7 acceptance and BLOCK-012 remain
+separately gated on the required named-human three-file inspection.
 
 Grep-level existence proof and the focused two-test pass for AUDIT-005/006 are
 retained at `artifacts/r4/audit-005-006-test-existence.txt` and

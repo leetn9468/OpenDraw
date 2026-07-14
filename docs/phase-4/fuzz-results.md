@@ -30,10 +30,9 @@ complete-battery revision `ce3b4b3`. Raw output is retained at
 the retained test log; the input is regenerated from the named seed, index,
 LCG, and project-created base fixture rather than retaining untrusted bytes.
 
-CI artifact name is `adversarial-golden`. Push run CI #4 executed this job
-successfully, but the overall run did not qualify because two other jobs
-failed. The required all-jobs-green dispatched evidence remains tracked by
-BLOCK-006.
+CI artifact name is `adversarial-golden`. Qualifying dispatched CI #8 executed
+this job and all seven companion jobs successfully at `94fb0f0`; the retained
+job log is part of closed BLOCK-006 evidence.
 
 No proprietary sample is permitted.
 

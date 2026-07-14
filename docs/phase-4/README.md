@@ -1,7 +1,7 @@
 # Phase 4 verification, hardening, and release review
 
-Status: **R4 checkpoint rejected; Phase 5 blocked by external proof gaps**
-Review date: 2026-07-13
+Status: **Hosted R4 proof closed; Phase 5 blocked by human A7 spot-check**
+Review date: 2026-07-15
 
 ## Completed work
 
@@ -10,7 +10,7 @@ Review date: 2026-07-13
 | R4.1 adversarial parsing | Fixed-seed 256-case native and 256-case SVG mutation corpora, fixed hostile classes, cancellation and production-path deadline harness |
 | R4.2 golden rendering | Project-created composite golden covering gradients, opacity, transforms, dash/cap/join behavior, text baseline and z-order, with a documented tolerance policy |
 | R4.3 UI/accessibility | Headless create/draw/style/transform/save/reopen/export journey and a stable accessibility-tree baseline for document, layers and selection |
-| R4.4 CI/release | Local gates and real minimum-OS runtime proof pass; hosted execution and hosted benchmark proof remain open |
+| R4.4 CI/release | Local gates, real minimum-OS proof and qualifying all-eight-job hosted CI #8 pass; hosted baseline retained |
 | R4.5 re-audit | Product-code closure matrix passes; acceptance blockers are tracked in `docs/PROJECT_STATE.md` |
 
 The permanent suite contains 90 tests. Coverage is 87.94%, above the enforced
@@ -39,8 +39,8 @@ The permanent suite contains 90 tests. Coverage is 87.94%, above the enforced
 | Clean-room implementation boundary | Pass; CI enforcement added |
 | Verification queue has no open entries | Pass |
 | Real macOS 15 Apple Silicon codec reliability plus 20-launch full-app startup proof from the same session | **Closed — BLOCK-002** |
-| Hosted execution of memory/startup/reliability jobs | **Open — BLOCK-003/004/005** |
-| Hosted-CI benchmark baseline and run artifact | **Open — BLOCK-006** |
+| Hosted execution of memory/startup/reliability jobs | **Closed — BLOCK-003/004/005** |
+| Hosted-CI benchmark baseline and run artifact | **Closed — BLOCK-006** |
 
-Therefore R4/A7 is not accepted, A8 remains blocked, and the
-`pre-phase5-remediation` tag does not exist.
+R4/A7 final acceptance still requires the named human three-file spot-check.
+A8 remains blocked and the `pre-phase5-remediation` tag does not exist.
