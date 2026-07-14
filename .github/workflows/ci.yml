@@ -36,15 +36,63 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v6
-      - run: scripts/run-render-benchmark.sh benchmark.txt
-      - run: scripts/test-benchmark-regression-gate.sh
-      - run: scripts/check-benchmark-regression.sh benchmarks/owner-reference-macos15-arm64-baseline.tsv benchmark.txt benchmark-comparison.txt
+      - name: Run benchmark with frozen absolute targets
+        run: scripts/run-render-benchmark.sh benchmark.txt
+      - name: Prove inclusive ratio gate remains falsifiable
+        run: scripts/test-benchmark-regression-gate.sh
+      - name: Enforce hosted ratio or prepare hosted baseline bootstrap
+        env:
+          HOSTED_BASELINE: benchmarks/hosted-macos15-arm64-baseline.tsv
+        run: |
+          set -eu
+          run_url="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          if [ -s "$HOSTED_BASELINE" ]; then
+            ratio_status=0
+            scripts/check-benchmark-regression.sh \
+              "$HOSTED_BASELINE" benchmark.txt benchmark-ratio-body.txt || ratio_status=$?
+            {
+              printf 'mode=ENFORCE ratio_enforcement=ON\n'
+              printf 'baseline=%s\n' "$HOSTED_BASELINE"
+              printf 'run_url=%s\n' "$run_url"
+              cat benchmark-ratio-body.txt
+            } > benchmark-comparison.txt
+            exit "$ratio_status"
+          fi
+
+          measured_on=$(date -u +%Y-%m-%d)
+          valid_until=$(date -u -v+90d +%Y-%m-%d)
+          {
+            printf '# source_commit=%s\n' "$GITHUB_SHA"
+            printf '# source=github-hosted-macos15-arm64\n'
+            printf '# runner_image=macos-15\n'
+            printf '# run_url=%s\n' "$run_url"
+            printf '# measured_on=%s\n' "$measured_on"
+            printf '# valid_until=%s\n' "$valid_until"
+            awk '/BENCH-1 drag:/ { print "bench1_p95\t" $8 "\t1.25" }' benchmark.txt
+            awk '/BENCH-2 pan:/ { print "bench2_p95\t" $8 "\t1.25" }' benchmark.txt
+            awk '/BENCH-2b forced-exposure pan:/ { print "bench2b_p95\t" $9 "\t1.25" }' benchmark.txt
+            awk '/BENCH-3 zoom:/ { print "bench3_p95\t" $8 "\t1.25" }' benchmark.txt
+            awk '/BENCH-3 settle:/ { print "bench3_settle\t" $3 "\t1.25" }' benchmark.txt
+          } > hosted-baseline-candidate.tsv
+          {
+            printf 'mode=BOOTSTRAP ratio_enforcement=OFF\n'
+            printf 'candidate=hosted-baseline-candidate.tsv\n'
+            printf 'run_url=%s\n' "$run_url"
+            while IFS="$(printf '\t')" read -r metric observed allowed; do
+              case "$metric" in ''|'#'*) continue ;; esac
+              printf '%s baseline_ms=%s observed_ms=%s ratio=1.000000 allowed_ratio=%s result=BOOTSTRAP\n' \
+                "$metric" "$observed" "$observed" "$allowed"
+            done < hosted-baseline-candidate.tsv
+          } > benchmark-comparison.txt
       - uses: actions/upload-artifact@v7
         if: always()
         with: { name: benchmark-results, path: benchmark.txt }
       - uses: actions/upload-artifact@v7
         if: always()
         with: { name: benchmark-comparison, path: benchmark-comparison.txt }
+      - uses: actions/upload-artifact@v7
+        if: ${{ always() && hashFiles('hosted-baseline-candidate.tsv') != '' }}
+        with: { name: hosted-benchmark-baseline-candidate, path: hosted-baseline-candidate.tsv }
   startup-memory:
     runs-on: macos-15
     steps:
