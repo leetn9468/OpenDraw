@@ -46,7 +46,17 @@ jobs:
         run: |
           set -eu
           run_url="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          validate_hosted_baseline() {
+            baseline_file=$1
+            data_count=$(awk -F "$(printf '\t')" '$1 !~ /^#/ && NF { count += 1 } END { print count + 0 }' "$baseline_file")
+            test "$data_count" -eq 5
+            for metric in bench1_p95 bench2_p95 bench2b_p95 bench3_p95 bench3_settle; do
+              metric_count=$(awk -F "$(printf '\t')" -v metric="$metric" '$1 == metric { count += 1 } END { print count + 0 }' "$baseline_file")
+              test "$metric_count" -eq 1
+            done
+          }
           if [ -s "$HOSTED_BASELINE" ]; then
+            validate_hosted_baseline "$HOSTED_BASELINE"
             ratio_status=0
             scripts/check-benchmark-regression.sh \
               "$HOSTED_BASELINE" benchmark.txt benchmark-ratio-body.txt || ratio_status=$?
@@ -62,6 +72,7 @@ jobs:
           measured_on=$(date -u +%Y-%m-%d)
           valid_until=$(date -u -v+90d +%Y-%m-%d)
           {
+            printf '# mode=BOOTSTRAP_CANDIDATE\n'
             printf '# source_commit=%s\n' "$GITHUB_SHA"
             printf '# source=github-hosted-macos15-arm64\n'
             printf '# runner_image=macos-15\n'
@@ -74,6 +85,7 @@ jobs:
             awk '/BENCH-3 zoom:/ { print "bench3_p95\t" $8 "\t1.25" }' benchmark.txt
             awk '/BENCH-3 settle:/ { print "bench3_settle\t" $3 "\t1.25" }' benchmark.txt
           } > hosted-baseline-candidate.tsv
+          validate_hosted_baseline hosted-baseline-candidate.tsv
           {
             printf 'mode=BOOTSTRAP ratio_enforcement=OFF\n'
             printf 'candidate=hosted-baseline-candidate.tsv\n'
