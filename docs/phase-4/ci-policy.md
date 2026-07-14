@@ -99,8 +99,8 @@ in runs #3/#4 and 13.049 ms in run #5, approximately 2× variation. Therefore a
 hosted-specific thresholds, or informational-only hosted ratios are not
 implemented; each remains owner-decision-only after more qualifying samples.
 
-The qualifying manually dispatched hosted run must execute and pass every job
-defined by the workflow on the final revision, including `startup-memory`,
+The qualifying manually dispatched hosted run must execute and pass all jobs
+defined by the workflow on the final revision (currently eight), including `startup-memory`,
 `nightly-reliability`, `benchmark`, and `adversarial-golden`, and retain their
 artifact IDs and run URL. Partial-green runs do not qualify and are recorded as
 failed attempts with their URLs. A qualifying run closes the hosted-execution

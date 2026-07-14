@@ -1,5 +1,7 @@
 # R4 retained-artifact revision map
 
+## Current retained artifacts
+
 | Artifact | Producing revision | Retaining evidence/state commit |
 |---|---|---|
 | `debug-build.txt`, `debug-tests.txt` | `ce3b4b3` | `8da5ee8` |
@@ -52,3 +54,35 @@ corpus test in isolation. The affected local ASan gate passed 89/89 plus 1/1
 at that exact revision; `bd4524f` retains the failing hosted log and passing
 corrective log. The complete remainder of the local battery remains mapped to
 `ce3b4b3`/`8da5ee8` because no other gate input changed.
+
+## ADR-011 macOS 15 rerun accounting
+
+The owner-directed macOS 15 platform-floor battery was executed at build-input
+revision `f6ec81a`. Evidence/state commit `4f156b9` introduced the ADR-011
+report and retained the battery. Identical zero-output or summary artifacts
+kept their earlier blob commits; those commits are named rather than falsely
+claiming that `4f156b9` changed an identical file. Later reruns superseded the
+live artifact contents as mapped above.
+
+| ADR-011 artifact group | Producing revision | Artifact blob commit | ADR-011 evidence/state commit |
+|---|---|---|---|
+| `debug-build.txt`, `debug-tests.txt` | `f6ec81a` | `4f156b9` | `4f156b9` |
+| `release-build.txt`, `release-tests.txt` | `f6ec81a` | `4f156b9` | `4f156b9` |
+| `asan-tests.txt` | `f6ec81a` | `4f156b9` | `4f156b9` |
+| `coverage-tests.txt` | `f6ec81a` | `4f156b9` | `4f156b9` |
+| `coverage-summary.txt` (identical summary) | `f6ec81a` | `f44b7e4` | `4f156b9` |
+| `format.txt`, `module-dependencies.txt`, `clean-room.txt` (identical zero-output passes) | `f6ec81a` | `7cfbf00` | `4f156b9` |
+| `macos15-deployment-build.txt`, `symbol-graph.txt` | `f6ec81a` | `4f156b9` | `4f156b9` |
+| `adversarial-tests.txt`, `golden-test.txt`, `ui-accessibility-tests.txt` | `f6ec81a` | `4f156b9` | `4f156b9` |
+| `release-integrity.txt` | `f6ec81a` | `4f156b9` | `4f156b9` |
+| `macos15-startup-p95.txt`, `startup-p95.txt` | `f6ec81a` | `4f156b9` | `4f156b9` |
+| `peak-memory.txt`, `peak-memory-failure-fixture.txt` | `f6ec81a` | `4f156b9` | `4f156b9` |
+| `render-benchmark.txt`, `benchmark-comparison.txt` | `f6ec81a` | `4f156b9` | `4f156b9` |
+| `benchmark-gate-fixtures.txt` (identical fixture output) | `f6ec81a` | `7cfbf00` | `4f156b9` |
+| `a6-test-existence.txt`, `a6-filtered-tests.txt` | `f6ec81a` | `4f156b9` | `4f156b9` |
+| `audit-005-006-test-existence.txt`, `audit-005-006-filtered-tests.txt` | `f6ec81a` | `4f156b9` | `4f156b9` |
+| `macos15-reliability-100x100.txt`, `reliability-100x100.txt` | `f6ec81a` | `4f156b9` | `4f156b9` |
+| `environment.txt`, `revision-scope-proof.txt` | `f6ec81a` | `4f156b9` | `4f156b9` |
+
+`docs/reviews/ADR-011-macos15-platform-rerun-report.md` was introduced by
+evidence/state commit `4f156b9` and names producing revision `f6ec81a`.
