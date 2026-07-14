@@ -82,10 +82,13 @@ GitHub-hosted macOS timing can have high variance, so 1.25 may flap. It must not
 be loosened silently: any threshold change requires an explicit owner decision,
 rationale, and reviewed baseline-policy update.
 
-The qualifying manually dispatched hosted run must show `startup-memory`, `nightly-reliability`,
-`benchmark`, and `adversarial-golden` green and retain their artifact IDs and run
-URL. That run closes the hosted-execution components of BLOCK-003/004/005 while
-the hosted baseline/comparison closes BLOCK-006.
+The qualifying manually dispatched hosted run must execute and pass every job
+defined by the workflow on the final revision, including `startup-memory`,
+`nightly-reliability`, `benchmark`, and `adversarial-golden`, and retain their
+artifact IDs and run URL. Partial-green runs do not qualify and are recorded as
+failed attempts with their URLs. A qualifying run closes the hosted-execution
+components of BLOCK-003/004/005 while the hosted baseline/comparison closes
+BLOCK-006.
 
 Hosted run CI #1 at commit `834526c` did not qualify. Benchmark and
 startup-memory completed their substantive production measurements but their
