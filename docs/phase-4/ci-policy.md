@@ -74,15 +74,15 @@ The clearly named `owner-reference-macos15-arm64-baseline.tsv` records the
 accepted owner-reference run at `d68f415`;
 it is explicitly not a hosted-runner artifact. Baseline updates require a reviewed
 commit containing a green known-good hosted run, unchanged scenario/sample
-semantics, source run URL/artifact, measurement date and 90-day expiry. Since no
-remote or hosted run is available in this checkout, BLOCK-006 remains open even
-though enforcement and failure behavior are implemented.
+semantics, source run URL/artifact, measurement date and 90-day expiry. Hosted
+CI #1 at `834526c` did not qualify, so BLOCK-006 remains open even though
+enforcement and failure behavior are implemented.
 
 GitHub-hosted macOS timing can have high variance, so 1.25 may flap. It must not
 be loosened silently: any threshold change requires an explicit owner decision,
 rationale, and reviewed baseline-policy update.
 
-The first hosted run must show `startup-memory`, `nightly-reliability`,
+The qualifying manually dispatched hosted run must show `startup-memory`, `nightly-reliability`,
 `benchmark`, and `adversarial-golden` green and retain their artifact IDs and run
 URL. That run closes the hosted-execution components of BLOCK-003/004/005 while
 the hosted baseline/comparison closes BLOCK-006.

@@ -280,8 +280,10 @@ Status: **RESOLVED**
 
 ### Finding
 
-With no remote or hosted run, BLOCK-003/004/005 could not be described as
-unconditionally closed.
+At the time of the consolidated review, no remote or hosted run existed, so
+BLOCK-003/004/005 could not be described as unconditionally closed. Hosted CI
+#1 later ran at `834526c`, but did not qualify: two jobs exited 127 and the
+reliability lane was skipped. The blockers therefore remain open.
 
 ### State area
 
@@ -294,10 +296,11 @@ unconditionally closed.
 | BLOCK-005 | `OPEN — LOCAL PASS, HOSTED PENDING` |
 | BLOCK-006 | `OPEN` |
 
-The first hosted run must show `startup-memory`, `nightly-reliability`,
-`benchmark`, and `adversarial-golden` green, retain their artifacts and URL,
-and bootstrap a clearly hosted baseline. This closes the hosted portions of
-BLOCK-003/004/005 simultaneously.
+The qualifying manually dispatched hosted run must show all eight jobs green,
+including `startup-memory`, `nightly-reliability`, `benchmark`, and
+`adversarial-golden`, retain their artifacts and URL, and bootstrap a clearly
+hosted baseline. This closes the hosted portions of BLOCK-003/004/005
+simultaneously.
 
 Status: **RESOLVED AS DOCUMENTATION; EXTERNAL EXECUTION REMAINS OPEN**
 
@@ -385,7 +388,7 @@ Status: **RESOLVED**
 | Concern | Code area | Reason for review |
 |---|---|---|
 | Retained bitmap budget | `Sources/DocumentModel/Document.swift:31`; `Sources/CanvasRender/SceneBitmapCache.swift:34–44` | `maximumRetainedBitmapPixels = 67_108_864` is independent from the image pixel cap even though the current numeric values match. |
-| Hosted job definitions | `.github/workflows/ci.yml` | Defines startup/memory, reliability, benchmark, and adversarial/golden jobs whose first hosted execution remains pending. |
+| Hosted job definitions | `.github/workflows/ci.yml` | Defines all eight `macos-15` jobs; CI #1 did not qualify, and a manual dispatch after `b6cee43` remains pending. |
 | Startup result interpretation | `docs/phase-4/ci-policy.md` | Prevents the static-initializer probe from being represented as click-to-window startup. |
 | Performance results | `docs/phase-4/R4-checkpoint.md`; `docs/remediation/A6-R3-checkpoint.md` | Records the final BENCH and startup numbers and distinguishes local proof from hosted enforcement. |
 | Project status | `docs/PROJECT_STATE.md` | Authoritative blocker and Phase 5 entry state. |
@@ -444,7 +447,7 @@ Status: **RESOLVED**
 
 ## Remaining actions before Phase 5
 
-1. **BLOCK-006:** establish a remote and obtain the first hosted CI run with all
+1. **BLOCK-006:** manually dispatch a hosted CI run after `b6cee43` with all
    four required jobs green; retain its run URL and artifacts.
 2. Bootstrap a clearly identified hosted benchmark baseline and comparison
    artifact without overwriting the owner-reference provenance.

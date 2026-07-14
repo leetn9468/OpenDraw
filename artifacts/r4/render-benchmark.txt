@@ -1,10 +1,10 @@
-revision=f6ec81a88bee6a6b3055da850d08a6243061d090 model=MacBookPro18,2 chip=Apple M1 Max memory_bytes=68719476736 os=15.7.5 build=24G624 arch=arm64 swift=swift-driver version: 1.120.5 Apple Swift version 6.1.2 (swiftlang-6.1.2.1.2 clang-1700.0.13.5)
+revision=b6cee435f4d0cc05bf1d475288a39ca68941fd6f model=MacBookPro18,2 chip=Apple M1 Max memory_bytes=68719476736 os=15.7.5 build=24G624 arch=arm64 swift=swift-driver version: 1.120.5 Apple Swift version 6.1.2 (swiftlang-6.1.2.1.2 clang-1700.0.13.5)
 BENCH_METADATA warmup_frames=60 measured_frames=300 production_paths=true
-BENCH-1 drag: p50 5.029 ms | p95 5.408 ms | max 5.611 ms
-BENCH-2 pan: p50 0.087 ms | p95 0.107 ms | max 0.133 ms
-BENCH-2b forced-exposure pan: p50 5.415 ms | p95 5.815 ms | max 6.161 ms
+BENCH-1 drag: p50 5.030 ms | p95 5.518 ms | max 7.496 ms
+BENCH-2 pan: p50 0.088 ms | p95 0.113 ms | max 0.166 ms
+BENCH-2b forced-exposure pan: p50 5.443 ms | p95 5.987 ms | max 7.352 ms
 BENCH-2b strip_redraw_frames=360 nonzero_every_frame=true
-BENCH-3 zoom: p50 2.391 ms | p95 9.162 ms | max 10.436 ms
-BENCH-3 settle: 2.776 ms
-BENCH-4 cold-open: 8.326 ms
-Warm full redraw: 4.871 ms
+BENCH-3 zoom: p50 2.450 ms | p95 9.043 ms | max 10.428 ms
+BENCH-3 settle: 2.990 ms
+BENCH-4 cold-open: 9.088 ms
+Warm full redraw: 4.319 ms

@@ -29,10 +29,10 @@ The annotated tag `pre-phase5-remediation` has therefore not been created.
 |---|---|---|---|
 | BLOCK-001 | Restore the exact 14-item A6 package | `CLOSED` | `docs/remediation/A6-R3-checkpoint.md` |
 | BLOCK-002 | Real minimum-OS macOS 15 Apple Silicon runtime proof | **CLOSED** | At `f6ec81a`, the owner-reference MacBookPro18,2/macOS 15.7.5 session produced `macos15-reliability-100x100.txt` (100 distinct PIDs/10,000 round trips/zero failures) and `macos15-startup-p95.txt` (20 launches, p95 152.286 ms ≤ 2,000 ms). |
-| BLOCK-003 | Peak-memory assertions | `OPEN — LOCAL PASS, HOSTED PENDING` | Corrected decoded-image gate passes locally; first hosted `startup-memory` job must also pass. |
-| BLOCK-004 | Startup-p95 enforcement | `OPEN — LOCAL PASS, HOSTED PENDING` | Local 20-process gate passes; first hosted `startup-memory` job must also pass. |
-| BLOCK-005 | 100 launches / 10,000 round trips | `OPEN — LOCAL PASS, HOSTED PENDING` | Local sequential process proof passes; first hosted `nightly-reliability` job must also pass. |
-| BLOCK-006 | Hosted benchmark ratio proof | **OPEN** | Enforcement exists, but no Git remote, hosted run, hosted baseline artifact or run URL is available. |
+| BLOCK-003 | Peak-memory assertions | `OPEN — LOCAL PASS, HOSTED PENDING` | Corrected decoded-image gate passes locally; qualifying dispatch must pass `startup-memory`. |
+| BLOCK-004 | Startup-p95 enforcement | `OPEN — LOCAL PASS, HOSTED PENDING` | Local 20-process gate passes; qualifying dispatch must pass `startup-memory`. |
+| BLOCK-005 | 100 launches / 10,000 round trips | `OPEN — LOCAL PASS, HOSTED PENDING` | Local sequential process proof passes; qualifying dispatch must execute and pass `nightly-reliability`. |
+| BLOCK-006 | Hosted benchmark ratio proof | **OPEN** | CI #1 at `834526c` did not qualify: benchmark/startup-memory exited 127 at final ripgrep assertions and reliability was skipped. Portable fix `b6cee43` requires a manually dispatched all-eight-jobs-green run plus hosted baseline/comparison artifacts and URL. |
 | BLOCK-007 | Fresh final-revision battery | `CLOSED` | Complete local battery and all retained gate artifacts at `f6ec81a` |
 | BLOCK-008 | Reproducibility metadata | `CLOSED` | `docs/phase-4/fuzz-results.md`; environment and benchmark artifacts |
 | BLOCK-009 | Audit traceability | `CLOSED` | `docs/audits/findings-closure-matrix.md` |
@@ -51,6 +51,7 @@ The annotated tag `pre-phase5-remediation` has therefore not been created.
 | `b01364b` | Corrected decoded-image memory gate, failure fixture, numeric policies, PID evidence and baseline naming. | Complete local battery rerun. |
 | `2884a54` | Reliability-only external process-duration correction. | 100-process/10,000-cycle reliability gate rerun. |
 | `f6ec81a` | Raised only the platform floor to macOS 15 in package/release/CI inputs and swept active documentation. | Complete local battery and every retained R4 artifact regenerated. |
+| `b6cee43` | Replaced unavailable ripgrep calls with equivalent POSIX grep, added dispatch reliability, and updated actions to Node.js 24 majors. | Affected dependency, clean-room, benchmark/ratio/fixture, memory/failure-fixture, and reliability gates rerun. |
 
 ## Environment
 
@@ -86,10 +87,10 @@ This is the owner-approved minimum-OS runtime-proof environment.
 | UI/accessibility | `swift test --filter 'headlessUIJourney|accessibilityTreeExposes'` | PASS | `ui-accessibility-tests.txt` |
 | Release integrity | `scripts/build-release-app.sh`; `codesign -dvvv dist/OpenDraw.app` | arm64, ad-hoc hardened-runtime signature | `release-integrity.txt` |
 | Startup | `scripts/check-startup-p95.sh 20 artifacts/r4/macos15-startup-p95.txt` | PASS; minimum-OS runtime proof; hosted job pending separately | `macos15-startup-p95.txt`, `startup-p95.txt` |
-| Peak memory | `scripts/check-peak-memory.sh artifacts/r4/peak-memory.txt` | LOCAL PASS with decoded images; hosted pending | `peak-memory.txt` |
+| Peak memory | `scripts/check-peak-memory.sh artifacts/r4/peak-memory.txt` | LOCAL PASS at `b6cee43` with decoded images; hosted pending | `peak-memory.txt` |
 | Memory failure fixture | `scripts/test-peak-memory-gate.sh artifacts/r4/peak-memory-failure-fixture.txt` | PASS: underlying gate fails as required | `peak-memory-failure-fixture.txt` |
-| Reliability | `scripts/nightly-reliability.sh artifacts/r4/macos15-reliability-100x100.txt` | PASS with 100 distinct PIDs; minimum-OS runtime proof; hosted job pending separately | `macos15-reliability-100x100.txt`, `reliability-100x100.txt` |
-| Benchmark | `scripts/run-render-benchmark.sh artifacts/r4/render-benchmark.txt` | All absolute targets pass | `render-benchmark.txt` |
+| Reliability | `scripts/nightly-reliability.sh artifacts/r4/reliability-100x100.txt` | PASS at `b6cee43` with 100 distinct PIDs; minimum-OS proof remains retained separately | `reliability-100x100.txt`, `macos15-reliability-100x100.txt` |
+| Benchmark | `scripts/run-render-benchmark.sh artifacts/r4/render-benchmark.txt` | All absolute targets pass at `b6cee43` | `render-benchmark.txt` |
 | Ratio gate | `scripts/check-benchmark-regression.sh ...`; `scripts/test-benchmark-regression-gate.sh` | Local comparison passes; above-threshold fixture fails as intended | `benchmark-comparison.txt`, `benchmark-gate-fixtures.txt` |
 
 ## Startup gate
@@ -144,9 +145,9 @@ observed result:
 
 | Scenario | Observed peak | Ceiling | Result |
 |---|---:|---:|---|
-| Settled render | 214,548,480 bytes | 524,288,000 bytes | LOCAL PASS; 309,739,520-byte headroom |
-| PNG export | 225,280,000 bytes | 681,574,400 bytes | LOCAL PASS; 456,294,400-byte headroom |
-| Forced 550 MiB extra allocation | 790,740,992 bytes | 524,288,000 bytes | Expected FAIL/nonzero exit |
+| Settled render | 215,400,448 bytes | 524,288,000 bytes | LOCAL PASS; 308,887,552-byte headroom |
+| PNG export | 224,149,504 bytes | 681,574,400 bytes | LOCAL PASS; 457,424,896-byte headroom |
+| Forced 550 MiB extra allocation | 791,642,112 bytes | 524,288,000 bytes | Expected FAIL/nonzero exit |
 
 ### Code area
 
@@ -201,13 +202,13 @@ and 300 measured frames through production rendering/cache paths.
 
 | Scenario | p50 | p95 | Maximum/settle | Target | Result |
 |---|---:|---:|---:|---:|---|
-| BENCH-1 drag | 5.029 ms | 5.408 ms | 5.611 ms | p95 <= 16.7 ms | PASS |
-| BENCH-2 pan | 0.087 ms | 0.107 ms | 0.133 ms | p95 <= 16.7 ms | PASS |
-| BENCH-2b forced exposure | 5.415 ms | 5.815 ms | 6.161 ms | p95 <= 16.7 ms | PASS |
-| BENCH-3 zoom | 2.391 ms | 9.162 ms | 10.436 ms | p95 <= 33 ms | PASS |
-| BENCH-3 settle | — | — | 2.776 ms | <= 100 ms | PASS |
-| BENCH-4 cold full redraw | — | — | 8.326 ms | Informational | RECORDED |
-| Warm full redraw | — | — | 4.871 ms | Informational | RECORDED |
+| BENCH-1 drag | 5.030 ms | 5.518 ms | 7.496 ms | p95 <= 16.7 ms | PASS |
+| BENCH-2 pan | 0.088 ms | 0.113 ms | 0.166 ms | p95 <= 16.7 ms | PASS |
+| BENCH-2b forced exposure | 5.443 ms | 5.987 ms | 7.352 ms | p95 <= 16.7 ms | PASS |
+| BENCH-3 zoom | 2.450 ms | 9.043 ms | 10.428 ms | p95 <= 33 ms | PASS |
+| BENCH-3 settle | — | — | 2.990 ms | <= 100 ms | PASS |
+| BENCH-4 cold full redraw | — | — | 9.088 ms | Informational | RECORDED |
+| Warm full redraw | — | — | 4.319 ms | Informational | RECORDED |
 
 BENCH-2b recorded nonzero strip redraws for all 360 warm-up and measured frames.
 This is an assertion, not observation: `Sources/RenderBenchmark/main.swift`
@@ -410,7 +411,7 @@ BLOCK-002 closed with both artifacts from the same session and machine.
 Option B, accepting codec-only smoke as sufficient, was rejected and may not be
 substituted without another explicit owner decision.
 
-### BLOCK-003/004/005/006 — first hosted execution and benchmark proof
+### BLOCK-003/004/005/006 — qualifying hosted execution and benchmark proof
 
 1. Configure/push to the intended Git remote.
 2. Show `startup-memory`, `nightly-reliability`, `benchmark`, and

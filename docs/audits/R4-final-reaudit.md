@@ -9,8 +9,8 @@ verification records, benchmark evidence, and repository clean-room boundaries.
 The product-code re-audit closes the eight pre-Phase-5 findings, and
 VERIFY-001 through VERIFY-021 remain verified and frozen. R4 acceptance is
 nevertheless **failed**: BLOCK-002 real minimum-OS runtime evidence now passes,
-but first hosted execution of memory/startup/reliability/adversarial/benchmark
-jobs plus a hosted baseline/run artifact (BLOCK-003–006) is missing.
+but a qualifying all-eight-jobs-green hosted execution plus a hosted
+baseline/run artifact (BLOCK-003–006) is missing. CI #1 did not qualify.
 No Phase 5 entry tag exists.
 
 No new production mathematical behavior requires a verification-queue entry.

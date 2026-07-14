@@ -124,7 +124,9 @@ included in the evidence/state commit.
 | BENCH-4 cold open | — | — | 8.326 ms | Informational | RECORDED |
 | Warm full redraw | — | — | 4.871 ms | Informational | RECORDED |
 
-`artifacts/r4/revision-map.md` maps every retained artifact to `f6ec81a`.
+`artifacts/r4/revision-map.md` maps the complete-battery artifacts to `f6ec81a`.
+A later hosted-portability correction at `b6cee43` reran and remapped only the
+affected dependency, clean-room, benchmark, memory, and reliability artifacts.
 `artifacts/r4/revision-scope-proof.txt` records the commit scope, ancestry,
 runner pins, minimum-platform inputs, and zero changes under `Sources`, `Tests`,
 or the frozen verification queue.
@@ -230,7 +232,7 @@ proof.
 | `docs/phase-4/ci-policy.md` | Runner image, startup boundary, memory rules, reliability semantics, ratio policy, and hosted closure procedure. |
 | `docs/phase-4/R4-checkpoint.md` | Current complete-battery and BENCH tables plus open hosted blockers. |
 | `docs/reviews/R4-A6-A7-A8-review-package.md` | Operator and human-acceptance package, including the mandatory A7 artifact spot-check. |
-| `artifacts/r4/revision-map.md` | Maps every retained R4 artifact to exact battery revision `f6ec81a`. |
+| `artifacts/r4/revision-map.md` | Maps complete-battery artifacts to `f6ec81a` and portability-affected reruns to `b6cee43`. |
 
 ### Explicitly unchanged areas
 
@@ -249,7 +251,7 @@ proof.
 
 - BLOCK-002: `CLOSED` with both same-session minimum-OS artifacts;
 - BLOCK-003/004/005: `OPEN — LOCAL PASS, HOSTED PENDING`;
-- BLOCK-006: `OPEN` pending the first hosted four-job green run, hosted
+- BLOCK-006: `OPEN` pending a manually dispatched all-eight-jobs-green run, hosted
   baseline bootstrap, comparison artifact, and run URL;
 - BLOCK-012: `OPEN`; no Phase 5 tag exists.
 

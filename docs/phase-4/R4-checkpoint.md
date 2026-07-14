@@ -15,10 +15,12 @@ no conditional pass and no Phase 5 entry tag is claimed.
 | `b01364b` | Corrected decoded-image memory gate, failure fixture, numeric-policy pinning, PID evidence and baseline rename | Complete local battery rerun; all artifacts except the later reliability log |
 | `2884a54` | Reliability-script-only correction for external per-process wall duration | 100-process/10,000-cycle reliability gate rerun |
 | `f6ec81a` | Owner-directed minimum-platform revision to macOS 15 in package, release plist and CI; no production source, test, frozen value or VERIFY change | Complete local battery rerun; all retained R4 artifacts regenerated |
+| `b6cee43` | Portable POSIX shell assertions, manually dispatched reliability lane, and Node.js 24 action majors after CI #1 | Affected dependency, clean-room, benchmark/ratio/fixture, peak-memory/failure-fixture, and 100×100 reliability gates rerun |
 | Documentation closure commit | Project state, A6 package, audit/checkpoint/policy corrections and retained logs only | Outside `Sources`, `Tests`, `Package.swift`, scripts and CI build inputs; formatting/diff/link checks rerun |
 
-The final build-input and complete-battery revision is `f6ec81a`. Documentation commits do
-not conceal later code/config changes.
+The final complete-battery revision is `f6ec81a`; the later shared-gate/workflow
+revision is `b6cee43`. No `Sources`, `Tests`, frozen target, ceiling, tolerance,
+or VERIFY entry changed. Affected local gates were rerun at `b6cee43`.
 
 ## Exact local environment
 
@@ -48,9 +50,9 @@ This is the owner-approved real minimum-OS runtime-proof environment.
 | headless UI/accessibility filter | PASS | `ui-accessibility-tests.txt` |
 | `scripts/build-release-app.sh` and `codesign -dvvv` | PASS; arm64, ad-hoc hardened runtime | `release-integrity.txt` |
 | `scripts/check-startup-p95.sh 20 ...` | PASS; nearest-rank p50 142.652, p95 152.286, max 183.569 ms; target 2,000 ms | `macos15-startup-p95.txt`, `startup-p95.txt` |
-| `scripts/check-peak-memory.sh ...` | LOCAL PASS; ten embedded 5 MP images decoded/retained/rendered; settle 214,548,480 bytes; PNG export 225,280,000 bytes | `peak-memory.txt` |
-| `scripts/test-peak-memory-gate.sh ...` | PASS; forced 550 MiB extra allocation reaches 790,740,992 bytes and gate exits nonzero | `peak-memory-failure-fixture.txt` |
-| `scripts/nightly-reliability.sh ...` | PASS; sequential 100 distinct PIDs, 10,000 cycles, zero crashes/nonzero exits/timeouts/corruption, 5 s aggregate wall clock | `macos15-reliability-100x100.txt`, `reliability-100x100.txt` |
+| `scripts/check-peak-memory.sh ...` | LOCAL PASS at `b6cee43`; ten embedded 5 MP images decoded/retained/rendered; settle 215,400,448 bytes; PNG export 224,149,504 bytes | `peak-memory.txt` |
+| `scripts/test-peak-memory-gate.sh ...` | PASS at `b6cee43`; forced 550 MiB extra allocation reaches 791,642,112 bytes and gate exits nonzero | `peak-memory-failure-fixture.txt` |
+| `scripts/nightly-reliability.sh ...` | PASS at `b6cee43`; sequential 100 distinct PIDs, 10,000 cycles, zero crashes/nonzero exits/timeouts/corruption, 4 s aggregate wall clock | `reliability-100x100.txt`; minimum-OS proof remains `macos15-reliability-100x100.txt` at `f6ec81a` |
 | benchmark ratio gate and fixtures | LOCAL PASS; exact 1.25 boundary passes and 1.314801 fails | `benchmark-comparison.txt`, `benchmark-gate-fixtures.txt` |
 
 ## Fresh current-tree BENCH-R3.5 result
@@ -62,13 +64,13 @@ measured frames per timed scenario, display sleep inhibited, production paths.
 
 | Scenario | p50 | p95 | max / settle | Target | Result |
 |---|---:|---:|---:|---:|---|
-| BENCH-1 drag | 5.029 ms | 5.408 ms | 5.611 ms | p95 <= 16.7 ms | PASS |
-| BENCH-2 pan | 0.087 ms | 0.107 ms | 0.133 ms | p95 <= 16.7 ms | PASS |
-| BENCH-2b forced exposure | 5.415 ms | 5.815 ms | 6.161 ms | p95 <= 16.7 ms; nonzero strips every frame | PASS; source precondition covers 360/360 frames |
-| BENCH-3 zoom | 2.391 ms | 9.162 ms | 10.436 ms | p95 <= 33 ms | PASS |
-| BENCH-3 settle | — | — | 2.776 ms | <= 100 ms | PASS |
-| BENCH-4 cold full redraw | — | — | 8.326 ms | informational | RECORDED |
-| Warm full redraw | — | — | 4.871 ms | informational | RECORDED |
+| BENCH-1 drag | 5.030 ms | 5.518 ms | 7.496 ms | p95 <= 16.7 ms | PASS |
+| BENCH-2 pan | 0.088 ms | 0.113 ms | 0.166 ms | p95 <= 16.7 ms | PASS |
+| BENCH-2b forced exposure | 5.443 ms | 5.987 ms | 7.352 ms | p95 <= 16.7 ms; nonzero strips every frame | PASS; source precondition covers 360/360 frames |
+| BENCH-3 zoom | 2.450 ms | 9.043 ms | 10.428 ms | p95 <= 33 ms | PASS |
+| BENCH-3 settle | — | — | 2.990 ms | <= 100 ms | PASS |
+| BENCH-4 cold full redraw | — | — | 9.088 ms | informational | RECORDED |
+| Warm full redraw | — | — | 4.319 ms | informational | RECORDED |
 
 ## Open blockers
 
@@ -82,7 +84,7 @@ measured frames per timed scenario, display sleep inhibited, production paths.
   artifact and run URL. The committed baseline remains truthfully labelled
   owner-reference, not hosted proof.
 - BLOCK-003/004/005: corrected local gates pass, but their hosted-CI execution
-  components remain open until the first push shows `startup-memory`,
+  components remain open until the qualifying manual dispatch shows `startup-memory`,
   `nightly-reliability`, `benchmark`, and `adversarial-golden` green with a run
   URL and retained artifacts.
 - BLOCK-012: `pre-phase5-remediation` is absent by rule while blockers remain.

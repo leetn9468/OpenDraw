@@ -231,10 +231,12 @@ review package so:
 - BLOCK-004 is `OPEN — LOCAL PASS, HOSTED PENDING`;
 - BLOCK-005 is `OPEN — LOCAL PASS, HOSTED PENDING`.
 
-BLOCK-006 now requires the first hosted run to show `startup-memory`,
-`nightly-reliability`, `benchmark`, and `adversarial-golden` green, retaining all
-artifacts and the run URL. That run closes the hosted-execution components of
-BLOCK-003/004/005 simultaneously; it has not occurred.
+At this response revision, BLOCK-006 required the first hosted run to show
+`startup-memory`, `nightly-reliability`, `benchmark`, and
+`adversarial-golden` green, retaining all artifacts and the run URL. Hosted CI
+#1 later ran at `834526c` but did not qualify. The current closure requirement
+is one manually dispatched all-eight-jobs-green run; it closes the hosted
+execution components of BLOCK-003/004/005 simultaneously.
 
 RESOLVED
 
