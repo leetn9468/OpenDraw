@@ -1,9 +1,10 @@
 # R4 checkpoint — owner rejection remediation
 
-Status: **FAILED — hosted proof closed; human A7 spot-check remains**
+Status: **A7 ACCEPTED — PHASE 5 ENTRY TAG AUTHORIZED**
 
-The prior checkpoint claim at `c5072e0` was rejected. This report supersedes it;
-no conditional pass and no Phase 5 entry tag is claimed.
+The prior checkpoint claim at `c5072e0` was rejected. This report supersedes it.
+All technical proof is closed and the mandatory named-human inspection is now
+recorded; tag creation is the remaining final action.
 
 ## Revision accounting
 
@@ -25,7 +26,8 @@ no conditional pass and no Phase 5 entry tag is claimed.
 | `bd4524f` | Retain CI #6 protected log, API metadata, corrective ASan output, policy, and triage report | Evidence/documentation only |
 | `e8724aa` | Correct all-eight-job closure wording and ADR-011 artifact commit accounting | Pre-evaluation documentation only |
 | `88c3d58` | Retain qualifying CI #8 artifacts/logs and commit the hosted benchmark baseline | All eight hosted jobs green; baseline/ratio fixtures validated |
-| Documentation closure commit | Project state, A6 package, audit/checkpoint/policy corrections and retained logs only | Outside `Sources`, `Tests`, `Package.swift`, scripts and CI build inputs; formatting/diff/link checks rerun |
+| `6303428` | Close hosted R4 gates and record the then-outstanding human acceptance blocker | Documentation only; no build input changed |
+| Acceptance evidence commit | Record TN LEE's direct three-file inspection and accept A6/A7 | Documentation/evidence only; authorizes the Phase 5 entry tag |
 
 The current final build-input/evidence revision is `88c3d58`; the current complete local
 battery revision is `ce3b4b3`. Hosted-only CI #5 inputs required no local rerun.
@@ -86,7 +88,7 @@ measured frames per timed scenario, display sleep inhibited, production paths.
 | BENCH-4 cold full redraw | — | — | 10.291 ms | informational | RECORDED |
 | Warm full redraw | — | — | 4.860 ms | informational | RECORDED |
 
-## Hosted closure and remaining blocker
+## Hosted closure and final acceptance
 
 - BLOCK-002 remains closed and was revalidated at `ce3b4b3`: the same MacBookPro18,2/macOS 15.7.5
   session produced `macos15-reliability-100x100.txt` and
@@ -102,8 +104,12 @@ measured frames per timed scenario, display sleep inhibited, production paths.
   the ASan whole-suite scheduler consumed the first mutation's wall-clock
   deadline. Revision `5d2ea50` preserves the unchanged 3/10-second assertions
   and runs that test in an isolated ASan invocation after the other 89 tests.
-- BLOCK-012 remains open solely because the required named human A7 spot-check
-  of the three exact files has not been recorded. No tag exists.
+- TN LEE directly opened `a6-test-existence.txt`, `revision-map.md`, and the
+  exact 14-row table in `A6-R3-checkpoint.md` on 2026-07-15 at 00:38 UTC+08:00.
+  Existence-proof format, per-artifact revision accounting, and exact per-row
+  test names were confirmed. The record is `artifacts/r4/a7-human-spot-check.md`.
+- A6 and A7 are accepted. BLOCK-012 is ready for the authorized annotated tag;
+  its exact target will be recorded immediately after tag creation.
 
 Developer ID/notarization, manual VoiceOver, multi-display review and
 long-duration Instruments checks remain explicit operator/environment boundaries;

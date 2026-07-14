@@ -10,9 +10,9 @@ that directive. A row is closed only by committed, directly named evidence.
 
 | Acceptance | State | Evidence / blocker |
 |---|---|---|
-| A6 — R3/R3-B checkpoint package | `CLOSED` | Exact 14-row table, zero-new-production-math declaration, grep proof and 19-test combined pass; revalidated in the complete `f6ec81a` battery |
-| A7 — R4 CI/reliability acceptance | `NOT ACCEPTED — HUMAN SPOT-CHECK PENDING` | Technical hosted requirements closed through CI #8; final acceptance requires a named human to inspect the three mandatory A7 files directly. |
-| A8 — Phase 5 entry | `BLOCKED` | BLOCK-012 and the annotated tag remain open until the human A7 spot-check is recorded. |
+| A6 — R3/R3-B checkpoint package | `ACCEPTED` | Exact 14-row table, zero-new-production-math declaration, grep proof and 19-test combined pass; revalidated in the complete `f6ec81a` battery and directly inspected by TN LEE. |
+| A7 — R4 CI/reliability acceptance | `ACCEPTED` | Technical hosted requirements closed through CI #8. TN LEE completed the mandatory three-file inspection on 2026-07-15 at 00:38 UTC+08:00; record: `artifacts/r4/a7-human-spot-check.md`. |
+| A8 — Phase 5 entry | `AUTHORIZED — TAG CREATION PENDING` | BLOCK-001–011 are closed and A6/A7 are accepted. The annotated Phase 5 entry tag is now authorized as the final action. |
 
 ## Hard blockers
 
@@ -29,11 +29,20 @@ that directive. A row is closed only by committed, directly named evidence.
 | BLOCK-009 | Exact audit closure-matrix traceability | `CLOSED` | `docs/audits/findings-closure-matrix.md` names exact test files/functions and commits |
 | BLOCK-010 | Correct and internally consistent R4 documents | `CLOSED` | Documentation closure commit containing this tracker and the corrected checkpoint/audit/policy files |
 | BLOCK-011 | Exact revision accounting | `CLOSED` | `revision-map.md` maps the complete battery and every later affected-gate rerun through qualifying CI #8 and evidence commit `88c3d58`. CI #8 directly passes dependency, clean-room, symbol-graph and release assembly/signature on `94fb0f0`. |
-| BLOCK-012 | Annotated Phase 5 entry tag | `OPEN — HUMAN SPOT-CHECK PENDING` | `pre-phase5-remediation` remains absent until a named human directly inspects the three mandatory A7 files and that inspection is recorded. |
+| BLOCK-012 | Annotated Phase 5 entry tag | `READY — TAG CREATION PENDING` | Human inspection is recorded at `artifacts/r4/a7-human-spot-check.md`; create the authorized annotated tag on the acceptance-evidence revision, then record its target. |
 
 ## Tag state
 
-`pre-phase5-remediation`: **ABSENT — REQUIRED UNTIL HUMAN A7 SPOT-CHECK**.
+`pre-phase5-remediation`: **AUTHORIZED — CREATION PENDING**.
+
+## A7 human inspection record
+
+TN LEE directly opened `artifacts/r4/a6-test-existence.txt`,
+`artifacts/r4/revision-map.md`, and the exact 14-row table in
+`docs/remediation/A6-R3-checkpoint.md` on 2026-07-15 at 00:38 UTC+08:00.
+Existence-proof format, per-artifact revision accounting, and exact per-row test
+names were confirmed. The permanent record is
+`artifacts/r4/a7-human-spot-check.md`.
 
 ## Frozen owner decisions
 
