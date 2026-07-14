@@ -63,17 +63,39 @@ and summary log is uploaded.
 
 ## Benchmark regression policy
 
+| Gate | Environment | Policy |
+|---|---|---|
+| Frozen BENCH-R3.5 absolute targets | Local and hosted | **BLOCKING**, unchanged |
+| Owner-reference ratio, inclusive 1.25 | Stable owner-reference hardware | **BLOCKING**, unchanged |
+| Hosted-runner ratio versus hosted reference | GitHub-hosted `macos-15` | **INFORMATIONAL**, owner decision 2026-07-15 |
+| Ratio falsifiability fixtures | Local and hosted workflow | **BLOCKING**, unchanged |
+
 The frozen absolute BENCH-R3.5 targets remain blocking wherever the benchmark
 runs, including hosted CI. Local ratio checks use
-`owner-reference-macos15-arm64-baseline.tsv`. Hosted ratio checks must never use
-that owner-local baseline: they use only
-`hosted-macos15-arm64-baseline.tsv`. Each BENCH-1/2/2b/3 p95 and BENCH-3 settle
-value must be <= 1.25 times the provenance-matched baseline. Equality at
-exactly 1.25 is accepted using exact decimal arithmetic; the six-decimal
-printed ratio is display-only. Missing, empty, unknown, or past-`valid_until`
-committed baselines fail closed. The comparison log is uploaded even on
-failure. `scripts/test-benchmark-regression-gate.sh` proves a below-threshold
-fixture passes, exact 1.25 passes, and a 1.314801 ratio fails.
+`owner-reference-macos15-arm64-baseline.tsv` and remain blocking at the
+unchanged inclusive 1.25 threshold. Equality at exactly 1.25 is accepted using
+exact decimal arithmetic; the six-decimal printed ratio is display-only.
+Missing, empty, unknown, or past-`valid_until` local baselines fail closed.
+`scripts/test-benchmark-regression-gate.sh` remains a blocking workflow step and
+proves a below-threshold fixture passes, exact 1.25 passes, and a 1.314801 ratio
+fails. Neither the shared checker, owner-reference baseline, nor fixtures were
+changed by the informational-hosted decision.
+
+Hosted comparisons must never use the owner-local baseline. They retain
+`hosted-macos15-arm64-baseline.tsv` solely as an informational reference and
+always upload all five per-metric rows under this header:
+
+```text
+mode=INFORMATIONAL ratio_enforcement=OFF reason=owner-decision-2026-07-15
+```
+
+The workflow captures the unchanged checker's status for the artifact but
+always exits the reporting step successfully. The reference's `valid_until`
+value remains provenance/watch metadata and is printed with
+`expiry_enforcement=OFF`; it cannot fail the hosted job. Full per-metric rows
+continue after that date by using an ephemeral expiry-neutral copy solely for
+the informational invocation. The committed reference values and provenance
+are unchanged.
 
 The clearly named `owner-reference-macos15-arm64-baseline.tsv` records the
 accepted owner-reference run at `d68f415`; it is explicitly not a hosted-runner
@@ -84,20 +106,26 @@ definitionally 1.000000 comparisons, and uploads a candidate TSV whose header
 contains the source SHA, `macos-15` runner image, run URL, measurement date, and
 90-day expiry. This first comparison establishes a candidate and is not
 independent regression evidence. After review and commit as
-`hosted-macos15-arm64-baseline.tsv`, subsequent hosted runs enter
-`mode=ENFORCE ratio_enforcement=ON` and invoke the unchanged shared checker.
-Baseline updates require a green known-good hosted run and unchanged
-scenario/sample semantics.
+`hosted-macos15-arm64-baseline.tsv`, subsequent hosted runs enter the
+informational path. The 90-day date is informational provenance rather than a
+hosted failure condition. Reference updates still require a green known-good
+hosted run and unchanged scenario/sample semantics.
 
-GitHub-hosted macOS timing can have high variance, so 1.25 may flap. It must not
-be loosened silently: any threshold change requires an explicit owner decision,
-rationale, and reviewed baseline-policy update.
+GitHub-hosted macOS timing has measured hardware variance well beyond 1.25.
+Owner decision 2026-07-15 therefore makes the hosted ratio informational; the
+numeric reference threshold is retained in the artifact and is not loosened.
+Options A (N-of-M retries) and B (a larger hosted ratio) were rejected because
+they mask noise without adding detection power. Any future policy change
+requires another explicit owner decision.
 
-Variance watch recorded from CI #5: hosted BENCH-1 p95 was at most about 6.6 ms
-in runs #3/#4 and 13.049 ms in run #5, approximately 2× variation. Therefore a
-1.25 hosted-vs-hosted threshold is a plausible future flap risk. N-of-M,
-hosted-specific thresholds, or informational-only hosted ratios are not
-implemented; each remains owner-decision-only after more qualifying samples.
+Variance evidence: CI #5 recorded BENCH-1 p95 13.049 ms, CI #8 recorded 5.259
+ms, and the first post-tag ENFORCE attempt
+<https://github.com/leetn9468/OpenDraw/actions/runs/29350963872> recorded 14.625
+ms. That triggering run passed every frozen absolute benchmark target but
+failed hosted ratios at 2.780947 (BENCH-1), 2.701923 (BENCH-2), and 2.343808
+(BENCH-2b). BENCH-1 absolute headroom was only about 12.43% (14.625 versus 16.7
+ms), so absolute-target variance is now a **WATCH** item. Any absolute-target
+adjustment remains owner-only.
 
 CI #8 timing-headroom review found no gate within 10% of its absolute target:
 BENCH-1/2/2b/3 and settle retained at least 68.51% headroom, and startup p95
@@ -109,8 +137,9 @@ Manually dispatched CI #8 at `94fb0f0` is the qualifying hosted run: all eight
 bootstrap-only (`mode=BOOTSTRAP`, `ratio_enforcement=OFF`), so the 1.000000
 ratios are baseline establishment rather than independent regression evidence.
 The reviewed candidate is retained as `hosted-macos15-arm64-baseline.tsv` by
-`88c3d58`; every later hosted run automatically enters enforcement mode and
-applies the unchanged inclusive 1.25 ratio.
+`88c3d58`. It remains the informational hosted reference after the 2026-07-15
+owner decision; meaningful blocking ratio enforcement remains exclusively on
+stable owner-reference hardware.
 
 The qualifying manually dispatched hosted run must execute and pass all jobs
 defined by the workflow on the final revision (currently eight), including `startup-memory`,

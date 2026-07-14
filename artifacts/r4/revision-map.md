@@ -58,12 +58,16 @@ at that exact revision; `bd4524f` retains the failing hosted log and passing
 corrective log. The complete remainder of the local battery remains mapped to
 `ce3b4b3`/`8da5ee8` because no other gate input changed.
 
-`88c3d58` is the current final build-input/evidence revision. It adds the
+`88c3d58` is the final R4 build-input/evidence revision. It adds the
 hosted-sourced baseline produced by qualifying run `29347892897`; no
 `Sources/`, `Tests/`, script, package or workflow file changes. The unchanged
 ratio checker accepts the same-run bootstrap values at 1.000000, the exact
-1.25 fixture passes, and the 1.314801 fixture fails. The next hosted run will
-therefore enter blocking `ENFORCE` mode.
+1.25 fixture passes, and the 1.314801 fixture fails. At R4 closure, later hosted
+runs were configured for blocking `ENFORCE` mode. Post-tag run
+<https://github.com/leetn9468/OpenDraw/actions/runs/29350963872> demonstrated
+2.3–2.8× shared-runner variance; the explicit 2026-07-15 Phase 5 operations
+decision supersedes hosted enforcement without changing the local checker,
+owner-reference baseline, fixtures, or any closed remediation row.
 
 Acceptance-evidence revision `6dea372fc90d7474dc1f5db0085dd03bfdc046ea`
 records the mandatory named-human A7 inspection. Annotated tag

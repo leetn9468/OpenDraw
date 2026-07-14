@@ -298,7 +298,9 @@ Manually dispatched CI #8 later executed all eight jobs successfully at
 
 CI #8 satisfies the all-eight-job rule, retains the artifacts and URL, and
 bootstraps the clearly hosted baseline. Its first comparison is definitionally
-1.0; meaningful ratio enforcement begins next run.
+1.0. Blocking hosted ratio enforcement was the closure-time policy; it was
+superseded post-tag by the explicit 2026-07-15 Phase 5 operations decision after
+measured shared-runner variance reached 2.3–2.8×. Remediation closure is unchanged.
 
 Status: **RESOLVED — EXTERNAL EXECUTION CLOSED BY CI #8**
 

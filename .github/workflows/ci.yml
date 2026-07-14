@@ -41,7 +41,8 @@ jobs:
         run: scripts/run-render-benchmark.sh benchmark.txt
       - name: Prove inclusive ratio gate remains falsifiable
         run: scripts/test-benchmark-regression-gate.sh
-      - name: Enforce hosted ratio or prepare hosted baseline bootstrap
+      - name: Report hosted ratio or prepare hosted baseline bootstrap
+        if: ${{ always() && hashFiles('benchmark.txt') != '' }}
         env:
           HOSTED_BASELINE: benchmarks/hosted-macos15-arm64-baseline.tsv
         run: |
@@ -58,16 +59,23 @@ jobs:
           }
           if [ -s "$HOSTED_BASELINE" ]; then
             validate_hosted_baseline "$HOSTED_BASELINE"
+            reference_valid_until=$(awk -F= '/^# valid_until=/ { print $2; exit }' "$HOSTED_BASELINE")
+            test -n "$reference_valid_until"
+            awk '/^# valid_until=/ { print "# valid_until=9999-12-31"; next } { print }' \
+              "$HOSTED_BASELINE" > hosted-informational-baseline.tsv
             ratio_status=0
             scripts/check-benchmark-regression.sh \
-              "$HOSTED_BASELINE" benchmark.txt benchmark-ratio-body.txt || ratio_status=$?
+              hosted-informational-baseline.tsv benchmark.txt benchmark-ratio-body.txt || ratio_status=$?
+            rm -f hosted-informational-baseline.tsv
             {
-              printf 'mode=ENFORCE ratio_enforcement=ON\n'
+              printf 'mode=INFORMATIONAL ratio_enforcement=OFF reason=owner-decision-2026-07-15\n'
               printf 'baseline=%s\n' "$HOSTED_BASELINE"
+              printf 'baseline_valid_until=%s expiry_enforcement=OFF\n' "$reference_valid_until"
               printf 'run_url=%s\n' "$run_url"
+              printf 'comparison_exit_status=%s job_effect=NONE\n' "$ratio_status"
               cat benchmark-ratio-body.txt
             } > benchmark-comparison.txt
-            exit "$ratio_status"
+            exit 0
           fi
 
           measured_on=$(date -u +%Y-%m-%d)

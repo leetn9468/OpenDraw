@@ -2,6 +2,13 @@
 
 Evaluation date: 2026-07-15
 
+Post-tag operations note: the 2026-07-15 owner decision makes hosted ratios
+informational after shared-runner variance reached 2.3–2.8× in
+<https://github.com/leetn9468/OpenDraw/actions/runs/29350963872>. Statements
+below about the next run entering blocking ENFORCE mode accurately describe the
+policy at R4 closure but are superseded for Phase 5 operations. The closure and
+tag remain valid.
+
 Run: <https://github.com/leetn9468/OpenDraw/actions/runs/29347892897>
 
 Run revision: `94fb0f057510639b93d9802fe93ab4aa5f0b18de`

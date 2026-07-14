@@ -23,7 +23,7 @@ that directive. A row is closed only by committed, directly named evidence.
 | BLOCK-003 | Enforced peak-memory assertions | `CLOSED` | Local gate passes at `ce3b4b3`; qualifying CI #8 `startup-memory` passes on `94fb0f0` at 214,106,112/223,936,512 bytes and the unchanged forced fixture fails as required at 790,921,216 bytes. |
 | BLOCK-004 | Enforced startup p95 | `CLOSED` | Local gate passes at `ce3b4b3`; qualifying CI #8 passes 20 hosted launches at p95 225.979 ms against the unchanged 2,000 ms target. |
 | BLOCK-005 | 100 clean launches and 10,000 aggregate native round trips | `CLOSED` | Qualifying CI #8 executes `nightly-reliability`: 100 distinct processes, 10,000 cycles, zero crashes/nonzero exits/timeouts/corruption. |
-| BLOCK-006 | Hosted-CI execution and ratio proof | `CLOSED` | Manually dispatched CI #8 (`29347892897`) at `94fb0f0` executed all eight `macos-15` jobs successfully. Artifacts/logs are retained by `88c3d58`; the hosted candidate is committed at the enforced path with exact 90-day provenance. CI #8 was bootstrap-only (`ratio_enforcement=OFF`, definitionally 1.000000); the next hosted run automatically enforces the unchanged 1.25 ratio. Failed/non-qualifying attempts remain recorded: `29325516216`, CI #4, CI #5 and CI #6. |
+| BLOCK-006 | Hosted-CI execution and ratio proof | `CLOSED` | Manually dispatched CI #8 (`29347892897`) at `94fb0f0` executed all eight `macos-15` jobs successfully. Artifacts/logs are retained by `88c3d58`; the hosted candidate remains at the hosted-reference path with exact provenance. CI #8 was bootstrap-only (`ratio_enforcement=OFF`, definitionally 1.000000). The post-remediation 2026-07-15 owner decision makes later hosted ratios informational while preserving blocking absolute targets and the unchanged blocking local 1.25 gate; remediation closure is unaffected. Failed/non-qualifying attempts remain recorded: `29325516216`, CI #4, CI #5 and CI #6. |
 | BLOCK-007 | Fresh final-revision full verification battery | `CLOSED` | Complete local battery passed at `ce3b4b3`; the affected shared ASan gate passed at `5d2ea50`; qualifying CI #8 passed all eight jobs at `94fb0f0`; hosted baseline validation and ratio fixtures passed at `88c3d58`. Artifact mapping is in `revision-map.md`. |
 | BLOCK-008 | Reproducibility metadata for corpus and benchmarks | `CLOSED` | `docs/phase-4/fuzz-results.md`, benchmark runner metadata, and retained `artifacts/r4/` logs |
 | BLOCK-009 | Exact audit closure-matrix traceability | `CLOSED` | `docs/audits/findings-closure-matrix.md` names exact test files/functions and commits |
@@ -49,6 +49,19 @@ names were confirmed. The permanent record is
 
 ## Frozen owner decisions
 
+> **2026-07-15 — Hosted benchmark ratio gate downgraded to INFORMATIONAL.**
+> Measured cross-run hardware variance on GitHub-hosted `macos-15` runners is
+> ~2.3–2.8× (runs #5, #8, and the first ENFORCE run), exceeding the 1.25
+> ratio threshold's discrimination ability; a single-run baseline with a fixed
+> ratio is structurally non-viable on shared runners. Therefore: (1) hosted
+> ABSOLUTE benchmark targets remain BLOCKING and unchanged; (2) the hosted
+> ratio comparison is retained and always emitted as an INFORMATIONAL artifact
+> (never fails the job); (3) ratio-based regression detection remains BLOCKING
+> exclusively on stable owner-reference hardware via the unchanged local gate
+> and baseline. Options A (N-of-M retries) and B (loosened hosted ratio) were
+> considered and rejected: both mask noise without adding detection power.
+> This decision may only be revisited by a further explicit owner decision.
+
 > **Owner decision (TN LEE, 2026-07-13): Option A is adopted.** BLOCK-002 now
 > requires both the codec reliability run and the full-app startup run on real
 > macOS 13.x Apple Silicon hardware. Option B, accepting codec-only smoke as
@@ -66,3 +79,14 @@ names were confirmed. The permanent record is
 > (BLOCK-002 requires BOTH codec reliability AND full-app startup runs at the
 > minimum OS) is **retained in substance** and retargeted from macOS 13 to
 > macOS 15; it is superseded only in its OS number, not its scope.
+
+## Phase 5 operations decisions
+
+The 2026-07-15 hosted-ratio decision is a post-remediation operations policy,
+not an amendment to the accepted remediation. Triggering evidence is the first
+post-tag ENFORCE run,
+<https://github.com/leetn9468/OpenDraw/actions/runs/29350963872>: every frozen
+absolute BENCH target passed, while shared-runner ratios reached 2.343808–
+2.780947. BLOCK-001–012 remain `CLOSED`, A6/A7 remain `ACCEPTED`, A8 remains
+`CLOSED — AUTHORIZED`, and `pre-phase5-remediation` continues to target
+`6dea372fc90d7474dc1f5db0085dd03bfdc046ea`.

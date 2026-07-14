@@ -5,6 +5,7 @@
 # run_url=https://github.com/leetn9468/OpenDraw/actions/runs/29347892897
 # measured_on=2026-07-14
 # valid_until=2026-10-12
+# validity_policy=informational-hosted-reference; expiry is metadata, not a blocking gate
 bench1_p95	5.259	1.25
 bench2_p95	0.104	1.25
 bench2b_p95	4.837	1.25
