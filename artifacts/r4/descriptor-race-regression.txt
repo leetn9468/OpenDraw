@@ -1,0 +1,12 @@
+revision=ce3b4b32d0b9c0d7a4ba7112dc1dcc67efb3151c
+pre_fix_focused_result=FAIL
+pre_fix_focused_observed=Darwin.write(descriptor,&byte,1):-1
+pre_fix_focused_expected=1
+pre_fix_full_release_iterations_before_failure=14
+pre_fix_full_release_failure_iteration=15
+pre_fix_full_release_failure=linkedResourceResolverRejectsTraversalAndSymlinkEscape underlying POSIX EBADF
+post_fix_focused_result=PASS
+post_fix_full_release_iterations=30
+post_fix_full_release_tests_per_iteration=90
+post_fix_ebadf_failures=0
+result=PASS

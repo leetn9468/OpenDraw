@@ -1,0 +1,14 @@
+revision=ce3b4b32d0b9c0d7a4ba7112dc1dcc67efb3151c
+extra_bytes=576716800
+settle_limit_bytes=524288000
+hosted_run_1_peak_bytes=709771264 result=FAIL fixture=PASS
+hosted_run_3_peak_bytes=540475392 result=FAIL fixture=PASS
+hosted_run_4_peak_bytes=442613760 result=PASS fixture=FAIL
+post_fix_local_1_peak_bytes=791543808 result=FAIL fixture=PASS
+post_fix_local_2_peak_bytes=791412736 result=FAIL fixture=PASS
+post_fix_local_3_peak_bytes=791887872 result=FAIL fixture=PASS
+post_fix_local_4_peak_bytes=791461888 result=FAIL fixture=PASS
+post_fix_local_5_peak_bytes=791904256 result=FAIL fixture=PASS
+threshold_changed=false
+fixture_extra_bytes_changed=false
+result=PASS

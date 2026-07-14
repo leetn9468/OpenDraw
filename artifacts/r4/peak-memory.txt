@@ -1,5 +1,5 @@
-revision=b6cee435f4d0cc05bf1d475288a39ca68941fd6f model=MacBookPro18,2 chip=Apple M1 Max memory_bytes=68719476736 os=15.7.5 build=24G624 arch=arm64 swift=swift-driver version: 1.120.5 Apple Swift version 6.1.2 (swiftlang-6.1.2.1.2 clang-1700.0.13.5)
+revision=ce3b4b32d0b9c0d7a4ba7112dc1dcc67efb3151c model=MacBookPro18,2 chip=Apple M1 Max memory_bytes=68719476736 os=15.7.5 build=24G624 arch=arm64 swift=swift-driver version: 1.120.5 Apple Swift version 6.1.2 (swiftlang-6.1.2.1.2 clang-1700.0.13.5)
 R4_MEMORY_SCENARIO=settle objects=1000 anchors=10000 decodedImages=10 decodedPixels=50000000 extraBytes=0
-settle peak_bytes=215400448 limit_bytes=524288000 result=PASS
+settle peak_bytes=214564864 limit_bytes=524288000 result=PASS
 R4_MEMORY_SCENARIO=export objects=1000 anchors=10000 decodedImages=10 decodedPixels=50000000 extraBytes=0
-export peak_bytes=224149504 limit_bytes=681574400 result=PASS
+export peak_bytes=224821248 limit_bytes=681574400 result=PASS

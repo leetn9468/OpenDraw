@@ -1,22 +1,22 @@
-revision=f6ec81a88bee6a6b3055da850d08a6243061d090 model=MacBookPro18,2 chip=Apple M1 Max memory_bytes=68719476736 os=15.7.5 build=24G624 arch=arm64 swift=swift-driver version: 1.120.5 Apple Swift version 6.1.2 (swiftlang-6.1.2.1.2 clang-1700.0.13.5) policy=clean-process-cold-app-state-warm-os-caches start=static-initializer stop=window-ready
-sample=1 startup_ready_ms=146.043
-sample=2 startup_ready_ms=144.910
-sample=3 startup_ready_ms=141.161
-sample=4 startup_ready_ms=148.745
-sample=5 startup_ready_ms=139.906
-sample=6 startup_ready_ms=136.661
-sample=7 startup_ready_ms=144.274
-sample=8 startup_ready_ms=142.517
-sample=9 startup_ready_ms=152.286
-sample=10 startup_ready_ms=150.722
-sample=11 startup_ready_ms=144.437
-sample=12 startup_ready_ms=135.966
-sample=13 startup_ready_ms=136.186
-sample=14 startup_ready_ms=150.628
-sample=15 startup_ready_ms=183.569
-sample=16 startup_ready_ms=134.271
-sample=17 startup_ready_ms=141.868
-sample=18 startup_ready_ms=148.631
-sample=19 startup_ready_ms=140.095
-sample=20 startup_ready_ms=142.652
-summary samples=20 p50_ms=142.652 p95_ms=152.286 max_ms=183.569 target_ms=2000 result=PASS
+revision=ce3b4b32d0b9c0d7a4ba7112dc1dcc67efb3151c model=MacBookPro18,2 chip=Apple M1 Max memory_bytes=68719476736 os=15.7.5 build=24G624 arch=arm64 swift=swift-driver version: 1.120.5 Apple Swift version 6.1.2 (swiftlang-6.1.2.1.2 clang-1700.0.13.5) policy=clean-process-cold-app-state-warm-os-caches start=static-initializer stop=window-ready
+sample=1 startup_ready_ms=170.319
+sample=2 startup_ready_ms=143.052
+sample=3 startup_ready_ms=139.958
+sample=4 startup_ready_ms=135.887
+sample=5 startup_ready_ms=140.687
+sample=6 startup_ready_ms=143.960
+sample=7 startup_ready_ms=140.989
+sample=8 startup_ready_ms=127.126
+sample=9 startup_ready_ms=126.556
+sample=10 startup_ready_ms=134.532
+sample=11 startup_ready_ms=129.425
+sample=12 startup_ready_ms=141.798
+sample=13 startup_ready_ms=130.748
+sample=14 startup_ready_ms=135.713
+sample=15 startup_ready_ms=134.707
+sample=16 startup_ready_ms=137.502
+sample=17 startup_ready_ms=140.943
+sample=18 startup_ready_ms=129.665
+sample=19 startup_ready_ms=142.728
+sample=20 startup_ready_ms=139.183
+summary samples=20 p50_ms=137.502 p95_ms=143.960 max_ms=170.319 target_ms=2000 result=PASS
