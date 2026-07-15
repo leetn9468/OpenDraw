@@ -4,11 +4,12 @@
 # valid_until=2026-10-10
 # phase5_measured_on=2026-07-16
 # phase5_source=owner-reference-MacBookPro18,2-not-hosted
-# phase5_source_commit=7ec93fdb16356ccbc5b56c0f593353dcba254472
+# phase5_p2_mode=structural-delete-reinsert
+# phase5_source_commit=7e3c8e7d2f138797c1c5ad15ed6022ce06c5d759
 bench1_p95	5.324	1.25
 bench2_p95	0.109	1.25
 bench2b_p95	5.831	1.25
 bench3_p95	8.853	1.25
 bench3_settle	2.778	1.25
-bench5a_p95	0.008	1.25
-bench5b_p95	0.147	1.25
+bench5a_p95	0.400	1.25
+bench5b_p95	0.889	1.25
