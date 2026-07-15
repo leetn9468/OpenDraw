@@ -1,0 +1,13 @@
+[0/1] Planning build
+Building for production...
+[0/4] Write swift-version--1AB21518FC5DEDBE.txt
+[2/8] Compiling MacPlatform BackingScale.swift
+[3/8] Compiling EditorTools AccessibilityTree.swift
+[4/8] Compiling DocumentFormats AdversarialParserHarness.swift
+[5/10] Compiling R4GateHarness main.swift
+[5/10] Write Objects.LinkFileList
+[6/10] Linking R4GateHarness
+[8/10] Compiling VectorFoundryApp main.swift
+[8/10] Write Objects.LinkFileList
+[9/10] Linking VectorFoundry
+Build complete! (6.84s)

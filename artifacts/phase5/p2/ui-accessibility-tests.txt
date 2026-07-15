@@ -1,0 +1,11 @@
+Building for debugging...
+[0/8] Write swift-version--1AB21518FC5DEDBE.txt
+Build complete! (0.18s)
+◇ Test run started.
+↳ Testing Library Version: 124.4
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test accessibilityTreeExposesDocumentLayersSelectionAndFrames() started.
+◇ Test headlessUIJourneyCreateStyleTransformSaveReopenAndExport() started.
+✔ Test accessibilityTreeExposesDocumentLayersSelectionAndFrames() passed after 0.001 seconds.
+✔ Test headlessUIJourneyCreateStyleTransformSaveReopenAndExport() passed after 0.022 seconds.
+✔ Test run with 2 tests passed after 0.022 seconds.

@@ -1,0 +1,240 @@
+[0/1] Planning build
+Building for production...
+[0/5] Write swift-version--1AB21518FC5DEDBE.txt
+[2/6] Compiling EditorCore CoreTypes.swift
+[3/8] Compiling MacPlatform BackingScale.swift
+[4/8] Compiling Geometry Geometry.swift
+[5/11] Compiling TextEngine TextShaper.swift
+[6/12] Compiling TextEngineTests TextEngineTests.swift
+[7/12] Compiling GeometryTests AffineTransformVerifyTests.swift
+[8/12] Compiling DocumentModel ApprovedAssetStore.swift
+[9/15] Compiling CanvasRender CoreGraphicsRenderer.swift
+[10/19] Compiling CanvasRenderTests CanvasRenderTests.swift
+[11/19] Compiling DocumentFormats AdversarialParserHarness.swift
+[12/19] Compiling EditorCommands AlignmentCommands.swift
+[13/23] Compiling R4GateHarness main.swift
+[13/23] Write Objects.LinkFileList
+[15/23] Compiling RenderBenchmark main.swift
+[15/23] Write Objects.LinkFileList
+[17/23] Compiling EditorTools AccessibilityTree.swift
+[17/26] Linking R4GateHarness
+[18/26] Linking RenderBenchmark
+[20/26] Compiling EditorToolsTests AccessibilityTests.swift
+[21/26] Compiling DocumentFormatsTests AdversarialCorpusTests.swift
+[22/26] Compiling VectorFoundryApp main.swift
+[22/26] Write Objects.LinkFileList
+[23/26] Linking VectorFoundry
+[25/26] Compiling DocumentModelTests DeltaHistoryP1VerifyTests.swift
+[25/27] Write Objects.LinkFileList
+[26/27] Linking VectorFoundryPackageTests
+Build complete! (17.37s)
+◇ Test run started.
+↳ Testing Library Version: 124.4
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test collinearBacktrackingAndSubdivisionCountAreHonored() started.
+◇ Test curveAndZoomInvariantAnchorHitTesting() started.
+◇ Test verify006FillRuleFrozenExamples() started.
+◇ Test identityTransformPropertySamples() started.
+◇ Test swiftGeometryBenchmark() started.
+◇ Test subdivisionFlatteningAndBounds() started.
+◇ Test bezierEndpointsAndMidpoint() started.
+◇ Test verify001AffineTransformFrozenExamples() started.
+◇ Test verify002BezierEvaluationFrozenExamples() started.
+◇ Test testVerify018ScreenSpaceSnappingTolerance() started.
+◇ Test testVerify015DamageRectangleUnionAndIntersection() started.
+◇ Test testVerify016EightHandleScaleMapping() started.
+◇ Test verify003BezierBoundsFrozenExamples() started.
+◇ Test smoothPenCreatesMirroredHandlesPreviewAndClosedPath() started.
+◇ Test verify021AxisSnapCandidates() started.
+◇ Test representativeUnicodeShapes() started.
+◇ Test degenerateCurveIsStable() started.
+◇ Test coreGraphicsSupportsRequiredCompositingPrimitives() started.
+◇ Test penStateCreatesOpenAndClosedPaths() started.
+◇ Test compositeSceneMatchesProjectGoldenWithExplicitTolerance() started.
+◇ Test preciseSelectionRejectsBoundsFalsePositiveAndRespectsLockedLayers() started.
+◇ Test spatialIndexReturnsNearbyCandidates() started.
+◇ Test primitiveAndSnapPolicies() started.
+◇ Test testVerify014ZoomAboutPointDomainAndInvariant() started.
+◇ Test rendererUsesOnlyApprovedImagesOrPlaceholder() started.
+◇ Test testVerify017SmoothAnchorSymmetry() started.
+◇ Test accessibilityTreeExposesDocumentLayersSelectionAndFrames() started.
+◇ Test expandedAppearanceTextAndImageRender() started.
+◇ Test testVerify013PivotRotationAndHalfAwaySnapping() started.
+◇ Test verify008DirectAggregateAssetBoundaryFixtures() started.
+◇ Test cachedPanMeetsInteractiveFrameBudget() started.
+◇ Test verify005GroupBoundsFrozenExamples() started.
+◇ Test damageRegionStatesAreExplicit() started.
+◇ Test directAnchorGroupUngroupAndCompoundCommandsAreUndoable() started.
+◇ Test goldenToleranceBoundaryPolicyIsInclusive() started.
+◇ Test forcedExposurePanRedrawsNonzeroStrips() started.
+◇ Test bezierRendersAtMultipleScales() started.
+◇ Test verify008DocumentLimitsFrozenExamples() started.
+✘ Test testVerify024ABCExactIndexAndPayloadRestoration() skipped.
+◇ Test verify010SVGLengthFrozenExamples() started.
+◇ Test migratesVersionTwoDocument() started.
+◇ Test durableSaveKeepsBackupAndInterruptedPreRenameSaveKeepsOriginal() started.
+◇ Test transformedStrokeInkIsContainedByVisualBounds() started.
+◇ Test verify011SVGElementAndNodeBoundaries() started.
+◇ Test groupUngroupAndCompoundReleasePreserveVisualBounds() started.
+✘ Test testVerify022CanonicalDocumentEqualityFrozenExamples() skipped.
+✘ Test testDeltaHistorySeededValueSwapRoundTripCorpus() skipped.
+◇ Test representativeDocumentRenderBenchmark() started.
+◇ Test directAnchorDeletionIsUndoable() started.
+◇ Test verify004VisualBoundsFrozenExamples() started.
+◇ Test rasterLoaderEnforcesLimitsAndSafeLinks() started.
+◇ Test cleanupAfterPostCloseFaultDoesNotCloseReusedDescriptor() started.
+◇ Test svgExportIsDeterministicAndEscaped() started.
+◇ Test verify020NestedDocumentTransformComposition() started.
+◇ Test deterministicNativeAndSVGMutationCorpusMeetsDeadline() started.
+✘ Test testDeltaHistoryAtomicApplyDoesNotPartiallyMutate() skipped.
+◇ Test headlessUIJourneyCreateStyleTransformSaveReopenAndExport() started.
+◇ Test testDeltaHistoryFlagDefaultsOff() started.
+◇ Test testP2ApprovedImageCachePublishesValidatedBytesToSharedAssetStore() started.
+◇ Test verify011SVGWarningAndDepthBoundaries() started.
+✘ Test testP2SeededMixedCorpusCrossesEvictionAndCheckpointsWithExactUnwindReplay() skipped.
+◇ Test rejectsUnknownVersion() started.
+◇ Test fixedAdversarialClassesFailSafely() started.
+◇ Test unsavedCoordinatorsAreIndependentAndCancelPreventsReplacement() started.
+✘ Test testVerify024ThreeMiBAssetSurvivesPressurePinnedAndSHA256RoundTrip() skipped.
+◇ Test verify009TwoLevelAccumulatedAncestorExample() started.
+◇ Test verify012AutosaveAndRecoveryPolicy() started.
+◇ Test nativeDecoderDeterministicMalformedCorpus() started.
+✘ Test testP2NodeLayerAndCrossParentReorderRoundTripAndIdentityElision() skipped.
+◇ Test verify011JSONDepthAndValueBoundaries() started.
+✘ Test testP2SafetyNetDropsPeriodicCheckpointsButPreservesFloorPins() skipped.
+✘ Test testValueSwapClassesApplyStoredOldValuesWithoutMatrixInversion() skipped.
+◇ Test svgRejectsWrongNamespaceRepeatedRootAndEntityDeclaration() started.
+◇ Test verify009NestedTranslationExamples() started.
+◇ Test strictValidationPinsNodeCountCeiling() started.
+◇ Test linkedResourceResolverRejectsTraversalAndSymlinkEscape() started.
+◇ Test alignmentIsUndoable() started.
+◇ Test approvedImageCacheDecodesOffActorAndPublishesSnapshot() started.
+✘ Test testVerify027CountEvictionAndReplayBoundFrozenExample() skipped.
+◇ Test advancedResourceInvariants() started.
+✘ Test testDeltaHistoryForcedInverseFailureRestoresNearestCheckpointAndReportsDiagnostic() skipped.
+◇ Test documentInvariants() started.
+◇ Test boundedReaderRejectsMetadataBeforeReadAndTruncation() started.
+✘ Test testVerify027FloorOutranksByteBudgetFrozenExample() skipped.
+◇ Test atomicSaveAndLoad() started.
+◇ Test revisionGestureAndChangeStreamSemantics() started.
+◇ Test migratesVersionThreeDocumentAndRoundTripsHistoricalFixtures() started.
+✘ Test testP2StructuralInsertPreflightsNodeAndLayerCeilingsBeforeMutation() skipped.
+◇ Test nativeRoundTripIsDeterministic() started.
+◇ Test verify011SVGStringBoundaries() started.
+◇ Test snapshotHistorySharesEmbeddedAssetsAndHonorsMemorySafetyNet() started.
+◇ Test v4RoundTripPreservesMixedOrderGroupsAndCompoundPaths() started.
+◇ Test svgReportsFeatureLoss() started.
+✘ Test testP2StructuralInsertClassesRoundTripAndRejectDuplicateWithoutRecording() skipped.
+◇ Test verify019DocumentDeltaIncludesOwnAndAncestorTransforms() started.
+◇ Test verify012ApprovedImageBudgetExamples() started.
+◇ Test directionHandleMovementUsesDocumentDeltaAndIsUndoable() started.
+◇ Test commandUndoRedoAndBranch() started.
+◇ Test svgImportIsIsolatedSafeAndDiagnosable() started.
+✘ Test testVerify027ByteEvictionFrozenExample() skipped.
+◇ Test historyDirtyCoalescingRollbackAndLimit() started.
+◇ Test v4CanonicalGoldenBytes() started.
+✘ Test testVerify027PinnedAssetChargeTransfersAtomicallyToNextOldestPin() skipped.
+◇ Test failedFirstGestureDoesNotCorruptLaterCoalescing() started.
+✘ Test testP2MultiDeleteIsOneCommandAndRestoresReverseRemovalOrder() skipped.
+◇ Test strictValidationRejectsGeometryStyleAndReferences() started.
+◇ Test strictValidationEnforcesGlobalIDsAndImageStructure() started.
+✘ Test testVerify024EmptyGroupPersistsAndInverseRestoresIndexZero() skipped.
+✘ Test testVerify028RedoBranchAndCancelledGestureFrozenStateMachine() skipped.
+✘ Test testP2RealAssetChargeTransfersWhenOldestPinIsEvicted() skipped.
+◇ Test historyLimitIsImmutableAndCappedAtThirty() started.
+✘ Test testVerify023ValueSwapTransformFrozenExamplesAndSignedZeroIdentity() skipped.
+◇ Test verify007PixelCountFrozenExamples() started.
+✘ Test testP2LastRealPinReleaseAllowsEvictionAndCheckpointOnlyPinsStayOutsideB() skipped.
+✔ Test curveAndZoomInvariantAnchorHitTesting() passed after 0.050 seconds.
+✔ Test collinearBacktrackingAndSubdivisionCountAreHonored() passed after 0.051 seconds.
+✔ Test subdivisionFlatteningAndBounds() passed after 0.051 seconds.
+✔ Test verify001AffineTransformFrozenExamples() passed after 0.051 seconds.
+✔ Test verify006FillRuleFrozenExamples() passed after 0.051 seconds.
+✔ Test bezierEndpointsAndMidpoint() passed after 0.051 seconds.
+✔ Test verify002BezierEvaluationFrozenExamples() passed after 0.051 seconds.
+✔ Test identityTransformPropertySamples() passed after 0.051 seconds.
+✔ Test testVerify018ScreenSpaceSnappingTolerance() passed after 0.051 seconds.
+✔ Test testVerify015DamageRectangleUnionAndIntersection() passed after 0.051 seconds.
+✔ Test verify021AxisSnapCandidates() passed after 0.051 seconds.
+✔ Test degenerateCurveIsStable() passed after 0.052 seconds.
+✔ Test verify003BezierBoundsFrozenExamples() passed after 0.051 seconds.
+✔ Test testVerify016EightHandleScaleMapping() passed after 0.051 seconds.
+✔ Test testVerify014ZoomAboutPointDomainAndInvariant() passed after 0.052 seconds.
+✔ Test penStateCreatesOpenAndClosedPaths() passed after 0.051 seconds.
+✔ Test smoothPenCreatesMirroredHandlesPreviewAndClosedPath() passed after 0.051 seconds.
+✔ Test primitiveAndSnapPolicies() passed after 0.052 seconds.
+✔ Test testVerify017SmoothAnchorSymmetry() passed after 0.051 seconds.
+✔ Test testVerify013PivotRotationAndHalfAwaySnapping() passed after 0.052 seconds.
+✔ Test spatialIndexReturnsNearbyCandidates() passed after 0.052 seconds.
+✔ Test accessibilityTreeExposesDocumentLayersSelectionAndFrames() passed after 0.052 seconds.
+✔ Test preciseSelectionRejectsBoundsFalsePositiveAndRespectsLockedLayers() passed after 0.052 seconds.
+✔ Test damageRegionStatesAreExplicit() passed after 0.051 seconds.
+✔ Test verify005GroupBoundsFrozenExamples() passed after 0.051 seconds.
+✔ Test goldenToleranceBoundaryPolicyIsInclusive() passed after 0.051 seconds.
+✔ Test forcedExposurePanRedrawsNonzeroStrips() passed after 0.051 seconds.
+✔ Test directAnchorGroupUngroupAndCompoundCommandsAreUndoable() passed after 0.051 seconds.
+✔ Test rendererUsesOnlyApprovedImagesOrPlaceholder() passed after 0.052 seconds.
+✔ Test verify010SVGLengthFrozenExamples() passed after 0.051 seconds.
+✔ Test verify008DocumentLimitsFrozenExamples() passed after 0.051 seconds.
+✔ Test coreGraphicsSupportsRequiredCompositingPrimitives() passed after 0.052 seconds.
+✔ Test bezierRendersAtMultipleScales() passed after 0.051 seconds.
+✔ Test swiftGeometryBenchmark() passed after 0.052 seconds.
+✔ Test groupUngroupAndCompoundReleasePreserveVisualBounds() passed after 0.051 seconds.
+✔ Test migratesVersionTwoDocument() passed after 0.051 seconds.
+✔ Test directAnchorDeletionIsUndoable() passed after 0.051 seconds.
+✔ Test verify004VisualBoundsFrozenExamples() passed after 0.051 seconds.
+✔ Test rasterLoaderEnforcesLimitsAndSafeLinks() passed after 0.051 seconds.
+✔ Test compositeSceneMatchesProjectGoldenWithExplicitTolerance() passed after 0.052 seconds.
+✔ Test svgExportIsDeterministicAndEscaped() passed after 0.051 seconds.
+✔ Test verify020NestedDocumentTransformComposition() passed after 0.051 seconds.
+✔ Test verify008DirectAggregateAssetBoundaryFixtures() passed after 0.052 seconds.
+✔ Test testDeltaHistoryFlagDefaultsOff() passed after 0.051 seconds.
+✔ Test expandedAppearanceTextAndImageRender() passed after 0.052 seconds.
+✔ Test verify011SVGWarningAndDepthBoundaries() passed after 0.051 seconds.
+✔ Test rejectsUnknownVersion() passed after 0.051 seconds.
+✔ Test verify009TwoLevelAccumulatedAncestorExample() passed after 0.051 seconds.
+✔ Test unsavedCoordinatorsAreIndependentAndCancelPreventsReplacement() passed after 0.051 seconds.
+✔ Test representativeUnicodeShapes() passed after 0.052 seconds.
+✔ Test nativeDecoderDeterministicMalformedCorpus() passed after 0.051 seconds.
+✔ Test svgRejectsWrongNamespaceRepeatedRootAndEntityDeclaration() passed after 0.051 seconds.
+✔ Test verify009NestedTranslationExamples() passed after 0.051 seconds.
+✔ Test cleanupAfterPostCloseFaultDoesNotCloseReusedDescriptor() passed after 0.051 seconds.
+✔ Test headlessUIJourneyCreateStyleTransformSaveReopenAndExport() passed after 0.051 seconds.
+✔ Test alignmentIsUndoable() passed after 0.051 seconds.
+✔ Test advancedResourceInvariants() passed after 0.051 seconds.
+✔ Test documentInvariants() passed after 0.051 seconds.
+✔ Test revisionGestureAndChangeStreamSemantics() passed after 0.051 seconds.
+✔ Test linkedResourceResolverRejectsTraversalAndSymlinkEscape() passed after 0.051 seconds.
+✔ Test migratesVersionThreeDocumentAndRoundTripsHistoricalFixtures() passed after 0.051 seconds.
+✔ Test verify012AutosaveAndRecoveryPolicy() passed after 0.051 seconds.
+✔ Test nativeRoundTripIsDeterministic() passed after 0.051 seconds.
+✔ Test boundedReaderRejectsMetadataBeforeReadAndTruncation() passed after 0.051 seconds.
+✔ Test snapshotHistorySharesEmbeddedAssetsAndHonorsMemorySafetyNet() passed after 0.051 seconds.
+✔ Test durableSaveKeepsBackupAndInterruptedPreRenameSaveKeepsOriginal() passed after 0.052 seconds.
+✔ Test svgReportsFeatureLoss() passed after 0.051 seconds.
+✔ Test verify019DocumentDeltaIncludesOwnAndAncestorTransforms() passed after 0.051 seconds.
+✔ Test cachedPanMeetsInteractiveFrameBudget() passed after 0.052 seconds.
+✔ Test verify012ApprovedImageBudgetExamples() passed after 0.051 seconds.
+✔ Test directionHandleMovementUsesDocumentDeltaAndIsUndoable() passed after 0.051 seconds.
+✔ Test commandUndoRedoAndBranch() passed after 0.051 seconds.
+✔ Test historyDirtyCoalescingRollbackAndLimit() passed after 0.051 seconds.
+✔ Test v4RoundTripPreservesMixedOrderGroupsAndCompoundPaths() passed after 0.051 seconds.
+✔ Test failedFirstGestureDoesNotCorruptLaterCoalescing() passed after 0.051 seconds.
+✔ Test strictValidationRejectsGeometryStyleAndReferences() passed after 0.051 seconds.
+✔ Test v4CanonicalGoldenBytes() passed after 0.051 seconds.
+✔ Test strictValidationEnforcesGlobalIDsAndImageStructure() passed after 0.051 seconds.
+✔ Test verify007PixelCountFrozenExamples() passed after 0.051 seconds.
+✔ Test historyLimitIsImmutableAndCappedAtThirty() passed after 0.051 seconds.
+✔ Test svgImportIsIsolatedSafeAndDiagnosable() passed after 0.051 seconds.
+✔ Test representativeDocumentRenderBenchmark() passed after 0.052 seconds.
+✔ Test testP2ApprovedImageCachePublishesValidatedBytesToSharedAssetStore() passed after 0.052 seconds.
+✔ Test approvedImageCacheDecodesOffActorAndPublishesSnapshot() passed after 0.051 seconds.
+✔ Test fixedAdversarialClassesFailSafely() passed after 0.052 seconds.
+✔ Test atomicSaveAndLoad() passed after 0.054 seconds.
+✔ Test transformedStrokeInkIsContainedByVisualBounds() passed after 0.069 seconds.
+✔ Test deterministicNativeAndSVGMutationCorpusMeetsDeadline() passed after 0.071 seconds.
+✔ Test verify011SVGStringBoundaries() passed after 0.097 seconds.
+✔ Test strictValidationPinsNodeCountCeiling() passed after 0.157 seconds.
+✔ Test verify011SVGElementAndNodeBoundaries() passed after 0.583 seconds.
+✔ Test verify011JSONDepthAndValueBoundaries() passed after 1.103 seconds.
+✔ Test run with 114 tests passed after 1.105 seconds.

@@ -125,3 +125,13 @@ revision `e38200bc49b68f025c19c8a22fef4a9ea5969222`, which adds the frozen
 P-FLOOR plus nine-checkpoint memory scenario. The complete affected battery was
 rerun at the latter revision and is mapped in
 `artifacts/phase5/p1/revision-map.md`.
+
+## Phase 5 delta history P2
+
+P2 is a post-remediation, default-off build input and does not alter any closed
+R4 artifact claim. Structural commands and real approved-store pins landed at
+`7e3c8e7d2f138797c1c5ad15ed6022ce06c5d759`; read-only structural preflight and
+strict benchmark-process status propagation landed at
+`3679dfa960c82934ae26fa74653acbaf8f948c2d`. The exact complete-battery build
+input is `db19297de665daedad53bc2c23580e708d859fce`. Its evidence and per-artifact
+mapping are retained under `artifacts/phase5/p2/`.
