@@ -1,0 +1,10 @@
+[0/1] Planning build
+Building for production...
+[0/4] Write swift-version--1AB21518FC5DEDBE.txt
+[2/5] Compiling MacPlatform BackingScale.swift
+[3/5] Compiling EditorTools AccessibilityTree.swift
+[4/6] Compiling VectorFoundryApp main.swift
+[4/6] Write Objects.LinkFileList
+[5/6] Linking VectorFoundry
+Build complete! (5.22s)
+dist/OpenDraw.app: replacing existing signature

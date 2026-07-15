@@ -1,0 +1,10 @@
+e38200bc49b68f025c19c8a22fef4a9ea5969222
+ProductName:		macOS
+ProductVersion:		15.7.5
+BuildVersion:		24G624
+arm64
+MacBookPro18,2
+Apple M1 Max
+68719476736
+Apple Swift version 6.1.2 (swiftlang-6.1.2.1.2 clang-1700.0.13.5)
+Target: arm64-apple-macosx15.0

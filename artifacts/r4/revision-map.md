@@ -115,3 +115,13 @@ live artifact contents as mapped above.
 
 `docs/reviews/ADR-011-macos15-platform-rerun-report.md` was introduced by
 evidence/state commit `4f156b9` and names producing revision `f6ec81a`.
+
+## Phase 5 delta history P1
+
+P1 is a post-remediation, flag-isolated build input and does not alter the
+closed R4 artifact claims above. Core history/BENCH-5 implementation revision
+`7ec93fdb16356ccbc5b56c0f593353dcba254472` is followed by final build-input
+revision `e38200bc49b68f025c19c8a22fef4a9ea5969222`, which adds the frozen
+P-FLOOR plus nine-checkpoint memory scenario. The complete affected battery was
+rerun at the latter revision and is mapped in
+`artifacts/phase5/p1/revision-map.md`.

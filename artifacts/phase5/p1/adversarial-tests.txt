@@ -1,0 +1,105 @@
+[0/1] Planning build
+Building for debugging...
+[0/12] Write swift-version--1AB21518FC5DEDBE.txt
+[2/15] Emitting module EditorCore
+[3/15] Compiling EditorCore CoreTypes.swift
+[4/15] Compiling EditorCore Diagnostics.swift
+[5/19] Emitting module MacPlatform
+[6/19] Compiling MacPlatform BackingScale.swift
+[7/19] Compiling Geometry Geometry.swift
+[8/19] Emitting module Geometry
+[9/29] Compiling TextEngine TextShaper.swift
+[10/29] Emitting module TextEngine
+[11/29] Emitting module GeometryTests
+[12/29] Compiling GeometryTests BezierBoundsVerifyTests.swift
+[13/29] Compiling GeometryTests FillRuleVerifyTests.swift
+[14/31] Compiling GeometryTests BezierEvaluationVerifyTests.swift
+[15/31] Compiling GeometryTests AffineTransformVerifyTests.swift
+[16/31] Compiling GeometryTests GeometryTests.swift
+[17/31] Emitting module TextEngineTests
+[18/31] Compiling TextEngineTests TextEngineTests.swift
+[19/31] Emitting module DocumentModel
+[20/31] Compiling DocumentModel Document.swift
+[21/53] Compiling EditorCommands DeltaHistoryFeatureFlag.swift
+[22/53] Compiling DocumentFormats RasterResourceLoader.swift
+[23/53] Compiling DocumentFormats SVGLengthParser.swift
+[24/53] Emitting module DocumentFormats
+[25/53] Compiling DocumentFormats AdversarialParserHarness.swift
+[26/53] Compiling CanvasRender SceneBitmapCache.swift
+[27/53] Compiling CanvasRender ViewportStripCache.swift
+[28/53] Compiling DocumentFormats ApprovedImages.swift
+[29/53] Compiling EditorCommands SceneCommands.swift
+[30/53] Compiling DocumentFormats SVGImporter.swift
+[31/53] Emitting module EditorCommands
+[32/53] Compiling EditorCommands AlignmentCommands.swift
+[33/53] Compiling EditorCommands CanonicalDocumentEquality.swift
+[34/53] Compiling EditorCommands CommandHistory.swift
+[35/53] Compiling EditorCommands DeltaCommandHistory.swift
+[36/53] Emitting module CanvasRender
+[37/53] Compiling CanvasRender CoreGraphicsRenderer.swift
+[38/53] Compiling DocumentFormats DurablePersistence.swift
+[39/53] Compiling DocumentFormats InputLimits.swift
+[40/53] Compiling DocumentFormats NativeDocumentCodec.swift
+[41/53] Compiling DocumentFormats SVGExporter.swift
+[42/53] Compiling EditorCommands ValueSwapCommands.swift
+[43/76] Emitting module R4GateHarness
+[44/76] Compiling EditorTools TransformInteractions.swift
+[45/76] Compiling EditorTools AccessibilityTree.swift
+[46/76] Compiling EditorTools SpatialIndex.swift
+[47/76] Compiling EditorTools SelectionTool.swift
+[48/76] Emitting module DocumentModelTests
+[49/77] Compiling DocumentModelTests PixelOverflowVerifyTests.swift
+[50/77] Emitting module RenderBenchmark
+[51/77] Compiling RenderBenchmark main.swift
+[51/77] Write Objects.LinkFileList
+[53/77] Compiling EditorTools CreationTools.swift
+[54/77] Emitting module EditorTools
+[55/82] Compiling R4GateHarness main.swift
+[56/86] Compiling DocumentModelTests DocumentTransformVerifyTests.swift
+[56/92] Write Objects.LinkFileList
+[58/92] Compiling DocumentModelTests StrictValidationTests.swift
+[59/92] Compiling DocumentFormatsTests resource_bundle_accessor.swift
+[59/92] Linking RenderBenchmark
+[60/92] Applying RenderBenchmark
+[62/92] Emitting module DocumentFormatsTests
+[63/92] Compiling DocumentModelTests NestedTranslationVerifyTests.swift
+[63/92] Linking R4GateHarness
+[64/92] Applying R4GateHarness
+[66/92] Compiling DocumentModelTests GroupBoundsVerifyTests.swift
+[67/92] Compiling CanvasRenderTests GoldenRenderingTests.swift
+[68/92] Emitting module CanvasRenderTests
+[69/92] Compiling CanvasRenderTests CanvasRenderTests.swift
+[70/92] Compiling DocumentModelTests DirectAnchorVerifyTests.swift
+[71/92] Compiling DocumentModelTests VisualBoundsVerifyTests.swift
+[72/92] Compiling DocumentFormatsTests SVGLengthVerifyTests.swift
+[73/92] Compiling DocumentFormatsTests ApprovedImageCacheVerifyTests.swift
+[74/92] Compiling DocumentFormatsTests AdversarialCorpusTests.swift
+[75/92] Compiling DocumentFormatsTests DurablePersistenceTests.swift
+[76/92] Compiling DocumentFormatsTests SceneMigrationTests.swift
+[77/92] Compiling DocumentFormatsTests UIJourneyTests.swift
+[78/92] Compiling DocumentModelTests DocumentLimitsVerifyTests.swift
+[79/92] Compiling DocumentModelTests DocumentModelTests.swift
+[80/92] Compiling DocumentFormatsTests InputLimitsVerifyTests.swift
+[81/92] Compiling DocumentFormatsTests DocumentFormatsTests.swift
+[82/92] Compiling EditorToolsTests EditorToolsTests.swift
+[83/92] Compiling EditorToolsTests AccessibilityTests.swift
+[84/92] Emitting module EditorToolsTests
+[85/92] Compiling VectorFoundryApp main.swift
+[86/92] Emitting module VectorFoundryApp
+[86/92] Write Objects.LinkFileList
+[87/92] Linking VectorFoundry
+[88/92] Applying VectorFoundry
+[90/92] Compiling DocumentModelTests DeltaHistoryP1VerifyTests.swift
+[91/94] Emitting module VectorFoundryPackageTests
+[92/94] Compiling VectorFoundryPackageTests runner.swift
+[92/94] Write Objects.LinkFileList
+[93/94] Linking VectorFoundryPackageTests
+Build complete! (7.61s)
+◇ Test run started.
+↳ Testing Library Version: 124.4
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test deterministicNativeAndSVGMutationCorpusMeetsDeadline() started.
+◇ Test fixedAdversarialClassesFailSafely() started.
+✔ Test fixedAdversarialClassesFailSafely() passed after 0.002 seconds.
+✔ Test deterministicNativeAndSVGMutationCorpusMeetsDeadline() passed after 0.027 seconds.
+✔ Test run with 2 tests passed after 0.027 seconds.

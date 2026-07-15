@@ -1,0 +1,12 @@
+revision=e38200bc49b68f025c19c8a22fef4a9ea5969222 model=MacBookPro18,2 chip=Apple M1 Max memory_bytes=68719476736 os=15.7.5 build=24G624 arch=arm64 swift=swift-driver version: 1.120.5 Apple Swift version 6.1.2 (swiftlang-6.1.2.1.2 clang-1700.0.13.5)
+BENCH_METADATA warmup_frames=60 measured_frames=300 production_paths=true
+BENCH-1 drag: p50 5.056 ms | p95 5.617 ms | max 27.856 ms
+BENCH-2 pan: p50 0.087 ms | p95 0.109 ms | max 0.173 ms
+BENCH-2b forced-exposure pan: p50 5.484 ms | p95 5.954 ms | max 8.225 ms
+BENCH-2b strip_redraw_frames=360 nonzero_every_frame=true
+BENCH-3 zoom: p50 2.420 ms | p95 9.003 ms | max 10.577 ms
+BENCH-3 settle: 3.217 ms
+BENCH-4 cold-open: 10.908 ms
+Warm full redraw: 4.633 ms
+BENCH-5a undo-redo: p50 0.006 ms | p95 0.006 ms | max 0.032 ms
+BENCH-5b record: p50 0.123 ms | p95 0.142 ms | max 0.302 ms
