@@ -70,6 +70,13 @@ and summary log is uploaded.
 | Hosted-runner ratio versus hosted reference | GitHub-hosted `macos-15` | **INFORMATIONAL**, owner decision 2026-07-15 |
 | Ratio falsifiability fixtures | Local and hosted workflow | **BLOCKING**, unchanged |
 
+Phase 5 P1 extends the artifact with BENCH-5a delta undo/redo apply
+(p95 <= 16.7 ms) and BENCH-5b record overhead (p95 <= 1.0 ms). Their absolute
+targets are blocking locally and hosted. The owner-reference baseline contains
+both rows and applies the same unchanged inclusive 1.25 local ratio. Hosted
+ratios for the new rows are informational under the 2026-07-15 owner decision,
+exactly like the five earlier metrics.
+
 The frozen absolute BENCH-R3.5 targets remain blocking wherever the benchmark
 runs, including hosted CI. Local ratio checks use
 `owner-reference-macos15-arm64-baseline.tsv` and remain blocking at the
@@ -83,7 +90,8 @@ changed by the informational-hosted decision.
 
 Hosted comparisons must never use the owner-local baseline. They retain
 `hosted-macos15-arm64-baseline.tsv` solely as an informational reference and
-always upload all five per-metric rows under this header:
+upload all five original per-metric rows, plus both BENCH-5 rows after their
+hosted bootstrap, under this header:
 
 ```text
 mode=INFORMATIONAL ratio_enforcement=OFF reason=owner-decision-2026-07-15
@@ -110,6 +118,14 @@ independent regression evidence. After review and commit as
 informational path. The 90-day date is informational provenance rather than a
 hosted failure condition. Reference updates still require a green known-good
 hosted run and unchanged scenario/sample semantics.
+
+The committed hosted reference predates BENCH-5. Until it gains the two new
+rows, the workflow keeps the original five informational comparisons, emits
+BENCH-5a/5b as explicit 1.000000 bootstrap rows, and uploads a seven-row
+candidate. That candidate retains the five-row source metadata and adds
+separate `phase5_metrics_source_commit` and `phase5_metrics_run_url`
+provenance. It requires review before commit and is not independent ratio
+evidence.
 
 GitHub-hosted macOS timing has measured hardware variance well beyond 1.25.
 Owner decision 2026-07-15 therefore makes the hosted ratio informational; the

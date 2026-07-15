@@ -15,7 +15,10 @@ jobs:
       - run: test "$(uname -m)" = arm64
       - run: xcrun swift-format lint --recursive --strict Sources Tests Package.swift
       - run: swift build -c debug && swift build -c release
-      - run: swift test && swift test -c release
+      - name: Test snapshot-primary behavior with delta flag OFF
+        run: OPENDRAW_DELTA_HISTORY=0 swift test && OPENDRAW_DELTA_HISTORY=0 swift test -c release
+      - name: Test delta P1 suites with flag ON
+        run: OPENDRAW_DELTA_HISTORY=1 swift test && OPENDRAW_DELTA_HISTORY=1 swift test -c release
       - run: scripts/check-module-dependencies.sh
       - run: scripts/check-clean-room.sh
       - name: Public API symbol documentation surface
@@ -51,11 +54,15 @@ jobs:
           validate_hosted_baseline() {
             baseline_file=$1
             data_count=$(awk -F "$(printf '\t')" '$1 !~ /^#/ && NF { count += 1 } END { print count + 0 }' "$baseline_file")
-            test "$data_count" -eq 5
+            test "$data_count" -eq 5 -o "$data_count" -eq 7
             for metric in bench1_p95 bench2_p95 bench2b_p95 bench3_p95 bench3_settle; do
               metric_count=$(awk -F "$(printf '\t')" -v metric="$metric" '$1 == metric { count += 1 } END { print count + 0 }' "$baseline_file")
               test "$metric_count" -eq 1
             done
+            bench5a_count=$(awk -F "$(printf '\t')" '$1 == "bench5a_p95" { count += 1 } END { print count + 0 }' "$baseline_file")
+            bench5b_count=$(awk -F "$(printf '\t')" '$1 == "bench5b_p95" { count += 1 } END { print count + 0 }' "$baseline_file")
+            test "$bench5a_count" -eq "$bench5b_count"
+            test "$bench5a_count" -eq 0 -o "$bench5a_count" -eq 1
           }
           if [ -s "$HOSTED_BASELINE" ]; then
             validate_hosted_baseline "$HOSTED_BASELINE"
@@ -67,13 +74,34 @@ jobs:
             scripts/check-benchmark-regression.sh \
               hosted-informational-baseline.tsv benchmark.txt benchmark-ratio-body.txt || ratio_status=$?
             rm -f hosted-informational-baseline.tsv
+            phase5_metric_count=$(awk -F "$(printf '\t')" '$1 == "bench5a_p95" || $1 == "bench5b_p95" { count += 1 } END { print count + 0 }' "$HOSTED_BASELINE")
+            if [ "$phase5_metric_count" -eq 0 ]; then
+              bench5a=$(awk '/BENCH-5a undo-redo:/ { print $8 }' benchmark.txt)
+              bench5b=$(awk '/BENCH-5b record:/ { print $8 }' benchmark.txt)
+              test -n "$bench5a" -a -n "$bench5b"
+              {
+                cat "$HOSTED_BASELINE"
+                printf '# phase5_metrics_source_commit=%s\n' "$GITHUB_SHA"
+                printf '# phase5_metrics_run_url=%s\n' "$run_url"
+                printf 'bench5a_p95\t%s\t1.25\n' "$bench5a"
+                printf 'bench5b_p95\t%s\t1.25\n' "$bench5b"
+              } > hosted-baseline-candidate.tsv
+              validate_hosted_baseline hosted-baseline-candidate.tsv
+              {
+                cat benchmark-ratio-body.txt
+                printf 'bench5a_p95 baseline_ms=%s observed_ms=%s ratio=1.000000 allowed_ratio=1.25 result=BOOTSTRAP\n' "$bench5a" "$bench5a"
+                printf 'bench5b_p95 baseline_ms=%s observed_ms=%s ratio=1.000000 allowed_ratio=1.25 result=BOOTSTRAP\n' "$bench5b" "$bench5b"
+              } > benchmark-ratio-complete.txt
+            else
+              mv benchmark-ratio-body.txt benchmark-ratio-complete.txt
+            fi
             {
               printf 'mode=INFORMATIONAL ratio_enforcement=OFF reason=owner-decision-2026-07-15\n'
               printf 'baseline=%s\n' "$HOSTED_BASELINE"
               printf 'baseline_valid_until=%s expiry_enforcement=OFF\n' "$reference_valid_until"
               printf 'run_url=%s\n' "$run_url"
               printf 'comparison_exit_status=%s job_effect=NONE\n' "$ratio_status"
-              cat benchmark-ratio-body.txt
+              cat benchmark-ratio-complete.txt
             } > benchmark-comparison.txt
             exit 0
           fi
@@ -93,6 +121,8 @@ jobs:
             awk '/BENCH-2b forced-exposure pan:/ { print "bench2b_p95\t" $9 "\t1.25" }' benchmark.txt
             awk '/BENCH-3 zoom:/ { print "bench3_p95\t" $8 "\t1.25" }' benchmark.txt
             awk '/BENCH-3 settle:/ { print "bench3_settle\t" $3 "\t1.25" }' benchmark.txt
+            awk '/BENCH-5a undo-redo:/ { print "bench5a_p95\t" $8 "\t1.25" }' benchmark.txt
+            awk '/BENCH-5b record:/ { print "bench5b_p95\t" $8 "\t1.25" }' benchmark.txt
           } > hosted-baseline-candidate.tsv
           validate_hosted_baseline hosted-baseline-candidate.tsv
           {
@@ -128,7 +158,7 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v6
-      - run: swift test --enable-code-coverage
+      - run: OPENDRAW_DELTA_HISTORY=1 swift test --enable-code-coverage
       - run: scripts/check-coverage.sh 55
   release-integrity:
     runs-on: macos-15

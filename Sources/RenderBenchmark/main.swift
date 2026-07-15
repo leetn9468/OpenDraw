@@ -1,6 +1,7 @@
 import CanvasRender
 import CoreGraphics
 import DocumentModel
+import EditorCommands
 import EditorCore
 import Foundation
 import Geometry
@@ -133,3 +134,29 @@ let warmFullStart = ContinuousClock.now
 CoreGraphicsRenderer().render(base, in: destination)
 print(String(format: "BENCH-4 cold-open: %.3f ms", coldOpenMilliseconds))
 print(String(format: "Warm full redraw: %.3f ms", milliseconds(warmFullStart.duration(to: .now))))
+
+let deltaFlag = DeltaHistoryFeatureFlag.environment()
+precondition(deltaFlag.isEnabled, "BENCH-5 requires OPENDRAW_DELTA_HISTORY=1")
+var applyHistory = try DeltaCommandHistory(document: base, featureFlag: deltaFlag)
+try applyHistory.commit(
+    ValueSwapCommands.transform(
+        in: applyHistory.document, nodeID: id(0), newValue: Geometry.AffineTransform(tx: 1, ty: 0)))
+let bench5a = try measure { index in
+    if index.isMultiple(of: 2) {
+        try applyHistory.undo()
+    } else {
+        try applyHistory.redo()
+    }
+}
+printStats("BENCH-5a undo-redo", bench5a)
+
+var recordHistory = try DeltaCommandHistory(document: base, featureFlag: deltaFlag)
+var recordTransform = Geometry.AffineTransform.identity
+let bench5b = try measure { index in
+    recordTransform.tx = index.isMultiple(of: 2) ? 1 : 0
+    try recordHistory.commit(
+        ValueSwapCommands.transform(in: recordHistory.document, nodeID: id(0), newValue: recordTransform))
+}
+printStats("BENCH-5b record", bench5b)
+precondition(bench5a.p95 <= 16.7, "BENCH-5a p95 exceeds frozen 16.7 ms target")
+precondition(bench5b.p95 <= 1.0, "BENCH-5b p95 exceeds frozen 1.0 ms target")

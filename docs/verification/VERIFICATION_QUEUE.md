@@ -529,7 +529,8 @@ Owner verification confirmed on 2026-07-13:
   invalid-zoom passthrough all agree with `72bd44d`. The `1e-9` value is a test
   assertion tolerance only and does not enlarge the snapping region.
 
-Frozen: VERIFY-001 through VERIFY-021. No open entries.
+R4-close scope: VERIFY-001 through VERIFY-021 were frozen with no open R4
+entries. The current authoritative frozen range is stated below.
 
 ## Phase 5 agreement batch — VERIFY-022 through VERIFY-028
 
@@ -558,6 +559,8 @@ Frozen values and policies now cover VERIFY-001 through VERIFY-028.
   before reliance. Adding such a field without amendment is a protocol
   violation.
 - Existing proof: `nativeRoundTripIsDeterministic`, `v4CanonicalGoldenBytes`.
+- P1 permanent proof: `testVerify022CanonicalDocumentEqualityFrozenExamples`
+  in `DeltaHistoryP1VerifyTests.swift`.
 
 ### VERIFY-023 — Value-swap transform round trip
 
@@ -571,6 +574,8 @@ Frozen values and policies now cover VERIFY-001 through VERIFY-028.
   payload bytes/bit patterns rather than floating-point `==`; `-0.0` and
   `+0.0` are distinct. Identity edits create no history entry and do not clear
   redo.
+- P1 permanent proof:
+  `testVerify023ValueSwapTransformFrozenExamplesAndSignedZeroIdentity`.
 
 ### VERIFY-024 — Structural remove/reinsert
 
@@ -632,6 +637,11 @@ Frozen values and policies now cover VERIFY-001 through VERIFY-028.
 - The global monotone command counter increments exactly once per recorded
   command commit. P-IDENT elisions, cancelled gestures, undo, and redo do not
   increment it.
+- P1 permanent proof:
+  `testVerify027CountEvictionAndReplayBoundFrozenExample`,
+  `testVerify027ByteEvictionFrozenExample`,
+  `testVerify027FloorOutranksByteBudgetFrozenExample`, and
+  `testVerify027PinnedAssetChargeTransfersAtomicallyToNextOldestPin`.
 
 ### VERIFY-028 — Redo branch state machine
 
@@ -640,8 +650,10 @@ Frozen values and policies now cover VERIFY-001 through VERIFY-028.
   `U U → []|[4,1]`; `R R → [1,4]|[]`; cancelled gesture after undo leaves
   `[1]|[2]`, and redo gives `[1,2]|[]`.
 - P-REDOCLEAR agrees with `commandUndoRedoAndBranch` and existing failed-command
-  rollback semantics; the explicit cancelled-gesture redo case still needs its
-  new permanent test during implementation.
+  rollback semantics; the explicit cancelled-gesture redo case is now pinned
+  by the P1 permanent proof below.
+- P1 permanent proof:
+  `testVerify028RedoBranchAndCancelledGestureFrozenStateMachine`.
 
 ### P-policy compatibility result
 

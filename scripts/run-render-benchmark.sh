@@ -8,4 +8,4 @@ printf 'revision=%s model=%s chip=%s memory_bytes=%s os=%s build=%s arch=%s swif
   "$(git rev-parse HEAD)" "$(sysctl -n hw.model)" "$(sysctl -n machdep.cpu.brand_string)" \
   "$(sysctl -n hw.memsize)" "$(sw_vers -productVersion)" "$(sw_vers -buildVersion)" "$(uname -m)" \
   "$(swift --version 2>&1 | head -1)" >"$output"
-.build/release/RenderBenchmark | tee -a "$output"
+OPENDRAW_DELTA_HISTORY=1 .build/release/RenderBenchmark | tee -a "$output"

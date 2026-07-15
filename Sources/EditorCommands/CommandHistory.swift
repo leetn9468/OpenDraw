@@ -1,6 +1,7 @@
 import DocumentModel
 import EditorCore
 import Foundation
+import Geometry
 
 public struct GestureID: Hashable, Sendable {
     public let rawValue: UUID
@@ -40,14 +41,167 @@ private final class ChangeBroadcaster: @unchecked Sendable {
     }
 }
 
-public struct DocumentCommand: Sendable {
-    public let name: String
-    private let mutation: @Sendable (inout EditorDocument) throws -> Void
-    public init(name: String, mutation: @escaping @Sendable (inout EditorDocument) throws -> Void) {
-        self.name = name
-        self.mutation = mutation
+public enum DocumentCommandError: Error, Equatable, Sendable {
+    case inverseUnavailable
+    case invalidCost
+}
+
+public enum DocumentCommandDamageBounds: Equatable, Sendable {
+    case none
+    case rect(Rect)
+    case full
+}
+
+public struct HistoryAssetPin: Hashable, Sendable {
+    public let assetID: String
+    public let byteCount: Int
+
+    public init(assetID: String, byteCount: Int) throws {
+        guard byteCount >= 0 else { throw DocumentCommandError.invalidCost }
+        self.assetID = assetID
+        self.byteCount = byteCount
     }
-    public func apply(to document: inout EditorDocument) throws { try mutation(&document) }
+}
+
+private final class ReversibleCommandStorage: @unchecked Sendable {
+    let forward: @Sendable (inout EditorDocument) throws -> Void
+    let reverse: (@Sendable (inout EditorDocument) throws -> Void)?
+    let forwardPreflight: (@Sendable (EditorDocument) throws -> Void)?
+    let reversePreflight: (@Sendable (EditorDocument) throws -> Void)?
+
+    init(
+        forward: @escaping @Sendable (inout EditorDocument) throws -> Void,
+        reverse: (@Sendable (inout EditorDocument) throws -> Void)?,
+        forwardPreflight: (@Sendable (EditorDocument) throws -> Void)? = nil,
+        reversePreflight: (@Sendable (EditorDocument) throws -> Void)? = nil
+    ) {
+        self.forward = forward
+        self.reverse = reverse
+        self.forwardPreflight = forwardPreflight
+        self.reversePreflight = reversePreflight
+    }
+}
+
+/// Atomic document mutation with immutable metadata and, for delta history,
+/// record-time-captured inverse data. The legacy initializer deliberately has
+/// no inverse and remains the snapshot history's production command surface.
+public struct DocumentCommand: Sendable {
+    public let commandID: UUID
+    public let timestamp: Date
+    public let name: String
+    public let damageBounds: DocumentCommandDamageBounds
+    public let costInBytes: Int
+    public let pinnedAssets: [HistoryAssetPin]
+    private let oldPayload: Data?
+    private let newPayload: Data?
+    private let storage: ReversibleCommandStorage
+    private let isForward: Bool
+
+    public init(name: String, mutation: @escaping @Sendable (inout EditorDocument) throws -> Void) {
+        commandID = UUID()
+        timestamp = Date()
+        self.name = name
+        damageBounds = .full
+        costInBytes = 0
+        pinnedAssets = []
+        oldPayload = nil
+        newPayload = nil
+        storage = ReversibleCommandStorage(forward: mutation, reverse: nil)
+        isForward = true
+    }
+
+    init(
+        commandID: UUID, timestamp: Date, name: String, damageBounds: DocumentCommandDamageBounds,
+        costInBytes: Int, pinnedAssets: [HistoryAssetPin], oldPayload: Data, newPayload: Data,
+        validatedApply: @escaping @Sendable (inout EditorDocument) throws -> Void,
+        validatedUnapply: @escaping @Sendable (inout EditorDocument) throws -> Void,
+        applyPreflight: @escaping @Sendable (EditorDocument) throws -> Void,
+        unapplyPreflight: @escaping @Sendable (EditorDocument) throws -> Void
+    ) throws {
+        guard costInBytes >= 0 else { throw DocumentCommandError.invalidCost }
+        self.commandID = commandID
+        self.timestamp = timestamp
+        self.name = name
+        self.damageBounds = damageBounds
+        self.costInBytes = costInBytes
+        self.pinnedAssets = pinnedAssets
+        self.oldPayload = oldPayload
+        self.newPayload = newPayload
+        storage = ReversibleCommandStorage(
+            forward: validatedApply, reverse: validatedUnapply, forwardPreflight: applyPreflight,
+            reversePreflight: unapplyPreflight)
+        isForward = true
+    }
+
+    public init(
+        commandID: UUID = UUID(), timestamp: Date = Date(), name: String,
+        damageBounds: DocumentCommandDamageBounds, costInBytes: Int,
+        pinnedAssets: [HistoryAssetPin] = [], oldPayload: Data, newPayload: Data,
+        apply: @escaping @Sendable (inout EditorDocument) throws -> Void,
+        unapply: @escaping @Sendable (inout EditorDocument) throws -> Void
+    ) throws {
+        guard costInBytes >= 0 else { throw DocumentCommandError.invalidCost }
+        self.commandID = commandID
+        self.timestamp = timestamp
+        self.name = name
+        self.damageBounds = damageBounds
+        self.costInBytes = costInBytes
+        self.pinnedAssets = pinnedAssets
+        self.oldPayload = oldPayload
+        self.newPayload = newPayload
+        storage = ReversibleCommandStorage(forward: apply, reverse: unapply)
+        isForward = true
+    }
+
+    private init(copying command: DocumentCommand, isForward: Bool) {
+        commandID = command.commandID
+        timestamp = command.timestamp
+        name = command.name
+        damageBounds = command.damageBounds
+        costInBytes = command.costInBytes
+        pinnedAssets = command.pinnedAssets
+        oldPayload = command.oldPayload
+        newPayload = command.newPayload
+        storage = command.storage
+        self.isForward = isForward
+    }
+
+    public var isIdentity: Bool {
+        guard let oldPayload, let newPayload else { return false }
+        return oldPayload == newPayload
+    }
+
+    public var hasCapturedInverse: Bool { storage.reverse != nil }
+
+    public func inverted() throws -> DocumentCommand {
+        guard storage.reverse != nil else { throw DocumentCommandError.inverseUnavailable }
+        return DocumentCommand(copying: self, isForward: !isForward)
+    }
+
+    /// Applies to a candidate, validates the complete result, then commits the
+    /// candidate. A throw therefore cannot leave a partial document mutation.
+    public func apply(to document: inout EditorDocument) throws {
+        if isForward, let preflight = storage.forwardPreflight {
+            try preflight(document)
+            try storage.forward(&document)
+            return
+        }
+        if !isForward, let preflight = storage.reversePreflight, let reverse = storage.reverse {
+            try preflight(document)
+            try reverse(&document)
+            return
+        }
+        var candidate = document
+        if isForward {
+            try storage.forward(&candidate)
+        } else if let reverse = storage.reverse {
+            try reverse(&candidate)
+        } else {
+            throw DocumentCommandError.inverseUnavailable
+        }
+        try candidate.validate()
+        document = candidate
+    }
 }
 
 public struct CommandHistory: Sendable {

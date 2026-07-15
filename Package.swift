@@ -19,7 +19,7 @@ let package = Package(
         .target(name: "EditorCore"),
         .target(name: "Geometry", dependencies: ["EditorCore"]),
         .target(name: "DocumentModel", dependencies: ["EditorCore", "Geometry"]),
-        .target(name: "EditorCommands", dependencies: ["EditorCore", "DocumentModel"]),
+        .target(name: "EditorCommands", dependencies: ["EditorCore", "DocumentModel", "Geometry"]),
         .target(name: "CanvasRender", dependencies: ["DocumentModel", "Geometry", "TextEngine"]),
         .target(name: "TextEngine", dependencies: ["EditorCore", "Geometry"]),
         .target(name: "EditorTools", dependencies: ["EditorCore", "Geometry", "DocumentModel", "EditorCommands"]),
@@ -34,7 +34,7 @@ let package = Package(
         ),
         .executableTarget(
             name: "RenderBenchmark",
-            dependencies: ["CanvasRender", "DocumentModel", "EditorCore", "Geometry"]),
+            dependencies: ["CanvasRender", "DocumentModel", "EditorCommands", "EditorCore", "Geometry"]),
         .executableTarget(
             name: "R4GateHarness",
             dependencies: ["CanvasRender", "DocumentFormats", "DocumentModel", "EditorCore", "Geometry"]),

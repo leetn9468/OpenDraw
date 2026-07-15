@@ -24,6 +24,8 @@ extract() {
     bench2b_p95) awk '/BENCH-2b forced-exposure pan:/ { print $9 }' "$current" ;;
     bench3_p95) awk '/BENCH-3 zoom:/ { print $8 }' "$current" ;;
     bench3_settle) awk '/BENCH-3 settle:/ { print $3 }' "$current" ;;
+    bench5a_p95) awk '/BENCH-5a undo-redo:/ { print $8 }' "$current" ;;
+    bench5b_p95) awk '/BENCH-5b record:/ { print $8 }' "$current" ;;
     *) return 1 ;;
   esac
 }
