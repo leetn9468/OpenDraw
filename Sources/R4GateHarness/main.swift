@@ -3,6 +3,7 @@ import CoreGraphics
 import Darwin
 import DocumentFormats
 import DocumentModel
+import EditorCommands
 import EditorCore
 import Foundation
 import Geometry
@@ -81,6 +82,45 @@ private struct SettledScenario: @unchecked Sendable {
     var approvedImages: [ObjectID: CGImage]
 }
 
+private struct Phase5HistoryEnvelope: Sendable {
+    var floorHistory: DeltaCommandHistory
+    var checkpointHistory: DeltaCommandHistory
+}
+
+private func noOpCommand(
+    sequence: Int, costInBytes: Int, pinnedAssets: [HistoryAssetPin] = [], retainedAsset: Data? = nil
+) throws -> DocumentCommand {
+    let oldPayload = Data([UInt8(truncatingIfNeeded: sequence)])
+    let newPayload = Data([UInt8(truncatingIfNeeded: sequence &+ 1)])
+    return try DocumentCommand(
+        commandID: identifier(10_000 + sequence).rawValue, timestamp: Date(timeIntervalSince1970: Double(sequence)),
+        name: "Phase 5 memory fixture", damageBounds: .none, costInBytes: costInBytes,
+        pinnedAssets: pinnedAssets, oldPayload: oldPayload, newPayload: newPayload,
+        apply: { _ in _ = retainedAsset?.count }, unapply: { _ in _ = retainedAsset?.count })
+}
+
+private func phase5HistoryEnvelope(document: EditorDocument) throws -> Phase5HistoryEnvelope {
+    var checkpointHistory = try DeltaCommandHistory(document: document, featureFlag: .environment())
+    for sequence in 1...200 {
+        try checkpointHistory.commit(noOpCommand(sequence: sequence, costInBytes: 1))
+    }
+    precondition(checkpointHistory.undoDepth == 200)
+    precondition(checkpointHistory.checkpointCount == 9)
+
+    var floorHistory = try DeltaCommandHistory(document: document, featureFlag: .environment())
+    for sequence in 1...9 {
+        try floorHistory.commit(noOpCommand(sequence: 1_000 + sequence, costInBytes: 1_000))
+    }
+    let pinnedBytes = Data(repeating: 0xA5, count: 70_000_000)
+    let pin = try HistoryAssetPin(assetID: "phase5-floor-asset", byteCount: pinnedBytes.count)
+    try floorHistory.commit(
+        noOpCommand(sequence: 2_000, costInBytes: 0, pinnedAssets: [pin], retainedAsset: pinnedBytes))
+    precondition(floorHistory.undoDepth == 10)
+    precondition(floorHistory.evictionCount == 0)
+    precondition(floorHistory.totalCostInBytes == 70_009_000)
+    return Phase5HistoryEnvelope(floorHistory: floorHistory, checkpointHistory: checkpointHistory)
+}
+
 private func settle(_ document: EditorDocument) async throws -> SettledScenario {
     try document.validate()
     let cache = ApprovedImageCache()
@@ -123,18 +163,19 @@ let mode = CommandLine.arguments.dropFirst().first ?? "settle"
 let document = try representativeDocument()
 let extraByteCount = Int(ProcessInfo.processInfo.environment["R4_MEMORY_EXTRA_BYTES"] ?? "0") ?? 0
 let extraAllocation = residentExtraAllocation(byteCount: extraByteCount)
+private let phase5History = try phase5HistoryEnvelope(document: document)
 private let scenario = try await settle(document)
-withExtendedLifetime((scenario.approvedImages, extraAllocation)) {
+withExtendedLifetime((scenario.approvedImages, extraAllocation, phase5History)) {
     switch mode {
     case "settle":
         print(
-            "R4_MEMORY_SCENARIO=settle objects=1000 anchors=10000 decodedImages=10 decodedPixels=50000000 extraBytes=\(extraByteCount)"
+            "R4_MEMORY_SCENARIO=settle objects=1000 anchors=10000 decodedImages=10 decodedPixels=50000000 deltaFloorCommands=10 deltaFloorBytes=70009000 deltaCheckpoints=9 extraBytes=\(extraByteCount)"
         )
     case "export":
         do {
             try exportPNG(scenario.context)
             print(
-                "R4_MEMORY_SCENARIO=export objects=1000 anchors=10000 decodedImages=10 decodedPixels=50000000 extraBytes=\(extraByteCount)"
+                "R4_MEMORY_SCENARIO=export objects=1000 anchors=10000 decodedImages=10 decodedPixels=50000000 deltaFloorCommands=10 deltaFloorBytes=70009000 deltaCheckpoints=9 extraBytes=\(extraByteCount)"
             )
         } catch {
             fputs("R4 PNG export failed: \(error)\n", stderr)

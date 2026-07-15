@@ -48,6 +48,12 @@ copy-on-write `EditorDocument`/`Data` storage reuses the existing shared
 immutable asset behavior. Stale branch checkpoints are discarded, checkpoints
 at or behind the head are folded into it, and the total is capped at nine.
 
+The peak-memory harness retains two concurrent Phase 5 envelopes while it runs
+the unchanged settle/export gates: a ten-command P-FLOOR history containing a
+real 70,000,000-byte pinned buffer (Σ=70,009,000), and a 200-command history
+with all nine checkpoints. This deliberately conservative construction makes
+both frozen worst cases resident alongside the live representative document.
+
 ## Failure containment
 
 Undo or redo first attempts the stored command direction. On failure it records

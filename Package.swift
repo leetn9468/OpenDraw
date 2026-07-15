@@ -37,7 +37,9 @@ let package = Package(
             dependencies: ["CanvasRender", "DocumentModel", "EditorCommands", "EditorCore", "Geometry"]),
         .executableTarget(
             name: "R4GateHarness",
-            dependencies: ["CanvasRender", "DocumentFormats", "DocumentModel", "EditorCore", "Geometry"]),
+            dependencies: [
+                "CanvasRender", "DocumentFormats", "DocumentModel", "EditorCommands", "EditorCore", "Geometry",
+            ]),
         .testTarget(name: "GeometryTests", dependencies: ["Geometry"]),
         .testTarget(
             name: "DocumentModelTests", dependencies: ["EditorCore", "DocumentModel", "EditorCommands", "Geometry"]),
