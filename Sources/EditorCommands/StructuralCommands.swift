@@ -75,8 +75,8 @@ public enum StructuralCommands {
             costInBytes: 256 + layer.name.utf8.count + layer.nodes.reduce(0) { $0 + structuralCost(for: $1) },
             pinnedAssets: pins, oldPayload: oldBytes, newPayload: newBytes,
             validatedApply: forward, validatedUnapply: reverse,
-            applyPreflight: { try validateLayerInsertion($0, layer: layer, mutation: forward) },
-            unapplyPreflight: { try validatePositionMutation($0, mutation: reverse) })
+            applyPreflight: { try validateLayerInsertion($0, layer: layer, at: index) },
+            unapplyPreflight: { try validateLayerRemoval($0, layerID: layer.id, at: index) })
     }
 
     public static func createShape(
@@ -181,9 +181,9 @@ public enum StructuralCommands {
             commandID: commandID, timestamp: timestamp, name: name, damageBounds: .full,
             costInBytes: cost, pinnedAssets: pins, oldPayload: oldBytes, newPayload: newBytes,
             validatedApply: applyMutation, validatedUnapply: unapplyMutation,
-            applyPreflight: { try validatePositionMutation($0, mutation: applyMutation) },
+            applyPreflight: { try validateRemoval($0, slots: removalOrder) },
             unapplyPreflight: {
-                try validateNodeInsertion($0, nodes: removalOrder.map(\.node), mutation: unapplyMutation)
+                try validateNodeInsertion($0, slots: Array(removalOrder.reversed()))
             })
     }
 
@@ -259,8 +259,8 @@ public enum StructuralCommands {
             commandID: commandID, timestamp: timestamp, name: name, damageBounds: .full,
             costInBytes: cost, pinnedAssets: pins, oldPayload: oldBytes, newPayload: newBytes,
             validatedApply: forward, validatedUnapply: reverse,
-            applyPreflight: { try validateNodeInsertion($0, nodes: slots.map(\.node), mutation: forward) },
-            unapplyPreflight: { try validatePositionMutation($0, mutation: reverse) })
+            applyPreflight: { try validateNodeInsertion($0, slots: slots) },
+            unapplyPreflight: { try validateRemoval($0, slots: Array(slots.reversed())) })
     }
 }
 
@@ -296,10 +296,10 @@ private struct SceneStatistics {
 /// mutation on a candidate. This enforces the same frozen ceilings without a
 /// second full validation of every unchanged node.
 private func validateNodeInsertion(
-    _ document: EditorDocument, nodes: [SceneNode],
-    mutation: @Sendable (inout EditorDocument) throws -> Void
+    _ document: EditorDocument, slots: [SceneNodeSlot]
 ) throws {
-    try validatePositionMutation(document, mutation: mutation)
+    try validateInsertionPositions(document, slots: slots)
+    let nodes = slots.map(\.node)
     guard !nodes.isEmpty else { return }
     let validationLayerID = document.layers[0].id
     _ = try EditorDocument(
@@ -310,10 +310,9 @@ private func validateNodeInsertion(
 }
 
 private func validateLayerInsertion(
-    _ document: EditorDocument, layer: Layer,
-    mutation: @Sendable (inout EditorDocument) throws -> Void
+    _ document: EditorDocument, layer: Layer, at index: Int
 ) throws {
-    try validatePositionMutation(document, mutation: mutation)
+    guard index >= 0, index <= document.layers.count else { throw StructuralCommandError.invalidIndex }
     guard document.layers.count < DocumentLimits.maximumLayers else {
         throw DocumentValidationError.layerCount
     }
@@ -321,6 +320,37 @@ private func validateLayerInsertion(
         width: document.width, height: document.height, unit: document.unit, layers: [layer],
         swatches: document.swatches, gradients: document.gradients)
     try validateAdditiveLimits(document, adding: layer.nodes, additionalLayerID: layer.id)
+}
+
+private func validateLayerRemoval(_ document: EditorDocument, layerID: ObjectID, at index: Int) throws {
+    guard document.layers.indices.contains(index), document.layers[index].id == layerID else {
+        throw StructuralCommandError.layerNotFound
+    }
+}
+
+private func validateInsertionPositions(_ document: EditorDocument, slots: [SceneNodeSlot]) throws {
+    var resultingCounts: [SceneParent: Int] = [:]
+    for slot in slots {
+        let count: Int
+        if let prior = resultingCounts[slot.parent] {
+            count = prior
+        } else {
+            count = try children(of: slot.parent, in: document).count
+        }
+        guard slot.childIndex >= 0, slot.childIndex <= count else {
+            throw StructuralCommandError.invalidIndex
+        }
+        resultingCounts[slot.parent] = count + 1
+    }
+}
+
+private func validateRemoval(_ document: EditorDocument, slots: [SceneNodeSlot]) throws {
+    for slot in slots {
+        let children = try children(of: slot.parent, in: document)
+        guard children.indices.contains(slot.childIndex), children[slot.childIndex].id == slot.node.id else {
+            throw StructuralCommandError.nodeNotFound
+        }
+    }
 }
 
 private func validateAdditiveLimits(
@@ -443,6 +473,30 @@ private func moveLayer(_ layerID: ObjectID, from: Int, to: Int, in document: ino
     let layer = document.layers.remove(at: from)
     guard to >= 0, to <= document.layers.count else { throw StructuralCommandError.invalidIndex }
     document.layers.insert(layer, at: to)
+}
+
+private func children(of parent: SceneParent, in document: EditorDocument) throws -> [SceneNode] {
+    switch parent {
+    case .layer(let layerID):
+        guard let layer = document.layers.first(where: { $0.id == layerID }) else {
+            throw StructuralCommandError.layerNotFound
+        }
+        return layer.nodes
+    case .group(let groupID):
+        for layer in document.layers {
+            if let children = groupChildren(groupID: groupID, in: layer.nodes) { return children }
+        }
+        throw StructuralCommandError.parentNotFound
+    }
+}
+
+private func groupChildren(groupID: ObjectID, in nodes: [SceneNode]) -> [SceneNode]? {
+    for node in nodes {
+        guard case .group(let group) = node else { continue }
+        if group.id == groupID { return group.children }
+        if let found = groupChildren(groupID: groupID, in: group.children) { return found }
+    }
+    return nil
 }
 
 private func mutateChildren(
