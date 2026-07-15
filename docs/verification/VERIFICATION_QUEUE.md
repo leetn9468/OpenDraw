@@ -530,3 +530,102 @@ Owner verification confirmed on 2026-07-13:
   assertion tolerance only and does not enlarge the snapping region.
 
 Frozen: VERIFY-001 through VERIFY-021. No open entries.
+
+## Phase 5 agreement batch — VERIFY-022 through VERIFY-028
+
+Pre-authored by Claude on 2026-07-15 and independently reviewed by Codex
+against tree `afb6f80`. Detailed recomputation and schema/test citations:
+`docs/verification/VERIFY-022-028-agreement-review.md`.
+
+Batch status: **CORRECTION REQUIRED — NOT FROZEN; IMPLEMENTATION BLOCKED**.
+Frozen values remain VERIFY-001 through VERIFY-021 only.
+
+### VERIFY-022 — Canonical document equality
+
+- Status: `CODEX AGREE — BATCH NOT FROZEN`
+- Claim: equality is byte equality of sorted-key native v4 JSON after excluding
+  the concrete volatile set, with no floating epsilon.
+- E-022: the actual v4 schema has no wall-clock, session, viewport, or cache
+  fields; therefore **`V = ∅`**. Top-level persisted fields are
+  `formatVersion`, `width`, `height`, `unit`, `layers`, `swatches`, and
+  `gradients`; all recursive fields are document identity, structure,
+  geometry, style, text, or asset state.
+- Recomputed examples: V-only difference is vacuous; a final-significant-digit
+  coordinate change changes bytes; empty encode→decode→encode is byte-identical.
+- Existing proof: `nativeRoundTripIsDeterministic`, `v4CanonicalGoldenBytes`.
+
+### VERIFY-023 — Value-swap transform round trip
+
+- Status: `CODEX AGREE — BATCH NOT FROZEN`
+- Claim: store `(nodeID,N_old,N_new)`, assign values directly, and invert by
+  swapping stored values; bitwise identity edits are not recorded.
+- Recomputed examples: `T(10,20)∘S(2,2)∘T(3,4)` maps origin to `(16,28)`;
+  replacing the node transform by `T(5,-1)` gives `(20,18)`; `S(2,3)∘R90`
+  maps `(1,0)` to `(0,3)`, while identity gives `(2,0)`.
+- P-IDENT has no conflicting frozen test; bitwise/canonical-byte comparison is
+  required rather than ordinary floating equality.
+
+### VERIFY-024 — Structural remove/reinsert
+
+- Status: `CODEX AGREE — BATCH NOT FROZEN`
+- Claim: delete stores parent, exact index, full payload, and pinned assets;
+  inverse reinserts exactly and preserves asset bytes/content hash.
+- Recomputed examples: `[A,B,C]→[A,C]→[A,B,C]`; equal pinned bytes imply equal
+  SHA-256; deleting a sole child leaves an empty group and inverse restores
+  index 0.
+- P-EMPTYGROUP agrees with `GroupBoundsVerifyTests.swift` and current document
+  validation, both of which permit empty groups.
+
+### VERIFY-025 — Composite reversal
+
+- Status: `CODEX AGREE — BATCH NOT FROZEN`
+- Claim: `inverse(Composite[c1…cn]) = Composite[inverse(cn)…inverse(c1)]`.
+- Recomputed examples for `G=T(5,0)∘S(2,2)`: child points map to `(9,2)`,
+  `(5,2)`, and `(6,0)`; child 1 origin maps to `(7,2)`. Reverse-order inverse
+  restores the original document; the single-command case reduces directly.
+
+### VERIFY-026 — Anchor-geometry slice swap
+
+- Status: `CODEX DISPUTE — SCOPE CORRECTION REQUIRED`
+- Arithmetic agrees: mirror `(110,105)`; translated triple `(120,110)`,
+  `(110,105)`, `(130,115)`; mirror check returns `(130,115)`.
+- Required correction: scope P-ENDPOINT to the new runtime history slice
+  derived from document-path topology. Current public `PenAnchor` stores
+  nonoptional handles and normalizes nil to the anchor point; P-ENDPOINT must
+  not silently redefine that tool state or schema v4.
+- Proposed frozen wording is in the detailed review.
+
+### VERIFY-027 — Budget arithmetic and checkpoints
+
+- Status: `CODEX DISPUTE — TEXT AND ACCOUNTING CORRECTIONS REQUIRED`
+- Example 1 agrees: retain commands 6–205, 200,000 bytes; replay 6–17 is 12
+  applies; exhaustive K=25 residue bound is 24.
+- Example 2 agrees: initial 75,000,000; excess 7,891,136; evict 79; retain 72
+  commands and 67,100,000 bytes with 8,864-byte headroom.
+- Example 3 numeric sum agrees: 70,009,000, which is 2,900,136 over B. The text
+  “all older entries evicted” contradicts retaining the described ten entries;
+  at M=10 no entry can be evicted.
+- E-027 requires explicit no-double-counting and charge-transfer rules: asset
+  bytes are charged once to the oldest retained pin; when it is evicted, charge
+  transfers to the next-oldest retained pin before Σ is re-evaluated. Checkpoint
+  payload/asset accounting and the exact counter increment event also require
+  explicit definition before freeze.
+
+### VERIFY-028 — Redo branch state machine
+
+- Status: `CODEX AGREE — BATCH NOT FROZEN`
+- Recomputed stacks: `C1 C2 C3 U U → [1]|[3,2]`; `C4 → [1,4]|[]`;
+  `U U → []|[4,1]`; `R R → [1,4]|[]`; cancelled gesture after undo leaves
+  `[1]|[2]`, and redo gives `[1,2]|[]`.
+- P-REDOCLEAR agrees with `commandUndoRedoAndBranch` and existing failed-command
+  rollback semantics; the explicit cancelled-gesture redo case still needs its
+  new permanent test during implementation.
+
+### P-policy compatibility result
+
+- P-IDENT: compatible; no frozen test requires no-op recording.
+- P-EMPTYGROUP: compatible and already structurally supported.
+- P-FLOOR: intentional OD-1 supersession of the old 5-entry floor; old capacity
+  assertions must be superseded explicitly rather than weakened.
+- P-REDOCLEAR: compatible with committed-branch and failure rollback semantics.
+- P-ENDPOINT: not agreed until scoped to the history slice as described above.

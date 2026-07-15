@@ -49,6 +49,18 @@ names were confirmed. The permanent record is
 
 ## Frozen owner decisions
 
+> **2026-07-15 — OD-1 (supersedes ADR-2 capacity):** history capacity is
+> N = 200 commands AND B = 64 MiB (67,108,864 bytes, Σ costInBytes incl.
+> history-pinned assets), minimum retained M = 10, checkpoint interval K = 25
+> (global monotone command counter). ADR-2's 30/5 snapshot constants are
+> superseded; the ADR text is appended, not rewritten.
+> **OD-2:** hybrid checkpointing per spec §4 (snapshot every K commands and
+> always at history head after eviction).
+> **OD-3:** history remains runtime-only; document schema v4 unchanged.
+> **OD-4:** ADR-2 supersession rationale: "the snapshot cap was a memory-cost
+> ceiling, not a UX target; command-inverse history achieves deeper undo
+> within a smaller budget."
+
 > **2026-07-15 — Hosted benchmark ratio gate downgraded to INFORMATIONAL.**
 > Measured cross-run hardware variance on GitHub-hosted `macos-15` runners is
 > ~2.3–2.8× (runs #5, #8, and the first ENFORCE run), exceeding the 1.25
