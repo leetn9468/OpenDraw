@@ -38,5 +38,7 @@ decisions supersede its capacity and snapshot-history direction for Phase 5:
 > ceiling, not a UX target; command-inverse history achieves deeper undo
 > within a smaller budget."
 
-Status after supersession: **Superseded for Phase 5 by OD-1–OD-4**. The
-VERIFY-022–028 agreement round must finish before implementation begins.
+Status after supersession: **Superseded for Phase 5 by OD-1–OD-4**.
+VERIFY-022–028 completed two-AI agreement and froze on 2026-07-15. Phase 5
+implementation must apply the recorded row-by-row supersessions; this ADR's
+historical text remains intact.

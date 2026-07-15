@@ -9,11 +9,11 @@ compatibility, and history-cost attribution. No implementation was performed.
 
 ## Batch verdict
 
-**CORRECTION REQUIRED — NOT FROZEN.** VERIFY-022–025 and VERIFY-028 agree.
-VERIFY-026's arithmetic agrees but P-ENDPOINT needs an explicit history-slice
-scope. VERIFY-027's first two examples and all numeric values agree, but its
-floor example contains a contradiction and E-027 lacks a required
-reattribution/accounting rule. Phase 5 history implementation remains blocked.
+**RESOLVED — FROZEN 2026-07-15.** The original review below identified two
+disputes. The author accepted both at `dc08b58` and supplied AMEND-1–6; Codex
+independently checked and agreed with all six. The authoritative incorporated
+text is in `VERIFICATION_QUEUE.md`. The original review is retained below as
+the audit trail rather than rewritten.
 
 ## VERIFY-022 — AGREE
 
@@ -172,8 +172,50 @@ for an explicit cancelled gesture.
 | P-REDOCLEAR | Compatible with committed-branch clearing and failed-command rollback tests. |
 | P-ENDPOINT | Needs the history-slice scope amendment above; literal broad wording conflicts with nonoptional `PenAnchor`. |
 
-## Freeze condition
+## Final amendment resolution
 
-Do not implement or freeze VERIFY-022–028 until the VERIFY-026 P-ENDPOINT scope,
-VERIFY-027 example 3 text, and E-027 accounting rules are resolved by the
-author/owner and Codex records agreement.
+### AMEND-1 — AGREE
+
+The topology-derived runtime-history-slice scope resolves the original
+P-ENDPOINT conflict. It leaves public `PenAnchor`, schema v4, and VERIFY-017
+unchanged; nil restoration applies only to the new slice representation.
+
+### AMEND-2 — AGREE
+
+At exactly M=10, P-FLOOR permits no eviction. The retained sum is
+`70,000,000 + 9×1,000 = 70,009,000`, exceeding `67,108,864` by `2,900,136`.
+
+### AMEND-3 — AGREE
+
+Structural command payload and pinned buffers are separated; an asset is
+charged once and atomically reattributed if its oldest retained pin is evicted.
+The checkpoint boundary is now decided. The ceiling recomputes as
+`ceil(200/25)+1 = 8+1 = 9`. The unchanged 500 MiB peak-memory gate is the
+acceptance proof for live state, worst-case floor history, and nine checkpoints.
+The counter increments only for a recorded command commit.
+
+### AMEND-4 — AGREE
+
+Canonical payload-byte identity is precise and makes signed zero observable.
+A direct Swift `JSONEncoder` check produced `{"x":-0}` for `-0.0` and
+`{"x":0}` for `+0.0`, confirming distinct canonical bytes.
+
+### AMEND-5 — AGREE
+
+`V = ∅` follows from the inspected v4 schema. The vacuous first example is
+retained as a mandatory amendment trigger if a future schema adds a volatile
+field.
+
+### AMEND-6 — AGREE
+
+The supersession set explicitly includes
+`historyLimitIsImmutableAndCappedAtThirty`,
+`minimumHistoryEntriesUnderMemoryPressure = 5` and its pinning assertions, and
+the ADR-012 capacity rows. These must be superseded row by row during
+implementation.
+
+## Freeze result
+
+VERIFY-022 through VERIFY-028 are frozen. No implementation was performed in
+this agreement round; Sources and Tests remain unchanged. The Phase 5 P1
+implementation directive may now proceed.

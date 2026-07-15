@@ -533,16 +533,17 @@ Frozen: VERIFY-001 through VERIFY-021. No open entries.
 
 ## Phase 5 agreement batch — VERIFY-022 through VERIFY-028
 
-Pre-authored by Claude on 2026-07-15 and independently reviewed by Codex
-against tree `afb6f80`. Detailed recomputation and schema/test citations:
+Pre-authored by Claude on 2026-07-15, independently reviewed by Codex against
+tree `afb6f80`, and amended by the author after the review recorded at
+`dc08b58`. Detailed recomputation, resolution, and schema/test citations:
 `docs/verification/VERIFY-022-028-agreement-review.md`.
 
-Batch status: **CORRECTION REQUIRED — NOT FROZEN; IMPLEMENTATION BLOCKED**.
-Frozen values remain VERIFY-001 through VERIFY-021 only.
+Batch status: **FROZEN — TWO-AI AGREEMENT RECORDED 2026-07-15**.
+Frozen values and policies now cover VERIFY-001 through VERIFY-028.
 
 ### VERIFY-022 — Canonical document equality
 
-- Status: `CODEX AGREE — BATCH NOT FROZEN`
+- Status: `FROZEN`
 - Claim: equality is byte equality of sorted-key native v4 JSON after excluding
   the concrete volatile set, with no floating epsilon.
 - E-022: the actual v4 schema has no wall-clock, session, viewport, or cache
@@ -552,22 +553,28 @@ Frozen values remain VERIFY-001 through VERIFY-021 only.
   geometry, style, text, or asset state.
 - Recomputed examples: V-only difference is vacuous; a final-significant-digit
   coordinate change changes bytes; empty encode→decode→encode is byte-identical.
+- The vacuous V-only example is a required guard: if a future schema adds a
+  wall-clock, session, viewport, or cache field, VERIFY-022 must be amended
+  before reliance. Adding such a field without amendment is a protocol
+  violation.
 - Existing proof: `nativeRoundTripIsDeterministic`, `v4CanonicalGoldenBytes`.
 
 ### VERIFY-023 — Value-swap transform round trip
 
-- Status: `CODEX AGREE — BATCH NOT FROZEN`
+- Status: `FROZEN`
 - Claim: store `(nodeID,N_old,N_new)`, assign values directly, and invert by
   swapping stored values; bitwise identity edits are not recorded.
 - Recomputed examples: `T(10,20)∘S(2,2)∘T(3,4)` maps origin to `(16,28)`;
   replacing the node transform by `T(5,-1)` gives `(20,18)`; `S(2,3)∘R90`
   maps `(1,0)` to `(0,3)`, while identity gives `(2,0)`.
-- P-IDENT has no conflicting frozen test; bitwise/canonical-byte comparison is
-  required rather than ordinary floating equality.
+- P-IDENT has no conflicting frozen test. Identity is decided on canonical
+  payload bytes/bit patterns rather than floating-point `==`; `-0.0` and
+  `+0.0` are distinct. Identity edits create no history entry and do not clear
+  redo.
 
 ### VERIFY-024 — Structural remove/reinsert
 
-- Status: `CODEX AGREE — BATCH NOT FROZEN`
+- Status: `FROZEN`
 - Claim: delete stores parent, exact index, full payload, and pinned assets;
   inverse reinserts exactly and preserves asset bytes/content hash.
 - Recomputed examples: `[A,B,C]→[A,C]→[A,B,C]`; equal pinned bytes imply equal
@@ -578,7 +585,7 @@ Frozen values remain VERIFY-001 through VERIFY-021 only.
 
 ### VERIFY-025 — Composite reversal
 
-- Status: `CODEX AGREE — BATCH NOT FROZEN`
+- Status: `FROZEN`
 - Claim: `inverse(Composite[c1…cn]) = Composite[inverse(cn)…inverse(c1)]`.
 - Recomputed examples for `G=T(5,0)∘S(2,2)`: child points map to `(9,2)`,
   `(5,2)`, and `(6,0)`; child 1 origin maps to `(7,2)`. Reverse-order inverse
@@ -586,34 +593,49 @@ Frozen values remain VERIFY-001 through VERIFY-021 only.
 
 ### VERIFY-026 — Anchor-geometry slice swap
 
-- Status: `CODEX DISPUTE — SCOPE CORRECTION REQUIRED`
-- Arithmetic agrees: mirror `(110,105)`; translated triple `(120,110)`,
-  `(110,105)`, `(130,115)`; mirror check returns `(130,115)`.
-- Required correction: scope P-ENDPOINT to the new runtime history slice
-  derived from document-path topology. Current public `PenAnchor` stores
-  nonoptional handles and normalizes nil to the anchor point; P-ENDPOINT must
-  not silently redefine that tool state or schema v4.
-- Proposed frozen wording is in the detailed review.
+- Status: `FROZEN`
+- Claim: an anchor gesture swaps the affected `{A,H_in,H_out}` pre/post slice
+  verbatim; the inverse assigns the stored pre-state without reconstruction.
+- P-ENDPOINT applies to the runtime history slice derived from document-path
+  topology, not to `PenAnchor` tool-construction state or the v4 serialized
+  schema. In that slice, the absent endpoint side is `nil` and is restored as
+  `nil`; it is never synthesized as a zero-length or mirrored handle.
+  VERIFY-017's mirror identity remains unchanged and applies only when both
+  sides are present.
+- Recomputed examples: mirror `(110,105)`; translated triple `(120,110)`,
+  `(110,105)`, `(130,115)`; mirror check returns `(130,115)`. A corner edit
+  leaves the other handle bitwise unchanged; an open-path endpoint inverse
+  restores the absent side as `nil`.
 
 ### VERIFY-027 — Budget arithmetic and checkpoints
 
-- Status: `CODEX DISPUTE — TEXT AND ACCOUNTING CORRECTIONS REQUIRED`
+- Status: `FROZEN`
 - Example 1 agrees: retain commands 6–205, 200,000 bytes; replay 6–17 is 12
   applies; exhaustive K=25 residue bound is 24.
 - Example 2 agrees: initial 75,000,000; excess 7,891,136; evict 79; retain 72
   commands and 67,100,000 bytes with 8,864-byte headroom.
-- Example 3 numeric sum agrees: 70,009,000, which is 2,900,136 over B. The text
-  “all older entries evicted” contradicts retaining the described ten entries;
-  at M=10 no entry can be evicted.
-- E-027 requires explicit no-double-counting and charge-transfer rules: asset
-  bytes are charged once to the oldest retained pin; when it is evicted, charge
-  transfers to the next-oldest retained pin before Σ is re-evaluated. Checkpoint
-  payload/asset accounting and the exact counter increment event also require
-  explicit definition before freeze.
+- Example 3: one 70,000,000-byte command with nine prior 1,000-byte commands
+  is already at M=10, so no entry is evicted. All ten remain; Σ=70,009,000,
+  which exceeds B by 2,900,136 bytes and is permitted under P-FLOOR.
+- `costInBytes` is structural command payload only. Pinned asset buffers are
+  counted separately in Σ, so asset bytes are not double-counted.
+- Each history-pinned asset is charged once to its oldest retained pinning
+  entry. If that entry is evicted while a later retained pin exists, its charge
+  transfers atomically to the next-oldest retained pin before Σ is
+  re-evaluated; live pinned bytes are never undercounted.
+- Checkpoint structural payloads and assets pinned only by checkpoints are
+  outside B. Checkpoints are limited to `ceil(N/K)+1 = ceil(200/25)+1 = 9`,
+  with asset bytes deduplicated through existing shared immutable storage.
+  The total envelope—live document + B + checkpoints—is governed by the
+  unchanged 500 MiB peak-memory gate, whose Phase 5 scenario must include
+  worst-case P-FLOOR history plus nine checkpoints.
+- The global monotone command counter increments exactly once per recorded
+  command commit. P-IDENT elisions, cancelled gestures, undo, and redo do not
+  increment it.
 
 ### VERIFY-028 — Redo branch state machine
 
-- Status: `CODEX AGREE — BATCH NOT FROZEN`
+- Status: `FROZEN`
 - Recomputed stacks: `C1 C2 C3 U U → [1]|[3,2]`; `C4 → [1,4]|[]`;
   `U U → []|[4,1]`; `R R → [1,4]|[]`; cancelled gesture after undo leaves
   `[1]|[2]`, and redo gives `[1,2]|[]`.
@@ -628,4 +650,29 @@ Frozen values remain VERIFY-001 through VERIFY-021 only.
 - P-FLOOR: intentional OD-1 supersession of the old 5-entry floor; old capacity
   assertions must be superseded explicitly rather than weakened.
 - P-REDOCLEAR: compatible with committed-branch and failure rollback semantics.
-- P-ENDPOINT: not agreed until scoped to the history slice as described above.
+- P-ENDPOINT: compatible under the frozen history-slice scope; VERIFY-017 and
+  `PenAnchor` behavior remain unchanged.
+
+### Explicit supersessions required during implementation
+
+The implementation plan must supersede old assertions row by row, with no
+silent weakening: `historyLimitIsImmutableAndCappedAtThirty`,
+`minimumHistoryEntriesUnderMemoryPressure = 5` and its pinning assertions, and
+the ADR-012 capacity rows are replaced by the OD-1 values N=200, B=64 MiB,
+M=10, and K=25.
+
+### Final amendment agreement — 2026-07-15
+
+- AMEND-1: `AGREE` — P-ENDPOINT is correctly limited to the topology-derived
+  runtime history slice.
+- AMEND-2: `AGREE` — at M=10 no entry is evicted; 70,009,000−67,108,864 =
+  2,900,136 bytes.
+- AMEND-3: `AGREE` — separate asset charging, atomic charge transfer,
+  checkpoint boundary, nine-checkpoint ceiling, and counter semantics are
+  complete and internally consistent.
+- AMEND-4: `AGREE` — canonical bytes provide the required bit-pattern identity;
+  native canonical JSON emits `-0` and `0` distinctly.
+- AMEND-5: `AGREE` — V is empty in schema v4 and the vacuous example remains a
+  future-schema protocol guard.
+- AMEND-6: `AGREE` — the listed old capacity constant, tests, and ADR rows are
+  explicit implementation-time supersessions.
