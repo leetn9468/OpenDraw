@@ -44,7 +44,8 @@ public actor ApprovedImageCache {
     public static let maximumTotalPixels: Int64 = 268_435_456
     private var images: [ObjectID: CGImage] = [:]
     private var totalPixels: Int64 = 0
-    public init() {}
+    public nonisolated let assetStore: ApprovedAssetStore
+    public init(assetStore: ApprovedAssetStore = ApprovedAssetStore()) { self.assetStore = assetStore }
     public static func checkedTotalPixels(current: Int64, adding: Int64) throws -> Int64 {
         let result = current.addingReportingOverflow(adding)
         guard !result.overflow else { throw ImageApprovalError.overflow }
@@ -53,13 +54,14 @@ public actor ApprovedImageCache {
     }
     public func approve(_ document: EditorDocument) async throws {
         let requests = embeddedRequests(document)
-        let decoded = try await Task.detached(priority: .userInitiated) { () throws -> [(ObjectID, CGImage, Int64)] in
-            var result: [(ObjectID, CGImage, Int64)] = []
+        let decoded = try await Task.detached(priority: .userInitiated) {
+            () throws -> [(ObjectID, CGImage, Int64, Data)] in
+            var result: [(ObjectID, CGImage, Int64, Data)] = []
             let validator = EmbeddedImageValidator()
             for request in requests {
                 try Task.checkCancellation()
                 let (image, pixels) = try validator.decode(request.data)
-                result.append((request.id, image, pixels))
+                result.append((request.id, image, pixels, request.data))
             }
             return result
         }.value
@@ -69,6 +71,7 @@ public actor ApprovedImageCache {
             try Task.checkCancellation()
             count = try Self.checkedTotalPixels(current: count, adding: item.2)
             next[item.0] = item.1
+            assetStore.registerApproved(item.3)
         }
         images = next
         totalPixels = count

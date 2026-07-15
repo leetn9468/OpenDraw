@@ -52,14 +52,28 @@ public enum DocumentCommandDamageBounds: Equatable, Sendable {
     case full
 }
 
+public enum HistoryAssetPinSource: Hashable, Sendable {
+    case metadataOnly
+    case approvedAssetStore
+}
+
 public struct HistoryAssetPin: Hashable, Sendable {
     public let assetID: String
     public let byteCount: Int
+    public let source: HistoryAssetPinSource
 
-    public init(assetID: String, byteCount: Int) throws {
+    public init(
+        assetID: String, byteCount: Int, source: HistoryAssetPinSource = .metadataOnly
+    ) throws {
         guard byteCount >= 0 else { throw DocumentCommandError.invalidCost }
         self.assetID = assetID
         self.byteCount = byteCount
+        self.source = source
+    }
+
+    public init(approvedAsset descriptor: ApprovedAssetDescriptor) throws {
+        try self.init(
+            assetID: descriptor.assetID, byteCount: descriptor.byteCount, source: .approvedAssetStore)
     }
 }
 

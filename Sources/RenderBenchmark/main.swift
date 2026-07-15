@@ -138,9 +138,9 @@ print(String(format: "Warm full redraw: %.3f ms", milliseconds(warmFullStart.dur
 let deltaFlag = DeltaHistoryFeatureFlag.environment()
 precondition(deltaFlag.isEnabled, "BENCH-5 requires OPENDRAW_DELTA_HISTORY=1")
 var applyHistory = try DeltaCommandHistory(document: base, featureFlag: deltaFlag)
+let benchmarkLayerID = base.layers[0].id
 try applyHistory.commit(
-    ValueSwapCommands.transform(
-        in: applyHistory.document, nodeID: id(0), newValue: Geometry.AffineTransform(tx: 1, ty: 0)))
+    StructuralCommands.delete(nodeIDs: [id(0)], in: applyHistory.document))
 let bench5a = try measure { index in
     if index.isMultiple(of: 2) {
         try applyHistory.undo()
@@ -151,11 +151,16 @@ let bench5a = try measure { index in
 printStats("BENCH-5a undo-redo", bench5a)
 
 var recordHistory = try DeltaCommandHistory(document: base, featureFlag: deltaFlag)
-var recordTransform = Geometry.AffineTransform.identity
+let structuralNode = base.layers[0].nodes[0]
 let bench5b = try measure { index in
-    recordTransform.tx = index.isMultiple(of: 2) ? 1 : 0
-    try recordHistory.commit(
-        ValueSwapCommands.transform(in: recordHistory.document, nodeID: id(0), newValue: recordTransform))
+    if index.isMultiple(of: 2) {
+        try recordHistory.commit(
+            StructuralCommands.delete(nodeIDs: [structuralNode.id], in: recordHistory.document))
+    } else {
+        try recordHistory.commit(
+            StructuralCommands.insert(
+                structuralNode, in: recordHistory.document, parent: .layer(benchmarkLayerID), at: 0))
+    }
 }
 printStats("BENCH-5b record", bench5b)
 precondition(bench5a.p95 <= 16.7, "BENCH-5a p95 exceeds frozen 16.7 ms target")

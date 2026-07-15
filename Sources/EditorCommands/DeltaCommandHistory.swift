@@ -52,6 +52,7 @@ public struct DeltaCommandHistory: Sendable {
         var counter: UInt64
         var document: EditorDocument
         var lineage: [UUID]
+        var assetIDs: Set<String>
     }
 
     public private(set) var document: EditorDocument
@@ -64,15 +65,21 @@ public struct DeltaCommandHistory: Sendable {
     private var redoStack: [Entry] = []
     private var headCheckpoint: Checkpoint
     private var periodicCheckpoints: [Checkpoint] = []
+    private let assetStore: ApprovedAssetStore?
 
     public init(
-        document: EditorDocument, featureFlag: DeltaHistoryFeatureFlag = .environment()
+        document: EditorDocument, featureFlag: DeltaHistoryFeatureFlag = .environment(),
+        assetStore: ApprovedAssetStore? = nil
     ) throws {
         guard featureFlag.isEnabled else { throw DeltaHistoryError.featureDisabled }
         try document.validate()
         self.document = document
         self.featureFlag = featureFlag
-        headCheckpoint = Checkpoint(counter: 0, document: document, lineage: [])
+        self.assetStore = assetStore
+        headCheckpoint = Checkpoint(
+            counter: 0, document: document, lineage: [],
+            assetIDs: checkpointAssetIDs(in: document, assetStore: assetStore))
+        syncAssetStore()
     }
 
     public var canUndo: Bool { !undoStack.isEmpty }
@@ -83,6 +90,16 @@ public struct DeltaCommandHistory: Sendable {
     public var headCheckpointCounter: UInt64 { headCheckpoint.counter }
     public var retainedCommandCounters: [UInt64] { undoStack.map(\.counter) }
     public var totalCostInBytes: Int { (try? costBreakdown(for: retainedEntries).total) ?? Int.max }
+    public var periodicCheckpointCount: Int { periodicCheckpoints.count }
+    public var checkpointOnlyPinnedAssetBytes: Int {
+        guard let assetStore else { return 0 }
+        let historyIDs = Set(
+            retainedEntries.flatMap { entry in
+                entry.command.pinnedAssets.filter { $0.source == .approvedAssetStore }.map(\.assetID)
+            })
+        let checkpointIDs = checkpointAssetPinCounts().keys.filter { !historyIDs.contains($0) }
+        return checkpointIDs.reduce(0) { $0 + (assetStore.byteCount(assetID: $1) ?? 0) }
+    }
 
     @discardableResult public mutating func commit(_ command: DocumentCommand) throws -> DeltaCommitResult {
         guard featureFlag.isEnabled else { throw DeltaHistoryError.featureDisabled }
@@ -103,6 +120,7 @@ public struct DeltaCommandHistory: Sendable {
             undoStack.removeLast()
             redoStack.append(entry)
             lastDiagnostic = nil
+            syncAssetStore()
             return .applied
         } catch {
             do {
@@ -115,6 +133,7 @@ public struct DeltaCommandHistory: Sendable {
                     operation: .undo, commandID: entry.command.commandID, commandName: entry.command.name,
                     underlyingError: String(describing: error), restoredCheckpointCounter: recovery.checkpointCounter,
                     replayedCommandCount: recovery.replayCount, recoverySucceeded: true)
+                syncAssetStore()
                 return .recoveredFromCheckpoint
             } catch let recoveryError {
                 self = original
@@ -122,6 +141,7 @@ public struct DeltaCommandHistory: Sendable {
                     operation: .undo, commandID: entry.command.commandID, commandName: entry.command.name,
                     underlyingError: "\(error); recovery: \(recoveryError)", restoredCheckpointCounter: nil,
                     replayedCommandCount: 0, recoverySucceeded: false)
+                syncAssetStore()
                 throw DeltaHistoryError.recoveryFailed
             }
         }
@@ -135,6 +155,7 @@ public struct DeltaCommandHistory: Sendable {
             redoStack.removeLast()
             undoStack.append(entry)
             lastDiagnostic = nil
+            syncAssetStore()
             return .applied
         } catch {
             do {
@@ -147,6 +168,7 @@ public struct DeltaCommandHistory: Sendable {
                     operation: .redo, commandID: entry.command.commandID, commandName: entry.command.name,
                     underlyingError: String(describing: error), restoredCheckpointCounter: recovery.checkpointCounter,
                     replayedCommandCount: recovery.replayCount, recoverySucceeded: true)
+                syncAssetStore()
                 return .recoveredFromCheckpoint
             } catch let recoveryError {
                 self = original
@@ -154,6 +176,7 @@ public struct DeltaCommandHistory: Sendable {
                     operation: .redo, commandID: entry.command.commandID, commandName: entry.command.name,
                     underlyingError: "\(error); recovery: \(recoveryError)", restoredCheckpointCounter: nil,
                     replayedCommandCount: 0, recoverySucceeded: false)
+                syncAssetStore()
                 throw DeltaHistoryError.recoveryFailed
             }
         }
@@ -164,6 +187,16 @@ public struct DeltaCommandHistory: Sendable {
     /// Cancellation has no commit boundary, so redo and the global counter are
     /// deliberately untouched under P-REDOCLEAR.
     public mutating func cancelGesture(_ gestureID: GestureID) { _ = gestureID }
+
+    /// The Phase 5 emergency path preserves every retained command (including
+    /// the M-floor entries and their real asset pins) while dropping periodic
+    /// checkpoints. The head checkpoint remains the recovery boundary.
+    @discardableResult public mutating func applyMemorySafetyNet() -> Int {
+        let dropped = periodicCheckpoints.count
+        periodicCheckpoints.removeAll()
+        syncAssetStore()
+        return dropped
+    }
 
     public func assetCharge(for commandID: UUID) -> Int {
         guard let breakdown = try? costBreakdown(for: retainedEntries) else { return 0 }
@@ -188,11 +221,13 @@ public struct DeltaCommandHistory: Sendable {
             periodicCheckpoints.append(
                 Checkpoint(
                     counter: globalCommandCounter, document: document,
-                    lineage: undoStack.map { $0.command.commandID }))
+                    lineage: undoStack.map { $0.command.commandID },
+                    assetIDs: checkpointAssetIDs(in: document, assetStore: assetStore)))
         }
         try evictToBudgets()
         enforceCheckpointCeiling()
         lastDiagnostic = nil
+        syncAssetStore()
         return .committed
     }
 
@@ -207,6 +242,7 @@ public struct DeltaCommandHistory: Sendable {
             let evicted = undoStack.removeFirst()
             try evicted.command.apply(to: &headCheckpoint.document)
             headCheckpoint.counter = evicted.counter
+            headCheckpoint.assetIDs = checkpointAssetIDs(in: headCheckpoint.document, assetStore: assetStore)
             evictionCount += 1
             rebaseCheckpoints(afterEvicting: evicted.command.commandID)
             _ = try costBreakdown(for: undoStack)
@@ -275,6 +311,28 @@ public struct DeltaCommandHistory: Sendable {
         else { throw DeltaHistoryError.recoveryFailed }
         return (checkpoint, Array(target.dropFirst(checkpoint.lineage.count)))
     }
+
+    private func syncAssetStore() {
+        guard let assetStore else { return }
+        var history: [String: Int] = [:]
+        for entry in retainedEntries {
+            for pin in entry.command.pinnedAssets where pin.source == .approvedAssetStore {
+                history[pin.assetID, default: 0] += 1
+            }
+        }
+        assetStore.replacePins(history: history, checkpoints: checkpointAssetPinCounts())
+    }
+
+    private func checkpointAssetPinCounts() -> [String: Int] {
+        guard let assetStore else { return [:] }
+        var result: [String: Int] = [:]
+        for checkpoint in [headCheckpoint] + periodicCheckpoints {
+            for assetID in checkpoint.assetIDs where assetStore.contains(assetID: assetID) {
+                result[assetID, default: 0] += 1
+            }
+        }
+        return result
+    }
 }
 
 private func isPrefix(_ prefix: [UUID], of values: [UUID]) -> Bool {
@@ -286,4 +344,29 @@ private func checkedAdd(_ lhs: Int, _ rhs: Int) throws -> Int {
     let result = lhs.addingReportingOverflow(rhs)
     guard !result.overflow else { throw DeltaHistoryError.costOverflow }
     return result.partialValue
+}
+
+private func embeddedAssetData(in document: EditorDocument) -> [Data] {
+    document.layers.flatMap { $0.nodes.flatMap(embeddedAssetData) }
+}
+
+private func checkpointAssetIDs(
+    in document: EditorDocument, assetStore: ApprovedAssetStore?
+) -> Set<String> {
+    guard let assetStore else { return [] }
+    return Set(
+        embeddedAssetData(in: document).compactMap {
+            let assetID = ApprovedAssetStore.assetID(for: $0)
+            return assetStore.contains(assetID: assetID) ? assetID : nil
+        })
+}
+
+private func embeddedAssetData(in node: SceneNode) -> [Data] {
+    switch node {
+    case .image(let image):
+        if case .embedded(let data) = image.storage { return [data] }
+        return []
+    case .group(let group): return group.children.flatMap(embeddedAssetData)
+    default: return []
+    }
 }

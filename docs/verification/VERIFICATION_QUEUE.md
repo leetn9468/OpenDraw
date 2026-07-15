@@ -587,6 +587,15 @@ Frozen values and policies now cover VERIFY-001 through VERIFY-028.
   index 0.
 - P-EMPTYGROUP agrees with `GroupBoundsVerifyTests.swift` and current document
   validation, both of which permit empty groups.
+- P2 permanent proof:
+  `testVerify024ABCExactIndexAndPayloadRestoration`,
+  `testVerify024ThreeMiBAssetSurvivesPressurePinnedAndSHA256RoundTrip`, and
+  `testVerify024EmptyGroupPersistsAndInverseRestoresIndexZero` in
+  `Tests/DocumentModelTests/DeltaHistoryP2VerifyTests.swift`. Supporting P2
+  proofs pin one-command multi-delete reversal, real-pin transfer/release,
+  checkpoint-only accounting, structural limits, reorder identity, and the
+  mixed seeded corpus. These references add implementation evidence only; the
+  frozen claim and values above are unchanged.
 
 ### VERIFY-025 — Composite reversal
 

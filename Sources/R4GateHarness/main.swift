@@ -88,7 +88,7 @@ private struct Phase5HistoryEnvelope: Sendable {
 }
 
 private func noOpCommand(
-    sequence: Int, costInBytes: Int, pinnedAssets: [HistoryAssetPin] = [], retainedAsset: Data? = nil
+    sequence: Int, costInBytes: Int, pinnedAssets: [HistoryAssetPin] = []
 ) throws -> DocumentCommand {
     let oldPayload = Data([UInt8(truncatingIfNeeded: sequence)])
     let newPayload = Data([UInt8(truncatingIfNeeded: sequence &+ 1)])
@@ -96,7 +96,7 @@ private func noOpCommand(
         commandID: identifier(10_000 + sequence).rawValue, timestamp: Date(timeIntervalSince1970: Double(sequence)),
         name: "Phase 5 memory fixture", damageBounds: .none, costInBytes: costInBytes,
         pinnedAssets: pinnedAssets, oldPayload: oldPayload, newPayload: newPayload,
-        apply: { _ in _ = retainedAsset?.count }, unapply: { _ in _ = retainedAsset?.count })
+        apply: { _ in }, unapply: { _ in })
 }
 
 private func phase5HistoryEnvelope(document: EditorDocument) throws -> Phase5HistoryEnvelope {
@@ -107,17 +107,21 @@ private func phase5HistoryEnvelope(document: EditorDocument) throws -> Phase5His
     precondition(checkpointHistory.undoDepth == 200)
     precondition(checkpointHistory.checkpointCount == 9)
 
-    var floorHistory = try DeltaCommandHistory(document: document, featureFlag: .environment())
+    let assetStore = ApprovedAssetStore()
+    var floorHistory = try DeltaCommandHistory(
+        document: document, featureFlag: .environment(), assetStore: assetStore)
     for sequence in 1...9 {
         try floorHistory.commit(noOpCommand(sequence: 1_000 + sequence, costInBytes: 1_000))
     }
     let pinnedBytes = Data(repeating: 0xA5, count: 70_000_000)
-    let pin = try HistoryAssetPin(assetID: "phase5-floor-asset", byteCount: pinnedBytes.count)
+    let descriptor = assetStore.registerApproved(pinnedBytes)
+    let pin = try HistoryAssetPin(approvedAsset: descriptor)
     try floorHistory.commit(
-        noOpCommand(sequence: 2_000, costInBytes: 0, pinnedAssets: [pin], retainedAsset: pinnedBytes))
+        noOpCommand(sequence: 2_000, costInBytes: 0, pinnedAssets: [pin]))
     precondition(floorHistory.undoDepth == 10)
     precondition(floorHistory.evictionCount == 0)
     precondition(floorHistory.totalCostInBytes == 70_009_000)
+    precondition(assetStore.historyPinCount(assetID: descriptor.assetID) == 1)
     return Phase5HistoryEnvelope(floorHistory: floorHistory, checkpointHistory: checkpointHistory)
 }
 

@@ -77,6 +77,12 @@ both rows and applies the same unchanged inclusive 1.25 local ratio. Hosted
 ratios for the new rows are informational under the 2026-07-15 owner decision,
 exactly like the five earlier metrics.
 
+Phase 5 P2 retains those exact targets and artifact row names while advancing
+the exercised production path from value swaps to structural delete/reinsert:
+BENCH-5a alternates structural undo/redo and BENCH-5b measures structural
+command construction plus commit. This is an input expansion, not a threshold
+or policy change.
+
 The frozen absolute BENCH-R3.5 targets remain blocking wherever the benchmark
 runs, including hosted CI. Local ratio checks use
 `owner-reference-macos15-arm64-baseline.tsv` and remain blocking at the
