@@ -1,0 +1,23 @@
+[0/1] Planning build
+Building for production...
+[0/4] Write swift-version--1AB21518FC5DEDBE.txt
+[2/5] Compiling EditorCore CoreTypes.swift
+[3/7] Compiling MacPlatform BackingScale.swift
+[4/7] Compiling Geometry Geometry.swift
+[5/9] Compiling TextEngine TextShaper.swift
+[6/9] Compiling DocumentModel ApprovedAssetStore.swift
+[7/12] Compiling CanvasRender CoreGraphicsRenderer.swift
+[8/13] Compiling DocumentFormats AdversarialParserHarness.swift
+[9/15] Compiling EditorCommands AlignmentCommands.swift
+[10/18] Compiling R4GateHarness main.swift
+[10/18] Write Objects.LinkFileList
+[12/18] Compiling RenderBenchmark main.swift
+[12/18] Write Objects.LinkFileList
+[14/18] Compiling EditorTools AccessibilityTree.swift
+[14/19] Linking R4GateHarness
+[15/19] Linking RenderBenchmark
+[17/19] Compiling VectorFoundryApp main.swift
+[17/19] Write Objects.LinkFileList
+[18/19] Linking VectorFoundry
+Build complete! (15.70s)
+dist/OpenDraw.app: replacing existing signature

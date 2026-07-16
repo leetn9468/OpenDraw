@@ -1,0 +1,15 @@
+[0/1] Planning build
+Building for debugging...
+[0/8] Write sources
+[1/8] Write swift-version--1AB21518FC5DEDBE.txt
+[3/11] Emitting module EditorCommands
+[4/11] Compiling EditorCommands AnchorGeometryCommands.swift
+[5/11] Compiling EditorCommands CompositeCommands.swift
+[5/14] Write Objects.LinkFileList
+[8/14] Linking RenderBenchmark
+[9/14] Linking R4GateHarness
+[10/14] Applying RenderBenchmark
+[11/14] Applying R4GateHarness
+[12/14] Linking VectorFoundry
+[13/14] Applying VectorFoundry
+Build complete! (1.27s)

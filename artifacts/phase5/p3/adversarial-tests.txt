@@ -1,0 +1,54 @@
+[0/1] Planning build
+Building for debugging...
+[0/9] Write swift-version--1AB21518FC5DEDBE.txt
+[2/39] Emitting module EditorToolsTests
+[3/39] Emitting module CanvasRenderTests
+[4/39] Emitting module TextEngineTests
+[5/39] Compiling TextEngineTests TextEngineTests.swift
+[6/39] Compiling EditorToolsTests AccessibilityTests.swift
+[7/39] Compiling GeometryTests BezierEvaluationVerifyTests.swift
+[8/39] Compiling DocumentFormatsTests ApprovedAssetStoreP2Tests.swift
+[9/40] Compiling DocumentFormatsTests SVGLengthVerifyTests.swift
+[10/40] Compiling DocumentFormatsTests ApprovedImageCacheVerifyTests.swift
+[11/40] Compiling DocumentModelTests PixelOverflowVerifyTests.swift
+[12/41] Compiling DocumentFormatsTests resource_bundle_accessor.swift
+[13/41] Emitting module DocumentModelTests
+[14/41] Compiling CanvasRenderTests GoldenRenderingTests.swift
+[15/41] Compiling DocumentFormatsTests AdversarialCorpusTests.swift
+[16/41] Emitting module DocumentFormatsTests
+[17/41] Compiling DocumentModelTests DocumentTransformVerifyTests.swift
+[18/41] Compiling DocumentModelTests StrictValidationTests.swift
+[19/41] Compiling DocumentFormatsTests DurablePersistenceTests.swift
+[20/41] Compiling GeometryTests FillRuleVerifyTests.swift
+[21/41] Compiling GeometryTests AffineTransformVerifyTests.swift
+[22/41] Compiling GeometryTests BezierBoundsVerifyTests.swift
+[23/41] Emitting module GeometryTests
+[24/41] Compiling GeometryTests GeometryTests.swift
+[25/41] Compiling DocumentFormatsTests SceneMigrationTests.swift
+[26/41] Compiling DocumentFormatsTests UIJourneyTests.swift
+[27/41] Compiling DocumentModelTests NestedTranslationVerifyTests.swift
+[28/41] Compiling DocumentModelTests GroupBoundsVerifyTests.swift
+[29/41] Compiling CanvasRenderTests CanvasRenderTests.swift
+[30/41] Compiling DocumentFormatsTests InputLimitsVerifyTests.swift
+[31/41] Compiling DocumentModelTests VisualBoundsVerifyTests.swift
+[32/41] Compiling DocumentFormatsTests DocumentFormatsTests.swift
+[33/41] Compiling DocumentModelTests DocumentLimitsVerifyTests.swift
+[34/41] Compiling DocumentModelTests DocumentModelTests.swift
+[35/41] Compiling EditorToolsTests EditorToolsTests.swift
+[36/41] Compiling DocumentModelTests DeltaHistoryP3VerifyTests.swift
+[37/41] Compiling DocumentModelTests DirectAnchorVerifyTests.swift
+[38/41] Compiling DocumentModelTests DeltaHistoryP1VerifyTests.swift
+[39/41] Compiling DocumentModelTests DeltaHistoryP2VerifyTests.swift
+[40/43] Emitting module VectorFoundryPackageTests
+[41/43] Compiling VectorFoundryPackageTests runner.swift
+[41/43] Write Objects.LinkFileList
+[42/43] Linking VectorFoundryPackageTests
+Build complete! (5.54s)
+◇ Test run started.
+↳ Testing Library Version: 124.4
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test fixedAdversarialClassesFailSafely() started.
+◇ Test deterministicNativeAndSVGMutationCorpusMeetsDeadline() started.
+✔ Test fixedAdversarialClassesFailSafely() passed after 0.003 seconds.
+✔ Test deterministicNativeAndSVGMutationCorpusMeetsDeadline() passed after 0.029 seconds.
+✔ Test run with 2 tests passed after 0.029 seconds.
