@@ -250,59 +250,67 @@ private func writeSlice(
     if let requireCurrent, try readSlice(in: document, at: location) != requireCurrent {
         throw AnchorGeometryCommandError.staleSlice
     }
-    guard mutatePath(in: &document.layers, id: location.pathID, mutation: { path in
-        guard path.path.subpaths.indices.contains(location.subpathIndex) else { return false }
-        var subpath = path.path.subpaths[location.subpathIndex]
-        let count = subpath.segments.count
-        guard count > 0 else { return false }
-        if subpath.isClosed {
-            guard subpath.segments.indices.contains(location.anchorIndex),
-                let incoming = value.incoming, let outgoing = value.outgoing
-            else { return false }
-            let index = location.anchorIndex
-            let prior = index == 0 ? count - 1 : index - 1
-            subpath.segments[index].start = value.anchor
-            subpath.segments[prior].end = value.anchor
-            subpath.segments[prior].control2 = incoming
-            subpath.segments[index].control1 = outgoing
-        } else if location.anchorIndex == 0 {
-            guard value.incoming == nil, let outgoing = value.outgoing else { return false }
-            subpath.segments[0].start = value.anchor
-            subpath.segments[0].control1 = outgoing
-        } else if location.anchorIndex == count {
-            guard value.outgoing == nil, let incoming = value.incoming else { return false }
-            subpath.segments[count - 1].end = value.anchor
-            subpath.segments[count - 1].control2 = incoming
-        } else {
-            guard location.anchorIndex > 0, location.anchorIndex < count,
-                let incoming = value.incoming, let outgoing = value.outgoing
-            else { return false }
-            let index = location.anchorIndex
-            subpath.segments[index - 1].end = value.anchor
-            subpath.segments[index].start = value.anchor
-            subpath.segments[index - 1].control2 = incoming
-            subpath.segments[index].control1 = outgoing
-        }
-        path.path.subpaths[location.subpathIndex] = subpath
-        return true
-    }) else { throw AnchorGeometryCommandError.pathNotFound }
+    guard
+        mutatePath(
+            in: &document.layers, id: location.pathID,
+            mutation: { path in
+                guard path.path.subpaths.indices.contains(location.subpathIndex) else { return false }
+                var subpath = path.path.subpaths[location.subpathIndex]
+                let count = subpath.segments.count
+                guard count > 0 else { return false }
+                if subpath.isClosed {
+                    guard subpath.segments.indices.contains(location.anchorIndex),
+                        let incoming = value.incoming, let outgoing = value.outgoing
+                    else { return false }
+                    let index = location.anchorIndex
+                    let prior = index == 0 ? count - 1 : index - 1
+                    subpath.segments[index].start = value.anchor
+                    subpath.segments[prior].end = value.anchor
+                    subpath.segments[prior].control2 = incoming
+                    subpath.segments[index].control1 = outgoing
+                } else if location.anchorIndex == 0 {
+                    guard value.incoming == nil, let outgoing = value.outgoing else { return false }
+                    subpath.segments[0].start = value.anchor
+                    subpath.segments[0].control1 = outgoing
+                } else if location.anchorIndex == count {
+                    guard value.outgoing == nil, let incoming = value.incoming else { return false }
+                    subpath.segments[count - 1].end = value.anchor
+                    subpath.segments[count - 1].control2 = incoming
+                } else {
+                    guard location.anchorIndex > 0, location.anchorIndex < count,
+                        let incoming = value.incoming, let outgoing = value.outgoing
+                    else { return false }
+                    let index = location.anchorIndex
+                    subpath.segments[index - 1].end = value.anchor
+                    subpath.segments[index].start = value.anchor
+                    subpath.segments[index - 1].control2 = incoming
+                    subpath.segments[index].control1 = outgoing
+                }
+                path.path.subpaths[location.subpathIndex] = subpath
+                return true
+            })
+    else { throw AnchorGeometryCommandError.pathNotFound }
 }
 
 private func replaceSegmentSlice(
     in document: inout EditorDocument, pathID: ObjectID, subpathIndex: Int,
     at start: Int, expected: [CubicBezier], replacement: [CubicBezier]
 ) throws {
-    guard mutatePath(in: &document.layers, id: pathID, mutation: { path in
-        guard path.path.subpaths.indices.contains(subpathIndex) else { return false }
-        var segments = path.path.subpaths[subpathIndex].segments
-        let end = start + expected.count
-        guard start >= 0, end <= segments.count, Array(segments[start..<end]) == expected else {
-            return false
-        }
-        segments.replaceSubrange(start..<end, with: replacement)
-        path.path.subpaths[subpathIndex].segments = segments
-        return true
-    }) else { throw AnchorGeometryCommandError.staleSlice }
+    guard
+        mutatePath(
+            in: &document.layers, id: pathID,
+            mutation: { path in
+                guard path.path.subpaths.indices.contains(subpathIndex) else { return false }
+                var segments = path.path.subpaths[subpathIndex].segments
+                let end = start + expected.count
+                guard start >= 0, end <= segments.count, Array(segments[start..<end]) == expected else {
+                    return false
+                }
+                segments.replaceSubrange(start..<end, with: replacement)
+                path.path.subpaths[subpathIndex].segments = segments
+                return true
+            })
+    else { throw AnchorGeometryCommandError.staleSlice }
 }
 
 private func pathObject(in document: EditorDocument, id: ObjectID) throws -> PathObject {

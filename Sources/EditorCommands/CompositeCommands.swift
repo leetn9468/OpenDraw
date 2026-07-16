@@ -29,7 +29,8 @@ public enum CompositeCommands {
         let childIDs = children.map(\.commandID)
         let allIdentity = children.allSatisfy(\.isIdentity)
         let oldBytes = try canonicalBytes(CompositePayload(childIDs: childIDs, isApplied: false))
-        let newBytes = allIdentity
+        let newBytes =
+            allIdentity
             ? oldBytes
             : try canonicalBytes(CompositePayload(childIDs: childIDs, isApplied: true))
         var cost = framingCostInBytes

@@ -202,7 +202,8 @@ func testVerify026SmoothAnchorSliceFrozenTripleAndExactInverse() throws {
     #expect(moved.anchor == Point(x: 120, y: 110))
     #expect(moved.incoming == Point(x: 110, y: 105))
     #expect(moved.outgoing == Point(x: 130, y: 115))
-    #expect(Point(x: 2 * moved.anchor.x - moved.incoming!.x, y: 2 * moved.anchor.y - moved.incoming!.y) == moved.outgoing)
+    #expect(
+        Point(x: 2 * moved.anchor.x - moved.incoming!.x, y: 2 * moved.anchor.y - moved.incoming!.y) == moved.outgoing)
     try history.undo()
     #expect(try AnchorGeometryCommands.slice(in: history.document, at: location) == old)
     #expect(try CanonicalDocumentEquality.equals(history.document, original))
