@@ -604,6 +604,22 @@ Frozen values and policies now cover VERIFY-001 through VERIFY-028.
 - Recomputed examples for `G=T(5,0)∘S(2,2)`: child points map to `(9,2)`,
   `(5,2)`, and `(6,0)`; child 1 origin maps to `(7,2)`. Reverse-order inverse
   restores the original document; the single-command case reduces directly.
+- P3 implementation-semantics addendum — **P-COMPOSITE-ATOMIC**: children
+  apply in order. If child `i` throws, children `1...i-1` are unwound by their
+  captured inverses in reverse order and the composite records nothing. If an
+  unwind throws, checkpoint restore plus a structured delta-history diagnostic
+  engages. Composite cost is child structural-cost sum plus framing; damage is
+  the child-damage union; an all-identity child list is identity-elided. This
+  owner-authored 2026-07-16 directive and the passing clean-rollback and
+  forced-containment fixtures constitute the required two-AI agreement.
+- P3 permanent proof:
+  `testVerify025UngroupCompositeFrozenExamplesAndReverseRestoration` and
+  `testVerify025SingleChildCompositeInverseReducesDirectly` in
+  `Tests/DocumentModelTests/DeltaHistoryP3VerifyTests.swift`. Supporting P3
+  proofs cover group/ungroup and make/release-compound canonical round trips,
+  align-as-one-command, damage/cost aggregation, both atomic failure branches,
+  identity elision, and the seeded mixed corpus. These references and the
+  implementation-semantics addendum do not alter any frozen numeric value.
 
 ### VERIFY-026 — Anchor-geometry slice swap
 
@@ -620,6 +636,14 @@ Frozen values and policies now cover VERIFY-001 through VERIFY-028.
   `(110,105)`, `(130,115)`; mirror check returns `(130,115)`. A corner edit
   leaves the other handle bitwise unchanged; an open-path endpoint inverse
   restores the absent side as `nil`.
+- P3 permanent proof:
+  `testVerify026SmoothAnchorSliceFrozenTripleAndExactInverse`,
+  `testVerify026CornerUntouchedHandleIsBitwiseStable`, and
+  `testVerify026OpenEndpointNilIsRestoredNotSynthesized` in
+  `Tests/DocumentModelTests/DeltaHistoryP3VerifyTests.swift`. Supporting P3
+  proofs cover structural control-point slices, real transform/anchor gesture
+  coalescing, cancelled-gesture redo preservation, failed-first-gesture
+  isolation, and the seeded mixed corpus. Values above remain untouched.
 
 ### VERIFY-027 — Budget arithmetic and checkpoints
 

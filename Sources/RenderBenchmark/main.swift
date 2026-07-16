@@ -139,8 +139,19 @@ let deltaFlag = DeltaHistoryFeatureFlag.environment()
 precondition(deltaFlag.isEnabled, "BENCH-5 requires OPENDRAW_DELTA_HISTORY=1")
 var applyHistory = try DeltaCommandHistory(document: base, featureFlag: deltaFlag)
 let benchmarkLayerID = base.layers[0].id
-try applyHistory.commit(
-    StructuralCommands.delete(nodeIDs: [id(0)], in: applyHistory.document))
+let benchmarkAnchor = PathAnchorLocation(pathID: id(4), anchorIndex: 0)
+let applySlice = try AnchorGeometryCommands.slice(in: applyHistory.document, at: benchmarkAnchor)
+let applyComposite = try CompositeCommands.ordered(
+    name: "BENCH-5 composite anchor apply",
+    children: [
+        ValueSwapCommands.transform(
+            in: applyHistory.document, nodeID: id(4),
+            newValue: Geometry.AffineTransform(tx: 1)),
+        AnchorGeometryCommands.setSlice(
+            in: applyHistory.document, at: benchmarkAnchor,
+            newValue: applySlice.translated(dx: 1, dy: 0)),
+    ])
+try applyHistory.commit(applyComposite)
 let bench5a = try measure { index in
     if index.isMultiple(of: 2) {
         try applyHistory.undo()
@@ -153,15 +164,34 @@ printStats("BENCH-5a undo-redo", bench5a)
 var recordHistory = try DeltaCommandHistory(document: base, featureFlag: deltaFlag)
 let structuralNode = base.layers[0].nodes[0]
 let bench5b = try measure { index in
-    if index.isMultiple(of: 2) {
+    switch index % 4 {
+    case 0:
         try recordHistory.commit(
             StructuralCommands.delete(nodeIDs: [structuralNode.id], in: recordHistory.document))
-    } else {
+    case 1:
         try recordHistory.commit(
             StructuralCommands.insert(
                 structuralNode, in: recordHistory.document, parent: .layer(benchmarkLayerID), at: 0))
+    default:
+        let direction = index % 4 == 2 ? 1.0 : -1.0
+        let currentPath = recordHistory.document.path(id: id(4))!
+        var nextTransform = currentPath.transform
+        nextTransform.tx += direction
+        let currentSlice = try AnchorGeometryCommands.slice(
+            in: recordHistory.document, at: benchmarkAnchor)
+        let composite = try CompositeCommands.ordered(
+            name: "BENCH-5 composite anchor record",
+            children: [
+                ValueSwapCommands.transform(
+                    in: recordHistory.document, nodeID: id(4), newValue: nextTransform),
+                AnchorGeometryCommands.setSlice(
+                    in: recordHistory.document, at: benchmarkAnchor,
+                    newValue: currentSlice.translated(dx: direction, dy: 0)),
+            ])
+        try recordHistory.commit(composite)
     }
 }
 printStats("BENCH-5b record", bench5b)
+print("BENCH-5 mix=structural,composite,anchor-slice flag=ON")
 precondition(bench5a.p95 <= 16.7, "BENCH-5a p95 exceeds frozen 16.7 ms target")
 precondition(bench5b.p95 <= 1.0, "BENCH-5b p95 exceeds frozen 1.0 ms target")

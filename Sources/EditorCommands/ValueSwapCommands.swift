@@ -49,10 +49,28 @@ public enum ValueSwapCommands {
             throw ValueSwapCommandError.nodeNotFound
         }
         let oldValue = nodeTransform(of: context.node)
+        return try transform(
+            in: document, nodeID: nodeID, oldValue: oldValue, newValue: newValue,
+            commandID: commandID, timestamp: timestamp)
+    }
+
+    /// Explicit stored-value form used when a gesture has already rendered its
+    /// post-state. Both values are captured data; inverse never uses matrix
+    /// inversion or derives the old transform from the current document.
+    public static func transform(
+        in document: EditorDocument, nodeID: ObjectID,
+        oldValue: Geometry.AffineTransform, newValue: Geometry.AffineTransform,
+        commandID: UUID = UUID(), timestamp: Date = Date()
+    ) throws -> DocumentCommand {
+        guard let context = nodeContext(in: document.layers, nodeID: nodeID) else {
+            throw ValueSwapCommandError.nodeNotFound
+        }
+        var originalNode = context.node
+        _ = setTransform(oldValue, on: &originalNode)
         var changedNode = context.node
         _ = setTransform(newValue, on: &changedNode)
         return try nodeCommand(
-            name: "Transform", before: documentBounds(of: context.node, parent: context.parent),
+            name: "Transform", before: documentBounds(of: originalNode, parent: context.parent),
             after: documentBounds(of: changedNode, parent: context.parent), commandID: commandID,
             timestamp: timestamp, oldValue: oldValue, newValue: newValue,
             validation: { document, value in

@@ -51,6 +51,18 @@ private struct LayerSlot: Hashable, Codable, Sendable {
 }
 
 public enum StructuralCommands {
+    public static func slot(
+        for nodeID: ObjectID, in document: EditorDocument
+    ) throws -> SceneNodeSlot {
+        try locate(nodeID: nodeID, in: document).slot
+    }
+
+    public static func childCount(
+        of parent: SceneParent, in document: EditorDocument
+    ) throws -> Int {
+        try children(of: parent, in: document).count
+    }
+
     public static func insertLayer(
         _ layer: Layer, in document: EditorDocument, at index: Int,
         assetStore: ApprovedAssetStore? = nil,
