@@ -56,12 +56,13 @@ Test: `testDeltaHistoryForcedInverseFailureRestoresNearestCheckpointAndReportsDi
 
 ## S5 — RESOLVED
 
-The single runtime flag is `OPENDRAW_DELTA_HISTORY=1`; every other value and an
-absent variable are OFF. The app still constructs only `CommandHistory`, so the
-snapshot engine remains primary. Its 30-entry cap, five-entry pressure floor,
-tests, and behavior are unchanged. P1 performs no supersession.
+The historical P1 runtime gate enabled delta history only for explicitly
+selected runs; every other value and an absent variable were OFF. The app
+still constructed only `CommandHistory`, so the snapshot engine remained
+primary. Its 30-entry cap, five-entry pressure floor, tests, and behavior were
+unchanged. P1 performed no supersession.
 
-Files: `DeltaHistoryFeatureFlag.swift`, `delta-history-P1.md`.
+Files: the retired P1 runtime-gate source, `delta-history-P1.md`.
 
 ## S6 — RESOLVED
 

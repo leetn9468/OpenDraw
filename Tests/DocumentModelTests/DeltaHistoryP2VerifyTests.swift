@@ -5,11 +5,11 @@ import Foundation
 import Geometry
 import Testing
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testP2StructuralInsertClassesRoundTripAndRejectDuplicateWithoutRecording() throws {
     let layerID = p2ID(1)
     let original = try EditorDocument(width: 100, height: 100, layers: [Layer(id: layerID, name: "L")])
-    var history = try DeltaCommandHistory(document: original, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: original)
     let path = PathObject(id: p2ID(2), segments: [p2Line()])
     let text = TextObject(id: p2ID(3), text: "P2", origin: Point(x: 2, y: 3))
     let image = ImageObject(
@@ -33,8 +33,7 @@ func testP2StructuralInsertClassesRoundTripAndRejectDuplicateWithoutRecording() 
 
     let one = SceneNode.path(path)
     var duplicateHistory = try DeltaCommandHistory(
-        document: EditorDocument(width: 100, height: 100, layers: [Layer(id: layerID, name: "L", nodes: [one])]),
-        featureFlag: .environment())
+        document: EditorDocument(width: 100, height: 100, layers: [Layer(id: layerID, name: "L", nodes: [one])]))
     let before = try CanonicalDocumentEquality.bytes(for: duplicateHistory.document)
     let duplicate = try StructuralCommands.createShape(
         path, in: duplicateHistory.document, parent: .layer(layerID), at: 1)
@@ -54,7 +53,7 @@ func testP2StructuralInsertClassesRoundTripAndRejectDuplicateWithoutRecording() 
     #expect(!unapprovedStore.contains(assetID: ApprovedAssetStore.assetID(for: unapprovedBytes)))
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testP2StructuralInsertPreflightsNodeAndLayerCeilingsBeforeMutation() throws {
     let layerID = p2ID(20)
     let nodes = (0..<DocumentLimits.maximumNodes).map {
@@ -62,7 +61,7 @@ func testP2StructuralInsertPreflightsNodeAndLayerCeilingsBeforeMutation() throws
     }
     let maximumNodeDocument = try EditorDocument(
         width: 100, height: 100, layers: [Layer(id: layerID, name: "L", nodes: nodes)])
-    var nodeHistory = try DeltaCommandHistory(document: maximumNodeDocument, featureFlag: .environment())
+    var nodeHistory = try DeltaCommandHistory(document: maximumNodeDocument)
     let nodeOverflow = try StructuralCommands.createText(
         TextObject(id: p2ID(300_000), text: "overflow", origin: Point(x: 0, y: 0)), in: nodeHistory.document,
         parent: .layer(layerID), at: nodes.count)
@@ -72,7 +71,7 @@ func testP2StructuralInsertPreflightsNodeAndLayerCeilingsBeforeMutation() throws
 
     let layers = (0..<DocumentLimits.maximumLayers).map { Layer(id: p2ID(400_000 + $0), name: "L\($0)") }
     let maximumLayerDocument = try EditorDocument(width: 100, height: 100, layers: layers)
-    var layerHistory = try DeltaCommandHistory(document: maximumLayerDocument, featureFlag: .environment())
+    var layerHistory = try DeltaCommandHistory(document: maximumLayerDocument)
     let layerOverflow = try StructuralCommands.insertLayer(
         Layer(id: p2ID(500_000), name: "overflow"), in: layerHistory.document, at: layers.count)
     #expect(throws: DocumentValidationError.layerCount) { try layerHistory.commit(layerOverflow) }
@@ -80,13 +79,13 @@ func testP2StructuralInsertPreflightsNodeAndLayerCeilingsBeforeMutation() throws
     #expect(layerHistory.document.layers.count == DocumentLimits.maximumLayers)
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testVerify024ABCExactIndexAndPayloadRestoration() throws {
     let layerID = p2ID(30)
     let nodes = [31, 32, 33].map { SceneNode.path(PathObject(id: p2ID($0), segments: [p2Line()])) }
     let original = try EditorDocument(
         width: 100, height: 100, layers: [Layer(id: layerID, name: "L", nodes: nodes)])
-    var history = try DeltaCommandHistory(document: original, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: original)
     try history.commit(StructuralCommands.delete(nodeIDs: [p2ID(32)], in: history.document))
     #expect(history.document.layers[0].nodes.map(\.id) == [p2ID(31), p2ID(33)])
     try history.undo()
@@ -95,13 +94,13 @@ func testVerify024ABCExactIndexAndPayloadRestoration() throws {
     #expect(try CanonicalDocumentEquality.equals(history.document, original))
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testP2MultiDeleteIsOneCommandAndRestoresReverseRemovalOrder() throws {
     let layerID = p2ID(40)
     let nodes = [41, 42, 43, 44, 45].map { SceneNode.path(PathObject(id: p2ID($0), segments: [p2Line()])) }
     let original = try EditorDocument(
         width: 100, height: 100, layers: [Layer(id: layerID, name: "L", nodes: nodes)])
-    var history = try DeltaCommandHistory(document: original, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: original)
     try history.commit(
         StructuralCommands.cut(nodeIDs: [p2ID(42), p2ID(44)], in: history.document))
     #expect(history.undoDepth == 1)
@@ -110,13 +109,13 @@ func testP2MultiDeleteIsOneCommandAndRestoresReverseRemovalOrder() throws {
     #expect(try CanonicalDocumentEquality.equals(history.document, original))
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testVerify024EmptyGroupPersistsAndInverseRestoresIndexZero() throws {
     let child = SceneNode.path(PathObject(id: p2ID(51), segments: [p2Line()]))
     let group = GroupNode(id: p2ID(52), name: "G", children: [child])
     let original = try EditorDocument(
         width: 100, height: 100, layers: [Layer(id: p2ID(53), name: "L", nodes: [.group(group)])])
-    var history = try DeltaCommandHistory(document: original, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: original)
     try history.commit(StructuralCommands.delete(nodeIDs: [p2ID(51)], in: history.document))
     guard case .group(let empty) = history.document.layers[0].nodes[0] else {
         Issue.record("Group was removed with its last child")
@@ -133,7 +132,7 @@ func testVerify024EmptyGroupPersistsAndInverseRestoresIndexZero() throws {
     #expect(try CanonicalDocumentEquality.equals(history.document, original))
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testVerify024ThreeMiBAssetSurvivesPressurePinnedAndSHA256RoundTrip() throws {
     let bytes = p2ThreeMiBPNG()
     #expect(bytes.count == 3 * 1_024 * 1_024)
@@ -146,7 +145,7 @@ func testVerify024ThreeMiBAssetSurvivesPressurePinnedAndSHA256RoundTrip() throws
     let original = try EditorDocument(
         width: 10, height: 10, layers: [Layer(id: layerID, name: "L", nodes: [.image(image)])])
     var history = try DeltaCommandHistory(
-        document: original, featureFlag: .environment(), assetStore: store)
+        document: original, assetStore: store)
     let deletion = try StructuralCommands.delete(
         nodeIDs: [image.id], in: history.document, assetStore: store)
     try history.commit(deletion)
@@ -166,7 +165,7 @@ func testVerify024ThreeMiBAssetSurvivesPressurePinnedAndSHA256RoundTrip() throws
     #expect(try CanonicalDocumentEquality.equals(history.document, original))
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testP2RealAssetChargeTransfersWhenOldestPinIsEvicted() throws {
     let bytes = p2ThreeMiBPNG()
     let store = ApprovedAssetStore()
@@ -177,8 +176,8 @@ func testP2RealAssetChargeTransfersWhenOldestPinIsEvicted() throws {
     let layerID = p2ID(71)
     var history = try DeltaCommandHistory(
         document: EditorDocument(
-            width: 100, height: 100, layers: [Layer(id: layerID, name: "L", nodes: [.image(image)])]),
-        featureFlag: .environment(), assetStore: store)
+            width: 100, height: 100, layers: [Layer(id: layerID, name: "L", nodes: [.image(image)])]), assetStore: store
+    )
     let firstID = p2UUID(72)
     let laterID = p2UUID(73)
     try history.commit(
@@ -198,7 +197,7 @@ func testP2RealAssetChargeTransfersWhenOldestPinIsEvicted() throws {
     #expect(store.contains(assetID: descriptor.assetID))
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testP2LastRealPinReleaseAllowsEvictionAndCheckpointOnlyPinsStayOutsideB() throws {
     let bytes = p2ThreeMiBPNG()
     let store = ApprovedAssetStore()
@@ -211,14 +210,14 @@ func testP2LastRealPinReleaseAllowsEvictionAndCheckpointOnlyPinsStayOutsideB() t
         width: 100, height: 100, layers: [Layer(id: layerID, name: "L", nodes: [.image(image)])])
 
     var checkpointOnly = try DeltaCommandHistory(
-        document: original, featureFlag: .environment(), assetStore: store)
+        document: original, assetStore: store)
     #expect(checkpointOnly.totalCostInBytes == 0)
     #expect(checkpointOnly.checkpointOnlyPinnedAssetBytes == bytes.count)
     #expect(store.checkpointPinCount(assetID: descriptor.assetID) == 1)
     #expect(store.evictUnpinned(toMaximumBytes: 0) == bytes.count)
     _ = checkpointOnly.applyMemorySafetyNet()
 
-    var history = try DeltaCommandHistory(document: original, featureFlag: .environment(), assetStore: store)
+    var history = try DeltaCommandHistory(document: original, assetStore: store)
     try history.commit(
         StructuralCommands.delete(nodeIDs: [image.id], in: history.document, assetStore: store))
     for index in 1...200 {
@@ -231,7 +230,7 @@ func testP2LastRealPinReleaseAllowsEvictionAndCheckpointOnlyPinsStayOutsideB() t
     #expect(!store.contains(assetID: descriptor.assetID))
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testP2SafetyNetDropsPeriodicCheckpointsButPreservesFloorPins() throws {
     #expect(DocumentLimits.maximumRetainedBitmapPixels == 67_108_864)
     let bytes = Data(p2ThreeMiBPNG().prefix(1_024))
@@ -239,7 +238,7 @@ func testP2SafetyNetDropsPeriodicCheckpointsButPreservesFloorPins() throws {
     let descriptor = store.registerApproved(bytes)
     let realPin = try HistoryAssetPin(approvedAsset: descriptor)
     var history = try DeltaCommandHistory(
-        document: EditorDocument(width: 100, height: 100), featureFlag: .environment(), assetStore: store)
+        document: EditorDocument(width: 100, height: 100), assetStore: store)
     for index in 1...24 {
         try history.commit(try p2WidthCommand(from: Double(99 + index), to: Double(100 + index), cost: 1_000))
     }
@@ -256,7 +255,7 @@ func testP2SafetyNetDropsPeriodicCheckpointsButPreservesFloorPins() throws {
     #expect(store.evictUnpinned(toMaximumBytes: 0) == bytes.count)
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testP2NodeLayerAndCrossParentReorderRoundTripAndIdentityElision() throws {
     let a = SceneNode.path(PathObject(id: p2ID(91), segments: [p2Line()]))
     let b = SceneNode.path(PathObject(id: p2ID(92), segments: [p2Line()]))
@@ -264,7 +263,7 @@ func testP2NodeLayerAndCrossParentReorderRoundTripAndIdentityElision() throws {
     let firstLayer = Layer(id: p2ID(94), name: "First", nodes: [.group(group)])
     let secondLayer = Layer(id: p2ID(95), name: "Second")
     let original = try EditorDocument(width: 100, height: 100, layers: [firstLayer, secondLayer])
-    var history = try DeltaCommandHistory(document: original, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: original)
     try history.commit(
         StructuralCommands.reorderNode(
             in: history.document, nodeID: a.id, to: .group(group.id), at: 1))
@@ -298,7 +297,7 @@ func testP2NodeLayerAndCrossParentReorderRoundTripAndIdentityElision() throws {
     #expect(history.document.layers.map(\.id) == [firstLayer.id, secondLayer.id])
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testP2SeededMixedCorpusCrossesEvictionAndCheckpointsWithExactUnwindReplay() throws {
     let seed: UInt64 = 0x0000_0000_A110_F00D
     let layerID = p2ID(600)
@@ -307,7 +306,7 @@ func testP2SeededMixedCorpusCrossesEvictionAndCheckpointsWithExactUnwindReplay()
     let text = SceneNode.text(TextObject(id: textID, text: "seed", origin: Point(x: 0, y: 0)))
     let initial = try EditorDocument(
         width: 640, height: 480, layers: [Layer(id: layerID, name: "L", nodes: [path, text])])
-    var history = try DeltaCommandHistory(document: initial, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: initial)
 
     for pair in 0..<20 {
         let node = SceneNode.path(PathObject(id: p2ID(700 + pair), segments: [p2Line()]))

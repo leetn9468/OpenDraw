@@ -11,6 +11,6 @@ printf 'revision=%s model=%s chip=%s memory_bytes=%s os=%s build=%s arch=%s swif
   "$(sysctl -n hw.memsize)" "$(sw_vers -productVersion)" "$(sw_vers -buildVersion)" "$(uname -m)" \
   "$(swift --version 2>&1 | head -1)" >"$output"
 status=0
-OPENDRAW_DELTA_HISTORY=1 .build/release/RenderBenchmark >"$benchmark_log" 2>&1 || status=$?
+.build/release/RenderBenchmark >"$benchmark_log" 2>&1 || status=$?
 cat "$benchmark_log" | tee -a "$output"
 exit "$status"

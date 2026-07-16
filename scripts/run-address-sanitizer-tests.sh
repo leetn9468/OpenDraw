@@ -9,7 +9,5 @@ cd "$repo_root"
 # starvation can otherwise consume those deadlines without parser work running.
 deadline_test=deterministicNativeAndSVGMutationCorpusMeetsDeadline
 
-OPENDRAW_DELTA_HISTORY=0 swift test --sanitize=address --skip "$deadline_test"
-OPENDRAW_DELTA_HISTORY=0 swift test --sanitize=address --skip-build --filter "$deadline_test"
-OPENDRAW_DELTA_HISTORY=1 swift test --sanitize=address --skip "$deadline_test"
-OPENDRAW_DELTA_HISTORY=1 swift test --sanitize=address --skip-build --filter "$deadline_test"
+swift test --sanitize=address --skip "$deadline_test"
+swift test --sanitize=address --skip-build --filter "$deadline_test"

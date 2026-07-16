@@ -7,8 +7,7 @@ release:
 	swift build -c release
 
 test:
-	OPENDRAW_DELTA_HISTORY=0 swift test --parallel
-	OPENDRAW_DELTA_HISTORY=1 swift test --parallel
+	swift test --parallel
 
 lint:
 	xcrun swift-format lint --recursive --strict Sources Tests Package.swift

@@ -135,9 +135,7 @@ CoreGraphicsRenderer().render(base, in: destination)
 print(String(format: "BENCH-4 cold-open: %.3f ms", coldOpenMilliseconds))
 print(String(format: "Warm full redraw: %.3f ms", milliseconds(warmFullStart.duration(to: .now))))
 
-let deltaFlag = DeltaHistoryFeatureFlag.environment()
-precondition(deltaFlag.isEnabled, "BENCH-5 requires OPENDRAW_DELTA_HISTORY=1")
-var applyHistory = try DeltaCommandHistory(document: base, featureFlag: deltaFlag)
+var applyHistory = try DeltaCommandHistory(document: base)
 let benchmarkLayerID = base.layers[0].id
 let benchmarkAnchor = PathAnchorLocation(pathID: id(4), anchorIndex: 0)
 let applySlice = try AnchorGeometryCommands.slice(in: applyHistory.document, at: benchmarkAnchor)
@@ -161,7 +159,7 @@ let bench5a = try measure { index in
 }
 printStats("BENCH-5a undo-redo", bench5a)
 
-var recordHistory = try DeltaCommandHistory(document: base, featureFlag: deltaFlag)
+var recordHistory = try DeltaCommandHistory(document: base)
 let structuralNode = base.layers[0].nodes[0]
 let bench5b = try measure { index in
     switch index % 4 {

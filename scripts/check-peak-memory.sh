@@ -20,7 +20,7 @@ measure() {
   timing=$(mktemp)
   scenario_log=$(mktemp)
   trap 'rm -f "$timing" "$scenario_log"' EXIT HUP INT TERM
-  /usr/bin/time -l env OPENDRAW_DELTA_HISTORY=1 .build/release/R4GateHarness "$scenario" >"$scenario_log" 2>"$timing"
+  /usr/bin/time -l .build/release/R4GateHarness "$scenario" >"$scenario_log" 2>"$timing"
   cat "$scenario_log" | tee -a "$output"
   peak=$(awk '/maximum resident set size/ { print $1; exit }' "$timing")
   test -n "$peak"

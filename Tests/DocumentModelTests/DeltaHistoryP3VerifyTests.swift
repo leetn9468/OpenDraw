@@ -7,7 +7,7 @@ import Testing
 
 private enum P3FixtureError: Error { case forward, inverse }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testP3CompositeCleanRollbackRecordsNothing() throws {
     let original = try EditorDocument(width: 100, height: 100)
     let first = try p3WidthCommand(old: 100, new: 101)
@@ -16,7 +16,7 @@ func testP3CompositeCleanRollbackRecordsNothing() throws {
         oldPayload: Data([0]), newPayload: Data([1]),
         apply: { _ in throw P3FixtureError.forward }, unapply: { _ in })
     let composite = try CompositeCommands.ordered(name: "Clean rollback", children: [first, failing])
-    var history = try DeltaCommandHistory(document: original, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: original)
     do {
         _ = try history.commit(composite)
         Issue.record("Composite unexpectedly committed")
@@ -32,7 +32,7 @@ func testP3CompositeCleanRollbackRecordsNothing() throws {
     #expect(history.lastDiagnostic == nil)
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testP3CompositeUnwindFailureEngagesCheckpointContainment() throws {
     let original = try EditorDocument(width: 100, height: 100)
     let inverseFailing = try DocumentCommand(
@@ -53,7 +53,7 @@ func testP3CompositeUnwindFailureEngagesCheckpointContainment() throws {
     #expect(throws: CompositeCommandError.self) { try composite.apply(to: &directDocument) }
     #expect(directDocument == original)
 
-    var history = try DeltaCommandHistory(document: original, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: original)
     #expect(throws: CompositeCommandError.self) { try history.commit(composite) }
     #expect(history.document == original)
     #expect(history.undoDepth == 0)
@@ -63,18 +63,18 @@ func testP3CompositeUnwindFailureEngagesCheckpointContainment() throws {
     #expect(history.lastDiagnostic?.restoredCheckpointCounter == 0)
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testP3CompositeAllIdentityChildrenElideAtCompositeGranularity() throws {
     let document = try EditorDocument(width: 100, height: 100)
     let identity = try p3WidthCommand(old: 100, new: 100)
     let composite = try CompositeCommands.ordered(name: "Identity composite", children: [identity])
-    var history = try DeltaCommandHistory(document: document, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: document)
     #expect(composite.isIdentity)
     #expect(try history.commit(composite) == .identityElided)
     #expect(history.globalCommandCounter == 0)
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testVerify025UngroupCompositeFrozenExamplesAndReverseRestoration() throws {
     let n1 = PathObject(
         id: p3ID(1), segments: [p3Line()], transform: Geometry.AffineTransform(tx: 1, ty: 1))
@@ -94,7 +94,7 @@ func testVerify025UngroupCompositeFrozenExamplesAndReverseRestoration() throws {
     #expect(original.documentPoint(pathID: n3.id, localPoint: Point(x: 1, y: 0)) == Point(x: 6, y: 0))
     #expect(original.documentPoint(pathID: n1.id, localPoint: Point(x: 0, y: 0)) == Point(x: 7, y: 2))
 
-    var history = try DeltaCommandHistory(document: original, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: original)
     try history.commit(CompositeSceneCommands.ungroup(in: history.document, groupID: group.id))
     #expect(history.undoDepth == 1)
     #expect(history.document.documentPoint(pathID: n1.id, localPoint: Point(x: 1, y: 0)) == Point(x: 9, y: 2))
@@ -105,26 +105,26 @@ func testVerify025UngroupCompositeFrozenExamplesAndReverseRestoration() throws {
     #expect(history.document.documentPoint(pathID: n1.id, localPoint: Point(x: 0, y: 0)) == Point(x: 7, y: 2))
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testVerify025SingleChildCompositeInverseReducesDirectly() throws {
     let document = try EditorDocument(width: 100, height: 100)
     let child = try p3WidthCommand(old: 100, new: 125)
     let composite = try CompositeCommands.ordered(name: "Single", children: [child])
-    var history = try DeltaCommandHistory(document: document, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: document)
     try history.commit(composite)
     #expect(history.document.width == 125)
     try history.undo()
     #expect(history.document == document)
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testP3GroupUngroupAndCompoundRoundTripsRestoreCanonicalDocument() throws {
     let layerID = p3ID(10)
     let a = PathObject(id: p3ID(11), segments: [p3Line()], transform: Geometry.AffineTransform(tx: 2))
     let b = PathObject(id: p3ID(12), segments: [p3Line()], transform: Geometry.AffineTransform(tx: 8))
     let original = try EditorDocument(
         width: 100, height: 100, layers: [Layer(id: layerID, name: "L", nodes: [.path(a), .path(b)])])
-    var history = try DeltaCommandHistory(document: original, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: original)
     let groupID = p3ID(13)
     try history.commit(
         CompositeSceneCommands.group(in: history.document, nodeIDs: [a.id, b.id], groupID: groupID))
@@ -133,7 +133,7 @@ func testP3GroupUngroupAndCompoundRoundTripsRestoreCanonicalDocument() throws {
     #expect(history.document.visualBounds(for: a.id) == original.visualBounds(for: a.id))
     #expect(history.document.visualBounds(for: b.id) == original.visualBounds(for: b.id))
 
-    var compoundHistory = try DeltaCommandHistory(document: original, featureFlag: .environment())
+    var compoundHistory = try DeltaCommandHistory(document: original)
     // Compound membership requires common style/transform; normalize B with a
     // stored transform before exercising make/release.
     try compoundHistory.commit(
@@ -151,7 +151,7 @@ func testP3GroupUngroupAndCompoundRoundTripsRestoreCanonicalDocument() throws {
     #expect(try CanonicalDocumentEquality.equals(compoundHistory.document, normalized))
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testP3UngroupRotatedGroupPreservesExactVisualBounds() throws {
     let child = PathObject(
         id: p3ID(14), segments: [p3Line()], transform: Geometry.AffineTransform(tx: 3, ty: 4))
@@ -162,21 +162,21 @@ func testP3UngroupRotatedGroupPreservesExactVisualBounds() throws {
         width: 100, height: 100,
         layers: [Layer(id: p3ID(16), name: "L", nodes: [.group(group)])])
     let originalBounds = original.visualBounds(for: child.id)
-    var history = try DeltaCommandHistory(document: original, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: original)
     try history.commit(CompositeSceneCommands.ungroup(in: history.document, groupID: group.id))
     #expect(history.document.visualBounds(for: child.id) == originalBounds)
     try history.undo()
     #expect(try CanonicalDocumentEquality.equals(history.document, original))
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testP3AlignmentIsOneCompositeAndUndoableOnDeltaPath() throws {
     let layerID = p3ID(20)
     let a = PathObject(id: p3ID(21), segments: [p3Line()], transform: Geometry.AffineTransform(tx: 2))
     let b = PathObject(id: p3ID(22), segments: [p3Line()], transform: Geometry.AffineTransform(tx: 9))
     let original = try EditorDocument(
         width: 100, height: 100, layers: [Layer(id: layerID, name: "L", nodes: [.path(a), .path(b)])])
-    var history = try DeltaCommandHistory(document: original, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: original)
     try history.commit(
         CompositeSceneCommands.align(in: history.document, nodeIDs: [a.id, b.id], axis: .left))
     #expect(history.undoDepth == 1)
@@ -185,7 +185,7 @@ func testP3AlignmentIsOneCompositeAndUndoableOnDeltaPath() throws {
     #expect(try CanonicalDocumentEquality.equals(history.document, original))
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testVerify026SmoothAnchorSliceFrozenTripleAndExactInverse() throws {
     let pathID = p3ID(30)
     let original = try p3AnchorDocument(pathID: pathID)
@@ -195,7 +195,7 @@ func testVerify026SmoothAnchorSliceFrozenTripleAndExactInverse() throws {
     #expect(old.incoming == Point(x: 90, y: 95))
     #expect(old.outgoing == Point(x: 110, y: 105))
     #expect(Point(x: 2 * old.anchor.x - old.incoming!.x, y: 2 * old.anchor.y - old.incoming!.y) == old.outgoing)
-    var history = try DeltaCommandHistory(document: original, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: original)
     try history.commit(
         AnchorGeometryCommands.moveAnchor(in: history.document, at: location, dx: 20, dy: 10))
     let moved = try AnchorGeometryCommands.slice(in: history.document, at: location)
@@ -209,13 +209,13 @@ func testVerify026SmoothAnchorSliceFrozenTripleAndExactInverse() throws {
     #expect(try CanonicalDocumentEquality.equals(history.document, original))
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testVerify026CornerUntouchedHandleIsBitwiseStable() throws {
     let pathID = p3ID(31)
     let document = try p3AnchorDocument(pathID: pathID)
     let location = PathAnchorLocation(pathID: pathID, anchorIndex: 1)
     let old = try AnchorGeometryCommands.slice(in: document, at: location)
-    var history = try DeltaCommandHistory(document: document, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: document)
     try history.commit(
         AnchorGeometryCommands.moveHandle(
             in: history.document, at: location, side: .incoming,
@@ -228,14 +228,14 @@ func testVerify026CornerUntouchedHandleIsBitwiseStable() throws {
     #expect(try AnchorGeometryCommands.slice(in: history.document, at: location) == old)
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testVerify026OpenEndpointNilIsRestoredNotSynthesized() throws {
     let pathID = p3ID(32)
     let original = try p3AnchorDocument(pathID: pathID)
     let location = PathAnchorLocation(pathID: pathID, anchorIndex: 0)
     let old = try AnchorGeometryCommands.slice(in: original, at: location)
     #expect(old.incoming == nil)
-    var history = try DeltaCommandHistory(document: original, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: original)
     try history.commit(
         AnchorGeometryCommands.moveAnchor(in: history.document, at: location, dx: 5, dy: -3))
     #expect(try AnchorGeometryCommands.slice(in: history.document, at: location).incoming == nil)
@@ -245,13 +245,13 @@ func testVerify026OpenEndpointNilIsRestoredNotSynthesized() throws {
     #expect(restored.incoming == nil)
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testP3AnchorStructuralSliceAddDeleteRoundTrip() throws {
     let pathID = p3ID(33)
     let original = try p3AnchorDocument(pathID: pathID)
     let segment = original.path(id: pathID)!.path.subpaths[0].segments[0]
     let split = segment.split()
-    var history = try DeltaCommandHistory(document: original, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: original)
     try history.commit(
         AnchorGeometryCommands.replaceSegments(
             in: history.document, pathID: pathID, range: 0..<1, with: [split.0, split.1]))
@@ -267,11 +267,11 @@ func testP3AnchorStructuralSliceAddDeleteRoundTrip() throws {
     #expect(try CanonicalDocumentEquality.equals(history.document, original))
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testP3RealGestureCoalescingCommitsOneCommandAndCancelPreservesRedo() throws {
     let pathID = p3ID(40)
     let original = try p3AnchorDocument(pathID: pathID)
-    var history = try DeltaCommandHistory(document: original, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: original)
     try history.commit(
         ValueSwapCommands.transform(
             in: history.document, nodeID: pathID, newValue: Geometry.AffineTransform(tx: 3)))
@@ -299,12 +299,12 @@ func testP3RealGestureCoalescingCommitsOneCommandAndCancelPreservesRedo() throws
     #expect(history.document.path(id: pathID)?.transform == Geometry.AffineTransform(tx: 3))
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testP3AnchorGestureCoalescesAndFailedFirstGestureDoesNotCorruptLaterCoalescing() throws {
     let pathID = p3ID(41)
     let original = try p3AnchorDocument(pathID: pathID)
     let location = PathAnchorLocation(pathID: pathID, anchorIndex: 1)
-    var history = try DeltaCommandHistory(document: original, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: original)
     let failed = try history.beginAnchorGesture(at: location)
     var invalid = try AnchorGeometryCommands.slice(in: history.document, at: location)
     invalid.anchor.x = .nan
@@ -326,7 +326,7 @@ func testP3AnchorGestureCoalescesAndFailedFirstGestureDoesNotCorruptLaterCoalesc
     #expect(try CanonicalDocumentEquality.equals(history.document, original))
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testP3SeededMixedCorpusCompositesAnchorsCrossEvictionAndCheckpoints() throws {
     let layerID = p3ID(50)
     let aID = p3ID(51)
@@ -336,7 +336,7 @@ func testP3SeededMixedCorpusCompositesAnchorsCrossEvictionAndCheckpoints() throw
     let initial = try EditorDocument(
         width: 200, height: 200,
         layers: [Layer(id: layerID, name: "L", nodes: [.path(a), .path(b)])])
-    var history = try DeltaCommandHistory(document: initial, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: initial)
     var states = [initial]
     let location = PathAnchorLocation(pathID: aID, anchorIndex: 1)
     var rng = P3LCG(state: 0x0000_0000_A110_F00D)

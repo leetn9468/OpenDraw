@@ -52,6 +52,8 @@ let package = Package(
                 "EditorCore", "EditorCommands", "EditorTools", "DocumentFormats", "DocumentModel", "Geometry",
             ],
             resources: [.copy("Fixtures")]),
-        .testTarget(name: "EditorToolsTests", dependencies: ["EditorTools", "DocumentModel"]),
+        .testTarget(
+            name: "EditorToolsTests",
+            dependencies: ["EditorCommands", "EditorTools", "DocumentModel", "Geometry"]),
     ]
 )

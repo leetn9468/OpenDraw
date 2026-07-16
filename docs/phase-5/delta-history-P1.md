@@ -1,16 +1,15 @@
 # Phase 5 delta history P1
 
-Status: implemented behind a default-off runtime flag. The snapshot history
-remains the production path.
+Status: historically implemented behind a default-off runtime gate. P4 later
+retired the gate and snapshot production path.
 
-## Isolation flag
+## Historical P1 isolation
 
-The single flag is the environment variable `OPENDRAW_DELTA_HISTORY`.
-`DeltaHistoryFeatureFlag.environment()` enables the new container only when its
-value is exactly `1`; absence, `0`, and every other value are OFF. The app does
-not select `DeltaCommandHistory` in P1. The release benchmark sets the flag to
-`1` explicitly for BENCH-5. Existing `CommandHistory`, its 30-entry limit, and
-its five-entry memory-pressure floor are unchanged until P4.
+P1 used one default-off runtime gate that selected the new container only for
+explicit test and BENCH-5 runs. The app did not select `DeltaCommandHistory`
+in P1. Existing `CommandHistory`, its 30-entry limit, and its five-entry
+memory-pressure floor remained unchanged until P4, when the gate and snapshot
+undo owner were removed.
 
 ## P1 command surface
 

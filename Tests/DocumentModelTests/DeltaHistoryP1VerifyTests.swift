@@ -7,7 +7,7 @@ import Testing
 
 private enum DeltaFixtureError: Error { case forcedInverseFailure }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testVerify022CanonicalDocumentEqualityFrozenExamples() throws {
     let empty = try EditorDocument(width: 100, height: 100)
     #expect(CanonicalDocumentEquality.volatileFields.isEmpty)
@@ -31,7 +31,7 @@ func testVerify022CanonicalDocumentEqualityFrozenExamples() throws {
     #expect(try !CanonicalDocumentEquality.equals(first, second))
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testVerify023ValueSwapTransformFrozenExamplesAndSignedZeroIdentity() throws {
     let pathID = fixedID(2)
     let child = PathObject(
@@ -41,8 +41,7 @@ func testVerify023ValueSwapTransformFrozenExamplesAndSignedZeroIdentity() throws
     let outer = GroupNode(
         id: fixedID(4), transform: Geometry.AffineTransform(tx: 10, ty: 20), children: [.group(inner)])
     var history = try DeltaCommandHistory(
-        document: EditorDocument(width: 100, height: 100, layers: [Layer(name: "L", nodes: [.group(outer)])]),
-        featureFlag: .environment())
+        document: EditorDocument(width: 100, height: 100, layers: [Layer(name: "L", nodes: [.group(outer)])]))
     #expect(history.document.documentPoint(pathID: pathID, localPoint: Point(x: 0, y: 0)) == Point(x: 16, y: 28))
     try history.commit(
         ValueSwapCommands.transform(
@@ -57,8 +56,7 @@ func testVerify023ValueSwapTransformFrozenExamplesAndSignedZeroIdentity() throws
         transform: Geometry.AffineTransform(a: 0, b: 1, c: -1, d: 0))
     let scaled = GroupNode(transform: Geometry.AffineTransform(a: 2, d: 3), children: [.path(rotated)])
     var rotationHistory = try DeltaCommandHistory(
-        document: EditorDocument(width: 100, height: 100, layers: [Layer(name: "L", nodes: [.group(scaled)])]),
-        featureFlag: .environment())
+        document: EditorDocument(width: 100, height: 100, layers: [Layer(name: "L", nodes: [.group(scaled)])]))
     #expect(
         rotationHistory.document.documentPoint(pathID: rotatedID, localPoint: Point(x: 1, y: 0)) == Point(x: 0, y: 3))
     try rotationHistory.commit(
@@ -83,7 +81,7 @@ func testVerify023ValueSwapTransformFrozenExamplesAndSignedZeroIdentity() throws
     var signedZero = Geometry.AffineTransform.identity
     signedZero.tx = -0.0
     var zeroHistory = try DeltaCommandHistory(
-        document: documentWithPath(id: fixedID(6), transform: signedZero), featureFlag: .environment())
+        document: documentWithPath(id: fixedID(6), transform: signedZero))
     var positiveZero = signedZero
     positiveZero.tx = 0.0
     let signedZeroCommand = try ValueSwapCommands.transform(
@@ -93,7 +91,7 @@ func testVerify023ValueSwapTransformFrozenExamplesAndSignedZeroIdentity() throws
     #expect(zeroHistory.globalCommandCounter == 1)
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testValueSwapClassesApplyStoredOldValuesWithoutMatrixInversion() throws {
     let pathID = fixedID(10)
     let textID = fixedID(11)
@@ -108,7 +106,7 @@ func testValueSwapClassesApplyStoredOldValuesWithoutMatrixInversion() throws {
     let group = GroupNode(id: groupID, name: "old group", children: [.path(path), .text(text), .image(image)])
     let document = try EditorDocument(
         width: 100, height: 100, layers: [Layer(id: layerID, name: "L", nodes: [.group(group)])])
-    var history = try DeltaCommandHistory(document: document, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: document)
 
     var style = path.style
     style.strokeWidth = 7
@@ -131,10 +129,10 @@ func testValueSwapClassesApplyStoredOldValuesWithoutMatrixInversion() throws {
     #expect(try CanonicalDocumentEquality.equals(history.document, document))
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testVerify027CountEvictionAndReplayBoundFrozenExample() throws {
     var history = try DeltaCommandHistory(
-        document: EditorDocument(width: 100, height: 100), featureFlag: .environment())
+        document: EditorDocument(width: 100, height: 100))
     for counter in 1...205 {
         try history.commit(try widthCommand(from: Double(99 + counter), to: Double(100 + counter), cost: 1_000))
     }
@@ -147,10 +145,10 @@ func testVerify027CountEvictionAndReplayBoundFrozenExample() throws {
     #expect(history.checkpointCount == 9)
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testVerify027ByteEvictionFrozenExample() throws {
     var history = try DeltaCommandHistory(
-        document: EditorDocument(width: 100, height: 100), featureFlag: .environment())
+        document: EditorDocument(width: 100, height: 100))
     for counter in 1...150 {
         try history.commit(try widthCommand(from: Double(99 + counter), to: Double(100 + counter), cost: 100_000))
     }
@@ -163,10 +161,10 @@ func testVerify027ByteEvictionFrozenExample() throws {
     #expect(DeltaHistoryLimits.maximumCostInBytes - history.totalCostInBytes == 8_864)
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testVerify027FloorOutranksByteBudgetFrozenExample() throws {
     var history = try DeltaCommandHistory(
-        document: EditorDocument(width: 100, height: 100), featureFlag: .environment())
+        document: EditorDocument(width: 100, height: 100))
     for counter in 1...9 {
         try history.commit(try widthCommand(from: Double(99 + counter), to: Double(100 + counter), cost: 1_000))
     }
@@ -177,10 +175,10 @@ func testVerify027FloorOutranksByteBudgetFrozenExample() throws {
     #expect(history.totalCostInBytes - DeltaHistoryLimits.maximumCostInBytes == 2_900_136)
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testVerify027PinnedAssetChargeTransfersAtomicallyToNextOldestPin() throws {
     var history = try DeltaCommandHistory(
-        document: EditorDocument(width: 100, height: 100), featureFlag: .environment())
+        document: EditorDocument(width: 100, height: 100))
     let pin = try HistoryAssetPin(assetID: "shared", byteCount: 4_096)
     let firstID = fixedUUID(300)
     try history.commit(try widthCommand(from: 100, to: 101, cost: 1, pins: [pin], commandID: firstID))
@@ -197,10 +195,10 @@ func testVerify027PinnedAssetChargeTransfersAtomicallyToNextOldestPin() throws {
     #expect(history.totalCostInBytes == 4_296)
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testVerify028RedoBranchAndCancelledGestureFrozenStateMachine() throws {
     var history = try DeltaCommandHistory(
-        document: EditorDocument(width: 100, height: 100), featureFlag: .environment())
+        document: EditorDocument(width: 100, height: 100))
     try history.commit(try widthCommand(from: 100, to: 101, cost: 1))
     try history.commit(try widthCommand(from: 101, to: 102, cost: 1))
     try history.commit(try widthCommand(from: 102, to: 103, cost: 1))
@@ -222,25 +220,32 @@ func testVerify028RedoBranchAndCancelledGestureFrozenStateMachine() throws {
     #expect(history.redoDepth == 0)
     #expect(history.document.width == 104)
 
+    let gesturePath = PathObject(
+        id: fixedID(390), segments: [lineSegment()])
     var cancelled = try DeltaCommandHistory(
-        document: EditorDocument(width: 100, height: 100), featureFlag: .environment())
+        document: EditorDocument(
+            width: 100, height: 100,
+            layers: [Layer(name: "Gesture", nodes: [.path(gesturePath)])]))
     try cancelled.commit(try widthCommand(from: 100, to: 101, cost: 1))
     try cancelled.commit(try widthCommand(from: 101, to: 102, cost: 1))
     try cancelled.undo()
     let counter = cancelled.globalCommandCounter
-    let gesture = cancelled.beginGesture()
-    cancelled.cancelGesture(gesture)
+    let gesture = try cancelled.beginTransformGesture(nodeID: gesturePath.id)
+    try cancelled.updateTransformGesture(
+        gesture, newValue: Geometry.AffineTransform(tx: 12, ty: -4))
+    try cancelled.cancelDeltaGesture(gesture)
     #expect(cancelled.undoDepth == 1)
     #expect(cancelled.redoDepth == 1)
     #expect(cancelled.globalCommandCounter == counter)
+    #expect(cancelled.document.path(id: gesturePath.id)?.transform == .identity)
     try cancelled.redo()
     #expect(cancelled.document.width == 102)
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testDeltaHistoryForcedInverseFailureRestoresNearestCheckpointAndReportsDiagnostic() throws {
     var history = try DeltaCommandHistory(
-        document: EditorDocument(width: 100, height: 100), featureFlag: .environment())
+        document: EditorDocument(width: 100, height: 100))
     let oldBytes = try payloadBytes(100.0)
     let newBytes = try payloadBytes(200.0)
     let command = try DocumentCommand(
@@ -260,15 +265,7 @@ func testDeltaHistoryForcedInverseFailureRestoresNearestCheckpointAndReportsDiag
     #expect(history.document.width == 200)
 }
 
-@Test func testDeltaHistoryFlagDefaultsOff() throws {
-    let document = try EditorDocument(width: 100, height: 100)
-    #expect(DeltaHistoryFeatureFlag.environment([:]) == .disabled)
-    #expect(throws: DeltaHistoryError.featureDisabled) {
-        _ = try DeltaCommandHistory(document: document, featureFlag: .disabled)
-    }
-}
-
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testDeltaHistoryAtomicApplyDoesNotPartiallyMutate() throws {
     let document = try EditorDocument(width: 100, height: 100)
     var unchanged = document
@@ -279,7 +276,7 @@ func testDeltaHistoryAtomicApplyDoesNotPartiallyMutate() throws {
     #expect(throws: (any Error).self) { try invalid.apply(to: &unchanged) }
     #expect(try CanonicalDocumentEquality.equals(unchanged, document))
 
-    var delta = try DeltaCommandHistory(document: document, featureFlag: .environment())
+    var delta = try DeltaCommandHistory(document: document)
     let invalidSwap = try ValueSwapCommands.artboardProperties(
         in: delta.document, newValue: ArtboardProperties(width: 0, height: 100, unit: .points))
     #expect(throws: DocumentValidationError.artboardMagnitude) { try delta.commit(invalidSwap) }
@@ -287,7 +284,7 @@ func testDeltaHistoryAtomicApplyDoesNotPartiallyMutate() throws {
     #expect(delta.globalCommandCounter == 0)
 }
 
-@Test(.enabled(if: DeltaHistoryFeatureFlag.environment().isEnabled))
+@Test
 func testDeltaHistorySeededValueSwapRoundTripCorpus() throws {
     let seed: UInt64 = 0x0000_0000_A110_F00D
     let pathID = fixedID(500)
@@ -297,7 +294,7 @@ func testDeltaHistorySeededValueSwapRoundTripCorpus() throws {
     let text = TextObject(id: textID, text: "seed", origin: Point(x: 10, y: 10))
     let initial = try EditorDocument(
         width: 640, height: 480, layers: [Layer(id: layerID, name: "L", nodes: [.path(path), .text(text)])])
-    var history = try DeltaCommandHistory(document: initial, featureFlag: .environment())
+    var history = try DeltaCommandHistory(document: initial)
     var states = [initial]
     var rng = DeltaLCG(state: seed)
     for index in 0..<128 {

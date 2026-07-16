@@ -1,6 +1,6 @@
 # OpenDraw remediation project state
 
-Updated: 2026-07-15
+Updated: 2026-07-16
 
 The owner-directed tracker was absent from repository history when the R4
 rejection was received. This file restores the twelve hard closure rows from
@@ -102,3 +102,34 @@ absolute BENCH target passed, while shared-runner ratios reached 2.343808–
 2.780947. BLOCK-001–012 remain `CLOSED`, A6/A7 remain `ACCEPTED`, A8 remains
 `CLOSED — AUTHORIZED`, and `pre-phase5-remediation` continues to target
 `6dea372fc90d7474dc1f5db0085dd03bfdc046ea`.
+
+## Phase 5 delivery state
+
+Delta command history P1–P4 is **DELIVERED**. The runtime gate and snapshot
+undo owner are retired; delta history is the only application undo/redo path.
+The document schema remains v4 and runtime history remains unpersisted per
+OD-3. Snapshot machinery remains only under its new checkpoint owner, with
+shared immutable asset storage retained. Permanent VERIFY-022–028 evidence and
+the authoritative supersession record are in
+`docs/verification/VERIFICATION_QUEUE.md`; the P4 implementation map is
+`docs/phase-5/delta-history-P4.md`.
+
+### P4 supersession table
+
+| Removed/replaced item | Disposition | Successor evidence |
+|---|---|---|
+| Snapshot `CommandHistory` application undo/redo owner | Removed | `DeltaCommandHistory`; production wiring in `VectorFoundryApp/main.swift`; headless UI journey and accessibility integration tests |
+| Legacy non-reversible `DocumentCommand(name:mutation:)` | Removed | Captured-inverse value-swap, structural, composite, resource, and anchor command factories; P1–P3 permanent suites |
+| `historyLimitIsImmutableAndCappedAtThirty` | Deleted | `testVerify027CountEvictionAndReplayBoundFrozenExample`; OD-1 capacity assertions |
+| `minimumHistoryEntriesUnderMemoryPressure = 5` and old pressure assertions | Removed | `testVerify027FloorOutranksByteBudgetFrozenExample`; `testP2SafetyNetDropsPeriodicCheckpointsButPreservesFloorPins` |
+| `commandUndoRedoAndBranch` | Deleted | `testVerify028RedoBranchAndCancelledGestureFrozenStateMachine` |
+| `historyDirtyCoalescingRollbackAndLimit` | Deleted; responsibilities split | `deltaRevisionDirtyAndChangeStreamSemantics`; `testP3RealGestureCoalescingCommitsOneCommandAndCancelPreservesRedo`; VERIFY-027 capacity proofs |
+| `revisionGestureAndChangeStreamSemantics` | Migrated/renamed | `deltaRevisionDirtyAndChangeStreamSemantics` |
+| `failedFirstGestureDoesNotCorruptLaterCoalescing` | Deleted | `testP3AnchorGestureCoalescesAndFailedFirstGestureDoesNotCorruptLaterCoalescing` |
+| `alignmentIsUndoable` | Deleted | `testP3AlignmentIsOneCompositeAndUndoableOnDeltaPath` |
+| `directAnchorGroupUngroupAndCompoundCommandsAreUndoable` | Deleted | P3 group/compound round-trip proof plus migrated direct-anchor deletion and handle tests |
+| `snapshotHistorySharesEmbeddedAssetsAndHonorsMemorySafetyNet` | Retained semantics, migrated to checkpoint owner | `checkpointHistorySharesEmbeddedAssetsAndHonorsMemorySafetyNet`; P2 safety-net proof; retained checkpoint snapshots and `ApprovedAssetStore` |
+| P1 default-off feature-gate test | Deleted with the removed gate | Single unconditional 122-test population and zero-reference application-tree grep |
+| `AlignmentCommands.swift` | Removed | `CompositeSceneCommands.align` |
+| `SceneCommands.swift` | Removed | `StructuralCommands`, `CompositeSceneCommands`, and `AnchorGeometryCommands` |
+| ADR-012 snapshot-primary 30/5 rows | Superseded; historical text retained | OD-1–OD-4 and ADR-012 retirement execution note |

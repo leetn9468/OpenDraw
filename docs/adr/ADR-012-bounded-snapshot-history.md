@@ -42,3 +42,15 @@ Status after supersession: **Superseded for Phase 5 by OD-1–OD-4**.
 VERIFY-022–028 completed two-AI agreement and froze on 2026-07-15. Phase 5
 implementation must apply the recorded row-by-row supersessions; this ADR's
 historical text remains intact.
+
+## Retirement execution — 2026-07-16
+
+P4 executed the supersession. Delta command history is now the sole
+application undo/redo owner with N=200, B=67,108,864 bytes, M=10, and K=25.
+The former feature gate, snapshot undo container, 30-entry cap, and five-entry
+pressure floor were removed. Snapshot storage was not deleted wholesale:
+`DeltaCommandHistory` retains document snapshots for the history-head and
+periodic checkpoints, and those checkpoints continue to share immutable
+embedded assets through `ApprovedAssetStore`. The complete row-by-row
+successor table is in `docs/verification/VERIFICATION_QUEUE.md` and
+`docs/phase-5/delta-history-P4.md`.

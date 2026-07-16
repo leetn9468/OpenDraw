@@ -539,8 +539,9 @@ tree `afb6f80`, and amended by the author after the review recorded at
 `dc08b58`. Detailed recomputation, resolution, and schema/test citations:
 `docs/verification/VERIFY-022-028-agreement-review.md`.
 
-Batch status: **FROZEN — TWO-AI AGREEMENT RECORDED 2026-07-15**.
-Frozen values and policies now cover VERIFY-001 through VERIFY-028.
+Batch status: **FROZEN — TWO-AI AGREEMENT RECORDED 2026-07-15;
+IMPLEMENTATION COMPLETE IN P4 ON 2026-07-16**. Frozen values and policies
+cover VERIFY-001 through VERIFY-028.
 
 ### VERIFY-022 — Canonical document equality
 
@@ -682,9 +683,10 @@ Frozen values and policies now cover VERIFY-001 through VERIFY-028.
 - Recomputed stacks: `C1 C2 C3 U U → [1]|[3,2]`; `C4 → [1,4]|[]`;
   `U U → []|[4,1]`; `R R → [1,4]|[]`; cancelled gesture after undo leaves
   `[1]|[2]`, and redo gives `[1,2]|[]`.
-- P-REDOCLEAR agrees with `commandUndoRedoAndBranch` and existing failed-command
-  rollback semantics; the explicit cancelled-gesture redo case is now pinned
-  by the P1 permanent proof below.
+- P-REDOCLEAR agreed with the historical `commandUndoRedoAndBranch` behavior
+  and existing failed-command rollback semantics. P4 retires that snapshot
+  test in favor of the permanent delta proof below plus the real-gesture P3
+  proofs.
 - P1 permanent proof:
   `testVerify028RedoBranchAndCancelledGestureFrozenStateMachine`.
 
@@ -698,13 +700,29 @@ Frozen values and policies now cover VERIFY-001 through VERIFY-028.
 - P-ENDPOINT: compatible under the frozen history-slice scope; VERIFY-017 and
   `PenAnchor` behavior remain unchanged.
 
-### Explicit supersessions required during implementation
+### P4 executed supersessions — 2026-07-16
 
-The implementation plan must supersede old assertions row by row, with no
-silent weakening: `historyLimitIsImmutableAndCappedAtThirty`,
-`minimumHistoryEntriesUnderMemoryPressure = 5` and its pinning assertions, and
-the ADR-012 capacity rows are replaced by the OD-1 values N=200, B=64 MiB,
-M=10, and K=25.
+Every removed production surface and deleted snapshot-path test is accounted
+for below. No frozen value was edited.
+
+| Removed/replaced item | Disposition | Successor evidence |
+|---|---|---|
+| Snapshot `CommandHistory` application undo/redo owner | Removed | `DeltaCommandHistory`; production wiring in `VectorFoundryApp/main.swift`; `headlessUIJourneyCreateStyleTransformSaveReopenAndExport`; `accessibilityTreeExposesDocumentLayersSelectionAndFrames` |
+| Legacy non-reversible `DocumentCommand(name:mutation:)` | Removed | Captured-inverse value-swap, structural, composite, resource, and anchor command factories; P1–P3 permanent suites |
+| `historyLimitIsImmutableAndCappedAtThirty` | Deleted | `testVerify027CountEvictionAndReplayBoundFrozenExample`; OD-1 N=200/B=67,108,864/M=10/K=25 assertions |
+| `minimumHistoryEntriesUnderMemoryPressure = 5` and old pressure assertions | Removed | `testVerify027FloorOutranksByteBudgetFrozenExample`; `testP2SafetyNetDropsPeriodicCheckpointsButPreservesFloorPins` |
+| `commandUndoRedoAndBranch` | Deleted | `testVerify028RedoBranchAndCancelledGestureFrozenStateMachine` |
+| `historyDirtyCoalescingRollbackAndLimit` | Deleted; responsibilities split | `deltaRevisionDirtyAndChangeStreamSemantics`; `testP3RealGestureCoalescingCommitsOneCommandAndCancelPreservesRedo`; VERIFY-027 capacity proofs |
+| `revisionGestureAndChangeStreamSemantics` | Migrated/renamed | `deltaRevisionDirtyAndChangeStreamSemantics` |
+| `failedFirstGestureDoesNotCorruptLaterCoalescing` | Deleted | `testP3AnchorGestureCoalescesAndFailedFirstGestureDoesNotCorruptLaterCoalescing` |
+| `alignmentIsUndoable` | Deleted | `testP3AlignmentIsOneCompositeAndUndoableOnDeltaPath` |
+| `directAnchorGroupUngroupAndCompoundCommandsAreUndoable` | Deleted | `testP3GroupUngroupAndCompoundRoundTripsRestoreCanonicalDocument`; `groupUngroupAndCompoundReleasePreserveVisualBounds`; `directAnchorDeletionIsUndoable`; `directionHandleMovementUsesDocumentDeltaAndIsUndoable` |
+| `snapshotHistorySharesEmbeddedAssetsAndHonorsMemorySafetyNet` | Retained semantics, migrated to checkpoint owner | `checkpointHistorySharesEmbeddedAssetsAndHonorsMemorySafetyNet`; `testP2SafetyNetDropsPeriodicCheckpointsButPreservesFloorPins`; checkpoint snapshots and `ApprovedAssetStore` remain shared machinery |
+| P1 default-off feature-gate test | Deleted because the gate itself no longer exists | Single unconditional 122-test population plus zero-reference grep across production, tests, scripts, workflow, Makefile, package, and docs |
+| `AlignmentCommands.swift` | Removed | `CompositeSceneCommands.align` and its one-composite delta test |
+| `SceneCommands.swift` | Removed | `StructuralCommands`, `CompositeSceneCommands`, and `AnchorGeometryCommands` |
+| P1 runtime-gate type/source | Removed | Delta history is the only production and test path |
+| ADR-012 30/5 capacity and snapshot-primary direction | Superseded, historical ADR text retained | OD-1–OD-4; this table; `docs/adr/ADR-012-bounded-snapshot-history.md` execution note |
 
 ### Final amendment agreement — 2026-07-15
 

@@ -12,7 +12,6 @@ public enum DeltaHistoryLimits {
 }
 
 public enum DeltaHistoryError: Error, Equatable, Sendable {
-    case featureDisabled
     case inverseRequired
     case costOverflow
     case counterOverflow
@@ -63,31 +62,30 @@ public struct DeltaCommandHistory: Sendable {
     }
 
     private enum ActiveGesture: Sendable {
-        case transform(nodeID: ObjectID, preState: Geometry.AffineTransform)
-        case anchor(location: PathAnchorLocation, preState: PathAnchorSlice)
+        case transforms(preStates: [ObjectID: Geometry.AffineTransform])
+        case anchors(preStates: [PathAnchorLocation: PathAnchorSlice])
     }
 
     public private(set) var document: EditorDocument
     public private(set) var globalCommandCounter: UInt64 = 0
     public private(set) var evictionCount = 0
     public private(set) var lastDiagnostic: DeltaHistoryDiagnostic?
+    public private(set) var currentRevision: UInt64 = 0
+    public private(set) var savedRevision: UInt64 = 0
 
-    private let featureFlag: DeltaHistoryFeatureFlag
     private var undoStack: [Entry] = []
     private var redoStack: [Entry] = []
     private var headCheckpoint: Checkpoint
     private var periodicCheckpoints: [Checkpoint] = []
     private var activeGestures: [GestureID: ActiveGesture] = [:]
     private let assetStore: ApprovedAssetStore?
+    private let broadcaster = ChangeBroadcaster()
 
     public init(
-        document: EditorDocument, featureFlag: DeltaHistoryFeatureFlag = .environment(),
-        assetStore: ApprovedAssetStore? = nil
+        document: EditorDocument, assetStore: ApprovedAssetStore? = nil
     ) throws {
-        guard featureFlag.isEnabled else { throw DeltaHistoryError.featureDisabled }
         try document.validate()
         self.document = document
-        self.featureFlag = featureFlag
         self.assetStore = assetStore
         headCheckpoint = Checkpoint(
             counter: 0, document: document, lineage: [],
@@ -105,6 +103,7 @@ public struct DeltaCommandHistory: Sendable {
     public var totalCostInBytes: Int { (try? costBreakdown(for: retainedEntries).total) ?? Int.max }
     public var periodicCheckpointCount: Int { periodicCheckpoints.count }
     public var activeGestureCount: Int { activeGestures.count }
+    public var isDirty: Bool { currentRevision != savedRevision }
     public var checkpointOnlyPinnedAssetBytes: Int {
         guard let assetStore else { return 0 }
         let historyIDs = Set(
@@ -116,7 +115,6 @@ public struct DeltaCommandHistory: Sendable {
     }
 
     @discardableResult public mutating func commit(_ command: DocumentCommand) throws -> DeltaCommitResult {
-        guard featureFlag.isEnabled else { throw DeltaHistoryError.featureDisabled }
         guard command.hasCapturedInverse else { throw DeltaHistoryError.inverseRequired }
         if command.isIdentity { return .identityElided }
 
@@ -160,6 +158,7 @@ public struct DeltaCommandHistory: Sendable {
             redoStack.append(entry)
             lastDiagnostic = nil
             syncAssetStore()
+            advance(.undo(entry.command.name))
             return .applied
         } catch {
             do {
@@ -173,6 +172,7 @@ public struct DeltaCommandHistory: Sendable {
                     underlyingError: String(describing: error), restoredCheckpointCounter: recovery.checkpointCounter,
                     replayedCommandCount: recovery.replayCount, recoverySucceeded: true)
                 syncAssetStore()
+                advance(.undo(entry.command.name))
                 return .recoveredFromCheckpoint
             } catch let recoveryError {
                 self = original
@@ -195,6 +195,7 @@ public struct DeltaCommandHistory: Sendable {
             undoStack.append(entry)
             lastDiagnostic = nil
             syncAssetStore()
+            advance(.redo(entry.command.name))
             return .applied
         } catch {
             do {
@@ -208,6 +209,7 @@ public struct DeltaCommandHistory: Sendable {
                     underlyingError: String(describing: error), restoredCheckpointCounter: recovery.checkpointCounter,
                     replayedCommandCount: recovery.replayCount, recoverySucceeded: true)
                 syncAssetStore()
+                advance(.redo(entry.command.name))
                 return .recoveredFromCheckpoint
             } catch let recoveryError {
                 self = original
@@ -221,50 +223,118 @@ public struct DeltaCommandHistory: Sendable {
         }
     }
 
-    public mutating func beginGesture() -> GestureID { GestureID() }
-
-    /// Cancellation has no commit boundary, so redo and the global counter are
-    /// deliberately untouched under P-REDOCLEAR.
-    public mutating func cancelGesture(_ gestureID: GestureID) { _ = gestureID }
-
     public mutating func beginTransformGesture(nodeID: ObjectID) throws -> GestureID {
-        let slot = try StructuralCommands.slot(for: nodeID, in: document)
+        try beginTransformGesture(nodeIDs: [nodeID])
+    }
+
+    public mutating func beginTransformGesture<S: Sequence>(
+        nodeIDs: S
+    ) throws -> GestureID where S.Element == ObjectID {
+        var preStates: [ObjectID: Geometry.AffineTransform] = [:]
+        for nodeID in nodeIDs {
+            preStates[nodeID] = deltaTransform(try StructuralCommands.slot(for: nodeID, in: document).node)
+        }
+        guard !preStates.isEmpty else { throw DeltaGestureError.gestureNotFound }
         let gestureID = GestureID()
-        activeGestures[gestureID] = .transform(nodeID: nodeID, preState: deltaTransform(slot.node))
+        activeGestures[gestureID] = .transforms(preStates: preStates)
         return gestureID
     }
 
     public mutating func updateTransformGesture(
         _ gestureID: GestureID, newValue: Geometry.AffineTransform
     ) throws {
-        guard case .transform(let nodeID, _)? = activeGestures[gestureID] else {
+        guard case .transforms(let preStates)? = activeGestures[gestureID],
+            preStates.count == 1, let nodeID = preStates.keys.first
+        else {
             throw activeGestures[gestureID] == nil
                 ? DeltaGestureError.gestureNotFound : DeltaGestureError.gestureKindMismatch
         }
-        let current = deltaTransform(try StructuralCommands.slot(for: nodeID, in: document).node)
-        let command = try ValueSwapCommands.transform(
-            in: document, nodeID: nodeID, oldValue: current, newValue: newValue)
-        try command.apply(to: &document)
+        try updateTransformGesture(gestureID, newValues: [nodeID: newValue])
+    }
+
+    public mutating func updateTransformGesture(
+        _ gestureID: GestureID, newValues: [ObjectID: Geometry.AffineTransform]
+    ) throws {
+        guard case .transforms(let preStates)? = activeGestures[gestureID],
+            Set(preStates.keys) == Set(newValues.keys)
+        else {
+            throw activeGestures[gestureID] == nil
+                ? DeltaGestureError.gestureNotFound : DeltaGestureError.gestureKindMismatch
+        }
+        let children = try newValues.keys.sorted(by: objectIDOrder).map { nodeID in
+            try ValueSwapCommands.transform(
+                in: document, nodeID: nodeID,
+                oldValue: deltaTransform(try StructuralCommands.slot(for: nodeID, in: document).node),
+                newValue: newValues[nodeID]!)
+        }
+        try CompositeCommands.ordered(name: "Preview transform gesture", children: children)
+            .apply(to: &document)
+    }
+
+    public mutating func updateDocumentTransformGesture(
+        _ gestureID: GestureID, documentTransform: Geometry.AffineTransform
+    ) throws {
+        guard case .transforms(let preStates)? = activeGestures[gestureID] else {
+            throw activeGestures[gestureID] == nil
+                ? DeltaGestureError.gestureNotFound : DeltaGestureError.gestureKindMismatch
+        }
+        var planned = document
+        var values: [ObjectID: Geometry.AffineTransform] = [:]
+        for nodeID in preStates.keys.sorted(by: objectIDOrder) {
+            guard planned.applyDocumentTransform(id: nodeID, transform: documentTransform) else {
+                throw ValueSwapCommandError.nodeNotFound
+            }
+            values[nodeID] = deltaTransform(try StructuralCommands.slot(for: nodeID, in: planned).node)
+        }
+        try updateTransformGesture(gestureID, newValues: values)
     }
 
     public mutating func beginAnchorGesture(at location: PathAnchorLocation) throws -> GestureID {
+        try beginAnchorGesture(at: [location])
+    }
+
+    public mutating func beginAnchorGesture<S: Sequence>(
+        at locations: S
+    ) throws -> GestureID where S.Element == PathAnchorLocation {
+        var preStates: [PathAnchorLocation: PathAnchorSlice] = [:]
+        for location in locations {
+            preStates[location] = try AnchorGeometryCommands.slice(in: document, at: location)
+        }
+        guard !preStates.isEmpty else { throw DeltaGestureError.gestureNotFound }
         let gestureID = GestureID()
-        activeGestures[gestureID] = .anchor(
-            location: location, preState: try AnchorGeometryCommands.slice(in: document, at: location))
+        activeGestures[gestureID] = .anchors(preStates: preStates)
         return gestureID
     }
 
     public mutating func updateAnchorGesture(
         _ gestureID: GestureID, newValue: PathAnchorSlice
     ) throws {
-        guard case .anchor(let location, _)? = activeGestures[gestureID] else {
+        guard case .anchors(let preStates)? = activeGestures[gestureID],
+            preStates.count == 1, let location = preStates.keys.first
+        else {
             throw activeGestures[gestureID] == nil
                 ? DeltaGestureError.gestureNotFound : DeltaGestureError.gestureKindMismatch
         }
-        let current = try AnchorGeometryCommands.slice(in: document, at: location)
-        let command = try AnchorGeometryCommands.setSlice(
-            in: document, at: location, oldValue: current, newValue: newValue)
-        try command.apply(to: &document)
+        try updateAnchorGesture(gestureID, newValues: [location: newValue])
+    }
+
+    public mutating func updateAnchorGesture(
+        _ gestureID: GestureID, newValues: [PathAnchorLocation: PathAnchorSlice]
+    ) throws {
+        guard case .anchors(let preStates)? = activeGestures[gestureID],
+            Set(preStates.keys) == Set(newValues.keys)
+        else {
+            throw activeGestures[gestureID] == nil
+                ? DeltaGestureError.gestureNotFound : DeltaGestureError.gestureKindMismatch
+        }
+        let children = try newValues.keys.sorted(by: anchorLocationOrder).map { location in
+            try AnchorGeometryCommands.setSlice(
+                in: document, at: location,
+                oldValue: AnchorGeometryCommands.slice(in: document, at: location),
+                newValue: newValues[location]!)
+        }
+        try CompositeCommands.ordered(name: "Preview anchor gesture", children: children)
+            .apply(to: &document)
     }
 
     /// Commits the first and last gesture states as one command. Intermediate
@@ -278,14 +348,20 @@ public struct DeltaCommandHistory: Sendable {
         }
         let command: DocumentCommand
         switch gesture {
-        case .transform(let nodeID, let preState):
-            let postState = deltaTransform(try StructuralCommands.slot(for: nodeID, in: document).node)
-            command = try ValueSwapCommands.transform(
-                in: document, nodeID: nodeID, oldValue: preState, newValue: postState)
-        case .anchor(let location, let preState):
-            let postState = try AnchorGeometryCommands.slice(in: document, at: location)
-            command = try AnchorGeometryCommands.setSlice(
-                in: document, at: location, oldValue: preState, newValue: postState)
+        case .transforms(let preStates):
+            let children = try preStates.keys.sorted(by: objectIDOrder).map { nodeID in
+                try ValueSwapCommands.transform(
+                    in: document, nodeID: nodeID, oldValue: preStates[nodeID]!,
+                    newValue: deltaTransform(try StructuralCommands.slot(for: nodeID, in: document).node))
+            }
+            command = try CompositeCommands.ordered(name: "Transform gesture", children: children)
+        case .anchors(let preStates):
+            let children = try preStates.keys.sorted(by: anchorLocationOrder).map { location in
+                try AnchorGeometryCommands.setSlice(
+                    in: document, at: location, oldValue: preStates[location]!,
+                    newValue: AnchorGeometryCommands.slice(in: document, at: location))
+            }
+            command = try CompositeCommands.ordered(name: "Anchor gesture", children: children)
         }
         let result = try commit(command)
         activeGestures.removeValue(forKey: gestureID)
@@ -299,18 +375,33 @@ public struct DeltaCommandHistory: Sendable {
             throw DeltaGestureError.gestureNotFound
         }
         switch gesture {
-        case .transform(let nodeID, let preState):
-            let current = deltaTransform(try StructuralCommands.slot(for: nodeID, in: document).node)
-            let command = try ValueSwapCommands.transform(
-                in: document, nodeID: nodeID, oldValue: current, newValue: preState)
-            try command.apply(to: &document)
-        case .anchor(let location, let preState):
-            let current = try AnchorGeometryCommands.slice(in: document, at: location)
-            let command = try AnchorGeometryCommands.setSlice(
-                in: document, at: location, oldValue: current, newValue: preState)
-            try command.apply(to: &document)
+        case .transforms(let preStates):
+            let children = try preStates.keys.sorted(by: objectIDOrder).map { nodeID in
+                try ValueSwapCommands.transform(
+                    in: document, nodeID: nodeID,
+                    oldValue: deltaTransform(try StructuralCommands.slot(for: nodeID, in: document).node),
+                    newValue: preStates[nodeID]!)
+            }
+            try CompositeCommands.ordered(name: "Cancel transform gesture", children: children)
+                .apply(to: &document)
+        case .anchors(let preStates):
+            let children = try preStates.keys.sorted(by: anchorLocationOrder).map { location in
+                try AnchorGeometryCommands.setSlice(
+                    in: document, at: location,
+                    oldValue: AnchorGeometryCommands.slice(in: document, at: location),
+                    newValue: preStates[location]!)
+            }
+            try CompositeCommands.ordered(name: "Cancel anchor gesture", children: children)
+                .apply(to: &document)
         }
         activeGestures.removeValue(forKey: gestureID)
+    }
+
+    public func changes() -> AsyncStream<DocumentChange> { broadcaster.stream() }
+
+    public mutating func markSaved() {
+        savedRevision = currentRevision
+        broadcaster.publish(DocumentChange(revision: currentRevision, kind: .saved))
     }
 
     /// The Phase 5 emergency path preserves every retained command (including
@@ -353,7 +444,13 @@ public struct DeltaCommandHistory: Sendable {
         enforceCheckpointCeiling()
         lastDiagnostic = nil
         syncAssetStore()
+        advance(.command(command.name))
         return .committed
+    }
+
+    private mutating func advance(_ kind: DocumentChange.Kind) {
+        currentRevision &+= 1
+        broadcaster.publish(DocumentChange(revision: currentRevision, kind: kind))
     }
 
     private var retainedEntries: [Entry] { undoStack + redoStack.reversed() }
@@ -478,6 +575,16 @@ private func deltaTransform(_ node: SceneNode) -> Geometry.AffineTransform {
     case .image(let value): return value.transform
     case .group(let value): return value.transform
     }
+}
+
+private func objectIDOrder(_ lhs: ObjectID, _ rhs: ObjectID) -> Bool {
+    lhs.rawValue.uuidString < rhs.rawValue.uuidString
+}
+
+private func anchorLocationOrder(_ lhs: PathAnchorLocation, _ rhs: PathAnchorLocation) -> Bool {
+    if lhs.pathID != rhs.pathID { return objectIDOrder(lhs.pathID, rhs.pathID) }
+    if lhs.subpathIndex != rhs.subpathIndex { return lhs.subpathIndex < rhs.subpathIndex }
+    return lhs.anchorIndex < rhs.anchorIndex
 }
 
 private func embeddedAssetData(in document: EditorDocument) -> [Data] {

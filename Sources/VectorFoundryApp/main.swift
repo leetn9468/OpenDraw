@@ -12,6 +12,24 @@ import UniformTypeIdentifiers
 private let processStartupStart = ProcessInfo.processInfo.systemUptime
 private let startupProbeEnabled = CommandLine.arguments.contains("--startup-probe")
 
+private func registerEmbeddedAssets(
+    in document: EditorDocument, with store: ApprovedAssetStore
+) {
+    func register(_ node: SceneNode) {
+        switch node {
+        case .image(let image):
+            if case .embedded(let data) = image.storage {
+                store.registerApproved(data)
+            }
+        case .group(let group):
+            group.children.forEach(register)
+        default:
+            break
+        }
+    }
+    document.layers.flatMap(\.nodes).forEach(register)
+}
+
 @MainActor
 final class CanvasView: NSView {
     private struct AnchorRef: Hashable {
@@ -29,7 +47,8 @@ final class CanvasView: NSView {
         case scale(TransformHandle)
         case rotate
     }
-    var history: CommandHistory
+    var history: DeltaCommandHistory
+    private let assetStore: ApprovedAssetStore
     var activeTool: ActiveTool = .pen
     private var pen = SmoothPenToolState()
     private var penMouseDown: Point?
@@ -51,8 +70,11 @@ final class CanvasView: NSView {
     private var transformGesture: TransformGesture?
     private let renderer = CoreGraphicsRenderer()
     private var changeTask: Task<Void, Never>?
-    init(frame: NSRect, document: EditorDocument) {
-        history = CommandHistory(document: document)
+    init(frame: NSRect, document: EditorDocument) throws {
+        let assetStore = ApprovedAssetStore()
+        registerEmbeddedAssets(in: document, with: assetStore)
+        self.assetStore = assetStore
+        history = try DeltaCommandHistory(document: document, assetStore: assetStore)
         super.init(frame: frame)
         setAccessibilityElement(true)
         setAccessibilityRole(.group)
@@ -160,7 +182,7 @@ final class CanvasView: NSView {
                 transformGesture = .scale(handle)
                 dragLast = point
                 dragHasMutation = false
-                dragGestureID = GestureID()
+                dragGestureID = nil
                 return
             }
             let rotation = Point(x: bounds.center.x, y: bounds.minY - 20 / zoom)
@@ -168,7 +190,7 @@ final class CanvasView: NSView {
                 transformGesture = .rotate
                 dragLast = point
                 dragHasMutation = false
-                dragGestureID = GestureID()
+                dragGestureID = nil
                 return
             }
         }
@@ -224,7 +246,7 @@ final class CanvasView: NSView {
             }
             dragLast = point
             dragHasMutation = false
-            dragGestureID = GestureID()
+            dragGestureID = nil
             needsDisplay = true
         } else {
             dragStart = point
@@ -272,68 +294,93 @@ final class CanvasView: NSView {
                         radians: delta, constrain: event.modifierFlags.contains(.shift)))
             }
             if let documentTransform {
-                let ids = selectedIDs
-                let command = DocumentCommand(name: "Transform selection") { document in
-                    for id in ids { _ = document.applyDocumentTransform(id: id, transform: documentTransform) }
-                }
                 do {
-                    if dragHasMutation, let dragGestureID {
-                        try history.coalesce(command, gestureID: dragGestureID)
-                    } else {
-                        try history.perform(command, gestureID: dragGestureID)
-                        dragHasMutation = true
+                    if dragGestureID == nil {
+                        dragGestureID = try history.beginTransformGesture(nodeIDs: selectedIDs)
                     }
-                } catch { presentCommandError(error, command: "Transform selection") }
+                    try history.updateDocumentTransformGesture(
+                        dragGestureID!, documentTransform: documentTransform)
+                    dragHasMutation = true
+                } catch {
+                    cancelActiveDragGesture()
+                    presentCommandError(error, command: "Transform selection")
+                }
             }
             dragLast = next
             needsDisplay = true
             return
         }
-        let ids = selectedIDs
         if activeTool == .directSelection, let control = selectedControl {
-            let command = SceneCommands.moveControl(
-                pathID: control.pathID, subpath: control.subpath,
-                segment: control.segment, control: control.control, delta: Point(x: dx, y: dy))
             do {
-                if dragHasMutation, let dragGestureID {
-                    try history.coalesce(command, gestureID: dragGestureID)
-                } else {
-                    try history.perform(command, gestureID: dragGestureID)
-                    dragHasMutation = true
+                let location = try anchorLocation(for: control)
+                if dragGestureID == nil {
+                    dragGestureID = try history.beginAnchorGesture(at: location)
                 }
-            } catch { presentCommandError(error, command: "Move direction handle") }
+                var planned = history.document
+                guard
+                    planned.movePathControl(
+                        id: control.pathID, subpath: control.subpath,
+                        segment: control.segment, control: control.control,
+                        documentDelta: Point(x: dx, y: dy))
+                else { throw AnchorGeometryCommandError.handleNotFound }
+                try history.updateAnchorGesture(
+                    dragGestureID!,
+                    newValue: AnchorGeometryCommands.slice(in: planned, at: location))
+                dragHasMutation = true
+            } catch {
+                cancelActiveDragGesture()
+                presentCommandError(error, command: "Move direction handle")
+            }
             dragLast = next
             return
         }
         if activeTool == .directSelection, !selectedAnchors.isEmpty {
             do {
-                for anchor in selectedAnchors {
-                    let command = SceneCommands.moveAnchor(
-                        pathID: anchor.pathID, subpath: anchor.subpath,
-                        segment: anchor.segment, delta: Point(x: dx, y: dy))
-                    if dragHasMutation, let dragGestureID {
-                        try history.coalesce(command, gestureID: dragGestureID)
-                    } else {
-                        try history.perform(command, gestureID: dragGestureID)
-                        dragHasMutation = true
+                let anchors = selectedAnchors.sorted(by: anchorOrder)
+                let locations = anchors.map {
+                    PathAnchorLocation(
+                        pathID: $0.pathID, subpathIndex: $0.subpath,
+                        anchorIndex: $0.segment)
+                }
+                if dragGestureID == nil {
+                    dragGestureID = try history.beginAnchorGesture(at: locations)
+                }
+                var planned = history.document
+                for anchor in anchors {
+                    guard
+                        planned.movePathAnchor(
+                            id: anchor.pathID, subpath: anchor.subpath,
+                            segment: anchor.segment,
+                            documentDelta: Point(x: dx, y: dy))
+                    else {
+                        throw AnchorGeometryCommandError.anchorNotFound
                     }
                 }
-            } catch { presentCommandError(error, command: "Move anchor") }
+                var values: [PathAnchorLocation: PathAnchorSlice] = [:]
+                for location in locations {
+                    values[location] = try AnchorGeometryCommands.slice(
+                        in: planned, at: location)
+                }
+                try history.updateAnchorGesture(dragGestureID!, newValues: values)
+                dragHasMutation = true
+            } catch {
+                cancelActiveDragGesture()
+                presentCommandError(error, command: "Move anchor")
+            }
             dragLast = next
             return
         }
-        let command = DocumentCommand(name: "Move path") { document in
-            for id in ids { _ = document.translateNode(id: id, documentDX: dx, documentDY: dy) }
-        }
         do {
-            if dragHasMutation, let dragGestureID {
-                try history.coalesce(command, gestureID: dragGestureID)
-            } else {
-                try history.perform(command, gestureID: dragGestureID)
-                dragHasMutation = true
+            if dragGestureID == nil {
+                dragGestureID = try history.beginTransformGesture(nodeIDs: selectedIDs)
             }
+            try history.updateDocumentTransformGesture(
+                dragGestureID!,
+                documentTransform: Geometry.AffineTransform(tx: dx, ty: dy))
+            dragHasMutation = true
         } catch {
-            presentCommandError(error, command: command.name)
+            cancelActiveDragGesture()
+            presentCommandError(error, command: "Move selection")
         }
         dragLast = next
         needsDisplay = true
@@ -344,6 +391,12 @@ final class CanvasView: NSView {
             return
         }
         if activeTool == .selection || activeTool == .directSelection {
+            if dragHasMutation, let dragGestureID {
+                do { try history.endGesture(dragGestureID) } catch {
+                    cancelActiveDragGesture()
+                    presentCommandError(error, command: "Commit gesture")
+                }
+            }
             transformGesture = nil
             dragLast = nil
             dragHasMutation = false
@@ -392,14 +445,34 @@ final class CanvasView: NSView {
             spaceDown = true
             return
         }
+        if event.keyCode == 53, dragGestureID != nil {
+            cancelActiveDragGesture()
+            transformGesture = nil
+            dragLast = nil
+            snapIndicator = nil
+            needsDisplay = true
+            return
+        }
         if [51, 117].contains(event.keyCode), !selectedAnchors.isEmpty {
             do {
+                var staged = history.document
+                var children: [DocumentCommand] = []
                 for anchor in selectedAnchors.sorted(by: { $0.segment > $1.segment }) {
-                    try history.perform(
-                        SceneCommands.deleteAnchor(
-                            pathID: anchor.pathID,
-                            subpath: anchor.subpath, segment: anchor.segment))
+                    guard
+                        let path = staged.path(id: anchor.pathID),
+                        path.path.subpaths.indices.contains(anchor.subpath),
+                        path.path.subpaths[anchor.subpath].segments.count > 1
+                    else { throw AnchorGeometryCommandError.invalidSegmentRange }
+                    let command = try AnchorGeometryCommands.replaceSegments(
+                        in: staged, pathID: anchor.pathID,
+                        subpathIndex: anchor.subpath,
+                        range: anchor.segment..<(anchor.segment + 1), with: [])
+                    try command.apply(to: &staged)
+                    children.append(command)
                 }
+                try history.commit(
+                    CompositeCommands.ordered(
+                        name: "Delete anchors", children: children))
                 selectedAnchors.removeAll()
                 selectedControl = nil
             } catch { presentCommandError(error, command: "Delete anchor") }
@@ -427,6 +500,40 @@ final class CanvasView: NSView {
     }
     private func documentPoint(_ viewPoint: NSPoint) -> Point {
         Point(x: (viewPoint.x - 24 - pan.x) / zoom, y: (viewPoint.y - 24 - pan.y) / zoom)
+    }
+    private func anchorOrder(_ lhs: AnchorRef, _ rhs: AnchorRef) -> Bool {
+        if lhs.pathID != rhs.pathID {
+            return lhs.pathID.rawValue.uuidString < rhs.pathID.rawValue.uuidString
+        }
+        if lhs.subpath != rhs.subpath { return lhs.subpath < rhs.subpath }
+        return lhs.segment < rhs.segment
+    }
+    private func anchorLocation(for control: ControlRef) throws -> PathAnchorLocation {
+        guard let path = history.document.path(id: control.pathID),
+            path.path.subpaths.indices.contains(control.subpath)
+        else { throw AnchorGeometryCommandError.pathNotFound }
+        let subpath = path.path.subpaths[control.subpath]
+        guard subpath.segments.indices.contains(control.segment) else {
+            throw AnchorGeometryCommandError.anchorNotFound
+        }
+        let anchorIndex: Int
+        if control.control == 1 {
+            anchorIndex = control.segment
+        } else if subpath.isClosed {
+            anchorIndex = (control.segment + 1) % subpath.segments.count
+        } else {
+            anchorIndex = control.segment + 1
+        }
+        return PathAnchorLocation(
+            pathID: control.pathID, subpathIndex: control.subpath,
+            anchorIndex: anchorIndex)
+    }
+    private func cancelActiveDragGesture() {
+        if let dragGestureID {
+            try? history.cancelDeltaGesture(dragGestureID)
+        }
+        dragGestureID = nil
+        dragHasMutation = false
     }
     private func setZoom(_ requested: Double, about viewPoint: NSPoint) {
         let next = TransformInteractions.clampedZoom(requested)
@@ -498,10 +605,12 @@ final class CanvasView: NSView {
             point, xCandidates: xCandidates, yCandidates: yCandidates, zoom: zoom)
     }
     private func add(_ object: PathObject) {
-        let layerIndex = activeLayerIndex
         do {
-            try history.perform(
-                DocumentCommand(name: "Create object") { $0.layers[layerIndex].nodes.append(.path(object)) })
+            let layer = history.document.layers[activeLayerIndex]
+            try history.commit(
+                StructuralCommands.createShape(
+                    object, in: history.document, parent: .layer(layer.id),
+                    at: layer.nodes.count, assetStore: assetStore))
         } catch { presentCommandError(error, command: "Create object") }
         needsDisplay = true
     }
@@ -525,26 +634,34 @@ final class CanvasView: NSView {
             return
         }
         let text = TextObject(text: content.stringValue, origin: point, fontName: font.stringValue, fontSize: fontSize)
-        let layerIndex = activeLayerIndex
         do {
-            try history.perform(
-                DocumentCommand(name: "Create text") { $0.layers[layerIndex].nodes.append(.text(text)) })
+            let layer = history.document.layers[activeLayerIndex]
+            try history.commit(
+                StructuralCommands.createText(
+                    text, in: history.document, parent: .layer(layer.id),
+                    at: layer.nodes.count, assetStore: assetStore))
         } catch { presentCommandError(error, command: "Create text") }
     }
     func placeEmbeddedImage(data: Data) throws {
         let image = try RasterResourceLoader().embedded(
             data: data,
             frame: Rect(minX: 40, minY: 40, maxX: 240, maxY: 240))
-        let layerIndex = activeLayerIndex
-        try history.perform(DocumentCommand(name: "Place image") { $0.layers[layerIndex].nodes.append(.image(image)) })
+        assetStore.registerApproved(data)
+        let layer = history.document.layers[activeLayerIndex]
+        try history.commit(
+            StructuralCommands.createImage(
+                image, in: history.document, parent: .layer(layer.id),
+                at: layer.nodes.count, assetStore: assetStore))
     }
     func placeLinkedImage(relativePath: String, pixelWidth: Int, pixelHeight: Int) throws {
         let image = try RasterResourceLoader().linked(
             relativePath: relativePath,
             frame: Rect(minX: 40, minY: 40, maxX: 240, maxY: 240), pixelWidth: pixelWidth, pixelHeight: pixelHeight)
-        let layerIndex = activeLayerIndex
-        try history.perform(
-            DocumentCommand(name: "Place linked image") { $0.layers[layerIndex].nodes.append(.image(image)) })
+        let layer = history.document.layers[activeLayerIndex]
+        try history.commit(
+            StructuralCommands.createImage(
+                image, in: history.document, parent: .layer(layer.id),
+                at: layer.nodes.count, assetStore: assetStore))
     }
     func editSelectedProperties() {
         guard let id = selectedIDs.first else { return }
@@ -586,23 +703,18 @@ final class CanvasView: NSView {
         let swatchID =
             swatch.indexOfSelectedItem > 0 ? history.document.swatches[swatch.indexOfSelectedItem - 1].id : nil
         do {
-            try history.perform(
-                DocumentCommand(name: "Edit properties") { document in
-                    guard
-                        document.mutatePath(
-                            id: id,
-                            { path in
-                                path.style.strokeWidth = strokeWidth
-                                path.style.opacity = alpha
-                                path.style.dash = dashes
-                                path.style.fill = fillColor
-                                path.style.fillSwatchID = swatchID
-                                path.style.lineCap = lineCap
-                                path.style.lineJoin = lineJoin
-                                path.style.miterLimit = miterLimit
-                            })
-                    else { throw SceneCommandError.selectionNotFound }
-                })
+            guard var style = history.document.path(id: id)?.style else { return }
+            style.strokeWidth = strokeWidth
+            style.opacity = alpha
+            style.dash = dashes
+            style.fill = fillColor
+            style.fillSwatchID = swatchID
+            style.lineCap = lineCap
+            style.lineJoin = lineJoin
+            style.miterLimit = miterLimit
+            try history.commit(
+                ValueSwapCommands.pathStyle(
+                    in: history.document, nodeID: id, newValue: style))
         } catch { presentCommandError(error, command: "Edit properties") }
     }
     private func parseColor(_ value: String) -> SRGBColor? {
@@ -613,47 +725,59 @@ final class CanvasView: NSView {
     }
     func alignSelectedLeft() {
         guard selectedIDs.count > 1 else { return }
-        do { try history.perform(AlignmentCommands.align(pathIDs: selectedIDs, axis: .left)) } catch {
+        do {
+            try history.commit(
+                CompositeSceneCommands.align(
+                    in: history.document, nodeIDs: selectedIDs, axis: .left))
+        } catch {
             presentCommandError(error, command: "Align left")
         }
     }
     func groupSelected() {
         guard selectedIDs.count > 1,
-            let layer = history.document.layers.first(where: { layer in
+            history.document.layers.contains(where: { layer in
                 selectedIDs.allSatisfy { id in layer.nodes.contains { $0.id == id } }
             })
         else { return }
         do {
-            try history.perform(SceneCommands.group(layerID: layer.id, nodeIDs: selectedIDs))
+            try history.commit(
+                CompositeSceneCommands.group(
+                    in: history.document,
+                    nodeIDs: selectedIDs.sorted { $0.rawValue.uuidString < $1.rawValue.uuidString }))
             selectedIDs.removeAll()
         } catch { presentCommandError(error, command: "Group") }
     }
     func ungroupSelected() {
-        guard selectedIDs.count == 1, let id = selectedIDs.first,
-            let layer = history.document.layers.first(where: { $0.nodes.contains { $0.id == id } })
-        else { return }
+        guard selectedIDs.count == 1, let id = selectedIDs.first else { return }
         do {
-            try history.perform(SceneCommands.ungroup(layerID: layer.id, groupID: id))
+            try history.commit(
+                CompositeSceneCommands.ungroup(in: history.document, groupID: id))
             selectedIDs.removeAll()
         } catch { presentCommandError(error, command: "Ungroup") }
     }
     func makeCompoundSelected() {
         guard selectedIDs.count > 1,
-            let layer = history.document.layers.first(where: { layer in
+            history.document.layers.contains(where: { layer in
                 selectedIDs.allSatisfy { id in layer.nodes.contains { $0.id == id } }
             })
         else { return }
         do {
-            try history.perform(SceneCommands.makeCompound(layerID: layer.id, pathIDs: selectedIDs))
+            try history.commit(
+                CompositeSceneCommands.makeCompound(
+                    in: history.document,
+                    pathIDs: selectedIDs.sorted { $0.rawValue.uuidString < $1.rawValue.uuidString }))
             selectedIDs.removeAll()
         } catch { presentCommandError(error, command: "Make compound") }
     }
     func releaseCompoundSelected() {
         guard selectedIDs.count == 1, let id = selectedIDs.first,
-            let layer = history.document.layers.first(where: { $0.nodes.contains { $0.id == id } })
+            let path = history.document.path(id: id)
         else { return }
         do {
-            try history.perform(SceneCommands.releaseCompound(layerID: layer.id, pathID: id))
+            let releasedIDs = path.path.subpaths.indices.map { $0 == 0 ? id : ObjectID() }
+            try history.commit(
+                CompositeSceneCommands.releaseCompound(
+                    in: history.document, pathID: id, releasedIDs: releasedIDs))
             selectedIDs.removeAll()
         } catch { presentCommandError(error, command: "Release compound") }
     }
@@ -681,9 +805,11 @@ final class CanvasView: NSView {
         let response = alert.runModal()
         if response == .alertSecondButtonReturn {
             do {
-                try history.perform(
-                    DocumentCommand(name: "Add layer") { $0.layers.append(Layer(name: "Layer \($0.layers.count + 1)")) }
-                )
+                let layer = Layer(name: "Layer \(history.document.layers.count + 1)")
+                try history.commit(
+                    StructuralCommands.insertLayer(
+                        layer, in: history.document, at: history.document.layers.count,
+                        assetStore: assetStore))
                 activeLayerIndex = history.document.layers.count - 1
             } catch { presentCommandError(error, command: "Add layer") }
             return
@@ -695,16 +821,28 @@ final class CanvasView: NSView {
         let nextLocked = locked.state == .on
         let moveDirection = order.selectedSegment
         do {
-            try history.perform(
-                DocumentCommand(name: "Edit layer") { document in
-                    document.layers[index].name = nextName
-                    document.layers[index].isVisible = nextVisible
-                    document.layers[index].isLocked = nextLocked
-                    if moveDirection == 0, index > 0 { document.layers.swapAt(index, index - 1) }
-                    if moveDirection == 1, index + 1 < document.layers.count {
-                        document.layers.swapAt(index, index + 1)
-                    }
-                })
+            let layerID = history.document.layers[index].id
+            var staged = history.document
+            var children: [DocumentCommand] = []
+            let nameCommand = try ValueSwapCommands.layerName(
+                in: staged, layerID: layerID, newValue: nextName)
+            try nameCommand.apply(to: &staged)
+            children.append(nameCommand)
+            let stateCommand = try ValueSwapCommands.layerVisibilityAndLock(
+                in: staged, layerID: layerID,
+                newValue: LayerVisibilityAndLock(
+                    isVisible: nextVisible, isLocked: nextLocked))
+            try stateCommand.apply(to: &staged)
+            children.append(stateCommand)
+            let destination =
+                moveDirection == 0 && index > 0
+                ? index - 1
+                : moveDirection == 1 && index + 1 < staged.layers.count ? index + 1 : index
+            let reorder = try StructuralCommands.reorderLayer(
+                in: staged, layerID: layerID, to: destination)
+            children.append(reorder)
+            try history.commit(
+                CompositeCommands.ordered(name: "Edit layer", children: children))
             activeLayerIndex = min(index, history.document.layers.count - 1)
         } catch { presentCommandError(error, command: "Edit layer") }
     }
@@ -735,12 +873,17 @@ final class CanvasView: NSView {
             name: "Gradient", kind: kind.indexOfSelectedItem == 0 ? .linear : .radial,
             start: startPoint, end: endPoint, stops: parsedStops)
         do {
-            try history.perform(
-                DocumentCommand(name: "Apply gradient") { document in
-                    document.gradients.append(gradient)
-                    guard document.mutatePath(id: pathID, { $0.style.fillGradientID = gradient.id })
-                    else { throw SceneCommandError.selectionNotFound }
-                })
+            var staged = history.document
+            let insert = try ResourceCommands.insertGradient(
+                gradient, in: staged, at: staged.gradients.count)
+            try insert.apply(to: &staged)
+            guard var style = staged.path(id: pathID)?.style else { return }
+            style.fillGradientID = gradient.id
+            let applyStyle = try ValueSwapCommands.pathStyle(
+                in: staged, nodeID: pathID, newValue: style)
+            try history.commit(
+                CompositeCommands.ordered(
+                    name: "Apply gradient", children: [insert, applyStyle]))
         } catch { presentCommandError(error, command: "Apply gradient") }
     }
     private func parsePoint(_ value: String) -> Point? {
@@ -764,23 +907,27 @@ final class CanvasView: NSView {
         return result.count == value.split(separator: ",").count ? result : nil
     }
     func undo() {
-        history.undo()
+        do { try history.undo() } catch { presentCommandError(error, command: "Undo") }
         needsDisplay = true
     }
     func redo() {
-        history.redo()
+        do { try history.redo() } catch { presentCommandError(error, command: "Redo") }
         needsDisplay = true
+    }
+    func applyMemorySafetyNet() {
+        let dropped = history.applyMemorySafetyNet()
+        Diagnostics.documents.info(
+            "Delta-history memory safety net dropped \(dropped, privacy: .public) periodic checkpoints")
     }
     func applyAccentStyle() {
         guard let id = selectedIDs.first ?? history.document.layers.first?.nodes.last?.id else { return }
         do {
-            try history.perform(
-                DocumentCommand(name: "Apply style") { document in
-                    _ = document.mutatePath(id: id) {
-                        $0.style.stroke = SRGBColor(red: 0.85, green: 0.18, blue: 0.35)
-                        $0.style.strokeWidth = 6
-                    }
-                })
+            guard var style = history.document.path(id: id)?.style else { return }
+            style.stroke = SRGBColor(red: 0.85, green: 0.18, blue: 0.35)
+            style.strokeWidth = 6
+            try history.commit(
+                ValueSwapCommands.pathStyle(
+                    in: history.document, nodeID: id, newValue: style))
         } catch { presentCommandError(error, command: "Apply style") }
         needsDisplay = true
     }
@@ -789,8 +936,9 @@ final class CanvasView: NSView {
             "Command \(command, privacy: .public) failed: \(String(describing: error), privacy: .public)")
         NSAlert(error: error).runModal()
     }
-    func replaceDocument(_ document: EditorDocument) {
-        history = CommandHistory(document: document)
+    func replaceDocument(_ document: EditorDocument) throws {
+        registerEmbeddedAssets(in: document, with: assetStore)
+        history = try DeltaCommandHistory(document: document, assetStore: assetStore)
         subscribeToChanges()
         selectedIDs.removeAll()
         selectedAnchors.removeAll()
@@ -804,6 +952,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var window: NSWindow?
     private var canvas: CanvasView?
     private var autosaveTimer: Timer?
+    private var memoryPressureSource: DispatchSourceMemoryPressure?
     private var currentURL: URL?
     private let recoveryID = "active-document"
     private let unsavedCoordinator = UnsavedChangesCoordinator()
@@ -833,9 +982,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 try? RecoveryStore.applicationSupport().discard(documentID: recoveryID)
             }
         }
-        let canvas = CanvasView(frame: frame, document: launchDocument)
+        let canvas: CanvasView
+        do {
+            canvas = try CanvasView(frame: frame, document: launchDocument)
+        } catch {
+            NSAlert(error: error).runModal()
+            NSApp.terminate(nil)
+            return
+        }
         window.contentView = canvas
         self.canvas = canvas
+        let memoryPressureSource = DispatchSource.makeMemoryPressureSource(
+            eventMask: [.warning, .critical], queue: .main)
+        memoryPressureSource.setEventHandler { [weak canvas] in
+            canvas?.applyMemorySafetyNet()
+        }
+        memoryPressureSource.resume()
+        self.memoryPressureSource = memoryPressureSource
         let toolbar = NSToolbar(identifier: "tools")
         toolbar.delegate = self
         window.toolbar = toolbar
@@ -992,7 +1155,7 @@ extension AppDelegate: NSToolbarDelegate {
                 isDirty: canvas.history.isDirty, decision: unsavedDecision, save: { try saveNative(canvas) },
                 operation: {
                     guard let document = try promptForNewDocument() else { return }
-                    canvas.replaceDocument(document)
+                    try canvas.replaceDocument(document)
                     currentURL = nil
                 })
         } catch { NSAlert(error: error).runModal() }
@@ -1057,7 +1220,7 @@ extension AppDelegate: NSToolbarDelegate {
                     let document =
                         url.pathExtension.lowercased() == "svg"
                         ? try SVGImporter().importFile(url).document : try NativeDocumentCodec().load(from: url)
-                    canvas.replaceDocument(document)
+                    try canvas.replaceDocument(document)
                     currentURL = url
                     NSDocumentController.shared.noteNewRecentDocumentURL(url)
                 })

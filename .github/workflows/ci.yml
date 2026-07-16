@@ -15,10 +15,8 @@ jobs:
       - run: test "$(uname -m)" = arm64
       - run: xcrun swift-format lint --recursive --strict Sources Tests Package.swift
       - run: swift build -c debug && swift build -c release
-      - name: Test snapshot-primary behavior with delta flag OFF
-        run: OPENDRAW_DELTA_HISTORY=0 swift test && OPENDRAW_DELTA_HISTORY=0 swift test -c release
-      - name: Test delta P1 suites with flag ON
-        run: OPENDRAW_DELTA_HISTORY=1 swift test && OPENDRAW_DELTA_HISTORY=1 swift test -c release
+      - name: Test debug and release
+        run: swift test && swift test -c release
       - run: scripts/check-module-dependencies.sh
       - run: scripts/check-clean-room.sh
       - name: Public API symbol documentation surface
@@ -158,7 +156,7 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v6
-      - run: OPENDRAW_DELTA_HISTORY=1 swift test --enable-code-coverage
+      - run: swift test --enable-code-coverage
       - run: scripts/check-coverage.sh 55
   release-integrity:
     runs-on: macos-15

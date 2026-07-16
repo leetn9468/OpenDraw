@@ -204,6 +204,31 @@ public enum ValueSwapCommands {
             })
     }
 
+    public static func layerName(
+        in document: EditorDocument, layerID: ObjectID, newValue: String,
+        commandID: UUID = UUID(), timestamp: Date = Date()
+    ) throws -> DocumentCommand {
+        guard let layer = document.layers.first(where: { $0.id == layerID }) else {
+            throw ValueSwapCommandError.layerNotFound
+        }
+        return try command(
+            name: "Layer name", commandID: commandID, timestamp: timestamp,
+            damageBounds: .none, oldValue: layer.name, newValue: newValue,
+            validation: { document, value in
+                try validateString(value)
+                guard document.layers.contains(where: { $0.id == layerID }) else {
+                    throw ValueSwapCommandError.layerNotFound
+                }
+            },
+            mutation: { document, value in
+                guard let index = document.layers.firstIndex(where: { $0.id == layerID }) else {
+                    return false
+                }
+                document.layers[index].name = value
+                return true
+            })
+    }
+
     public static func artboardProperties(
         in document: EditorDocument, newValue: ArtboardProperties,
         commandID: UUID = UUID(), timestamp: Date = Date()

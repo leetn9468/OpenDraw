@@ -11,6 +11,10 @@ public enum CompositeSceneCommandError: Error, Equatable, Sendable {
     case identifierCount
 }
 
+public enum AlignmentAxis: Sendable {
+    case left, horizontalCenter, right, top, verticalCenter, bottom
+}
+
 /// Delta-path scene actions assembled from P1 value swaps and P2 structural
 /// commands. Builders stage every child before constructing the next one so
 /// each inverse captures the exact intermediate parent/index/value state.
@@ -160,6 +164,25 @@ public enum CompositeSceneCommands {
             try append(command, to: &children, staging: &staged)
         }
         return try CompositeCommands.ordered(name: "Align objects", children: children)
+    }
+
+    public static func documentTransform(
+        in document: EditorDocument, nodeIDs: Set<ObjectID>,
+        transform: Geometry.AffineTransform
+    ) throws -> DocumentCommand {
+        guard !nodeIDs.isEmpty else { throw CompositeSceneCommandError.selectionTooSmall }
+        var planned = document
+        var children: [DocumentCommand] = []
+        for nodeID in nodeIDs.sorted(by: { $0.rawValue.uuidString < $1.rawValue.uuidString }) {
+            guard planned.applyDocumentTransform(id: nodeID, transform: transform) else {
+                throw ValueSwapCommandError.nodeNotFound
+            }
+            let changed = try StructuralCommands.slot(for: nodeID, in: planned)
+            let command = try ValueSwapCommands.transform(
+                in: document, nodeID: nodeID, newValue: sceneTransform(changed.node))
+            children.append(command)
+        }
+        return try CompositeCommands.ordered(name: "Transform selection", children: children)
     }
 }
 

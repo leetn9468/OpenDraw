@@ -1,8 +1,8 @@
 # Phase 5 delta history P2
 
-Status: implemented behind the existing default-off
-`OPENDRAW_DELTA_HISTORY=1` runtime flag. Snapshot `CommandHistory` remains the
-primary application path; P2 performs no capacity or behavior supersession.
+Status: historically implemented behind the existing default-off runtime
+gate. Snapshot `CommandHistory` remained the primary application path; P2
+performed no capacity or behavior supersession. P4 later retired both.
 
 ## Structural commands
 

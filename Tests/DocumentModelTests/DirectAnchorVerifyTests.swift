@@ -58,18 +58,26 @@ private func line(_ x: Double) -> PathObject {
         transform: AffineTransform(a: 0, b: 1, c: -1, d: 0, tx: 100, ty: 20), children: [.path(a), .path(b)])
     let groupDoc = try EditorDocument(width: 200, height: 200, layers: [Layer(name: "L", nodes: [.group(rotated)])])
     let before = [try #require(groupDoc.visualBounds(for: a.id)), try #require(groupDoc.visualBounds(for: b.id))]
-    var history = CommandHistory(document: groupDoc)
-    try history.perform(SceneCommands.ungroup(layerID: groupDoc.layers[0].id, groupID: rotated.id))
+    var history = try DeltaCommandHistory(document: groupDoc)
+    try history.commit(
+        CompositeSceneCommands.ungroup(
+            in: history.document, groupID: rotated.id))
     let after = [
         try #require(history.document.visualBounds(for: a.id)), try #require(history.document.visualBounds(for: b.id)),
     ]
     #expect(after == before)
 
     let layer = Layer(name: "L", nodes: [.path(a), .path(b)])
-    var compoundHistory = CommandHistory(document: try EditorDocument(width: 200, height: 200, layers: [layer]))
+    var compoundHistory = try DeltaCommandHistory(
+        document: EditorDocument(width: 200, height: 200, layers: [layer]))
     let original = compoundHistory.document.layers[0].nodes.compactMap(\.visualBounds)
-    try compoundHistory.perform(SceneCommands.makeCompound(layerID: layer.id, pathIDs: [a.id, b.id]))
-    try compoundHistory.perform(SceneCommands.releaseCompound(layerID: layer.id, pathID: a.id))
+    try compoundHistory.commit(
+        CompositeSceneCommands.makeCompound(
+            in: compoundHistory.document, pathIDs: [a.id, b.id]))
+    try compoundHistory.commit(
+        CompositeSceneCommands.releaseCompound(
+            in: compoundHistory.document, pathID: a.id,
+            releasedIDs: [a.id, b.id]))
     #expect(compoundHistory.document.layers[0].nodes.compactMap(\.visualBounds) == original)
 }
 
@@ -82,11 +90,16 @@ private func line(_ x: Double) -> PathObject {
             start: Point(x: 10, y: 0), control1: Point(x: 10, y: 0), control2: Point(x: 20, y: 0),
             end: Point(x: 20, y: 0)),
     ])
-    var history = CommandHistory(
-        document: try EditorDocument(width: 100, height: 100, layers: [Layer(name: "L", nodes: [.path(path)])]))
-    try history.perform(SceneCommands.deleteAnchor(pathID: path.id, subpath: 0, segment: 1))
+    var history = try DeltaCommandHistory(
+        document: EditorDocument(
+            width: 100, height: 100,
+            layers: [Layer(name: "L", nodes: [.path(path)])]))
+    try history.commit(
+        AnchorGeometryCommands.replaceSegments(
+            in: history.document, pathID: path.id, subpathIndex: 0,
+            range: 1..<2, with: []))
     #expect(history.document.path(id: path.id)?.segments.count == 1)
-    history.undo()
+    try history.undo()
     #expect(history.document.path(id: path.id)?.segments.count == 2)
 }
 
@@ -94,13 +107,23 @@ private func line(_ x: Double) -> PathObject {
     var path = line(0)
     path.transform = AffineTransform(a: 0, b: 1, c: -1, d: 0)
     let group = GroupNode(transform: AffineTransform(a: 2, b: 0, c: 0, d: 4), children: [.path(path)])
-    var history = CommandHistory(
-        document: try EditorDocument(width: 200, height: 200, layers: [Layer(name: "L", nodes: [.group(group)])]))
+    var history = try DeltaCommandHistory(
+        document: EditorDocument(
+            width: 200, height: 200,
+            layers: [Layer(name: "L", nodes: [.group(group)])]))
     let before = try #require(history.document.path(id: path.id)?.segments[0].control1)
-    try history.perform(
-        SceneCommands.moveControl(pathID: path.id, subpath: 0, segment: 0, control: 1, delta: Point(x: 10, y: 8)))
+    let location = PathAnchorLocation(pathID: path.id, anchorIndex: 0)
+    var planned = history.document
+    let moved = planned.movePathControl(
+        id: path.id, subpath: 0, segment: 0, control: 1,
+        documentDelta: Point(x: 10, y: 8))
+    #expect(moved)
+    try history.commit(
+        AnchorGeometryCommands.setSlice(
+            in: history.document, at: location,
+            newValue: AnchorGeometryCommands.slice(in: planned, at: location)))
     let after = try #require(history.document.path(id: path.id)?.segments[0].control1)
     #expect(after.distance(to: Point(x: before.x + 2, y: before.y - 5)) < 1e-9)
-    history.undo()
+    try history.undo()
     #expect(history.document.path(id: path.id)?.segments[0].control1 == before)
 }

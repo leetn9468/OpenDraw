@@ -100,7 +100,7 @@ private func noOpCommand(
 }
 
 private func phase5HistoryEnvelope(document: EditorDocument) throws -> Phase5HistoryEnvelope {
-    var checkpointHistory = try DeltaCommandHistory(document: document, featureFlag: .environment())
+    var checkpointHistory = try DeltaCommandHistory(document: document)
     for sequence in 1...200 {
         try checkpointHistory.commit(noOpCommand(sequence: sequence, costInBytes: 1))
     }
@@ -109,7 +109,7 @@ private func phase5HistoryEnvelope(document: EditorDocument) throws -> Phase5His
 
     let assetStore = ApprovedAssetStore()
     var floorHistory = try DeltaCommandHistory(
-        document: document, featureFlag: .environment(), assetStore: assetStore)
+        document: document, assetStore: assetStore)
     for sequence in 1...9 {
         try floorHistory.commit(noOpCommand(sequence: 1_000 + sequence, costInBytes: 1_000))
     }

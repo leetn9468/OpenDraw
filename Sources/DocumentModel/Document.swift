@@ -24,8 +24,6 @@ public enum DocumentLimits {
     public static let maximumEmbeddedAssetBytes = 100 * 1_024 * 1_024
     public static let maximumAggregateAssetBytes = 500 * 1_024 * 1_024
     public static let maximumImagePixelCount: Int64 = 67_108_864
-    public static let maximumHistoryEstimatedBytes = 512 * 1_024 * 1_024
-    public static let minimumHistoryEntriesUnderMemoryPressure = 5
     /// Independent retained-rendering budget; numerically equal to VERIFY-007's
     /// image cap today, but intentionally named separately so policies can diverge.
     public static let maximumRetainedBitmapPixels: Int64 = 67_108_864
