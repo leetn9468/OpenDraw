@@ -39,7 +39,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Run benchmark with frozen absolute targets
+        env:
+          # Owner decision 2026-07-16: hosted BENCH-5b is informational; all other absolute gates remain blocking.
+          BENCH5B_ENFORCEMENT: off
         run: scripts/run-render-benchmark.sh benchmark.txt
+      - name: Prove hosted BENCH-5b policy remains falsifiable
+        run: scripts/test-benchmark-enforcement-modes.sh
       - name: Prove inclusive ratio gate remains falsifiable
         run: scripts/test-benchmark-regression-gate.sh
       - name: Report hosted ratio or prepare hosted baseline bootstrap
@@ -95,6 +100,7 @@ jobs:
             fi
             {
               printf 'mode=INFORMATIONAL ratio_enforcement=OFF reason=owner-decision-2026-07-15\n'
+              printf 'bench5b_enforcement=off result=INFORMATIONAL reason=owner-decision-2026-07-16\n'
               printf 'baseline=%s\n' "$HOSTED_BASELINE"
               printf 'baseline_valid_until=%s expiry_enforcement=OFF\n' "$reference_valid_until"
               printf 'run_url=%s\n' "$run_url"
@@ -125,6 +131,7 @@ jobs:
           validate_hosted_baseline hosted-baseline-candidate.tsv
           {
             printf 'mode=BOOTSTRAP ratio_enforcement=OFF\n'
+            printf 'bench5b_enforcement=off result=INFORMATIONAL reason=owner-decision-2026-07-16\n'
             printf 'candidate=hosted-baseline-candidate.tsv\n'
             printf 'run_url=%s\n' "$run_url"
             while IFS="$(printf '\t')" read -r metric observed allowed; do

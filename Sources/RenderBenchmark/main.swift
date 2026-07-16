@@ -11,6 +11,10 @@ struct Statistics {
     var p95: Double
     var maximum: Double
 }
+let benchmarkEnvironment = ProcessInfo.processInfo.environment
+let bench5bEnforcementEnabled = benchmarkEnvironment["BENCH5B_ENFORCEMENT"] != "off"
+let benchmarkGateFixture = benchmarkEnvironment["BENCHMARK_GATE_FIXTURE"]
+
 func milliseconds(_ duration: Duration) -> Double {
     let c = duration.components
     return Double(c.seconds) * 1_000 + Double(c.attoseconds) / 1_000_000_000_000_000
@@ -79,11 +83,24 @@ func context() -> CGContext {
 func printStats(_ name: String, _ value: Statistics) {
     print(String(format: "%@: p50 %.3f ms | p95 %.3f ms | max %.3f ms", name, value.p50, value.p95, value.maximum))
 }
+func applyingGateFixture(_ value: Statistics, gate: String, forcedP95: Double) -> Statistics {
+    let forcesGate =
+        benchmarkGateFixture == gate
+        || benchmarkGateFixture == "bench5a-and-b-overrun"
+    guard forcesGate else { return value }
+    let p95 = max(value.p95, forcedP95)
+    return Statistics(p50: min(value.p50, p95), p95: p95, maximum: max(value.maximum, p95))
+}
 
 let activity = ProcessInfo.processInfo.beginActivity(
     options: [.idleDisplaySleepDisabled, .idleSystemSleepDisabled], reason: "BENCH-R3.5")
 defer { ProcessInfo.processInfo.endActivity(activity) }
-print("BENCH_METADATA warmup_frames=60 measured_frames=300 production_paths=true")
+print(
+    "BENCH_METADATA warmup_frames=60 measured_frames=300 production_paths=true "
+        + "bench5b_enforcement=\(bench5bEnforcementEnabled ? "on" : "off")")
+if let benchmarkGateFixture {
+    print("BENCH_GATE_FIXTURE=\(benchmarkGateFixture)")
+}
 let base = try referenceDocument()
 let destination = context()
 let coldStart = ContinuousClock.now
@@ -150,18 +167,19 @@ let applyComposite = try CompositeCommands.ordered(
             newValue: applySlice.translated(dx: 1, dy: 0)),
     ])
 try applyHistory.commit(applyComposite)
-let bench5a = try measure { index in
+let measuredBench5a = try measure { index in
     if index.isMultiple(of: 2) {
         try applyHistory.undo()
     } else {
         try applyHistory.redo()
     }
 }
+let bench5a = applyingGateFixture(measuredBench5a, gate: "bench5a-overrun", forcedP95: 16.701)
 printStats("BENCH-5a undo-redo", bench5a)
 
 var recordHistory = try DeltaCommandHistory(document: base)
 let structuralNode = base.layers[0].nodes[0]
-let bench5b = try measure { index in
+let measuredBench5b = try measure { index in
     switch index % 4 {
     case 0:
         try recordHistory.commit(
@@ -189,7 +207,13 @@ let bench5b = try measure { index in
         try recordHistory.commit(composite)
     }
 }
+let bench5b = applyingGateFixture(measuredBench5b, gate: "bench5b-overrun", forcedP95: 1.001)
 printStats("BENCH-5b record", bench5b)
 print("BENCH-5 mix=structural,composite,anchor-slice history=delta-only")
+print(
+    "BENCH-5b enforcement: bench5b_enforcement=\(bench5bEnforcementEnabled ? "on" : "off") "
+        + "result=\(bench5bEnforcementEnabled ? "BLOCKING" : "INFORMATIONAL")")
 precondition(bench5a.p95 <= 16.7, "BENCH-5a p95 exceeds frozen 16.7 ms target")
-precondition(bench5b.p95 <= 1.0, "BENCH-5b p95 exceeds frozen 1.0 ms target")
+if bench5bEnforcementEnabled {
+    precondition(bench5b.p95 <= 1.0, "BENCH-5b p95 exceeds frozen 1.0 ms target")
+}

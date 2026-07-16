@@ -65,17 +65,22 @@ and summary log is uploaded.
 
 | Gate | Environment | Policy |
 |---|---|---|
-| Frozen BENCH-R3.5 absolute targets | Local and hosted | **BLOCKING**, unchanged |
+| Frozen BENCH-R3.5 absolute targets (BENCH-1/2/2b/3 + settle) | Local and hosted | **BLOCKING**, unchanged |
+| BENCH-5a absolute target, p95 <= 16.7 ms | Local and hosted | **BLOCKING**, unchanged |
+| BENCH-5b absolute target, p95 <= 1.0 ms | Stable owner-reference hardware | **BLOCKING**, unchanged |
+| BENCH-5b measurement | GitHub-hosted `macos-15` | **INFORMATIONAL**, owner decision 2026-07-16 |
 | Owner-reference ratio, inclusive 1.25 | Stable owner-reference hardware | **BLOCKING**, unchanged |
 | Hosted-runner ratio versus hosted reference | GitHub-hosted `macos-15` | **INFORMATIONAL**, owner decision 2026-07-15 |
-| Ratio falsifiability fixtures | Local and hosted workflow | **BLOCKING**, unchanged |
+| Absolute-mode and ratio falsifiability fixtures | Local and hosted workflow | **BLOCKING**, unchanged |
 
 Phase 5 P1 extends the artifact with BENCH-5a delta undo/redo apply
-(p95 <= 16.7 ms) and BENCH-5b record overhead (p95 <= 1.0 ms). Their absolute
-targets are blocking locally and hosted. The owner-reference baseline contains
-both rows and applies the same unchanged inclusive 1.25 local ratio. Hosted
-ratios for the new rows are informational under the 2026-07-15 owner decision,
-exactly like the five earlier metrics.
+(p95 <= 16.7 ms) and BENCH-5b record overhead (p95 <= 1.0 ms). Both absolute
+targets remain blocking on owner-reference hardware. BENCH-5a also remains
+blocking hosted. Under the 2026-07-16 owner decision, hosted BENCH-5b is
+measured and reported with p50/p95/max but is informational. The owner-reference
+baseline contains both rows and applies the same unchanged inclusive 1.25 local
+ratio. Hosted ratios for the new rows are informational under the 2026-07-15
+owner decision, exactly like the five earlier metrics.
 
 Phase 5 P2 retains those exact targets and artifact row names while advancing
 the exercised production path from value swaps to structural delete/reinsert:
@@ -111,6 +116,24 @@ preservation only: the job still fails, and no absolute target, precondition,
 ratio policy, retry rule, or hosted/local semantic changes. The rule was added
 after dispatched run 17 on 2026-07-16 lost its completed BENCH lines to the
 stdout buffer; see `artifacts/phase5/p4/hosted-run-17-triage.md`.
+
+`BENCH5B_ENFORCEMENT` is the sole policy mode input. It defaults to enforcement
+ON; local scripts do not set it. Only the hosted benchmark step sets it to
+`off`, with the 2026-07-16 owner-decision reference beside the workflow input.
+In that mode, the benchmark artifact still emits the complete BENCH-5b
+p50/p95/max row and adds
+`bench5b_enforcement=off result=INFORMATIONAL`. BENCH-2b and BENCH-5a retain
+their original trapping preconditions in both modes. The hosted informational
+comparison repeats the enforcement annotation; local comparison output is
+unchanged.
+
+`scripts/test-benchmark-enforcement-modes.sh` is blocking and proves three
+cases: absent/default mode traps a forced BENCH-5b overrun with exit 133 and a
+retained diagnostic; hosted-off mode records the same class of overrun and
+exits zero; and hosted-off mode still traps a forced BENCH-5a overrun. Its
+`BENCHMARK_GATE_FIXTURE` selector exists only to inject deterministic
+above-boundary observations into this falsifiability harness. It is never set
+by the production benchmark step.
 
 The workflow captures the unchanged checker's status for the artifact but
 always exits the reporting step successfully. The reference's `valid_until`
@@ -157,6 +180,18 @@ failed hosted ratios at 2.780947 (BENCH-1), 2.701923 (BENCH-2), and 2.343808
 (BENCH-2b). BENCH-1 absolute headroom was only about 12.43% (14.625 versus 16.7
 ms), so absolute-target variance is now a **WATCH** item. Any absolute-target
 adjustment remains owner-only.
+
+BENCH-5b variance evidence: hosted push run #16
+<https://github.com/leetn9468/OpenDraw/actions/runs/29498775517> passed at
+0.938 ms p95 with about 6% headroom. Dispatched run #17
+<https://github.com/leetn9468/OpenDraw/actions/runs/29499008599> trapped at the
+same gate but lost its value to redirected stdout buffering. Controlled CPU
+contention reproduced line-218 enforcement at 12.277 ms p95 while BENCH-5a
+remained at 0.026 ms and BENCH-2b still redrew 360/360 strips; evidence is in
+`artifacts/phase5/p4/hosted-run-17-triage.md`. This >12× range makes hosted
+BENCH-5b informational by explicit owner decision. The unchanged 1.0 ms target
+remains blocking on stable owner-reference hardware. The standing hosted
+BENCH-1 absolute-headroom WATCH remains active.
 
 CI #8 timing-headroom review found no gate within 10% of its absolute target:
 BENCH-1/2/2b/3 and settle retained at least 68.51% headroom, and startup p95

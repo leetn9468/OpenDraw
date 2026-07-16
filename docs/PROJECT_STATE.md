@@ -1,6 +1,6 @@
 # OpenDraw remediation project state
 
-Updated: 2026-07-16
+Updated: 2026-07-17
 
 The owner-directed tracker was absent from repository history when the R4
 rejection was received. This file restores the twelve hard closure rows from
@@ -74,6 +74,26 @@ names were confirmed. The permanent record is
 > considered and rejected: both mask noise without adding detection power.
 > This decision may only be revisited by a further explicit owner decision.
 
+> **2026-07-16 — Hosted BENCH-5b absolute gate downgraded to INFORMATIONAL.**
+> BENCH-5b is a sub-millisecond CPU micro-benchmark (structural/composite/
+> anchor record-commit p95, target 1.0 ms, calibrated on owner-reference
+> hardware). Measured shared-runner behavior spans 0.938 ms (run #16, pass at
+> 6% margin) to 12.277 ms under controlled CPU contention — a >12× swing. No
+> fixed hosted target for this gate can be simultaneously discriminating and
+> stable: a 5 ms target still flaps under contention spikes; a 15 ms target
+> detects nothing. Therefore: (1) BENCH-5b remains BLOCKING at the unchanged
+> 1.0 ms p95 on owner-reference hardware (the gate that has correctly failed
+> and forced optimization three times); (2) on hosted runners BENCH-5b is
+> measured and reported as INFORMATIONAL — always emitted with p50/p95/max in
+> the benchmark artifact, never failing the job; (3) BENCH-5a remains BLOCKING
+> on hosted unchanged (0.026 ms p95 under the same contention — three orders
+> of magnitude of headroom); (4) BENCH-1/2/2b/3 hosted absolute targets remain
+> BLOCKING unchanged, with the standing BENCH-1 headroom WATCH retained.
+> Precedent and rationale mirror the 2026-07-15 hosted-ratio decision:
+> shared-runner noise is recorded, not enforced; enforcement lives on stable
+> reference hardware. This decision may only be revisited by a further
+> explicit owner decision.
+
 > **Owner decision (TN LEE, 2026-07-13): Option A is adopted.** BLOCK-002 now
 > requires both the codec reliability run and the full-app startup run on real
 > macOS 13.x Apple Silicon hardware. Option B, accepting codec-only smoke as
@@ -94,13 +114,19 @@ names were confirmed. The permanent record is
 
 ## Phase 5 operations decisions
 
-The 2026-07-15 hosted-ratio decision is a post-remediation operations policy,
-not an amendment to the accepted remediation. Triggering evidence is the first
-post-tag ENFORCE run,
+The 2026-07-15 hosted-ratio and 2026-07-16 hosted BENCH-5b decisions are
+post-remediation operations policies, not amendments to the accepted
+remediation. Triggering ratio evidence is the first post-tag ENFORCE run,
 <https://github.com/leetn9468/OpenDraw/actions/runs/29350963872>: every frozen
 absolute BENCH target passed, while shared-runner ratios reached 2.343808–
-2.780947. BLOCK-001–012 remain `CLOSED`, A6/A7 remain `ACCEPTED`, A8 remains
-`CLOSED — AUTHORIZED`, and `pre-phase5-remediation` continues to target
+2.780947. BENCH-5b evidence is the successful push run #16
+<https://github.com/leetn9468/OpenDraw/actions/runs/29498775517>, failed
+dispatch run #17
+<https://github.com/leetn9468/OpenDraw/actions/runs/29499008599>, and the
+controlled-contention reproduction retained in
+`artifacts/phase5/p4/hosted-triage-stress-trap.txt`. BLOCK-001–012 remain
+`CLOSED`, A6/A7 remain `ACCEPTED`, A8 remains `CLOSED — AUTHORIZED`, and
+`pre-phase5-remediation` continues to target
 `6dea372fc90d7474dc1f5db0085dd03bfdc046ea`.
 
 ## Phase 5 delivery state

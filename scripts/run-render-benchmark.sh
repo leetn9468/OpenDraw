@@ -23,14 +23,14 @@ if [ "$status" -eq 133 ]; then
     bench5a=$(awk '/BENCH-5a undo-redo:/ { print $8 }' "$benchmark_log")
     bench5b=$(awk '/BENCH-5b record:/ { print $8 }' "$benchmark_log")
     if awk -v value="$bench5a" 'BEGIN { exit !(value > 16.7) }'; then
-      printf 'BENCH_TRAP source=Sources/RenderBenchmark/main.swift:194 gate=BENCH-5a observed_p95_ms=%s target_p95_ms=16.7\n' \
+      printf 'BENCH_TRAP source=Sources/RenderBenchmark/main.swift:216 gate=BENCH-5a observed_p95_ms=%s target_p95_ms=16.7\n' \
         "$bench5a" | tee -a "$output" >&2
     elif awk -v value="$bench5b" 'BEGIN { exit !(value > 1.0) }'; then
-      printf 'BENCH_TRAP source=Sources/RenderBenchmark/main.swift:195 gate=BENCH-5b observed_p95_ms=%s target_p95_ms=1.0\n' \
+      printf 'BENCH_TRAP source=Sources/RenderBenchmark/main.swift:218 gate=BENCH-5b observed_p95_ms=%s target_p95_ms=1.0\n' \
         "$bench5b" | tee -a "$output" >&2
     fi
   elif grep -q '^BENCH-2 pan:' "$benchmark_log" && ! grep -q '^BENCH-2b forced-exposure pan:' "$benchmark_log"; then
-    printf 'BENCH_TRAP source=Sources/RenderBenchmark/main.swift:117 gate=BENCH-2b-nonzero-strip\n' \
+    printf 'BENCH_TRAP source=Sources/RenderBenchmark/main.swift:134 gate=BENCH-2b-nonzero-strip\n' \
       | tee -a "$output" >&2
   fi
 fi
