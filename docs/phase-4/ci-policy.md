@@ -103,6 +103,15 @@ hosted bootstrap, under this header:
 mode=INFORMATIONAL ratio_enforcement=OFF reason=owner-decision-2026-07-15
 ```
 
+The benchmark wrapper executes redirected Swift output unbuffered. If a
+blocking release-mode benchmark precondition exits 133, the wrapper retains
+that exit status and appends the last completed BENCH line plus a diagnostic
+for the uniquely identifiable BENCH-2b/BENCH-5 gate. This is evidence
+preservation only: the job still fails, and no absolute target, precondition,
+ratio policy, retry rule, or hosted/local semantic changes. The rule was added
+after dispatched run 17 on 2026-07-16 lost its completed BENCH lines to the
+stdout buffer; see `artifacts/phase5/p4/hosted-run-17-triage.md`.
+
 The workflow captures the unchanged checker's status for the artifact but
 always exits the reporting step successfully. The reference's `valid_until`
 value remains provenance/watch metadata and is printed with

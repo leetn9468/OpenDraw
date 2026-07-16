@@ -1,0 +1,6 @@
+2026-07-16T12:40:44.4503300Z ##[group]Run scripts/run-render-benchmark.sh benchmark.txt
+2026-07-16T12:40:44.4504100Z scripts/run-render-benchmark.sh benchmark.txt
+2026-07-16T12:40:44.4541640Z shell: /bin/bash -e {0}
+2026-07-16T12:40:44.4542030Z ##[endgroup]
+2026-07-16T12:41:22.8379690Z scripts/run-render-benchmark.sh: line 14:  1678 Trace/BPT trap: 5       .build/release/RenderBenchmark > "$benchmark_log" 2>&1
+2026-07-16T12:41:22.8513250Z ##[error]Process completed with exit code 133.

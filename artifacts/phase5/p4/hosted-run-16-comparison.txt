@@ -1,0 +1,12 @@
+mode=INFORMATIONAL ratio_enforcement=OFF reason=owner-decision-2026-07-15
+baseline=benchmarks/hosted-macos15-arm64-baseline.tsv
+baseline_valid_until=2026-10-12 expiry_enforcement=OFF
+run_url=https://github.com/leetn9468/OpenDraw/actions/runs/29498775517
+comparison_exit_status=1 job_effect=NONE
+bench1_p95 baseline_ms=5.259 observed_ms=8.751 ratio=1.664005 allowed_ratio=1.25 result=FAIL
+bench2_p95 baseline_ms=0.104 observed_ms=0.113 ratio=1.086538 allowed_ratio=1.25 result=PASS
+bench2b_p95 baseline_ms=4.837 observed_ms=6.230 ratio=1.287988 allowed_ratio=1.25 result=FAIL
+bench3_p95 baseline_ms=7.867 observed_ms=8.941 ratio=1.136520 allowed_ratio=1.25 result=PASS
+bench3_settle baseline_ms=2.622 observed_ms=3.283 ratio=1.252098 allowed_ratio=1.25 result=FAIL
+bench5a_p95 baseline_ms=0.011 observed_ms=0.011 ratio=1.000000 allowed_ratio=1.25 result=BOOTSTRAP
+bench5b_p95 baseline_ms=0.938 observed_ms=0.938 ratio=1.000000 allowed_ratio=1.25 result=BOOTSTRAP

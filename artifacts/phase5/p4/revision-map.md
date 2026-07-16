@@ -37,3 +37,24 @@ Implementation lineage:
 - `17f45ab2b74f732fe6830ef18ebbaa37e4c1b1fe` — removes the final runtime
   flag wording from benchmark output and the unused AppKit local parameter;
   this is the final P4 build input proved by every artifact in this directory.
+
+Hosted run 17 follow-up:
+
+- `36e46319e88ba6ee68e9acf826548900122137ad` — evidence-only P4 revision
+  executed by hosted push run 16 and dispatched run 17. Run 16 completed;
+  run 17 exited 133 after redirected Swift stdout lost the BENCH lines.
+  Preserved evidence: `hosted-run-16-push-benchmark.txt`,
+  `hosted-run-16-comparison.txt`, `hosted-run-17-failure-log.txt`, and
+  `hosted-run-17-partial-benchmark.txt`.
+- `a364fd1d7352a63d46277417995364c8a31ad6d6` — benchmark-wrapper-only
+  evidence-preservation input. Affected-gate artifacts:
+  `hosted-triage-benchmark.txt`,
+  `hosted-triage-benchmark-comparison.txt`,
+  `hosted-triage-ratio-fixtures.txt`, and
+  `hosted-triage-stress-trap.txt`. The stress fixture intentionally applies
+  CPU contention to prove that an exit-133 BENCH-5b failure retains the last
+  completed section and the exact observed/target values; it is not a
+  performance qualification run.
+
+The classification and operator rerun instructions are recorded in
+`hosted-run-17-triage.md`.

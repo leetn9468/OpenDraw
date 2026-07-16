@@ -1,0 +1,1 @@
+revision=36e46319e88ba6ee68e9acf826548900122137ad model=VirtualMac2,1 chip=Apple M1 (Virtual) memory_bytes=7516192768 os=15.7.7 build=24G720 arch=arm64 swift=swift-driver version: 1.120.5 Apple Swift version 6.1.2 (swiftlang-6.1.2.1.2 clang-1700.0.13.5)

@@ -123,3 +123,16 @@ benchmark target, ratio threshold, or document-schema rule changed. Every
 test deletion appears in the supersession table. Snapshot checkpoints and
 shared immutable asset storage remain exactly where delta recovery requires
 them; snapshot application undo/redo does not remain.
+
+## Hosted follow-up — dispatched run 17
+
+The first dispatched P4 benchmark run exited 133 before its redirected Swift
+stdout buffer was flushed. The raw log, partial artifact, same-revision push
+run, hypothesis classification, controlled line-195 reproduction, wrapper-only
+evidence fix, and affected-gate rerun are recorded in
+`artifacts/phase5/p4/hosted-run-17-triage.md`.
+
+No production source, test, frozen value, absolute benchmark target,
+precondition, or hosted/local gate semantic changed. The wrapper still returns
+the benchmark binary's exit 133; it now preserves enough output to report the
+exact hosted BENCH-5 value required by the standing owner-decision process.
