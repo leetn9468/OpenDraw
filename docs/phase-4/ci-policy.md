@@ -186,7 +186,8 @@ BENCH-5b variance evidence: hosted push run #16
 0.938 ms p95 with about 6% headroom. Dispatched run #17
 <https://github.com/leetn9468/OpenDraw/actions/runs/29499008599> trapped at the
 same gate but lost its value to redirected stdout buffering. Controlled CPU
-contention reproduced line-218 enforcement at 12.277 ms p95 while BENCH-5a
+contention reproduced line-195 enforcement on the triage revision at 12.277 ms
+p95 while BENCH-5a
 remained at 0.026 ms and BENCH-2b still redrew 360/360 strips; evidence is in
 `artifacts/phase5/p4/hosted-run-17-triage.md`. This >12× range makes hosted
 BENCH-5b informational by explicit owner decision. The unchanged 1.0 ms target

@@ -58,3 +58,20 @@ Hosted run 17 follow-up:
 
 The classification and operator rerun instructions are recorded in
 `hosted-run-17-triage.md`.
+
+Hosted BENCH-5b informational policy:
+
+- `afc03ddf236a816627ea408064541bd34b4e5b2f` — owner-decision
+  implementation input. `RenderBenchmark` defaults BENCH-5b enforcement ON,
+  the hosted workflow alone selects OFF, and the new blocking fixture proves
+  default BENCH-5b trapping, hosted-off BENCH-5b reporting, and unchanged
+  BENCH-5a trapping.
+- Affected-gate artifacts produced on that exact revision:
+  `bench5b-policy-local-enforced.txt`,
+  `bench5b-policy-local-comparison.txt`,
+  `bench5b-policy-hosted-informational.txt`,
+  `bench5b-policy-hosted-comparison-simulation.txt`,
+  `bench5b-policy-ratio-fixtures.txt`, and
+  `bench5b-policy-enforcement-fixtures.txt`.
+- `hosted-bench5b-policy-report.md` records the gate table, scope proof, and
+  the remaining operator push/manual-dispatch action.

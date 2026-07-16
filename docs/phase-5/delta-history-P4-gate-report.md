@@ -136,3 +136,17 @@ No production source, test, frozen value, absolute benchmark target,
 precondition, or hosted/local gate semantic changed. The wrapper still returns
 the benchmark binary's exit 133; it now preserves enough output to report the
 exact hosted BENCH-5 value required by the standing owner-decision process.
+
+## Hosted BENCH-5b owner decision
+
+The 2026-07-16 owner decision retains BENCH-5b's frozen 1.0 ms p95 target as a
+blocking owner-reference gate and makes only the GitHub-hosted observation
+informational. Implementation revision
+`afc03ddf236a816627ea408064541bd34b4e5b2f` adds a default-on harness-boundary
+mode; only the hosted workflow selects `off`. BENCH-2b and BENCH-5a remain
+blocking in both modes.
+
+The two-way falsifiability fixtures, complete final-revision benchmark tables,
+local ratios, scope proof, and external dispatch requirement are recorded in
+`artifacts/phase5/p4/hosted-bench5b-policy-report.md`. No production module,
+application test, frozen value, target, or scenario changed.
