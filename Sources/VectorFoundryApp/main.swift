@@ -1061,7 +1061,7 @@ extension AppDelegate: NSToolbarDelegate {
         toolbarAllowedItemIdentifiers(toolbar)
     }
     func toolbar(
-        _ toolbar: NSToolbar, itemForItemIdentifier id: NSToolbarItem.Identifier, willBeInsertedIntoToolbar flag: Bool
+        _ toolbar: NSToolbar, itemForItemIdentifier id: NSToolbarItem.Identifier, willBeInsertedIntoToolbar _: Bool
     ) -> NSToolbarItem? {
         let item = NSToolbarItem(itemIdentifier: id)
         item.label = id.rawValue.capitalized

@@ -190,6 +190,6 @@ let bench5b = try measure { index in
     }
 }
 printStats("BENCH-5b record", bench5b)
-print("BENCH-5 mix=structural,composite,anchor-slice flag=ON")
+print("BENCH-5 mix=structural,composite,anchor-slice history=delta-only")
 precondition(bench5a.p95 <= 16.7, "BENCH-5a p95 exceeds frozen 16.7 ms target")
 precondition(bench5b.p95 <= 1.0, "BENCH-5b p95 exceeds frozen 1.0 ms target")
