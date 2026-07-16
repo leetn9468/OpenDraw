@@ -1,0 +1,7 @@
+revision=17f45ab2b74f732fe6830ef18ebbaa37e4c1b1fe
+model=MacBookPro18,2
+chip=Apple M1 Max
+memory_bytes=68719476736
+os=15.7.5 build=24G624 arch=arm64
+Apple Swift version 6.1.2 (swiftlang-6.1.2.1.2 clang-1700.0.13.5)
+Target: arm64-apple-macosx15.0

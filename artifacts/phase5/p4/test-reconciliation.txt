@@ -1,0 +1,22 @@
+P3 enabled population=129
+deleted_obsolete_tests=7
+new_standalone_P4_tests=0
+P4 unconditional population=122
+arithmetic=129-7+0=122
+
+Deleted with successor/justification:
+- commandUndoRedoAndBranch -> testVerify028RedoBranchAndCancelledGestureFrozenStateMachine
+- historyDirtyCoalescingRollbackAndLimit -> deltaRevisionDirtyAndChangeStreamSemantics + P3 real-gesture coalescing + VERIFY-027
+- failedFirstGestureDoesNotCorruptLaterCoalescing -> testP3AnchorGestureCoalescesAndFailedFirstGestureDoesNotCorruptLaterCoalescing
+- historyLimitIsImmutableAndCappedAtThirty -> testVerify027CountEvictionAndReplayBoundFrozenExample
+- alignmentIsUndoable -> testP3AlignmentIsOneCompositeAndUndoableOnDeltaPath
+- directAnchorGroupUngroupAndCompoundCommandsAreUndoable -> P3 group/compound and migrated direct-anchor integration proofs
+- testDeltaHistoryFlagDefaultsOff -> gate removed; one unconditional population
+
+Migrated rather than deleted:
+- revisionGestureAndChangeStreamSemantics -> deltaRevisionDirtyAndChangeStreamSemantics
+- snapshotHistorySharesEmbeddedAssetsAndHonorsMemorySafetyNet -> checkpointHistorySharesEmbeddedAssetsAndHonorsMemorySafetyNet
+
+Expanded existing integration tests:
+- headlessUIJourneyCreateStyleTransformSaveReopenAndExport
+- accessibilityTreeExposesDocumentLayersSelectionAndFrames

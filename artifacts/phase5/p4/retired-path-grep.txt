@@ -1,0 +1,2 @@
+scope=Sources Tests scripts .github Makefile Package.swift
+matches=0 result=PASS

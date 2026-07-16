@@ -1,0 +1,15 @@
+[0/1] Planning build
+Building for debugging...
+[0/9] Write sources
+[2/9] Write swift-version--1AB21518FC5DEDBE.txt
+[4/11] Compiling RenderBenchmark main.swift
+[5/11] Emitting module RenderBenchmark
+[5/12] Write Objects.LinkFileList
+[6/12] Linking RenderBenchmark
+[7/12] Applying RenderBenchmark
+[9/12] Compiling VectorFoundryApp main.swift
+[10/12] Emitting module VectorFoundryApp
+[10/13] Write Objects.LinkFileList
+[11/13] Linking VectorFoundry
+[12/13] Applying VectorFoundry
+Build complete! (2.11s)

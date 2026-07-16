@@ -1,0 +1,5 @@
+scope=Sources Tests scripts .github Makefile Package.swift docs
+patterns=retired-runtime-flag-identifiers
+matches=0 result=PASS
+historical_artifact_logs_excluded=true reason=immutable-prior-phase-evidence
+generic_application_flag_wording=0
