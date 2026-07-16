@@ -130,10 +130,36 @@ changed. No file under `Tests/` changed. No frozen target, ratio, tolerance,
 ceiling, VERIFY value, benchmark scenario, warm-up count, measured-frame count,
 or production-path selection changed.
 
-## External hosted completion: OPEN
+## External hosted completion: RESOLVED
 
-The operator must push the evidence-final revision and manually dispatch that
-exact revision. Closure requires all eight jobs green and retention of the
-benchmark and informational comparison artifacts. The dispatch response must
-quote the complete hosted BENCH table verbatim, including blocking BENCH-5a
-and informational BENCH-5b.
+Manually dispatched CI #19 ran on exact revision
+`d278755e020455955c1837a7aa36ef20ec0058fe`:
+
+<https://github.com/leetn9468/OpenDraw/actions/runs/29529375715>
+
+All eight jobs executed and passed:
+
+| Job | Result |
+|---|---|
+| debug-release | PASS |
+| sanitizer | PASS |
+| adversarial-golden | PASS |
+| benchmark | PASS |
+| startup-memory | PASS |
+| coverage | PASS |
+| release-integrity | PASS |
+| nightly-reliability | PASS |
+
+The hosted benchmark artifact is preserved verbatim in
+`hosted-ci-19-benchmark.txt`. Its BENCH-5b p95 was 1.067 ms: above the
+unchanged owner-reference target, tagged
+`bench5b_enforcement=off result=INFORMATIONAL`, and correctly non-failing.
+BENCH-5a passed its unchanged hosted blocking target at 0.050 ms. BENCH-1,
+BENCH-2, BENCH-2b, BENCH-3, and settle also passed their unchanged hosted
+absolute targets; BENCH-2b proved 360/360 nonzero strip-redraw frames.
+
+The hosted-mode falsifiability step also passed all three cases. The
+informational ratio artifact retained all rows, recorded its comparison status
+as non-blocking, and included the 2026-07-16 enforcement annotation.
+
+CI #19 closes the delta-history feature's hosted story.

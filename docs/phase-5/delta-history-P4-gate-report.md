@@ -150,3 +150,11 @@ The two-way falsifiability fixtures, complete final-revision benchmark tables,
 local ratios, scope proof, and external dispatch requirement are recorded in
 `artifacts/phase5/p4/hosted-bench5b-policy-report.md`. No production module,
 application test, frozen value, target, or scenario changed.
+
+Manually dispatched CI #19 completed successfully on exact revision
+`d278755e020455955c1837a7aa36ef20ec0058fe`; all eight jobs were green.
+Hosted BENCH-5a passed at 0.050 ms p95, while BENCH-5b measured 1.067 ms p95
+and was correctly retained as informational. The full artifact, comparison,
+falsifiability evidence, system-gate summaries, and run URL are mapped in
+`artifacts/phase5/p4/revision-map.md`. The delta-history feature's hosted story
+is closed.

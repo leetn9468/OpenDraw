@@ -1,0 +1,14 @@
+revision=d278755e020455955c1837a7aa36ef20ec0058fe model=VirtualMac2,1 chip=Apple M1 (Virtual) memory_bytes=7516192768 os=15.7.7 build=24G720 arch=arm64 swift=swift-driver version: 1.120.5 Apple Swift version 6.1.2 (swiftlang-6.1.2.1.2 clang-1700.0.13.5)
+BENCH_METADATA warmup_frames=60 measured_frames=300 production_paths=true bench5b_enforcement=off
+BENCH-1 drag: p50 6.656 ms | p95 11.818 ms | max 20.498 ms
+BENCH-2 pan: p50 0.097 ms | p95 0.187 ms | max 0.530 ms
+BENCH-2b forced-exposure pan: p50 8.034 ms | p95 14.863 ms | max 21.370 ms
+BENCH-2b strip_redraw_frames=360 nonzero_every_frame=true
+BENCH-3 zoom: p50 3.199 ms | p95 11.597 ms | max 46.866 ms
+BENCH-3 settle: 4.131 ms
+BENCH-4 cold-open: 51.319 ms
+Warm full redraw: 8.952 ms
+BENCH-5a undo-redo: p50 0.010 ms | p95 0.050 ms | max 0.199 ms
+BENCH-5b record: p50 0.232 ms | p95 1.067 ms | max 1.253 ms
+BENCH-5 mix=structural,composite,anchor-slice history=delta-only
+BENCH-5b enforcement: bench5b_enforcement=off result=INFORMATIONAL

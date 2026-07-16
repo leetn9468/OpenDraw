@@ -1,0 +1,18 @@
+revision=d278755e020455955c1837a7aa36ef20ec0058fe
+default_mode_bench5b_overrun:
+BENCH-5a undo-redo: p50 0.010 ms | p95 0.010 ms | max 0.064 ms
+BENCH-5b record: p50 0.221 ms | p95 1.095 ms | max 2.001 ms
+BENCH-5b enforcement: bench5b_enforcement=on result=BLOCKING
+BENCH_TRAP source=Sources/RenderBenchmark/main.swift:218 gate=BENCH-5b observed_p95_ms=1.095 target_p95_ms=1.0
+hosted_off_bench5b_overrun:
+BENCH-5a undo-redo: p50 0.010 ms | p95 0.010 ms | max 0.076 ms
+BENCH-5b record: p50 0.398 ms | p95 1.538 ms | max 3.407 ms
+BENCH-5b enforcement: bench5b_enforcement=off result=INFORMATIONAL
+hosted_off_bench5a_and_b_overrun:
+BENCH-5a undo-redo: p50 0.009 ms | p95 16.701 ms | max 16.701 ms
+BENCH-5b record: p50 0.177 ms | p95 1.001 ms | max 1.001 ms
+BENCH-5b enforcement: bench5b_enforcement=off result=INFORMATIONAL
+BENCH_TRAP source=Sources/RenderBenchmark/main.swift:216 gate=BENCH-5a observed_p95_ms=16.701 target_p95_ms=16.7
+default_bench5b_overrun_exit=133 result=PASS
+informational_bench5b_overrun_exit=0 result=PASS
+informational_mode_bench5a_overrun_exit=133 result=PASS

@@ -1,0 +1,17 @@
+# mode=BOOTSTRAP_CANDIDATE
+# source_commit=94fb0f057510639b93d9802fe93ab4aa5f0b18de
+# source=github-hosted-macos15-arm64
+# runner_image=macos-15
+# run_url=https://github.com/leetn9468/OpenDraw/actions/runs/29347892897
+# measured_on=2026-07-14
+# valid_until=2026-10-12
+# validity_policy=informational-hosted-reference; expiry is metadata, not a blocking gate
+bench1_p95	5.259	1.25
+bench2_p95	0.104	1.25
+bench2b_p95	4.837	1.25
+bench3_p95	7.867	1.25
+bench3_settle	2.622	1.25
+# phase5_metrics_source_commit=d278755e020455955c1837a7aa36ef20ec0058fe
+# phase5_metrics_run_url=https://github.com/leetn9468/OpenDraw/actions/runs/29529375715
+bench5a_p95	0.050	1.25
+bench5b_p95	1.067	1.25

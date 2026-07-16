@@ -74,4 +74,13 @@ Hosted BENCH-5b informational policy:
   `bench5b-policy-ratio-fixtures.txt`, and
   `bench5b-policy-enforcement-fixtures.txt`.
 - `hosted-bench5b-policy-report.md` records the gate table, scope proof, and
-  the remaining operator push/manual-dispatch action.
+  hosted completion.
+- Manually dispatched CI #19 on exact revision
+  `d278755e020455955c1837a7aa36ef20ec0058fe` executed all eight jobs green:
+  <https://github.com/leetn9468/OpenDraw/actions/runs/29529375715>.
+  Retained evidence: `hosted-ci-19-jobs.txt`,
+  `hosted-ci-19-benchmark.txt`,
+  `hosted-ci-19-benchmark-comparison.txt`,
+  `hosted-ci-19-baseline-candidate.tsv`,
+  `hosted-ci-19-benchmark-fixtures.txt`, and
+  `hosted-ci-19-system-gates.txt`.

@@ -140,6 +140,14 @@ the authoritative supersession record are in
 `docs/verification/VERIFICATION_QUEUE.md`; the P4 implementation map is
 `docs/phase-5/delta-history-P4.md`.
 
+The feature's hosted story is **CLOSED** by manually dispatched CI #19 on exact
+revision `d278755e020455955c1837a7aa36ef20ec0058fe`:
+<https://github.com/leetn9468/OpenDraw/actions/runs/29529375715>. All eight jobs
+executed successfully. Hosted BENCH-5a remained blocking and passed at
+0.050 ms p95; BENCH-5b measured 1.067 ms p95 and was emitted as informational
+under the frozen 2026-07-16 owner decision. Evidence is retained under
+`artifacts/phase5/p4/`.
+
 ### P4 supersession table
 
 | Removed/replaced item | Disposition | Successor evidence |

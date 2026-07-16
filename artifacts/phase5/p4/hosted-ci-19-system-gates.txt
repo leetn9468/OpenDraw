@@ -1,0 +1,6 @@
+revision=d278755e020455955c1837a7aa36ef20ec0058fe
+startup_summary=samples=20 p50_ms=120.566 p95_ms=147.326 max_ms=716.792 target_ms=2000 result=PASS
+memory_settle=peak_bytes=284835840 limit_bytes=524288000 result=PASS
+memory_export=peak_bytes=293519360 limit_bytes=681574400 result=PASS
+memory_failure_fixture=peak_bytes=861257728 limit_bytes=524288000 result=FAIL_AS_REQUIRED
+reliability_summary=launches=100 distinct_pids=100 round_trips=10000 crashes=0 nonzero_exits=0 timeouts=0 corruption_failures=0 wall_clock_seconds=9 result=PASS

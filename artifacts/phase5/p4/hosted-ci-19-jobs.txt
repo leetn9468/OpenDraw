@@ -1,0 +1,15 @@
+run_id=29529375715
+run_number=19
+event=workflow_dispatch
+revision=d278755e020455955c1837a7aa36ef20ec0058fe
+status=completed
+conclusion=success
+run_url=https://github.com/leetn9468/OpenDraw/actions/runs/29529375715
+benchmark	success	https://github.com/leetn9468/OpenDraw/actions/runs/29529375715/job/87725714679
+sanitizer	success	https://github.com/leetn9468/OpenDraw/actions/runs/29529375715/job/87725714695
+coverage	success	https://github.com/leetn9468/OpenDraw/actions/runs/29529375715/job/87725714711
+adversarial-golden	success	https://github.com/leetn9468/OpenDraw/actions/runs/29529375715/job/87725714717
+debug-release	success	https://github.com/leetn9468/OpenDraw/actions/runs/29529375715/job/87725714719
+release-integrity	success	https://github.com/leetn9468/OpenDraw/actions/runs/29529375715/job/87725714737
+nightly-reliability	success	https://github.com/leetn9468/OpenDraw/actions/runs/29529375715/job/87725714743
+startup-memory	success	https://github.com/leetn9468/OpenDraw/actions/runs/29529375715/job/87725714747
