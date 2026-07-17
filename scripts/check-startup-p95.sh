@@ -10,7 +10,7 @@ swift build -c release --product VectorFoundry >/dev/null
 values=$(mktemp)
 trap 'rm -f "$values"' EXIT HUP INT TERM
 : >"$output"
-printf 'revision=%s model=%s chip=%s memory_bytes=%s os=%s build=%s arch=%s swift=%s policy=clean-process-cold-app-state-warm-os-caches start=static-initializer stop=window-ready\n' \
+printf 'revision=%s model=%s chip=%s memory_bytes=%s os=%s build=%s arch=%s swift=%s policy=clean-process-cold-app-state-warm-os-caches start=static-initializer stop=window-ready renderer=production-tile-composite forced_canvas_display=true\n' \
   "$(git rev-parse HEAD)" "$(sysctl -n hw.model)" "$(sysctl -n machdep.cpu.brand_string)" \
   "$(sysctl -n hw.memsize)" "$(sw_vers -productVersion)" "$(sw_vers -buildVersion)" "$(uname -m)" \
   "$(swift --version 2>&1 | head -1)" >>"$output"

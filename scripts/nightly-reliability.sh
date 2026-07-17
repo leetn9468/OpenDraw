@@ -9,7 +9,7 @@ printf 'revision=%s model=%s chip=%s memory_bytes=%s os=%s build=%s arch=%s swif
   "$(git rev-parse HEAD)" "$(sysctl -n hw.model)" "$(sysctl -n machdep.cpu.brand_string)" \
   "$(sysctl -n hw.memsize)" "$(sw_vers -productVersion)" "$(sw_vers -buildVersion)" "$(uname -m)" \
   "$(swift --version 2>&1 | head -1)" >>"$output"
-printf 'execution=sequential smoke_path=codec-only ui_initialized=false wall_clock=aggregate-loop-elapsed\n' >>"$output"
+printf 'execution=sequential smoke_path=codec-plus-production-tile-cold-warm ui_initialized=false wall_clock=aggregate-loop-elapsed\n' >>"$output"
 start=$(date +%s)
 launches=0
 round_trips=0
@@ -35,7 +35,8 @@ while [ "$launches" -lt 100 ]; do
   pid_is_unique=true
   if [ -n "$pid" ] && grep -Eqx "$pid" "$seen_pids"; then pid_is_unique=false; fi
   if [ "$status" -eq 0 ] && [ -n "$pid" ] && [ -n "$smoke_ms" ] \
-    && [ "$pid_is_unique" = true ] && printf '%s' "$line" | grep -Eq '100 native round trips passed'; then
+    && [ "$pid_is_unique" = true ] && printf '%s' "$line" \
+      | grep -Eq '100 native round trips passed tile_cold=[1-9][0-9]* tile_warm_hits=[1-9][0-9]*'; then
     round_trips=$((round_trips + 100))
     printf '%s\n' "$pid" >>"$seen_pids"
   else

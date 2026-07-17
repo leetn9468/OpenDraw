@@ -140,7 +140,7 @@ jobs:
             printf '# valid_until=%s\n' "$valid_until"
             awk '/BENCH-1 drag:/ { print "bench1_p95\t" $8 "\t1.25" }' benchmark.txt
             awk '/BENCH-2 pan:/ { print "bench2_p95\t" $8 "\t1.25" }' benchmark.txt
-            awk '/BENCH-2b forced-exposure pan:/ { print "bench2b_p95\t" $9 "\t1.25" }' benchmark.txt
+            awk '/BENCH-2b exposure corridor:/ { print "bench2b_p95\t" $9 "\t1.25" }' benchmark.txt
             awk '/BENCH-3 zoom:/ { print "bench3_p95\t" $8 "\t1.25" }' benchmark.txt
             awk '/BENCH-3 settle:/ { print "bench3_settle\t" $3 "\t1.25" }' benchmark.txt
             awk '/BENCH-5a undo-redo:/ { print "bench5a_p95\t" $8 "\t1.25" }' benchmark.txt

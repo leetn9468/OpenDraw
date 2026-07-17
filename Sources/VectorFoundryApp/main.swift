@@ -1095,6 +1095,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         NSApp.activate(ignoringOtherApps: true)
         if startupProbeEnabled {
+            canvas.displayIfNeeded()
             let elapsed = (ProcessInfo.processInfo.systemUptime - processStartupStart) * 1_000
             print(String(format: "STARTUP_READY_MS=%.3f", elapsed))
             fflush(stdout)
@@ -1350,11 +1351,26 @@ if CommandLine.arguments.contains("--smoke") {
         let codec = NativeDocumentCodec()
         var document = try EditorDocument.sample()
         for _ in 0..<100 { document = try codec.decode(codec.encode(document)) }
+        guard
+            let bitmap = CGContext(
+                data: nil, width: 800, height: 500, bitsPerComponent: 8,
+                bytesPerRow: 800 * 4, space: CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+        else { throw EditorError.invalidValue("Smoke tile bitmap allocation failed") }
+        let renderer = TileCompositeRenderer()
+        let cold = try renderer.composite(document, in: bitmap)
+        let warm = try renderer.composite(document, in: bitmap)
+        guard cold.renderedTiles.count == cold.visibleCoordinates.count,
+            warm.renderedTiles.isEmpty,
+            warm.hitTiles.count == warm.visibleCoordinates.count
+        else { throw EditorError.invariantViolation("Smoke tile composite did not become fully warm") }
         let elapsed = (ProcessInfo.processInfo.systemUptime - smokeStart) * 1_000
         print(
             String(
-                format: "OpenDraw smoke: pid=%d duration_ms=%.3f 100 native round trips passed",
-                ProcessInfo.processInfo.processIdentifier, elapsed))
+                format:
+                    "OpenDraw smoke: pid=%d duration_ms=%.3f 100 native round trips passed tile_cold=%d tile_warm_hits=%d",
+                ProcessInfo.processInfo.processIdentifier, elapsed,
+                cold.renderedTiles.count, warm.hitTiles.count))
         exit(EXIT_SUCCESS)
     } catch {
         fputs("OpenDraw smoke failed: \(error)\n", stderr)
