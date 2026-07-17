@@ -4,7 +4,7 @@ import EditorCommands
 import Foundation
 import Testing
 
-@Suite(.enabled(if: tileCacheT1TestsEnabled))
+@Suite
 struct TileMemoryPressureT2VerifyTests {
     @Test func verifyT2PressureDropsFullTileCacheBeforeCheckpointsAndPreservesFloorPins() throws {
         let grid = try TileGrid(documentWidth: 512 * 256, documentHeight: 256)

@@ -98,58 +98,113 @@ defer { ProcessInfo.processInfo.endActivity(activity) }
 print(
     "BENCH_METADATA warmup_frames=60 measured_frames=300 production_paths=true "
         + "bench5b_enforcement=\(bench5bEnforcementEnabled ? "on" : "off") "
-        + "legacy_tile_flag_reads=false bench6_tile_configuration=explicit-on")
+        + "renderer=tile-composite bench2b_fixture=exposure-corridor")
 if let benchmarkGateFixture {
     print("BENCH_GATE_FIXTURE=\(benchmarkGateFixture)")
 }
 let base = try referenceDocument()
 let destination = context()
+let baseGrid = try TileGrid(documentWidth: base.width, documentHeight: base.height)
 let coldStart = ContinuousClock.now
-CoreGraphicsRenderer().render(base, in: destination)
+let coldRenderer = TileCompositeRenderer()
+_ = try coldRenderer.composite(base, in: destination)
 let coldOpenMilliseconds = milliseconds(coldStart.duration(to: .now))
 
-var dragDocument = base
-let dragCache = SceneBitmapCache()
-var revision: UInt64 = 0
-let bench1 = measure { index in
-    revision += 1
-    _ = dragDocument.translateNode(id: id(0), documentDX: index.isMultiple(of: 2) ? 1 : -1, documentDY: 0)
-    dragCache.render(dragDocument, revision: revision, in: destination, viewport: RenderViewport())
+var dragHistory = try DeltaCommandHistory(document: base)
+let dragRenderer = TileCompositeRenderer()
+dragRenderer.subscribe(to: dragHistory)
+_ = try dragRenderer.composite(dragHistory.document, in: destination)
+let bench1 = try measure { index in
+    let direction = index.isMultiple(of: 2) ? 1.0 : -1.0
+    var transform = dragHistory.document.path(id: id(0))!.transform
+    transform.tx += direction
+    let edit = try ValueSwapCommands.transform(
+        in: dragHistory.document, nodeID: id(0), newValue: transform)
+    let expected = TileDamageMapper.map(edit.damageBounds.documentDamage, in: baseGrid)
+        .resolvedCoordinates(in: baseGrid)
+    try dragHistory.commit(edit)
+    let frame = try dragRenderer.composite(dragHistory.document, in: destination)
+    precondition(!frame.hitTiles.isEmpty, "BENCH-1 requires clean cache hits")
+    precondition(
+        Set(frame.renderedTiles) == expected,
+        "BENCH-1 rendered tiles must exactly equal mapped edit damage")
 }
 printStats("BENCH-1 drag", bench1)
 
-let panCache = SceneBitmapCache()
-let bench2 = measure { index in
-    panCache.render(base, revision: 1, in: destination, viewport: RenderViewport(pan: Point(x: Double(index), y: 0)))
+let panRenderer = TileCompositeRenderer()
+_ = try panRenderer.composite(base, in: destination)
+let bench2 = try measure { index in
+    let visibleRect = DevicePixelRect(
+        minX: index, minY: 0, maxX: index + 800, maxY: 500)
+    let frame = try panRenderer.composite(
+        base, in: destination, visibleDeviceRect: visibleRect)
+    precondition(frame.renderedTiles.isEmpty, "BENCH-2 warm pan must be hit-dominated")
+    precondition(!frame.hitTiles.isEmpty, "BENCH-2 warm pan requires cache hits")
 }
 printStats("BENCH-2 pan", bench2)
 
-let stripCache = ViewportStripCache()
-var priorStripCount = 0
-let bench2b = measure { index in
-    stripCache.render(
-        base, revision: 1, in: destination,
-        viewport: RenderViewport(zoom: 2, pan: Point(x: -Double(index * 2), y: 0)),
-        pixelWidth: 800, pixelHeight: 500)
-    let current = stripCache.redrawnStripCount
-    precondition(current > priorStripCount, "BENCH-2b must redraw a nonzero strip every frame")
-    priorStripCount = current
+let corridor = try TileExposureCorridor.document()
+let corridorRenderer = TileCompositeRenderer()
+let corridorDestination = context()
+let corridorGrid = try TileGrid(
+    documentWidth: corridor.width, documentHeight: corridor.height,
+    zoom: TileExposureCorridor.zoom,
+    backingScale: TileExposureCorridor.backingScale)
+precondition(corridorGrid.canvasWidth == 92_960 && corridorGrid.canvasHeight == 500)
+let corridorSetup = try corridorRenderer.composite(
+    corridor, in: corridorDestination, zoom: TileExposureCorridor.zoom,
+    backingScale: TileExposureCorridor.backingScale,
+    visibleDeviceRect: TileExposureCorridor.setupVisibleRect)
+precondition(
+    Set(corridorSetup.renderedTiles) == TileExposureCorridor.expectedSetupTiles(),
+    "BENCH-2b setup must render exactly columns 0...3")
+precondition(corridorSetup.hitTiles.isEmpty, "BENCH-2b setup cannot contain hits")
+var corridorRenderedRegions = Set(corridorSetup.renderedTiles)
+let bench2b = try measure { zeroBasedFrame in
+    let frameIndex = zeroBasedFrame + 1
+    let visibleRect = TileExposureCorridor.visibleRect(frame: frameIndex)
+    let expectedRendered = TileExposureCorridor.expectedRenderedTiles(frame: frameIndex)
+    precondition(
+        expectedRendered.isDisjoint(with: corridorRenderedRegions),
+        "BENCH-2b cannot expose an already-rendered region")
+    let frame = try corridorRenderer.composite(
+        corridor, in: corridorDestination, zoom: TileExposureCorridor.zoom,
+        backingScale: TileExposureCorridor.backingScale,
+        visibleDeviceRect: visibleRect)
+    let rendered = Set(frame.renderedTiles)
+    let hits = Set(frame.hitTiles)
+    let visible = Set(corridorGrid.coordinates(intersecting: visibleRect))
+    precondition(
+        rendered == expectedRendered,
+        "BENCH-2b frame \(frameIndex) rendered \(rendered), expected \(expectedRendered)")
+    precondition(!rendered.isEmpty, "BENCH-2b cannot have a zero-render frame")
+    precondition(
+        hits == visible.subtracting(expectedRendered),
+        "BENCH-2b all non-new visible tiles must composite as hits")
+    precondition(
+        hits.isSubset(of: corridorRenderedRegions),
+        "BENCH-2b cannot serve a never-rendered region as a hit")
+    corridorRenderedRegions.formUnion(rendered)
 }
-printStats("BENCH-2b forced-exposure pan", bench2b)
-print("BENCH-2b strip_redraw_frames=360 nonzero_every_frame=true")
+printStats("BENCH-2b exposure corridor", bench2b)
+print(
+    "BENCH-2b exact_indices=true setup_columns=0...3 frame_formula=(f+3,0),(f+3,1) "
+        + "frames=1...360 warmup=1...60 measured=61...360 rendered_regions=\(corridorRenderedRegions.count)")
 
-let zoomCache = SceneBitmapCache()
+let zoomRenderer = TileCompositeRenderer()
 let bench3 = measure { index in
     let zoom = 0.8 + Double(index % 60) / 100
-    zoomCache.render(base, revision: 1, in: destination, viewport: RenderViewport(zoom: zoom))
+    zoomRenderer.renderZoomGestureDirect(
+        base, in: destination, viewport: RenderViewport(zoom: zoom))
 }
 printStats("BENCH-3 zoom", bench3)
 let settleStart = ContinuousClock.now
-zoomCache.render(base, revision: 1, in: destination, viewport: RenderViewport(zoom: 1.4))
-print(String(format: "BENCH-3 settle: %.3f ms", milliseconds(settleStart.duration(to: .now))))
+_ = try zoomRenderer.composite(base, in: destination, zoom: 1.4)
+let bench3Settle = milliseconds(settleStart.duration(to: .now))
+print(String(format: "BENCH-3 settle: %.3f ms", bench3Settle))
 
 let warmFullStart = ContinuousClock.now
-CoreGraphicsRenderer().render(base, in: destination)
+_ = try coldRenderer.composite(base, in: destination)
 print(String(format: "BENCH-4 cold-open: %.3f ms", coldOpenMilliseconds))
 print(String(format: "Warm full redraw: %.3f ms", milliseconds(warmFullStart.duration(to: .now))))
 
@@ -216,8 +271,7 @@ print(
         + "result=\(bench5bEnforcementEnabled ? "BLOCKING" : "INFORMATIONAL")")
 
 var tileHistory = try DeltaCommandHistory(document: base)
-let tileRenderer = TileCompositeRenderer(
-    configuration: TileCacheStartupConfiguration(isEnabled: true))
+let tileRenderer = TileCompositeRenderer()
 tileRenderer.subscribe(to: tileHistory)
 let tileDestination = context()
 let tileGrid = try TileGrid(documentWidth: base.width, documentHeight: base.height)
@@ -245,6 +299,11 @@ print(
         + "warmup_frames=60 measured_frames=300 result=BLOCKING")
 print("BENCH-6 sequence=node-84 dx=alternating(+1,-1) dy=0 reference_scene_nodes=1000")
 precondition(bench5a.p95 <= 16.7, "BENCH-5a p95 exceeds frozen 16.7 ms target")
+precondition(bench1.p95 <= 16.7, "BENCH-1 p95 exceeds frozen 16.7 ms target")
+precondition(bench2.p95 <= 16.7, "BENCH-2 p95 exceeds frozen 16.7 ms target")
+precondition(bench2b.p95 <= 16.7, "BENCH-2b p95 exceeds frozen 16.7 ms target")
+precondition(bench3.p95 <= 33.0, "BENCH-3 p95 exceeds frozen 33 ms target")
+precondition(bench3Settle <= 100.0, "BENCH-3 settle exceeds frozen 100 ms target")
 if bench5bEnforcementEnabled {
     precondition(bench5b.p95 <= 1.0, "BENCH-5b p95 exceeds frozen 1.0 ms target")
 }

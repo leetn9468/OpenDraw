@@ -34,8 +34,9 @@ if [ "$status" -eq 133 ]; then
       printf 'BENCH_TRAP source=Sources/RenderBenchmark/main.swift:218 gate=BENCH-5b observed_p95_ms=%s target_p95_ms=1.0\n' \
         "$bench5b" | tee -a "$output" >&2
     fi
-  elif grep -q '^BENCH-2 pan:' "$benchmark_log" && ! grep -q '^BENCH-2b forced-exposure pan:' "$benchmark_log"; then
-    printf 'BENCH_TRAP source=Sources/RenderBenchmark/main.swift:134 gate=BENCH-2b-nonzero-strip\n' \
+  elif grep -q '^BENCH-2 pan:' "$benchmark_log" && ! grep -q '^BENCH-2b exposure corridor:' "$benchmark_log"; then
+    corridor_line=$(awk '/let bench2b = try measure/ { print NR; exit }' Sources/RenderBenchmark/main.swift)
+    printf 'BENCH_TRAP source=Sources/RenderBenchmark/main.swift:%s gate=BENCH-2b-exact-corridor-indices\n' "$corridor_line" \
       | tee -a "$output" >&2
   fi
 fi

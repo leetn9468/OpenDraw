@@ -21,7 +21,7 @@ extract() {
   case "$metric" in
     bench1_p95) awk '/BENCH-1 drag:/ { print $8 }' "$current" ;;
     bench2_p95) awk '/BENCH-2 pan:/ { print $8 }' "$current" ;;
-    bench2b_p95) awk '/BENCH-2b forced-exposure pan:/ { print $9 }' "$current" ;;
+    bench2b_p95) awk '/BENCH-2b exposure corridor:/ { print $9 }' "$current" ;;
     bench3_p95) awk '/BENCH-3 zoom:/ { print $8 }' "$current" ;;
     bench3_settle) awk '/BENCH-3 settle:/ { print $3 }' "$current" ;;
     bench5a_p95) awk '/BENCH-5a undo-redo:/ { print $8 }' "$current" ;;

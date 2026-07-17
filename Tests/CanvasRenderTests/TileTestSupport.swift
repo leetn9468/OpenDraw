@@ -6,8 +6,6 @@ import Foundation
 import Geometry
 import Testing
 
-let tileCacheT1TestsEnabled = TileCacheStartupConfiguration.process.isEnabled
-
 enum TileTestError: Error, Equatable {
     case pixelCountOverflow
 }

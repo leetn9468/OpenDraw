@@ -28,6 +28,15 @@ public struct CoreGraphicsRenderer: Sendable {
         _ document: EditorDocument, in context: CGContext, viewport: RenderViewport,
         approvedImages: [ObjectID: CGImage] = [:]
     ) {
+        render(
+            document, in: context, viewport: viewport,
+            approvedImages: approvedImages, rootNodeIndicesByLayer: nil)
+    }
+    func render(
+        _ document: EditorDocument, in context: CGContext, viewport: RenderViewport,
+        approvedImages: [ObjectID: CGImage],
+        rootNodeIndicesByLayer: [[Int]]?
+    ) {
         context.saveGState()
         defer { context.restoreGState() }
         if let clip = viewport.clip {
@@ -44,12 +53,29 @@ public struct CoreGraphicsRenderer: Sendable {
                 maxX: ($0.maxX - viewport.pan.x) / viewport.zoom,
                 maxY: ($0.maxY - viewport.pan.y) / viewport.zoom)
         }
-        for layer in document.layers where layer.isVisible {
-            for node in layer.nodes
-            where visibleDocumentRect.map({ node.visualBounds?.intersects($0) ?? false }) ?? true {
-                render(node, swatches: swatches, gradients: gradients, approvedImages: approvedImages, in: context)
+        for (layerIndex, layer) in document.layers.enumerated() where layer.isVisible {
+            if let rootNodeIndicesByLayer {
+                guard rootNodeIndicesByLayer.indices.contains(layerIndex) else { continue }
+                for nodeIndex in rootNodeIndicesByLayer[layerIndex]
+                where layer.nodes.indices.contains(nodeIndex) {
+                    let node = layer.nodes[nodeIndex]
+                    guard isVisible(node, in: visibleDocumentRect) else { continue }
+                    render(
+                        node, swatches: swatches, gradients: gradients,
+                        approvedImages: approvedImages, in: context)
+                }
+            } else {
+                for node in layer.nodes where isVisible(node, in: visibleDocumentRect) {
+                    render(
+                        node, swatches: swatches, gradients: gradients,
+                        approvedImages: approvedImages, in: context)
+                }
             }
         }
+    }
+    private func isVisible(_ node: SceneNode, in clip: Rect?) -> Bool {
+        guard let clip else { return true }
+        return node.visualBounds.map { $0.intersects(clip) } ?? true
     }
     public func renderSelection(_ object: PathObject, in context: CGContext, zoom: Double) {
         // Selection overlays use visual bounds because they describe rendered ink.

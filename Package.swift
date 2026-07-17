@@ -52,7 +52,8 @@ let package = Package(
         .testTarget(
             name: "DocumentFormatsTests",
             dependencies: [
-                "EditorCore", "EditorCommands", "EditorTools", "DocumentFormats", "DocumentModel", "Geometry",
+                "CanvasRender", "EditorCore", "EditorCommands", "EditorTools", "DocumentFormats", "DocumentModel",
+                "Geometry",
             ],
             resources: [.copy("Fixtures")]),
         .testTarget(

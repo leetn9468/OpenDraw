@@ -135,15 +135,17 @@ private func settle(_ document: EditorDocument) async throws -> SettledScenario 
     let approvedPixelCount = await cache.approvedPixelCount()
     precondition(approvedPixelCount == 50_000_000, "Decoded pixel count must be representative")
     let context = bitmapContext()
-    CoreGraphicsRenderer().render(document, in: context, approvedImages: approvedImages)
+    let renderer = TileCompositeRenderer()
+    _ = try renderer.composite(
+        document, in: context, approvedImages: approvedImages)
+    try fillTileCache(renderer.cache)
     return SettledScenario(
         context: context, approvedImages: approvedImages,
-        tileCache: try filledTileCache())
+        tileCache: renderer.cache)
 }
 
-private func filledTileCache() throws -> TileCache<CGImage> {
+private func fillTileCache(_ cache: TileCache<CGImage>) throws {
     let grid = try TileGrid(documentWidth: 512 * 256, documentHeight: 256)
-    let cache = TileCache<CGImage>()
     for column in 0..<512 {
         let bytes = Data(
             repeating: UInt8(truncatingIfNeeded: column),
@@ -162,7 +164,6 @@ private func filledTileCache() throws -> TileCache<CGImage> {
     }
     precondition(cache.count == 512)
     precondition(cache.totalByteCount == 134_217_728)
-    return cache
 }
 
 private func exportPNG(_ context: CGContext) throws {

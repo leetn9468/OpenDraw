@@ -3,7 +3,7 @@ import DocumentModel
 import Geometry
 import Testing
 
-@Suite(.enabled(if: tileCacheT1TestsEnabled))
+@Suite
 struct TileGeometryVerifyTests {
     @Test func verify029FrozenDamageMappingExamples() throws {
         let grid = try TileGrid(documentWidth: 800, documentHeight: 500)

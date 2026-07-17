@@ -1,8 +1,9 @@
 import CanvasRender
+import CoreGraphics
 import DocumentModel
 import Testing
 
-@Suite(.enabled(if: tileCacheT1TestsEnabled))
+@Suite
 struct TileCompositeVerifyTests {
     @Test func verify031DisabledCacheRemainsCompositeCorrect() throws {
         let document = try EditorDocument(
@@ -81,5 +82,60 @@ struct TileCompositeVerifyTests {
         #expect(warmDifference.passesFrozenInstrument)
         #expect(coldDifference.differingPixels == 0)
         #expect(warmDifference.differingPixels == 0)
+    }
+
+    @Test func productionDocumentCoordinateCompositeEqualsDirect() throws {
+        let document = try cornerStraddleDocument()
+        let directBitmap = try TileTestBitmap(width: 512, height: 512)
+        CoreGraphicsRenderer().render(document, in: directBitmap.context)
+        let direct = try #require(directBitmap.context.makeImage())
+
+        let productionBitmap = try TileTestBitmap(width: 512, height: 512)
+        let renderer = TileCompositeRenderer()
+        let cold = try renderer.compositeDocumentCoordinates(
+            document, in: productionBitmap.context)
+        let production = try #require(productionBitmap.context.makeImage())
+        #expect(Set(cold.renderedTiles) == Set(cold.visibleCoordinates))
+        let difference = try compare(production, direct)
+        #expect(difference.differingPixels == 0)
+    }
+
+    @Test func bench2bExposureCorridorRendersExactIndices() throws {
+        #expect(TileExposureCorridor.documentWidth == 46_480)
+        #expect(TileExposureCorridor.documentHeight == 250)
+        #expect(TileExposureCorridor.deviceWidth == 92_960)
+        #expect(TileExposureCorridor.deviceHeight == 500)
+        #expect(TileExposureCorridor.nodeCount == 9_100)
+        #expect(TileExposureCorridor.warmupCount == 60)
+        #expect(TileExposureCorridor.measuredCount == 300)
+
+        let document = try TileExposureCorridor.document()
+        #expect(document.layers.flatMap(\.nodes).count == 9_100)
+        let renderer = TileCompositeRenderer()
+        let bitmap = try TileTestBitmap(
+            width: TileExposureCorridor.viewportWidth,
+            height: TileExposureCorridor.viewportHeight)
+        let setup = try renderer.composite(
+            document, in: bitmap.context, zoom: TileExposureCorridor.zoom,
+            backingScale: TileExposureCorridor.backingScale,
+            visibleDeviceRect: TileExposureCorridor.setupVisibleRect)
+        #expect(Set(setup.renderedTiles) == TileExposureCorridor.expectedSetupTiles())
+        #expect(setup.hitTiles.isEmpty)
+
+        var renderedRegions = Set(setup.renderedTiles)
+        for frame in 1...TileExposureCorridor.advanceCount {
+            let expected = TileExposureCorridor.expectedRenderedTiles(frame: frame)
+            #expect(expected.isDisjoint(with: renderedRegions))
+            let result = try renderer.composite(
+                document, in: bitmap.context, zoom: TileExposureCorridor.zoom,
+                backingScale: TileExposureCorridor.backingScale,
+                visibleDeviceRect: TileExposureCorridor.visibleRect(frame: frame))
+            #expect(Set(result.renderedTiles) == expected, "frame \(frame)")
+            #expect(!result.renderedTiles.isEmpty, "frame \(frame)")
+            #expect(Set(result.hitTiles).isSubset(of: renderedRegions), "frame \(frame)")
+            #expect(Set(result.hitTiles).isDisjoint(with: expected), "frame \(frame)")
+            renderedRegions.formUnion(result.renderedTiles)
+        }
+        #expect(renderedRegions.count == 728)
     }
 }

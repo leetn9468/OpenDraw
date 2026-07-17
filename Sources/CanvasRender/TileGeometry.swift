@@ -2,17 +2,6 @@ import DocumentModel
 import Foundation
 import Geometry
 
-public struct TileCacheStartupConfiguration: Equatable, Sendable {
-    public static let process = TileCacheStartupConfiguration(
-        isEnabled: ProcessInfo.processInfo.environment["OPENDRAW_TILE_CACHE"] == "1")
-
-    public let isEnabled: Bool
-
-    public init(isEnabled: Bool) {
-        self.isEnabled = isEnabled
-    }
-}
-
 public enum TileGridError: Error, Equatable, Sendable {
     case invalidDimensionsOrScale
     case dimensionOverflow

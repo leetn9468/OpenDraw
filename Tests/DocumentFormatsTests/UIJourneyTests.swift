@@ -1,3 +1,5 @@
+import CanvasRender
+import CoreGraphics
 import DocumentFormats
 import DocumentModel
 import EditorCommands
@@ -10,6 +12,10 @@ import Testing
 @Test func headlessUIJourneyCreateStyleTransformSaveReopenAndExport() throws {
     var history = try DeltaCommandHistory(
         document: EditorDocument(width: 640, height: 480))
+    let productionRenderer = TileCompositeRenderer()
+    productionRenderer.subscribe(to: history)
+    let initialContext = try journeyBitmapContext()
+    _ = try productionRenderer.composite(history.document, in: initialContext)
     let path = try #require(ShapeFactory.rectangle(from: Point(x: 20, y: 20), to: Point(x: 120, y: 90)))
     let second = try #require(ShapeFactory.rectangle(from: Point(x: 180, y: 40), to: Point(x: 260, y: 120)))
     let artworkLayer = history.document.layers[0].id
@@ -117,6 +123,17 @@ import Testing
     #expect(history.canUndo)
     for _ in 0..<31 { try history.redo() }
     #expect(history.undoDepth == deepUndoCount)
+    let productionContext = try journeyBitmapContext()
+    let productionFrame = try productionRenderer.composite(
+        history.document, in: productionContext)
+    #expect(!productionFrame.renderedTiles.isEmpty)
+    let directContext = try journeyBitmapContext()
+    CoreGraphicsRenderer().render(history.document, in: directContext)
+    let productionImage = try #require(productionContext.makeImage())
+    let directImage = try #require(directContext.makeImage())
+    let productionBytes = try #require(productionImage.dataProvider?.data) as Data
+    let directBytes = try #require(directImage.dataProvider?.data) as Data
+    #expect(productionBytes == directBytes)
     let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
     defer { try? FileManager.default.removeItem(at: directory) }
@@ -128,4 +145,12 @@ import Testing
     let svg = try SVGExporter().export(reopened)
     #expect(String(decoding: svg.data, as: UTF8.self).contains("<path"))
     #expect(svg.warnings.map(\.code) == ["SVG-IMAGE-OMITTED"])
+}
+
+private func journeyBitmapContext() throws -> CGContext {
+    try #require(
+        CGContext(
+            data: nil, width: 640, height: 480, bitsPerComponent: 8,
+            bytesPerRow: 640 * 4, space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
 }

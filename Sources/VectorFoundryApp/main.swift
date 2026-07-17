@@ -11,7 +11,6 @@ import UniformTypeIdentifiers
 
 private let processStartupStart = ProcessInfo.processInfo.systemUptime
 private let startupProbeEnabled = CommandLine.arguments.contains("--startup-probe")
-private let tileCacheStartupConfiguration = TileCacheStartupConfiguration.process
 
 private func registerEmbeddedAssets(
     in document: EditorDocument, with store: ApprovedAssetStore
@@ -69,7 +68,9 @@ final class CanvasView: NSView {
     private var snappingEnabled = true
     private var snapIndicator: Point?
     private var transformGesture: TransformGesture?
-    private let renderer = CoreGraphicsRenderer()
+    private let renderer = TileCompositeRenderer()
+    private var isZoomGestureActive = false
+    private var zoomSettleTask: Task<Void, Never>?
     private var changeTask: Task<Void, Never>?
     init(frame: NSRect, document: EditorDocument) throws {
         let assetStore = ApprovedAssetStore()
@@ -80,12 +81,16 @@ final class CanvasView: NSView {
         setAccessibilityElement(true)
         setAccessibilityRole(.group)
         setAccessibilityLabel("OpenDraw document canvas")
+        renderer.subscribe(to: history)
         subscribeToChanges()
     }
     required init?(coder: NSCoder) { nil }
     var hasSelection: Bool { !selectedIDs.isEmpty }
     var hasMultipleSelection: Bool { selectedIDs.count > 1 }
-    deinit { changeTask?.cancel() }
+    deinit {
+        changeTask?.cancel()
+        zoomSettleTask?.cancel()
+    }
     private func subscribeToChanges() {
         changeTask?.cancel()
         let stream = history.changes()
@@ -104,7 +109,7 @@ final class CanvasView: NSView {
         context.scaleBy(x: zoom, y: zoom)
         context.setFillColor(NSColor.white.cgColor)
         context.fill(CGRect(x: 0, y: 0, width: history.document.width, height: history.document.height))
-        renderer.render(history.document, in: context)
+        renderDocument(in: context, dirtyRect: dirtyRect)
         if activeTool == .directSelection {
             context.setFillColor(NSColor.controlAccentColor.cgColor)
             for id in selectedIDs {
@@ -432,6 +437,8 @@ final class CanvasView: NSView {
     }
     override func scrollWheel(with event: NSEvent) {
         if event.modifierFlags.contains(.option) {
+            updateZoomGestureState(for: event)
+            scheduleZoomSettleIfNeeded()
             setZoom(zoom * exp(-event.scrollingDeltaY * 0.01), about: convert(event.locationInWindow, from: nil))
         } else {
             pan = Point(x: pan.x - event.scrollingDeltaX, y: pan.y - event.scrollingDeltaY)
@@ -439,6 +446,8 @@ final class CanvasView: NSView {
         }
     }
     override func magnify(with event: NSEvent) {
+        updateZoomGestureState(for: event)
+        scheduleZoomSettleIfNeeded()
         setZoom(zoom * (1 + event.magnification), about: convert(event.locationInWindow, from: nil))
     }
     override func keyDown(with event: NSEvent) {
@@ -502,6 +511,67 @@ final class CanvasView: NSView {
     private func documentPoint(_ viewPoint: NSPoint) -> Point {
         Point(x: (viewPoint.x - 24 - pan.x) / zoom, y: (viewPoint.y - 24 - pan.y) / zoom)
     }
+    private func renderDocument(in context: CGContext, dirtyRect: NSRect) {
+        let origin = NSPoint(x: 24 + pan.x, y: 24 + pan.y)
+        let artboard = NSRect(
+            x: origin.x, y: origin.y,
+            width: history.document.width * zoom,
+            height: history.document.height * zoom)
+        let visibleViewRect = dirtyRect.intersection(artboard)
+        guard !visibleViewRect.isEmpty else { return }
+        let documentRect = Rect(
+            minX: max(0, (visibleViewRect.minX - origin.x) / zoom),
+            minY: max(0, (visibleViewRect.minY - origin.y) / zoom),
+            maxX: min(history.document.width, (visibleViewRect.maxX - origin.x) / zoom),
+            maxY: min(history.document.height, (visibleViewRect.maxY - origin.y) / zoom))
+        guard documentRect.width > 0, documentRect.height > 0 else { return }
+        if isZoomGestureActive {
+            renderer.renderZoomGestureDirect(
+                history.document, in: context,
+                viewport: RenderViewport(clip: documentRect))
+            return
+        }
+        let backingScale = window?.backingScaleFactor ?? 1
+        let deviceScale = zoom * backingScale
+        let visibleDeviceRect = DevicePixelRect(
+            minX: Int(floor(documentRect.minX * deviceScale)),
+            minY: Int(floor(documentRect.minY * deviceScale)),
+            maxX: Int(ceil(documentRect.maxX * deviceScale)),
+            maxY: Int(ceil(documentRect.maxY * deviceScale)))
+        do {
+            try renderer.compositeDocumentCoordinates(
+                history.document, in: context, zoom: zoom,
+                backingScale: backingScale, visibleDeviceRect: visibleDeviceRect)
+        } catch {
+            Diagnostics.rendering.error(
+                "Tile composite failed: \(String(describing: error), privacy: .public)")
+        }
+    }
+    private func updateZoomGestureState(for event: NSEvent) {
+        if event.phase.isEmpty && event.momentumPhase.isEmpty {
+            isZoomGestureActive = true
+        } else if event.phase.contains(.began) || event.phase.contains(.changed)
+            || event.momentumPhase.contains(.began) || event.momentumPhase.contains(.changed)
+        {
+            isZoomGestureActive = true
+        }
+        if event.phase.contains(.ended) || event.phase.contains(.cancelled)
+            || event.momentumPhase.contains(.ended) || event.momentumPhase.contains(.cancelled)
+        {
+            isZoomGestureActive = false
+            zoomSettleTask?.cancel()
+        }
+    }
+    private func scheduleZoomSettleIfNeeded() {
+        guard isZoomGestureActive else { return }
+        zoomSettleTask?.cancel()
+        zoomSettleTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .milliseconds(120))
+            guard !Task.isCancelled else { return }
+            self?.isZoomGestureActive = false
+            self?.needsDisplay = true
+        }
+    }
     private func anchorOrder(_ lhs: AnchorRef, _ rhs: AnchorRef) -> Bool {
         if lhs.pathID != rhs.pathID {
             return lhs.pathID.rawValue.uuidString < rhs.pathID.rawValue.uuidString
@@ -546,10 +616,20 @@ final class CanvasView: NSView {
             needsDisplay = true
         }
     }
-    func zoomIn() { setZoom(zoom * 1.25, about: NSPoint(x: bounds.midX, y: bounds.midY)) }
-    func zoomOut() { setZoom(zoom / 1.25, about: NSPoint(x: bounds.midX, y: bounds.midY)) }
-    func actualSize() { setZoom(1, about: NSPoint(x: bounds.midX, y: bounds.midY)) }
+    func zoomIn() {
+        isZoomGestureActive = false
+        setZoom(zoom * 1.25, about: NSPoint(x: bounds.midX, y: bounds.midY))
+    }
+    func zoomOut() {
+        isZoomGestureActive = false
+        setZoom(zoom / 1.25, about: NSPoint(x: bounds.midX, y: bounds.midY))
+    }
+    func actualSize() {
+        isZoomGestureActive = false
+        setZoom(1, about: NSPoint(x: bounds.midX, y: bounds.midY))
+    }
     func zoomToFit() {
+        isZoomGestureActive = false
         let availableWidth = Double(max(1, bounds.width - 48))
         let availableHeight = Double(max(1, bounds.height - 48))
         zoom = TransformInteractions.clampedZoom(
@@ -916,9 +996,11 @@ final class CanvasView: NSView {
         needsDisplay = true
     }
     func applyMemorySafetyNet() {
+        let tileRemoval = renderer.cache.removeAll()
         let dropped = history.applyMemorySafetyNet()
         Diagnostics.documents.info(
-            "Delta-history memory safety net dropped \(dropped, privacy: .public) periodic checkpoints")
+            "Memory safety net dropped \(tileRemoval.count, privacy: .public) tiles (\(tileRemoval.byteCount, privacy: .public) bytes) before \(dropped, privacy: .public) periodic checkpoints"
+        )
     }
     func applyAccentStyle() {
         guard let id = selectedIDs.first ?? history.document.layers.first?.nodes.last?.id else { return }
@@ -939,7 +1021,9 @@ final class CanvasView: NSView {
     }
     func replaceDocument(_ document: EditorDocument) throws {
         registerEmbeddedAssets(in: document, with: assetStore)
+        renderer.cache.bumpGeneration()
         history = try DeltaCommandHistory(document: document, assetStore: assetStore)
+        renderer.subscribe(to: history)
         subscribeToChanges()
         selectedIDs.removeAll()
         selectedAnchors.removeAll()
@@ -958,7 +1042,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let recoveryID = "active-document"
     private let unsavedCoordinator = UnsavedChangesCoordinator()
     func applicationDidFinishLaunching(_ notification: Notification) {
-        _ = tileCacheStartupConfiguration
         Diagnostics.installCrashContext()
         let frame = NSRect(x: 0, y: 0, width: 800, height: 620)
         let window = NSWindow(

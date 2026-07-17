@@ -59,46 +59,6 @@ import Testing
     #expect(DamageRegion.rects([rect]) == .rects([rect]))
 }
 
-@Test func forcedExposurePanRedrawsNonzeroStrips() throws {
-    let document = try EditorDocument.sample()
-    let destination = try #require(
-        CGContext(
-            data: nil, width: 200, height: 100, bitsPerComponent: 8,
-            bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(),
-            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
-    let cache = ViewportStripCache()
-    cache.render(
-        document, revision: 1, in: destination, viewport: RenderViewport(zoom: 2), pixelWidth: 200, pixelHeight: 100)
-    let first = cache.redrawnStripCount
-    cache.render(
-        document, revision: 1, in: destination,
-        viewport: RenderViewport(zoom: 2, pan: Point(x: -2, y: 0)), pixelWidth: 200, pixelHeight: 100)
-    #expect(cache.redrawnStripCount > first)
-}
-
-@Test func cachedPanMeetsInteractiveFrameBudget() throws {
-    var document = try EditorDocument.sample()
-    guard case .path(let path) = try #require(document.layers[0].nodes.first) else {
-        Issue.record("Missing path")
-        return
-    }
-    document.layers[0].nodes = (0..<1_000).map { _ in .path(PathObject(path: path.path, style: path.style)) }
-    let context = try #require(
-        CGContext(
-            data: nil, width: 640, height: 480, bitsPerComponent: 8, bytesPerRow: 0,
-            space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
-    let cache = SceneBitmapCache()
-    cache.render(document, revision: 1, in: context, viewport: RenderViewport())
-    var worst = Duration.zero
-    for index in 0..<20 {
-        let start = ContinuousClock.now
-        cache.render(
-            document, revision: 1, in: context, viewport: RenderViewport(pan: Geometry.Point(x: Double(index), y: 0)))
-        worst = max(worst, start.duration(to: .now))
-    }
-    #expect(worst < .milliseconds(16.7))
-}
-
 @Test func expandedAppearanceTextAndImageRender() throws {
     let gradient = GradientResource(
         name: "G", kind: .linear, start: Geometry.Point(x: 0, y: 0), end: Geometry.Point(x: 100, y: 100),
@@ -240,66 +200,4 @@ private func rgbaBytes(_ image: CGImage) throws -> Data {
         }
         #expect(renderedPixelCount > 0)
     }
-}
-
-@Test func revisionChangedTextMoveInvalidatesStripCacheAndMatchesDirectRender() throws {
-    let width = 200
-    let height = 100
-    let text = TextObject(text: "Move", origin: Point(x: 20, y: 50), fontSize: 24)
-    var document = try EditorDocument(
-        width: 200, height: 100,
-        layers: [
-            Layer(
-                name: "Text",
-                nodes: [.text(text)])
-        ])
-    let cache = ViewportStripCache()
-    let initial = try transparentBitmap(width: width, height: height)
-    defer { initial.1.deallocate() }
-    cache.render(
-        document, revision: 1, in: initial.0, viewport: RenderViewport(),
-        pixelWidth: width, pixelHeight: height)
-
-    let moved = document.translateNode(id: text.id, documentDX: 80, documentDY: 0)
-    #expect(moved)
-    let viewport = RenderViewport(pan: Point(x: -2, y: 0))
-    let cached = try transparentBitmap(width: width, height: height)
-    defer { cached.1.deallocate() }
-    cache.render(document, revision: 2, in: cached.0, viewport: viewport, pixelWidth: width, pixelHeight: height)
-
-    let direct = try transparentBitmap(width: width, height: height)
-    defer { direct.1.deallocate() }
-    direct.0.translateBy(x: viewport.pan.x, y: viewport.pan.y)
-    direct.0.scaleBy(x: viewport.zoom, y: viewport.zoom)
-    CoreGraphicsRenderer().render(document, in: direct.0)
-    #expect(try rgbaBytes(#require(cached.0.makeImage())) == rgbaBytes(#require(direct.0.makeImage())))
-}
-
-@Test func unchangedRevisionMutationReproducesStripCacheStalenessOutsideReleaseWiring() throws {
-    let width = 200
-    let height = 100
-    let text = TextObject(text: "Move", origin: Point(x: 20, y: 50), fontSize: 24)
-    var document = try EditorDocument(
-        width: 200, height: 100,
-        layers: [Layer(name: "Text", nodes: [.text(text)])])
-    let cache = ViewportStripCache()
-    let initial = try transparentBitmap(width: width, height: height)
-    defer { initial.1.deallocate() }
-    cache.render(
-        document, revision: 1, in: initial.0, viewport: RenderViewport(),
-        pixelWidth: width, pixelHeight: height)
-
-    let moved = document.translateNode(id: text.id, documentDX: 80, documentDY: 0)
-    #expect(moved)
-    let viewport = RenderViewport(pan: Point(x: -2, y: 0))
-    let cached = try transparentBitmap(width: width, height: height)
-    defer { cached.1.deallocate() }
-    cache.render(document, revision: 1, in: cached.0, viewport: viewport, pixelWidth: width, pixelHeight: height)
-
-    let direct = try transparentBitmap(width: width, height: height)
-    defer { direct.1.deallocate() }
-    direct.0.translateBy(x: viewport.pan.x, y: viewport.pan.y)
-    direct.0.scaleBy(x: viewport.zoom, y: viewport.zoom)
-    CoreGraphicsRenderer().render(document, in: direct.0)
-    #expect(try rgbaBytes(#require(cached.0.makeImage())) != rgbaBytes(#require(direct.0.makeImage())))
 }

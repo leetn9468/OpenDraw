@@ -4,7 +4,7 @@ import EditorCommands
 import Geometry
 import Testing
 
-@Suite(.enabled(if: tileCacheT1TestsEnabled))
+@Suite
 struct TileInvalidationT2VerifyTests {
     @Test func verifyT2TypedChangesUseOneInvalidationChokePoint() throws {
         let path = rectanglePath(minX: 240, minY: 240, maxX: 270, maxY: 270)

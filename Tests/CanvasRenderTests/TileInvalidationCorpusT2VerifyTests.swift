@@ -43,7 +43,7 @@ private struct CorpusObject {
     let siblingCount: Int
 }
 
-@Suite(.enabled(if: tileCacheT1TestsEnabled))
+@Suite
 struct TileInvalidationCorpusT2VerifyTests {
     @Test func verify033FrozenSeededInvalidationCompletenessCorpus() throws {
         let planning = makeCorpusPlan()
