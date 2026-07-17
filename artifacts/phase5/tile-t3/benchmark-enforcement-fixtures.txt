@@ -1,0 +1,57 @@
+scripts/run-render-benchmark.sh: line 17: 98629 Trace/BPT trap: 5       NSUnbufferedIO=YES .build/release/RenderBenchmark > "$benchmark_log" 2>&1
+BENCH_METADATA warmup_frames=60 measured_frames=300 production_paths=true bench5b_enforcement=on renderer=tile-composite bench2b_fixture=exposure-corridor
+BENCH_GATE_FIXTURE=bench5b-overrun
+BENCH-1 drag: p50 4.438 ms | p95 4.905 ms | max 6.212 ms
+BENCH-2 pan: p50 0.089 ms | p95 0.112 ms | max 0.195 ms
+BENCH-2b exposure corridor: p50 0.249 ms | p95 0.350 ms | max 0.428 ms
+BENCH-2b exact_indices=true setup_columns=0...3 frame_formula=(f+3,0),(f+3,1) frames=1...360 warmup=1...60 measured=61...360 rendered_regions=728
+BENCH-3 zoom: p50 5.655 ms | p95 6.558 ms | max 7.134 ms
+BENCH-3 settle: 11.978 ms
+BENCH-4 cold-open: 13.435 ms
+Warm full redraw: 0.310 ms
+BENCH-5a undo-redo: p50 0.009 ms | p95 0.010 ms | max 0.010 ms
+BENCH-5b record: p50 0.186 ms | p95 1.001 ms | max 1.031 ms
+BENCH-5 mix=structural,composite,anchor-slice history=delta-only
+BENCH-5b enforcement: bench5b_enforcement=on result=BLOCKING
+BENCH-6 tile-edit: p50 4.508 ms | p95 4.959 ms | max 5.318 ms
+BENCH-6 assertions cache_hits=nonzero rendered_tiles=exact_damage_mapping warmup_frames=60 measured_frames=300 result=BLOCKING
+BENCH-6 sequence=node-84 dx=alternating(+1,-1) dy=0 reference_scene_nodes=1000
+BENCH_TRAP exit=133 last_completed=BENCH-6 sequence=node-84 dx=alternating(+1,-1) dy=0 reference_scene_nodes=1000
+BENCH_TRAP source=Sources/RenderBenchmark/main.swift:218 gate=BENCH-5b observed_p95_ms=1.001 target_p95_ms=1.0
+BENCH_METADATA warmup_frames=60 measured_frames=300 production_paths=true bench5b_enforcement=off renderer=tile-composite bench2b_fixture=exposure-corridor
+BENCH_GATE_FIXTURE=bench5b-overrun
+BENCH-1 drag: p50 4.437 ms | p95 4.843 ms | max 5.004 ms
+BENCH-2 pan: p50 0.090 ms | p95 0.114 ms | max 0.213 ms
+BENCH-2b exposure corridor: p50 0.239 ms | p95 0.331 ms | max 0.565 ms
+BENCH-2b exact_indices=true setup_columns=0...3 frame_formula=(f+3,0),(f+3,1) frames=1...360 warmup=1...60 measured=61...360 rendered_regions=728
+BENCH-3 zoom: p50 5.766 ms | p95 6.687 ms | max 7.298 ms
+BENCH-3 settle: 11.768 ms
+BENCH-4 cold-open: 13.823 ms
+Warm full redraw: 0.392 ms
+BENCH-5a undo-redo: p50 0.009 ms | p95 0.010 ms | max 0.048 ms
+BENCH-5b record: p50 0.183 ms | p95 1.001 ms | max 1.090 ms
+BENCH-5 mix=structural,composite,anchor-slice history=delta-only
+BENCH-5b enforcement: bench5b_enforcement=off result=INFORMATIONAL
+BENCH-6 tile-edit: p50 4.585 ms | p95 5.110 ms | max 6.676 ms
+BENCH-6 assertions cache_hits=nonzero rendered_tiles=exact_damage_mapping warmup_frames=60 measured_frames=300 result=BLOCKING
+BENCH-6 sequence=node-84 dx=alternating(+1,-1) dy=0 reference_scene_nodes=1000
+scripts/run-render-benchmark.sh: line 17: 98912 Trace/BPT trap: 5       NSUnbufferedIO=YES .build/release/RenderBenchmark > "$benchmark_log" 2>&1
+BENCH_METADATA warmup_frames=60 measured_frames=300 production_paths=true bench5b_enforcement=off renderer=tile-composite bench2b_fixture=exposure-corridor
+BENCH_GATE_FIXTURE=bench5a-and-b-overrun
+BENCH-1 drag: p50 4.460 ms | p95 5.201 ms | max 7.606 ms
+BENCH-2 pan: p50 0.090 ms | p95 0.123 ms | max 0.280 ms
+BENCH-2b exposure corridor: p50 0.236 ms | p95 0.366 ms | max 0.499 ms
+BENCH-2b exact_indices=true setup_columns=0...3 frame_formula=(f+3,0),(f+3,1) frames=1...360 warmup=1...60 measured=61...360 rendered_regions=728
+BENCH-3 zoom: p50 5.552 ms | p95 6.628 ms | max 7.300 ms
+BENCH-3 settle: 11.723 ms
+BENCH-4 cold-open: 13.417 ms
+Warm full redraw: 0.288 ms
+BENCH-5a undo-redo: p50 0.009 ms | p95 16.701 ms | max 16.701 ms
+BENCH-5b record: p50 0.182 ms | p95 1.001 ms | max 1.033 ms
+BENCH-5 mix=structural,composite,anchor-slice history=delta-only
+BENCH-5b enforcement: bench5b_enforcement=off result=INFORMATIONAL
+BENCH-6 tile-edit: p50 4.477 ms | p95 8.001 ms | max 8.001 ms
+BENCH-6 assertions cache_hits=nonzero rendered_tiles=exact_damage_mapping warmup_frames=60 measured_frames=300 result=BLOCKING
+BENCH-6 sequence=node-84 dx=alternating(+1,-1) dy=0 reference_scene_nodes=1000
+BENCH_TRAP exit=133 last_completed=BENCH-6 sequence=node-84 dx=alternating(+1,-1) dy=0 reference_scene_nodes=1000
+BENCH_TRAP source=Sources/RenderBenchmark/main.swift:310 gate=BENCH-6 observed_p95_ms=8.001 target_p95_ms=8.0

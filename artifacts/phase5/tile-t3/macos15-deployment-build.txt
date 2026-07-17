@@ -1,0 +1,4 @@
+Another instance of SwiftPM is already running using '/Users/user/Documents/AI 10 restructure project/.build', waiting until that process has finished execution...[0/1] Planning build
+Building for production...
+[0/4] Write swift-version--1AB21518FC5DEDBE.txt
+Build complete! (0.27s)

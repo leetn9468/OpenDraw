@@ -1,0 +1,6 @@
+CORPUS_DISTRIBUTION seed=0x00000000A110F00D steps=64 advances=205
+operations=valueSwap:15 structural:21 reorder:5 undo:8 redo:5 gestureFrame:6 zoomChange:4
+structural=insert:11 delete:10
+gesture_frames=open:6 continue:0
+zoom_changes=step2:1.0->1.0 step14:1.0->1.5 step19:1.5->0.5 step38:0.5->0.5
+last_step=(64, 'gestureFrame', 205)

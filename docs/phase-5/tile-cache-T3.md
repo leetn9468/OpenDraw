@@ -65,14 +65,14 @@ independently frozen document-limit policy and remains covered by VERIFY-008.
 
 | Scenario | Observed | Frozen target | Result |
 |---|---:|---:|---|
-| BENCH-1 drag | p95 4.961 ms | ≤16.7 ms | PASS |
-| BENCH-2 pan | p95 0.116 ms | ≤16.7 ms | PASS |
-| BENCH-2b corridor | p95 0.387 ms | ≤16.7 ms | PASS |
-| BENCH-3 zoom | p95 6.669 ms | ≤33 ms | PASS |
-| BENCH-3 settle | 12.231 ms | ≤100 ms | PASS |
-| BENCH-5a undo/redo | p95 0.010 ms | ≤16.7 ms | PASS |
-| BENCH-5b record | p95 0.842 ms | ≤1.0 ms local | PASS |
-| BENCH-6 tile edit | p95 4.966 ms | ≤8.0 ms | PASS |
+| BENCH-1 drag | p95 4.970 ms | ≤16.7 ms | PASS |
+| BENCH-2 pan | p95 0.111 ms | ≤16.7 ms | PASS |
+| BENCH-2b corridor | p95 0.371 ms | ≤16.7 ms | PASS |
+| BENCH-3 zoom | p95 6.564 ms | ≤33 ms | PASS |
+| BENCH-3 settle | 12.842 ms | ≤100 ms | PASS |
+| BENCH-5a undo/redo | p95 0.011 ms | ≤16.7 ms | PASS |
+| BENCH-5b record | p95 0.853 ms | ≤1.0 ms local | PASS |
+| BENCH-6 tile edit | p95 4.967 ms | ≤8.0 ms | PASS |
 
 BENCH-2b setup rendered columns 0…3. Frames 1…360 rendered exactly
 `(f+3,0)` and `(f+3,1)`; all other visible tiles were proven prior-rendered
@@ -86,15 +86,15 @@ hits; the final rendered-region count was 728.
 | Debug tests | PASS — 138/138 |
 | Release tests | PASS — 138/138 |
 | ASan | PASS — 136 main + 1 parser deadline + 1 geometry deadline = 138 |
-| Coverage | PASS — 90.71% ≥55% |
+| Coverage | PASS — 90.69% ≥55% |
 | Dependency / clean room / symbol graph | PASS |
 | Adversarial / golden / UI journey | PASS — 4/4; journey includes undo depth >30 and exact composite/direct spot check |
 | Release assembly/signature/arm64 | PASS |
 | Benchmarks and local 1.25 ratio | PASS |
-| Peak memory settle | PASS — 461,012,992 B; 63,275,008 B exact headroom |
-| Peak memory export | PASS — 470,663,168 B; 210,911,232 B exact headroom under export ceiling |
-| Peak memory forced failure | PASS — gate rejected 1,036,828,672 B with nonzero exit |
-| Full-app startup | PASS — p95 160.962 ms ≤2,000 ms; forced production canvas display |
+| Peak memory settle | PASS — 461,799,424 B; 62,488,576 B exact headroom |
+| Peak memory export | PASS — 469,942,272 B; 211,632,128 B exact headroom under export ceiling |
+| Peak memory forced failure | PASS — gate rejected 1,037,467,648 B with nonzero exit |
+| Full-app startup | PASS — p95 180.135 ms ≤2,000 ms; forced production canvas display |
 | Reliability | PASS — 100 processes/10,000 codec round trips plus cold/warm production tile composite per process |
 | Hosted eight-job manual dispatch | OPEN — operator action and evidence required |
 

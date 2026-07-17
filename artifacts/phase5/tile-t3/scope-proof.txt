@@ -1,0 +1,21 @@
+T3_STATIC_SCOPE_PROOF
+
+Command: rg OPENDRAW_TILE_CACHE excluding .git/.build/artifacts/dist
+Result: zero references.
+
+Command: rg TileCacheStartupConfiguration|SceneBitmapCache|ViewportStripCache|redrawnStripCount|strip_redraw_frames in Sources Tests Package.swift scripts .github benchmarks
+Result: zero references.
+
+Command: rg @Suite(.enabled|enabled(if: in Tests
+Result: zero references.
+
+Production direct-render ownership:
+- Sources/VectorFoundryApp/main.swift references TileCompositeRenderer only.
+- Sources/RenderBenchmark/main.swift references TileCompositeRenderer only.
+- Sources/R4GateHarness/main.swift references TileCompositeRenderer only.
+- CoreGraphicsRenderer construction is confined to TileCompositeRenderer and test/reference harnesses.
+
+Frozen-value proof:
+- VERIFY-029–033 bodies and frozen arithmetic were not edited.
+- docs/verification/VERIFICATION_QUEUE.md received references only.
+- Absolute benchmark targets, 60+300 schedule, tile size, cache budget, and memory ceiling are unchanged.
