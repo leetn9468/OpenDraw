@@ -1,0 +1,23 @@
+pre_T1_existing_population=127
+new_T1_flag_on_tests=9
+flag_off_population=127
+flag_on_population=136
+arithmetic=127+9=136
+
+New flag-on tests:
+- verify029FrozenDamageMappingExamples
+- verify029FrozenConservativeInkCases
+- verify030FrozenGridGeometryAndByteCosts
+- verify031FrozenCapacityAndExactBoundaryEviction
+- verify031FrozenLRUAndGenerationBehavior
+- verify031DisabledCacheRemainsCompositeCorrect
+- verify032MixedSceneColdAndWarmCompositeEqualDirect
+- verify032CornerStraddleColdAndWarmCompositeEqualDirect
+- verify032EmptyColdAndWarmCompositeEqualDirect
+
+The raw flag-off run in `debug-tests-flag-off-runtime-gating.txt` proves both
+T1 suites are runtime-skipped. Swift Testing's aggregate currently labels
+their nine skipped members as passed in its 136-test summary, so the exact
+flag-off population artifact discovery-excludes those already-proven-skipped
+suites and executes all 127 pre-T1 tests. With OPENDRAW_TILE_CACHE=1 both
+suites are enabled and all nine new tests execute, giving 136.

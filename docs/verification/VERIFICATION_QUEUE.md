@@ -791,7 +791,10 @@ implementation has not begun at this checkpoint.
 ### VERIFY-029 — Conservative ink damage to tile-set mapping
 
 - Status: `FROZEN`
-- Implementation: `NOT STARTED` at freeze
+- Freeze checkpoint: implementation `NOT STARTED` at `790c013`.
+- T1 implementation: `TileDamageMapper`; permanent references
+  `verify029FrozenDamageMappingExamples` and
+  `verify029FrozenConservativeInkCases`.
 - Rule: `deviceScale = zoom × backingScale`. Map the conservative ink bound to
   device space, apply P-OUTSET, apply P-HALFOPEN, and clamp to the canvas tile
   range. Paths use stroke-inclusive `visualBounds`; images use their
@@ -815,7 +818,7 @@ implementation has not begun at this checkpoint.
      **zero invalidation**.
   7. `800×500`, `z=1`, `backingScale=2` maps to device 1600×1000 and is
      covered by the VERIFY-030 seven-column/four-row example.
-- Permanent scene cases to implement: transformed text, fallback-glyph text,
+- Permanent scene cases: transformed text, fallback-glyph text,
   image, path, and group union. TEXT-DEFECT-001 commit `ad1e5db` completed the
   prerequisite conservative text bounds without changing schema v4; its five
   permanent tests passed in the 127/127 full battery.
@@ -825,7 +828,9 @@ implementation has not begun at this checkpoint.
 ### VERIFY-030 — Grid geometry, backing scale, and pixel alignment
 
 - Status: `FROZEN`
-- Implementation: `NOT STARTED` at freeze
+- Freeze checkpoint: implementation `NOT STARTED` at `790c013`.
+- T1 implementation: `TileGrid`; permanent reference
+  `verify030FrozenGridGeometryAndByteCosts`.
 - Rule: `deviceScale = zoom × backingScale`;
   `W=ceil(docW×deviceScale)`, `H=ceil(docH×deviceScale)`;
   `columns=ceil(W/256)`, `rows=ceil(H/256)`. Tile origins are integer
@@ -847,7 +852,11 @@ implementation has not begun at this checkpoint.
 ### VERIFY-031 — Budget-fit and LRU eviction arithmetic
 
 - Status: `FROZEN`
-- Implementation: `NOT STARTED` at freeze
+- Freeze checkpoint: implementation `NOT STARTED` at `790c013`.
+- T1 implementation: `TileCache`; permanent references
+  `verify031FrozenCapacityAndExactBoundaryEviction`,
+  `verify031FrozenLRUAndGenerationBehavior`, and
+  `verify031DisabledCacheRemainsCompositeCorrect`.
 - Rule: exact byte accounting, P-BUDGETFIT, LRU by last composite use, and
   disabled-but-correct behavior when one full tile cannot fit.
 - Worked examples under the exact 134,217,728 B budget:
@@ -866,7 +875,11 @@ implementation has not begun at this checkpoint.
 ### VERIFY-032 — Tile composite equals direct render
 
 - Status: `FROZEN`
-- Implementation: `NOT STARTED` at freeze
+- Freeze checkpoint: implementation `NOT STARTED` at `790c013`.
+- T1 implementation: cold- and fully-warm-cache harness references
+  `verify032MixedSceneColdAndWarmCompositeEqualDirect`,
+  `verify032CornerStraddleColdAndWarmCompositeEqualDirect`, and
+  `verify032EmptyColdAndWarmCompositeEqualDirect`.
 - Rule: compare actual image dimensions with the existing golden instrument:
   per-channel delta `<=3` is ignored, hard maximum is `12`, and the
   overflow-checked differing-pixel limit is

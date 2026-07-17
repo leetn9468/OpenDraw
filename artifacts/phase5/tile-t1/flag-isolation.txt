@@ -1,0 +1,20 @@
+startup_flag_references:
+Sources/CanvasRender/TileGeometry.swift:7:        isEnabled: ProcessInfo.processInfo.environment["OPENDRAW_TILE_CACHE"] == "1")
+Sources/VectorFoundryApp/main.swift:14:private let tileCacheStartupConfiguration = TileCacheStartupConfiguration.process
+Sources/VectorFoundryApp/main.swift:961:        _ = tileCacheStartupConfiguration
+production_direct_renderer_reference:
+107:        renderer.render(history.document, in: context)
+tile_composite_source_references:
+Sources/CanvasRender/TileCompositeRenderer.swift:22:public final class TileCompositeRenderer {
+benchmark_flag_or_tile_reference_count=0 result=PASS
+production_tile_composite_call_count=0 result=PASS
+benchmark_and_BENCH2b_changed_paths=0 result=PASS
+invalidation_wiring_changed_paths=0 result=PASS
+t1_changed_paths_from_freeze:
+Sources/CanvasRender/TileCache.swift
+Sources/CanvasRender/TileCompositeRenderer.swift
+Sources/CanvasRender/TileGeometry.swift
+Sources/VectorFoundryApp/main.swift
+Tests/CanvasRenderTests/TileCompositeVerifyTests.swift
+Tests/CanvasRenderTests/TileGeometryVerifyTests.swift
+Tests/CanvasRenderTests/TileTestSupport.swift

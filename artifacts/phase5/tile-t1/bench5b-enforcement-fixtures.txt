@@ -1,0 +1,51 @@
+scripts/run-render-benchmark.sh: line 17: 21736 Trace/BPT trap: 5       NSUnbufferedIO=YES .build/release/RenderBenchmark > "$benchmark_log" 2>&1
+BENCH_METADATA warmup_frames=60 measured_frames=300 production_paths=true bench5b_enforcement=on
+BENCH_GATE_FIXTURE=bench5b-overrun
+BENCH-1 drag: p50 4.938 ms | p95 5.354 ms | max 5.652 ms
+BENCH-2 pan: p50 0.087 ms | p95 0.107 ms | max 0.159 ms
+BENCH-2b forced-exposure pan: p50 5.362 ms | p95 5.922 ms | max 6.402 ms
+BENCH-2b strip_redraw_frames=360 nonzero_every_frame=true
+BENCH-3 zoom: p50 2.396 ms | p95 8.848 ms | max 10.358 ms
+BENCH-3 settle: 2.767 ms
+BENCH-4 cold-open: 8.775 ms
+Warm full redraw: 4.837 ms
+BENCH-5a undo-redo: p50 0.009 ms | p95 0.009 ms | max 0.023 ms
+BENCH-5b record: p50 0.183 ms | p95 1.001 ms | max 1.001 ms
+BENCH-5 mix=structural,composite,anchor-slice history=delta-only
+BENCH-5b enforcement: bench5b_enforcement=on result=BLOCKING
+BENCH_TRAP exit=133 last_completed=BENCH-5b enforcement: bench5b_enforcement=on result=BLOCKING
+BENCH_TRAP source=Sources/RenderBenchmark/main.swift:218 gate=BENCH-5b observed_p95_ms=1.001 target_p95_ms=1.0
+BENCH_METADATA warmup_frames=60 measured_frames=300 production_paths=true bench5b_enforcement=off
+BENCH_GATE_FIXTURE=bench5b-overrun
+BENCH-1 drag: p50 4.952 ms | p95 5.469 ms | max 5.722 ms
+BENCH-2 pan: p50 0.087 ms | p95 0.111 ms | max 0.233 ms
+BENCH-2b forced-exposure pan: p50 5.299 ms | p95 5.874 ms | max 6.421 ms
+BENCH-2b strip_redraw_frames=360 nonzero_every_frame=true
+BENCH-3 zoom: p50 2.444 ms | p95 8.937 ms | max 10.663 ms
+BENCH-3 settle: 2.851 ms
+BENCH-4 cold-open: 8.763 ms
+Warm full redraw: 4.963 ms
+BENCH-5a undo-redo: p50 0.010 ms | p95 0.012 ms | max 0.058 ms
+BENCH-5b record: p50 0.182 ms | p95 1.001 ms | max 1.008 ms
+BENCH-5 mix=structural,composite,anchor-slice history=delta-only
+BENCH-5b enforcement: bench5b_enforcement=off result=INFORMATIONAL
+scripts/run-render-benchmark.sh: line 17: 22264 Trace/BPT trap: 5       NSUnbufferedIO=YES .build/release/RenderBenchmark > "$benchmark_log" 2>&1
+BENCH_METADATA warmup_frames=60 measured_frames=300 production_paths=true bench5b_enforcement=off
+BENCH_GATE_FIXTURE=bench5a-and-b-overrun
+BENCH-1 drag: p50 4.915 ms | p95 5.301 ms | max 5.681 ms
+BENCH-2 pan: p50 0.086 ms | p95 0.107 ms | max 0.208 ms
+BENCH-2b forced-exposure pan: p50 5.340 ms | p95 5.754 ms | max 6.258 ms
+BENCH-2b strip_redraw_frames=360 nonzero_every_frame=true
+BENCH-3 zoom: p50 2.417 ms | p95 8.952 ms | max 10.153 ms
+BENCH-3 settle: 2.854 ms
+BENCH-4 cold-open: 8.686 ms
+Warm full redraw: 4.587 ms
+BENCH-5a undo-redo: p50 0.009 ms | p95 16.701 ms | max 16.701 ms
+BENCH-5b record: p50 0.184 ms | p95 1.001 ms | max 1.001 ms
+BENCH-5 mix=structural,composite,anchor-slice history=delta-only
+BENCH-5b enforcement: bench5b_enforcement=off result=INFORMATIONAL
+BENCH_TRAP exit=133 last_completed=BENCH-5b enforcement: bench5b_enforcement=off result=INFORMATIONAL
+BENCH_TRAP source=Sources/RenderBenchmark/main.swift:216 gate=BENCH-5a observed_p95_ms=16.701 target_p95_ms=16.7
+default_bench5b_overrun_exit=133 result=PASS
+informational_bench5b_overrun_exit=0 result=PASS
+informational_mode_bench5a_overrun_exit=133 result=PASS

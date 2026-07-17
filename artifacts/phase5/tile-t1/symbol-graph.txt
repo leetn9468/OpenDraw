@@ -1,0 +1,74 @@
+Building for debugging...
+[0/10] Write swift-version--1AB21518FC5DEDBE.txt
+[2/13] Compiling EditorCore Diagnostics.swift
+[3/13] Emitting module EditorCore
+[4/13] Compiling EditorCore CoreTypes.swift
+[5/17] Emitting module MacPlatform
+[6/17] Compiling MacPlatform BackingScale.swift
+[7/17] Compiling Geometry Geometry.swift
+[8/17] Emitting module Geometry
+[9/19] Emitting module TextEngine
+[10/19] Compiling TextEngine TextShaper.swift
+[11/22] Emitting module DocumentModel
+[12/22] Compiling DocumentModel Document.swift
+[13/22] Compiling DocumentModel ApprovedAssetStore.swift
+[14/49] Compiling EditorCommands CanonicalDocumentEquality.swift
+[15/49] Emitting module DocumentFormats
+[16/49] Emitting module EditorCommands
+[17/49] Compiling DocumentFormats SVGLengthParser.swift
+[18/49] Compiling DocumentFormats RasterResourceLoader.swift
+[19/49] Compiling DocumentFormats InputLimits.swift
+[20/49] Compiling DocumentFormats ApprovedImages.swift
+[21/49] Compiling EditorCommands CompositeCommands.swift
+[22/49] Compiling DocumentFormats AdversarialParserHarness.swift
+[23/49] Compiling DocumentFormats DurablePersistence.swift
+[24/49] Compiling EditorCommands DocumentCommand.swift
+[25/49] Compiling DocumentFormats SVGImporter.swift
+[26/49] Compiling EditorCommands CompositeSceneCommands.swift
+[27/49] Compiling CanvasRender TileCompositeRenderer.swift
+[28/49] Compiling CanvasRender ViewportStripCache.swift
+[29/49] Compiling CanvasRender TileGeometry.swift
+[30/49] Compiling DocumentFormats NativeDocumentCodec.swift
+[31/49] Compiling CanvasRender TileCache.swift
+[32/49] Compiling CanvasRender CoreGraphicsRenderer.swift
+[33/49] Compiling CanvasRender SceneBitmapCache.swift
+[34/49] Emitting module CanvasRender
+[35/49] Compiling DocumentFormats SVGExporter.swift
+[36/49] Compiling EditorCommands AnchorGeometryCommands.swift
+[37/49] Compiling EditorCommands ValueSwapCommands.swift
+[38/49] Compiling EditorCommands DeltaCommandHistory.swift
+[39/49] Compiling EditorCommands StructuralCommands.swift
+[40/49] Compiling EditorCommands ResourceCommands.swift
+[41/59] Compiling EditorTools TransformInteractions.swift
+[42/59] Compiling EditorTools SelectionTool.swift
+[43/59] Compiling EditorTools SpatialIndex.swift
+[44/59] Emitting module EditorTools
+[45/59] Compiling EditorTools CreationTools.swift
+[46/59] Compiling EditorTools AccessibilityTree.swift
+[47/59] Emitting module RenderBenchmark
+[48/59] Compiling RenderBenchmark main.swift
+[48/59] Write Objects.LinkFileList
+[50/59] Emitting module R4GateHarness
+[51/59] Compiling R4GateHarness main.swift
+[51/59] Write Objects.LinkFileList
+[52/61] Linking RenderBenchmark
+[53/61] Applying RenderBenchmark
+[54/61] Linking R4GateHarness
+[55/61] Applying R4GateHarness
+[57/61] Compiling VectorFoundryApp main.swift
+[58/61] Emitting module VectorFoundryApp
+[58/61] Write Objects.LinkFileList
+[59/61] Linking VectorFoundry
+[60/61] Applying VectorFoundry
+Build complete! (6.59s)
+-- Emitting symbol graph for DocumentFormats
+-- Emitting symbol graph for EditorTools
+-- Emitting symbol graph for MacPlatform
+-- Emitting symbol graph for TextEngine
+-- Emitting symbol graph for CanvasRender
+-- Emitting symbol graph for EditorCommands
+-- Emitting symbol graph for DocumentModel
+-- Emitting symbol graph for Geometry
+-- Emitting symbol graph for EditorCore
+-- Emitting symbol graph for VectorFoundryPackageTests
+Files written to /Users/user/Documents/AI 10 restructure project/.build/arm64-apple-macosx/symbolgraph

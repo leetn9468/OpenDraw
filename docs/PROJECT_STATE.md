@@ -185,11 +185,17 @@ the authoritative supersession record are in
 `docs/verification/VERIFICATION_QUEUE.md`; the P4 implementation map is
 `docs/phase-5/delta-history-P4.md`.
 
-Tile-render caching remains **PREIMPLEMENTATION**. VERIFY-029–033 completed
-three agreement rounds and are `FROZEN` in
-`docs/verification/VERIFICATION_QUEUE.md`, including the BENCH-2b exposure-
-corridor supersession and the TEXT-DEFECT-001-unblocked text cases. No tile-
-cache implementation began as part of the freeze commit.
+Tile-render caching T1 is **IMPLEMENTED — AWAITING ACCEPTANCE** at build-input
+revision `fba637212174fd4c9fe6a047b7a340077e06a22d`. VERIFY-029–033 remain
+`FROZEN` in `docs/verification/VERIFICATION_QUEUE.md`; T1 adds the permanent
+VERIFY-029/030/031 arithmetic fixtures and the cold/warm VERIFY-032 composite
+harness without changing any frozen value. `OPENDRAW_TILE_CACHE` is read once
+at startup and defaults off, but no production caller uses the flag-on entry
+point in T1: `CanvasView` still renders directly. T1 contains no invalidation
+wiring, gesture damage publication, VERIFY-033 corpus, BENCH-2b mechanism
+change, benchmark-source change, or peak-memory extension. Those remain T2/T3
+work after T1 acceptance. The implementation and gate map is
+`docs/phase-5/tile-cache-T1.md`.
 
 The feature's hosted story is **CLOSED** by manually dispatched CI #19 on exact
 revision `d278755e020455955c1837a7aa36ef20ec0058fe`:
