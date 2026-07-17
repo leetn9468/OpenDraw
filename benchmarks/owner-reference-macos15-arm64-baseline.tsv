@@ -9,11 +9,15 @@
 # tile_t2_bench6_measured_on=2026-07-17
 # tile_t2_bench6_source=owner-reference-MacBookPro18,2-not-hosted
 # tile_t2_bench6_sequence=node-84-alternating-plus-minus-1
-bench1_p95	5.324	1.25
-bench2_p95	0.109	1.25
-bench2b_p95	5.831	1.25
-bench3_p95	8.853	1.25
-bench3_settle	2.778	1.25
+# tile_t3_measured_on=2026-07-17
+# tile_t3_source=owner-reference-MacBookPro18,2-not-hosted
+# tile_t3_source_commit=5f18000fcab25d2fa7f52e81dd5f33900604fe15
+# tile_t3_rebase=production-tile-cutover-and-bench2b-corridor-mechanism-change
+bench1_p95	4.961	1.25
+bench2_p95	0.116	1.25
+bench2b_p95	0.387	1.25
+bench3_p95	6.669	1.25
+bench3_settle	12.231	1.25
 bench5a_p95	0.363	1.25
 bench5b_p95	0.881	1.25
 bench6_p95	4.619	1.25
