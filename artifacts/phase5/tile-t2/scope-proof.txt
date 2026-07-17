@@ -1,0 +1,23 @@
+implementation_revision=da6b14ca7809fb9b2e1328832fc7a2dc7967eb97
+t1_evidence_base=0a9918b
+
+production_application_diff_from_t1=EMPTY
+production_renderer=Sources/VectorFoundryApp/main.swift:72 private let renderer = CoreGraphicsRenderer()
+production_draw=Sources/VectorFoundryApp/main.swift:107 renderer.render(history.document, in: context)
+production_TileCompositeRenderer_references=0
+
+RenderBenchmark_OPENDRAW_TILE_CACHE_literal_references=0
+legacy_bench_tile_flag_reads=false
+bench6_tile_configuration=explicit-on
+BENCH-1/2/2b/3/5 source block changes=0
+BENCH-2b source block changes=0
+RenderBenchmark diff from T1 consists only of metadata proof plus the appended BENCH-6 block and BENCH-6 precondition.
+
+typed_change_subscription_choke_points=1
+document_change_to_invalidate_calls=1 (TileCompositeRenderer.swift:149)
+tile_coordinate_invalidation_calls=1 (TileCompositeRenderer.swift:180)
+tile_generation_bump_calls=1 (TileCompositeRenderer.swift:192)
+
+FROZEN VERIFY-029/030/031/033 diff from T1=evidence-reference additions only
+frozen_numeric_or_policy_value_changes=0
+BENCH-2b corridor supersession changes=0

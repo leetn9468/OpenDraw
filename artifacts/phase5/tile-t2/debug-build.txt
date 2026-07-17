@@ -1,0 +1,66 @@
+[0/1] Planning build
+Building for debugging...
+[0/10] Write swift-version--1AB21518FC5DEDBE.txt
+[2/13] Compiling EditorCore CoreTypes.swift
+[3/13] Compiling EditorCore Diagnostics.swift
+[4/13] Emitting module EditorCore
+[5/17] Emitting module MacPlatform
+[6/17] Compiling MacPlatform BackingScale.swift
+[7/17] Compiling Geometry Geometry.swift
+[8/17] Emitting module Geometry
+[9/19] Compiling TextEngine TextShaper.swift
+[10/19] Emitting module TextEngine
+[11/23] Compiling DocumentModel DocumentDamage.swift
+[12/23] Emitting module DocumentModel
+[13/23] Compiling DocumentModel ApprovedAssetStore.swift
+[14/23] Compiling DocumentModel Document.swift
+[15/43] Compiling EditorCommands CanonicalDocumentEquality.swift
+[16/43] Compiling EditorCommands CompositeCommands.swift
+[17/43] Compiling EditorCommands ResourceCommands.swift
+[18/43] Compiling EditorCommands DocumentCommand.swift
+[19/43] Compiling EditorCommands CompositeSceneCommands.swift
+[20/43] Emitting module EditorCommands
+[21/43] Compiling EditorCommands AnchorGeometryCommands.swift
+[22/43] Compiling DocumentFormats SVGLengthParser.swift
+[23/43] Compiling DocumentFormats SVGImporter.swift
+[24/43] Compiling DocumentFormats RasterResourceLoader.swift
+[25/43] Compiling DocumentFormats NativeDocumentCodec.swift
+[26/43] Compiling DocumentFormats InputLimits.swift
+[27/43] Compiling DocumentFormats DurablePersistence.swift
+[28/43] Compiling DocumentFormats ApprovedImages.swift
+[29/43] Compiling DocumentFormats AdversarialParserHarness.swift
+[30/43] Emitting module DocumentFormats
+[31/43] Compiling DocumentFormats SVGExporter.swift
+[32/43] Compiling EditorCommands ValueSwapCommands.swift
+[33/43] Compiling EditorCommands DeltaCommandHistory.swift
+[34/43] Compiling EditorCommands StructuralCommands.swift
+[35/57] Compiling EditorTools SelectionTool.swift
+[36/57] Compiling EditorTools SpatialIndex.swift
+[37/57] Compiling EditorTools TransformInteractions.swift
+[38/57] Compiling CanvasRender ViewportStripCache.swift
+[39/57] Emitting module CanvasRender
+[40/57] Compiling EditorTools AccessibilityTree.swift
+[41/57] Emitting module EditorTools
+[42/57] Compiling EditorTools CreationTools.swift
+[43/57] Compiling CanvasRender TileCacheMemoryPressure.swift
+[44/57] Compiling CanvasRender TileCompositeRenderer.swift
+[45/57] Compiling CanvasRender TileGeometry.swift
+[46/57] Compiling CanvasRender SceneBitmapCache.swift
+[47/57] Compiling CanvasRender TileCache.swift
+[48/57] Compiling CanvasRender CoreGraphicsRenderer.swift
+[49/63] Compiling RenderBenchmark main.swift
+[50/63] Emitting module RenderBenchmark
+[50/63] Write Objects.LinkFileList
+[52/63] Emitting module R4GateHarness
+[53/63] Compiling R4GateHarness main.swift
+[53/63] Write Objects.LinkFileList
+[54/63] Linking RenderBenchmark
+[55/63] Applying RenderBenchmark
+[56/63] Linking R4GateHarness
+[57/63] Applying R4GateHarness
+[59/63] Emitting module VectorFoundryApp
+[60/63] Compiling VectorFoundryApp main.swift
+[60/63] Write Objects.LinkFileList
+[61/63] Linking VectorFoundry
+[62/63] Applying VectorFoundry
+Build complete! (6.52s)

@@ -1,0 +1,18 @@
+implementation_revision=da6b14ca7809fb9b2e1328832fc7a2dc7967eb97
+debug_flag_off_executed=128 legacy_untouched=127 t2_unconditional=1
+debug_flag_on_executed=140 flag_off_population=128 t1_flag_only=9 t2_flag_only=3
+release_flag_off_executed=128 legacy_untouched=127 t2_unconditional=1
+release_flag_on_executed=140 flag_off_population=128 t1_flag_only=9 t2_flag_only=3
+asan_flag_off_executed=128 main=127 isolated_deadline=1
+asan_flag_on_executed=140 main=138 isolated_deadline=1 isolated_geometry=1
+
+T2 permanent Swift tests:
+1. verifyT2TransformGesturePublishesFrameCommitAndCancellationDamage (OFF and ON)
+2. verifyT2TypedChangesUseOneInvalidationChokePoint (ON)
+3. verify033FrozenSeededInvalidationCompletenessCorpus (ON)
+4. verifyT2PressureDropsFullTileCacheBeforeCheckpointsAndPreservesFloorPins (ON)
+
+BENCH-6 fixtures:
+1. Every warm-up/measured frame traps unless cache hits are nonzero and rendered tiles exactly equal mapped damage.
+2. scripts/test-bench6-gate.sh forces p95=8.001 ms and requires exit 133 against 8.0 ms.
+3. Local ratio pass/boundary/fail fixtures include bench6_p95; the boundary 5.77375 ms is accepted inclusively.

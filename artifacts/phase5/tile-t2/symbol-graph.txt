@@ -1,0 +1,14 @@
+Building for debugging...
+[0/7] Write swift-version--1AB21518FC5DEDBE.txt
+Build complete! (0.26s)
+-- Emitting symbol graph for DocumentFormats
+-- Emitting symbol graph for EditorTools
+-- Emitting symbol graph for MacPlatform
+-- Emitting symbol graph for TextEngine
+-- Emitting symbol graph for CanvasRender
+-- Emitting symbol graph for EditorCommands
+-- Emitting symbol graph for DocumentModel
+-- Emitting symbol graph for Geometry
+-- Emitting symbol graph for EditorCore
+-- Emitting symbol graph for VectorFoundryPackageTests
+Files written to /Users/user/Documents/AI 10 restructure project/.build/arm64-apple-macosx/symbolgraph

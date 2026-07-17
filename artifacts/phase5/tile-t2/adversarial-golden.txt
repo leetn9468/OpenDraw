@@ -1,0 +1,64 @@
+[0/1] Planning build
+Building for debugging...
+[0/9] Write swift-version--1AB21518FC5DEDBE.txt
+[2/47] Emitting module EditorToolsTests
+[3/47] Emitting module TextEngineTests
+[4/47] Compiling TextEngineTests TextEngineTests.swift
+[5/47] Emitting module DocumentFormatsTests
+[6/48] Compiling DocumentFormatsTests SVGLengthVerifyTests.swift
+[7/48] Compiling DocumentFormatsTests ApprovedAssetStoreP2Tests.swift
+[8/48] Emitting module GeometryTests
+[9/48] Compiling GeometryTests BezierEvaluationVerifyTests.swift
+[10/48] Compiling GeometryTests AffineTransformVerifyTests.swift
+[11/48] Compiling DocumentFormatsTests resource_bundle_accessor.swift
+[12/48] Compiling EditorToolsTests AccessibilityTests.swift
+[13/48] Compiling CanvasRenderTests TileTestSupport.swift
+[14/48] Emitting module DocumentModelTests
+[15/49] Compiling DocumentFormatsTests AdversarialCorpusTests.swift
+[16/49] Compiling DocumentFormatsTests ApprovedImageCacheVerifyTests.swift
+[17/49] Compiling CanvasRenderTests GoldenRenderingTests.swift
+[18/49] Compiling DocumentFormatsTests DurablePersistenceTests.swift
+[19/49] Compiling CanvasRenderTests TileCompositeVerifyTests.swift
+[20/49] Compiling CanvasRenderTests TileMemoryPressureT2VerifyTests.swift
+[21/49] Compiling GeometryTests FillRuleVerifyTests.swift
+[22/49] Compiling GeometryTests GeometryTests.swift
+[23/49] Compiling GeometryTests BezierBoundsVerifyTests.swift
+[24/49] Compiling DocumentModelTests NestedTranslationVerifyTests.swift
+[25/49] Compiling CanvasRenderTests TileInvalidationT2VerifyTests.swift
+[26/49] Compiling DocumentFormatsTests UIJourneyTests.swift
+[27/49] Compiling DocumentFormatsTests SceneMigrationTests.swift
+[28/49] Compiling DocumentFormatsTests InputLimitsVerifyTests.swift
+[29/49] Compiling DocumentModelTests DocumentTransformVerifyTests.swift
+[30/49] Compiling DocumentModelTests GroupBoundsVerifyTests.swift
+[31/49] Compiling DocumentModelTests TextInkBoundsTests.swift
+[32/49] Compiling DocumentModelTests TileGestureDamageT2VerifyTests.swift
+[33/49] Compiling DocumentModelTests StrictValidationTests.swift
+[34/49] Compiling DocumentModelTests PixelOverflowVerifyTests.swift
+[35/49] Compiling CanvasRenderTests TileInvalidationCorpusT2VerifyTests.swift
+[36/49] Compiling DocumentModelTests VisualBoundsVerifyTests.swift
+[37/49] Compiling DocumentModelTests DocumentLimitsVerifyTests.swift
+[38/49] Compiling DocumentModelTests DocumentModelTests.swift
+[39/49] Compiling CanvasRenderTests CanvasRenderTests.swift
+[40/49] Emitting module CanvasRenderTests
+[41/49] Compiling CanvasRenderTests TileGeometryVerifyTests.swift
+[42/49] Compiling DocumentFormatsTests DocumentFormatsTests.swift
+[43/49] Compiling EditorToolsTests EditorToolsTests.swift
+[44/49] Compiling DocumentModelTests DeltaHistoryP3VerifyTests.swift
+[45/49] Compiling DocumentModelTests DirectAnchorVerifyTests.swift
+[46/49] Compiling DocumentModelTests DeltaHistoryP1VerifyTests.swift
+[47/49] Compiling DocumentModelTests DeltaHistoryP2VerifyTests.swift
+[48/51] Compiling VectorFoundryPackageTests runner.swift
+[49/51] Emitting module VectorFoundryPackageTests
+[49/51] Write Objects.LinkFileList
+[50/51] Linking VectorFoundryPackageTests
+Build complete! (6.45s)
+◇ Test run started.
+↳ Testing Library Version: 124.4
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test deterministicNativeAndSVGMutationCorpusMeetsDeadline() started.
+◇ Test compositeSceneMatchesProjectGoldenWithExplicitTolerance() started.
+◇ Test fixedAdversarialClassesFailSafely() started.
+✔ Test fixedAdversarialClassesFailSafely() passed after 0.002 seconds.
+✔ Test compositeSceneMatchesProjectGoldenWithExplicitTolerance() passed after 0.017 seconds.
+✔ Test deterministicNativeAndSVGMutationCorpusMeetsDeadline() passed after 0.022 seconds.
+✔ Test run with 3 tests passed after 0.022 seconds.
