@@ -1,6 +1,6 @@
 # OpenDraw remediation project state
 
-Updated: 2026-07-17
+Updated: 2026-07-18
 
 The owner-directed tracker was absent from repository history when the R4
 rejection was received. This file restores the twelve hard closure rows from
@@ -138,6 +138,16 @@ the cache generation exactly like a zoom change.
 > shared-runner noise is recorded, not enforced; enforcement lives on stable
 > reference hardware. This decision may only be revisited by a further
 > explicit owner decision.
+
+> **2026-07-18 — Wall-clock-deadline test isolation policy.** Any test whose
+> assertion is a wall-clock deadline (currently: the adversarial-corpus
+> deadline test and the geometry 15-second smoke) runs ISOLATED — after the
+> main suite, sequentially, in EVERY job (local and hosted) that executes
+> it. Deadlines themselves are unchanged and remain trapping. This
+> generalizes the accepted CI #6 / T1 method from per-incident patching to a
+> standing rule; future wall-clock-deadline tests join the isolated set by
+> construction. Contention observations (CI #6: 7.90 s; this run: 3.427 s /
+> 3.162 s) are the triggering evidence.
 
 > **Owner decision (TN LEE, 2026-07-13): Option A is adopted.** BLOCK-002 now
 > requires both the codec reliability run and the full-app startup run on real

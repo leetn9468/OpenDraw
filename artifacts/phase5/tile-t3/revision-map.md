@@ -12,7 +12,7 @@ Final local evidence revision: this containing commit (`git rev-parse HEAD`)
 | S3 production BENCH-1/2/3 and baseline | RESOLVED | `2b7e214`, `58e867b` | production benchmark wiring, one-commit owner baseline rebase, `benchmark-comparison.txt` |
 | S4 queue/state supersession record | RESOLVED | `3d17a17` | `tile-cache-T3.md`, `PROJECT_STATE.md`, `VERIFICATION_QUEUE.md`, ADR-014 |
 | S5 full local battery and closure docs | RESOLVED | `be6b0d4`, `a7c5b9f`, `3d17a17` | `gate-summary.md` and all sibling logs |
-| S6 hosted operator dispatch and eight-job report | OPEN | — | `hosted-operator-plan.md`; no push/dispatch evidence exists |
+| S6 hosted operator dispatch and eight-job report | OPEN | `44f2de0`, triage commit | Run #22 dispatched `44f2de0`: five green, three triaged; `hosted-run-22-triage.md`; operator must dispatch the final triage revision and retain eight green jobs |
 
 No frozen value changed. Every T3 deletion is listed with a successor or
 owner-visible justification in `docs/phase-5/tile-cache-T3.md`.

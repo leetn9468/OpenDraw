@@ -16,7 +16,9 @@ jobs:
       - run: xcrun swift-format lint --recursive --strict Sources Tests Package.swift
       - run: swift build -c debug && swift build -c release
       - name: Test debug and release
-        run: swift test && swift test -c release
+        run: |
+          scripts/run-tests-with-isolated-deadlines.sh
+          scripts/run-tests-with-isolated-deadlines.sh -c release
       - run: scripts/check-module-dependencies.sh
       - run: scripts/check-clean-room.sh
       - name: Public API symbol documentation surface
@@ -33,7 +35,12 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v6
-      - run: swift test --filter 'deterministicNativeAndSVG|fixedAdversarial|compositeSceneMatchesProjectGolden'
+      - name: Run adversarial and golden tests with isolated corpus deadline
+        run: |
+          swift test \
+            --filter 'deterministicNativeAndSVG|fixedAdversarial|compositeSceneMatchesProjectGolden' \
+            --skip deterministicNativeAndSVGMutationCorpusMeetsDeadline
+          swift test --skip-build --filter deterministicNativeAndSVGMutationCorpusMeetsDeadline
   benchmark:
     runs-on: macos-15
     steps:
@@ -182,7 +189,8 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v6
-      - run: swift test --enable-code-coverage
+      - name: Run coverage suite with isolated wall-clock deadlines
+        run: scripts/run-tests-with-isolated-deadlines.sh --coverage-main
       - run: scripts/check-coverage.sh 55
   release-integrity:
     runs-on: macos-15
