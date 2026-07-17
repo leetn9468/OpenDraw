@@ -8,6 +8,8 @@ cd "$repo_root"
 # isolated from unrelated ASan tests. On shared runners, whole-suite scheduling
 # starvation can otherwise consume those deadlines without parser work running.
 deadline_test=deterministicNativeAndSVGMutationCorpusMeetsDeadline
+geometry_deadline_test=swiftGeometryBenchmark
 
-swift test --sanitize=address --skip "$deadline_test"
+swift test --sanitize=address --skip "$deadline_test" --skip "$geometry_deadline_test"
 swift test --sanitize=address --skip-build --filter "$deadline_test"
+swift test --sanitize=address --skip-build --filter "$geometry_deadline_test"
