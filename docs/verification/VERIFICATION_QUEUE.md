@@ -794,7 +794,8 @@ implementation has not begun at this checkpoint.
 - Freeze checkpoint: implementation `NOT STARTED` at `790c013`.
 - T1 implementation: `TileDamageMapper`; permanent references
   `verify029FrozenDamageMappingExamples` and
-  `verify029FrozenConservativeInkCases`.
+  `verify029FrozenConservativeInkCases`. T2 wiring reference:
+  `verifyT2TypedChangesUseOneInvalidationChokePoint`.
 - Rule: `deviceScale = zoom × backingScale`. Map the conservative ink bound to
   device space, apply P-OUTSET, apply P-HALFOPEN, and clamp to the canvas tile
   range. Paths use stroke-inclusive `visualBounds`; images use their
@@ -830,7 +831,8 @@ implementation has not begun at this checkpoint.
 - Status: `FROZEN`
 - Freeze checkpoint: implementation `NOT STARTED` at `790c013`.
 - T1 implementation: `TileGrid`; permanent reference
-  `verify030FrozenGridGeometryAndByteCosts`.
+  `verify030FrozenGridGeometryAndByteCosts`. T2 generation-change wiring
+  reference: `verifyT2TypedChangesUseOneInvalidationChokePoint`.
 - Rule: `deviceScale = zoom × backingScale`;
   `W=ceil(docW×deviceScale)`, `H=ceil(docH×deviceScale)`;
   `columns=ceil(W/256)`, `rows=ceil(H/256)`. Tile origins are integer
@@ -856,7 +858,9 @@ implementation has not begun at this checkpoint.
 - T1 implementation: `TileCache`; permanent references
   `verify031FrozenCapacityAndExactBoundaryEviction`,
   `verify031FrozenLRUAndGenerationBehavior`, and
-  `verify031DisabledCacheRemainsCompositeCorrect`.
+  `verify031DisabledCacheRemainsCompositeCorrect`. T2 memory-pressure
+  ordering reference:
+  `verifyT2PressureDropsFullTileCacheBeforeCheckpointsAndPreservesFloorPins`.
 - Rule: exact byte accounting, P-BUDGETFIT, LRU by last composite use, and
   disabled-but-correct behavior when one full tile cannot fit.
 - Worked examples under the exact 134,217,728 B budget:
@@ -900,6 +904,8 @@ implementation has not begun at this checkpoint.
 
 - Status: `FROZEN`
 - Implementation: `NOT STARTED` at freeze
+- T2 implementation reference:
+  `verify033FrozenSeededInvalidationCompletenessCorpus`.
 - Initial state: the exact 1,000-node benchmark reference document, stable
   pre-order scene-object indexing recomputed after structural changes, zoom
   1.0, backing scale 1, fresh delta history, empty tile cache, and exactly one

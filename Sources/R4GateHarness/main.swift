@@ -80,6 +80,7 @@ private func bitmapContext() -> CGContext {
 private struct SettledScenario: @unchecked Sendable {
     var context: CGContext
     var approvedImages: [ObjectID: CGImage]
+    var tileCache: TileCache<CGImage>
 }
 
 private struct Phase5HistoryEnvelope: Sendable {
@@ -135,7 +136,33 @@ private func settle(_ document: EditorDocument) async throws -> SettledScenario 
     precondition(approvedPixelCount == 50_000_000, "Decoded pixel count must be representative")
     let context = bitmapContext()
     CoreGraphicsRenderer().render(document, in: context, approvedImages: approvedImages)
-    return SettledScenario(context: context, approvedImages: approvedImages)
+    return SettledScenario(
+        context: context, approvedImages: approvedImages,
+        tileCache: try filledTileCache())
+}
+
+private func filledTileCache() throws -> TileCache<CGImage> {
+    let grid = try TileGrid(documentWidth: 512 * 256, documentHeight: 256)
+    let cache = TileCache<CGImage>()
+    for column in 0..<512 {
+        let bytes = Data(
+            repeating: UInt8(truncatingIfNeeded: column),
+            count: TileGrid.fullTileByteCount)
+        let provider = try require(CGDataProvider(data: bytes as CFData))
+        let image = try require(
+            CGImage(
+                width: 256, height: 256, bitsPerComponent: 8, bitsPerPixel: 32,
+                bytesPerRow: 256 * 4, space: CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: CGBitmapInfo(
+                    rawValue: CGImageAlphaInfo.premultipliedLast.rawValue),
+                provider: provider, decode: nil, shouldInterpolate: false,
+                intent: .defaultIntent))
+        let geometry = try require(grid.geometry(at: TileCoordinate(column: column, row: 0)))
+        precondition(cache.insert(image, geometry: geometry))
+    }
+    precondition(cache.count == 512)
+    precondition(cache.totalByteCount == 134_217_728)
+    return cache
 }
 
 private func exportPNG(_ context: CGContext) throws {
@@ -169,17 +196,17 @@ let extraByteCount = Int(ProcessInfo.processInfo.environment["R4_MEMORY_EXTRA_BY
 let extraAllocation = residentExtraAllocation(byteCount: extraByteCount)
 private let phase5History = try phase5HistoryEnvelope(document: document)
 private let scenario = try await settle(document)
-withExtendedLifetime((scenario.approvedImages, extraAllocation, phase5History)) {
+withExtendedLifetime((scenario.approvedImages, scenario.tileCache, extraAllocation, phase5History)) {
     switch mode {
     case "settle":
         print(
-            "R4_MEMORY_SCENARIO=settle objects=1000 anchors=10000 decodedImages=10 decodedPixels=50000000 deltaFloorCommands=10 deltaFloorBytes=70009000 deltaCheckpoints=9 extraBytes=\(extraByteCount)"
+            "R4_MEMORY_SCENARIO=settle objects=1000 anchors=10000 decodedImages=10 decodedPixels=50000000 deltaFloorCommands=10 deltaFloorBytes=70009000 deltaCheckpoints=9 tileCacheEntries=512 tileCacheBytes=134217728 extraBytes=\(extraByteCount)"
         )
     case "export":
         do {
             try exportPNG(scenario.context)
             print(
-                "R4_MEMORY_SCENARIO=export objects=1000 anchors=10000 decodedImages=10 decodedPixels=50000000 deltaFloorCommands=10 deltaFloorBytes=70009000 deltaCheckpoints=9 extraBytes=\(extraByteCount)"
+                "R4_MEMORY_SCENARIO=export objects=1000 anchors=10000 decodedImages=10 decodedPixels=50000000 deltaFloorCommands=10 deltaFloorBytes=70009000 deltaCheckpoints=9 tileCacheEntries=512 tileCacheBytes=134217728 extraBytes=\(extraByteCount)"
             )
         } catch {
             fputs("R4 PNG export failed: \(error)\n", stderr)

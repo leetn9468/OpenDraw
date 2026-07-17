@@ -19,7 +19,12 @@ cat "$benchmark_log" | tee -a "$output"
 if [ "$status" -eq 133 ]; then
   last_completed=$(awk '/^BENCH-/ { line = $0 } END { print line }' "$benchmark_log")
   printf 'BENCH_TRAP exit=133 last_completed=%s\n' "${last_completed:-none}" | tee -a "$output" >&2
-  if grep -q '^BENCH-5 mix=' "$benchmark_log"; then
+  bench6=$(awk '/BENCH-6 tile-edit:/ { print $8 }' "$benchmark_log")
+  if [ -n "$bench6" ] && awk -v value="$bench6" 'BEGIN { exit !(value > 8.0) }'; then
+    bench6_line=$(awk '/precondition\(bench6.p95/ { print NR; exit }' Sources/RenderBenchmark/main.swift)
+    printf 'BENCH_TRAP source=Sources/RenderBenchmark/main.swift:%s gate=BENCH-6 observed_p95_ms=%s target_p95_ms=8.0\n' \
+      "$bench6_line" "$bench6" | tee -a "$output" >&2
+  elif grep -q '^BENCH-5 mix=' "$benchmark_log"; then
     bench5a=$(awk '/BENCH-5a undo-redo:/ { print $8 }' "$benchmark_log")
     bench5b=$(awk '/BENCH-5b record:/ { print $8 }' "$benchmark_log")
     if awk -v value="$bench5a" 'BEGIN { exit !(value > 16.7) }'; then

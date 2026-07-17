@@ -26,6 +26,7 @@ extract() {
     bench3_settle) awk '/BENCH-3 settle:/ { print $3 }' "$current" ;;
     bench5a_p95) awk '/BENCH-5a undo-redo:/ { print $8 }' "$current" ;;
     bench5b_p95) awk '/BENCH-5b record:/ { print $8 }' "$current" ;;
+    bench6_p95) awk '/BENCH-6 tile-edit:/ { print $8 }' "$current" ;;
     *) return 1 ;;
   esac
 }

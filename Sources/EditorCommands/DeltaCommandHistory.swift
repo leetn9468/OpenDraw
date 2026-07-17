@@ -158,7 +158,7 @@ public struct DeltaCommandHistory: Sendable {
             redoStack.append(entry)
             lastDiagnostic = nil
             syncAssetStore()
-            advance(.undo(entry.command.name))
+            advance(.undo(entry.command.name), damage: entry.command.damageBounds.documentDamage)
             return .applied
         } catch {
             do {
@@ -172,7 +172,7 @@ public struct DeltaCommandHistory: Sendable {
                     underlyingError: String(describing: error), restoredCheckpointCounter: recovery.checkpointCounter,
                     replayedCommandCount: recovery.replayCount, recoverySucceeded: true)
                 syncAssetStore()
-                advance(.undo(entry.command.name))
+                advance(.undo(entry.command.name), damage: entry.command.damageBounds.documentDamage)
                 return .recoveredFromCheckpoint
             } catch let recoveryError {
                 self = original
@@ -195,7 +195,7 @@ public struct DeltaCommandHistory: Sendable {
             undoStack.append(entry)
             lastDiagnostic = nil
             syncAssetStore()
-            advance(.redo(entry.command.name))
+            advance(.redo(entry.command.name), damage: entry.command.damageBounds.documentDamage)
             return .applied
         } catch {
             do {
@@ -209,7 +209,7 @@ public struct DeltaCommandHistory: Sendable {
                     underlyingError: String(describing: error), restoredCheckpointCounter: recovery.checkpointCounter,
                     replayedCommandCount: recovery.replayCount, recoverySucceeded: true)
                 syncAssetStore()
-                advance(.redo(entry.command.name))
+                advance(.redo(entry.command.name), damage: entry.command.damageBounds.documentDamage)
                 return .recoveredFromCheckpoint
             } catch let recoveryError {
                 self = original
@@ -267,8 +267,10 @@ public struct DeltaCommandHistory: Sendable {
                 oldValue: deltaTransform(try StructuralCommands.slot(for: nodeID, in: document).node),
                 newValue: newValues[nodeID]!)
         }
-        try CompositeCommands.ordered(name: "Preview transform gesture", children: children)
-            .apply(to: &document)
+        let preview = try CompositeCommands.ordered(name: "Preview transform gesture", children: children)
+        try preview.apply(to: &document)
+        publishGestureChange(
+            .gestureFrame, damage: preview.isIdentity ? .none : preview.damageBounds.documentDamage)
     }
 
     public mutating func updateDocumentTransformGesture(
@@ -333,8 +335,10 @@ public struct DeltaCommandHistory: Sendable {
                 oldValue: AnchorGeometryCommands.slice(in: document, at: location),
                 newValue: newValues[location]!)
         }
-        try CompositeCommands.ordered(name: "Preview anchor gesture", children: children)
-            .apply(to: &document)
+        let preview = try CompositeCommands.ordered(name: "Preview anchor gesture", children: children)
+        try preview.apply(to: &document)
+        publishGestureChange(
+            .gestureFrame, damage: preview.isIdentity ? .none : preview.damageBounds.documentDamage)
     }
 
     /// Commits the first and last gesture states as one command. Intermediate
@@ -374,6 +378,7 @@ public struct DeltaCommandHistory: Sendable {
         guard let gesture = activeGestures[gestureID] else {
             throw DeltaGestureError.gestureNotFound
         }
+        let restoration: DocumentCommand
         switch gesture {
         case .transforms(let preStates):
             let children = try preStates.keys.sorted(by: objectIDOrder).map { nodeID in
@@ -382,8 +387,7 @@ public struct DeltaCommandHistory: Sendable {
                     oldValue: deltaTransform(try StructuralCommands.slot(for: nodeID, in: document).node),
                     newValue: preStates[nodeID]!)
             }
-            try CompositeCommands.ordered(name: "Cancel transform gesture", children: children)
-                .apply(to: &document)
+            restoration = try CompositeCommands.ordered(name: "Cancel transform gesture", children: children)
         case .anchors(let preStates):
             let children = try preStates.keys.sorted(by: anchorLocationOrder).map { location in
                 try AnchorGeometryCommands.setSlice(
@@ -391,13 +395,22 @@ public struct DeltaCommandHistory: Sendable {
                     oldValue: AnchorGeometryCommands.slice(in: document, at: location),
                     newValue: preStates[location]!)
             }
-            try CompositeCommands.ordered(name: "Cancel anchor gesture", children: children)
-                .apply(to: &document)
+            restoration = try CompositeCommands.ordered(name: "Cancel anchor gesture", children: children)
         }
+        try restoration.apply(to: &document)
         activeGestures.removeValue(forKey: gestureID)
+        publishGestureChange(
+            .gestureCancelled,
+            damage: restoration.isIdentity ? .none : restoration.damageBounds.documentDamage)
     }
 
     public func changes() -> AsyncStream<DocumentChange> { broadcaster.stream() }
+
+    public func observeChanges(
+        _ observer: @escaping @Sendable (DocumentChange) -> Void
+    ) -> DocumentChangeObservation {
+        broadcaster.observe(observer)
+    }
 
     public mutating func markSaved() {
         savedRevision = currentRevision
@@ -444,13 +457,17 @@ public struct DeltaCommandHistory: Sendable {
         enforceCheckpointCeiling()
         lastDiagnostic = nil
         syncAssetStore()
-        advance(.command(command.name))
+        advance(.command(command.name), damage: command.damageBounds.documentDamage)
         return .committed
     }
 
-    private mutating func advance(_ kind: DocumentChange.Kind) {
+    private func publishGestureChange(_ kind: DocumentChange.Kind, damage: DocumentDamage) {
+        broadcaster.publish(DocumentChange(revision: currentRevision, kind: kind, damage: damage))
+    }
+
+    private mutating func advance(_ kind: DocumentChange.Kind, damage: DocumentDamage) {
         currentRevision &+= 1
-        broadcaster.publish(DocumentChange(revision: currentRevision, kind: kind))
+        broadcaster.publish(DocumentChange(revision: currentRevision, kind: kind, damage: damage))
     }
 
     private var retainedEntries: [Entry] { undoStack + redoStack.reversed() }

@@ -40,11 +40,13 @@ jobs:
       - uses: actions/checkout@v6
       - name: Run benchmark with frozen absolute targets
         env:
-          # Owner decision 2026-07-16: hosted BENCH-5b is informational; all other absolute gates remain blocking.
+          # Hosted BENCH-5b is informational; BENCH-6's 8 ms absolute gate remains blocking.
           BENCH5B_ENFORCEMENT: off
         run: scripts/run-render-benchmark.sh benchmark.txt
       - name: Prove hosted BENCH-5b policy remains falsifiable
         run: scripts/test-benchmark-enforcement-modes.sh
+      - name: Prove BENCH-6 absolute gate remains falsifiable
+        run: scripts/test-bench6-gate.sh
       - name: Prove inclusive ratio gate remains falsifiable
         run: scripts/test-benchmark-regression-gate.sh
       - name: Report hosted ratio or prepare hosted baseline bootstrap
@@ -57,7 +59,7 @@ jobs:
           validate_hosted_baseline() {
             baseline_file=$1
             data_count=$(awk -F "$(printf '\t')" '$1 !~ /^#/ && NF { count += 1 } END { print count + 0 }' "$baseline_file")
-            test "$data_count" -eq 5 -o "$data_count" -eq 7
+            test "$data_count" -ge 5 -a "$data_count" -le 8
             for metric in bench1_p95 bench2_p95 bench2b_p95 bench3_p95 bench3_settle; do
               metric_count=$(awk -F "$(printf '\t')" -v metric="$metric" '$1 == metric { count += 1 } END { print count + 0 }' "$baseline_file")
               test "$metric_count" -eq 1
@@ -66,6 +68,8 @@ jobs:
             bench5b_count=$(awk -F "$(printf '\t')" '$1 == "bench5b_p95" { count += 1 } END { print count + 0 }' "$baseline_file")
             test "$bench5a_count" -eq "$bench5b_count"
             test "$bench5a_count" -eq 0 -o "$bench5a_count" -eq 1
+            bench6_count=$(awk -F "$(printf '\t')" '$1 == "bench6_p95" { count += 1 } END { print count + 0 }' "$baseline_file")
+            test "$bench6_count" -eq 0 -o "$bench6_count" -eq 1
           }
           if [ -s "$HOSTED_BASELINE" ]; then
             validate_hosted_baseline "$HOSTED_BASELINE"
@@ -78,22 +82,36 @@ jobs:
               hosted-informational-baseline.tsv benchmark.txt benchmark-ratio-body.txt || ratio_status=$?
             rm -f hosted-informational-baseline.tsv
             phase5_metric_count=$(awk -F "$(printf '\t')" '$1 == "bench5a_p95" || $1 == "bench5b_p95" { count += 1 } END { print count + 0 }' "$HOSTED_BASELINE")
-            if [ "$phase5_metric_count" -eq 0 ]; then
+            bench6_metric_count=$(awk -F "$(printf '\t')" '$1 == "bench6_p95" { count += 1 } END { print count + 0 }' "$HOSTED_BASELINE")
+            if [ "$phase5_metric_count" -eq 0 ] || [ "$bench6_metric_count" -eq 0 ]; then
               bench5a=$(awk '/BENCH-5a undo-redo:/ { print $8 }' benchmark.txt)
               bench5b=$(awk '/BENCH-5b record:/ { print $8 }' benchmark.txt)
-              test -n "$bench5a" -a -n "$bench5b"
+              bench6=$(awk '/BENCH-6 tile-edit:/ { print $8 }' benchmark.txt)
+              test -n "$bench5a" -a -n "$bench5b" -a -n "$bench6"
               {
                 cat "$HOSTED_BASELINE"
-                printf '# phase5_metrics_source_commit=%s\n' "$GITHUB_SHA"
-                printf '# phase5_metrics_run_url=%s\n' "$run_url"
-                printf 'bench5a_p95\t%s\t1.25\n' "$bench5a"
-                printf 'bench5b_p95\t%s\t1.25\n' "$bench5b"
+                if [ "$phase5_metric_count" -eq 0 ]; then
+                  printf '# phase5_metrics_source_commit=%s\n' "$GITHUB_SHA"
+                  printf '# phase5_metrics_run_url=%s\n' "$run_url"
+                  printf 'bench5a_p95\t%s\t1.25\n' "$bench5a"
+                  printf 'bench5b_p95\t%s\t1.25\n' "$bench5b"
+                fi
+                if [ "$bench6_metric_count" -eq 0 ]; then
+                  printf '# tile_t2_bench6_source_commit=%s\n' "$GITHUB_SHA"
+                  printf '# tile_t2_bench6_run_url=%s\n' "$run_url"
+                  printf 'bench6_p95\t%s\t1.25\n' "$bench6"
+                fi
               } > hosted-baseline-candidate.tsv
               validate_hosted_baseline hosted-baseline-candidate.tsv
               {
                 cat benchmark-ratio-body.txt
-                printf 'bench5a_p95 baseline_ms=%s observed_ms=%s ratio=1.000000 allowed_ratio=1.25 result=BOOTSTRAP\n' "$bench5a" "$bench5a"
-                printf 'bench5b_p95 baseline_ms=%s observed_ms=%s ratio=1.000000 allowed_ratio=1.25 result=BOOTSTRAP\n' "$bench5b" "$bench5b"
+                if [ "$phase5_metric_count" -eq 0 ]; then
+                  printf 'bench5a_p95 baseline_ms=%s observed_ms=%s ratio=1.000000 allowed_ratio=1.25 result=BOOTSTRAP\n' "$bench5a" "$bench5a"
+                  printf 'bench5b_p95 baseline_ms=%s observed_ms=%s ratio=1.000000 allowed_ratio=1.25 result=BOOTSTRAP\n' "$bench5b" "$bench5b"
+                fi
+                if [ "$bench6_metric_count" -eq 0 ]; then
+                  printf 'bench6_p95 baseline_ms=%s observed_ms=%s ratio=1.000000 allowed_ratio=1.25 result=BOOTSTRAP\n' "$bench6" "$bench6"
+                fi
               } > benchmark-ratio-complete.txt
             else
               mv benchmark-ratio-body.txt benchmark-ratio-complete.txt
@@ -127,6 +145,7 @@ jobs:
             awk '/BENCH-3 settle:/ { print "bench3_settle\t" $3 "\t1.25" }' benchmark.txt
             awk '/BENCH-5a undo-redo:/ { print "bench5a_p95\t" $8 "\t1.25" }' benchmark.txt
             awk '/BENCH-5b record:/ { print "bench5b_p95\t" $8 "\t1.25" }' benchmark.txt
+            awk '/BENCH-6 tile-edit:/ { print "bench6_p95\t" $8 "\t1.25" }' benchmark.txt
           } > hosted-baseline-candidate.tsv
           validate_hosted_baseline hosted-baseline-candidate.tsv
           {

@@ -205,22 +205,6 @@ public enum TileDamageMapper {
     }
 
     public static func conservativeInkBounds(for node: SceneNode) -> Geometry.Rect? {
-        switch node {
-        case .path(let path):
-            return path.visualBounds
-        case .text(let text):
-            return text.conservativeInkBounds?.transformed(by: text.transform)
-        case .image(let image):
-            return image.frame.transformed(by: image.transform)
-        case .group(let group):
-            guard let first = group.children.first,
-                var union = conservativeInkBounds(for: first)
-            else { return nil }
-            for child in group.children.dropFirst() {
-                guard let bounds = conservativeInkBounds(for: child) else { return nil }
-                union = union.union(bounds)
-            }
-            return union.transformed(by: group.transform)
-        }
+        node.conservativeInkBounds
     }
 }

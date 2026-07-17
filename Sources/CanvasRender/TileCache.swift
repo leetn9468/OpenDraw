@@ -1,5 +1,15 @@
 import Foundation
 
+public struct TileCacheRemoval: Equatable, Sendable {
+    public let count: Int
+    public let byteCount: Int
+
+    public init(count: Int, byteCount: Int) {
+        self.count = count
+        self.byteCount = byteCount
+    }
+}
+
 public final class TileCache<Payload> {
     public static var defaultByteBudget: Int { 134_217_728 }
 
@@ -55,10 +65,28 @@ public final class TileCache<Payload> {
         }
     }
 
-    public func removeAll() {
+    @discardableResult
+    public func removeAll() -> TileCacheRemoval {
         lock.withLock {
+            let removal = TileCacheRemoval(count: entries.count, byteCount: currentByteCount)
             entries.removeAll()
             currentByteCount = 0
+            return removal
+        }
+    }
+
+    @discardableResult
+    public func invalidate(_ coordinates: Set<TileCoordinate>) -> TileCacheRemoval {
+        lock.withLock {
+            var count = 0
+            var byteCount = 0
+            for coordinate in coordinates {
+                guard let removed = entries.removeValue(forKey: coordinate) else { continue }
+                count += 1
+                byteCount += removed.byteCount
+                currentByteCount -= removed.byteCount
+            }
+            return TileCacheRemoval(count: count, byteCount: byteCount)
         }
     }
 

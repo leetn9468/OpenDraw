@@ -97,7 +97,8 @@ let activity = ProcessInfo.processInfo.beginActivity(
 defer { ProcessInfo.processInfo.endActivity(activity) }
 print(
     "BENCH_METADATA warmup_frames=60 measured_frames=300 production_paths=true "
-        + "bench5b_enforcement=\(bench5bEnforcementEnabled ? "on" : "off")")
+        + "bench5b_enforcement=\(bench5bEnforcementEnabled ? "on" : "off") "
+        + "legacy_tile_flag_reads=false bench6_tile_configuration=explicit-on")
 if let benchmarkGateFixture {
     print("BENCH_GATE_FIXTURE=\(benchmarkGateFixture)")
 }
@@ -213,7 +214,38 @@ print("BENCH-5 mix=structural,composite,anchor-slice history=delta-only")
 print(
     "BENCH-5b enforcement: bench5b_enforcement=\(bench5bEnforcementEnabled ? "on" : "off") "
         + "result=\(bench5bEnforcementEnabled ? "BLOCKING" : "INFORMATIONAL")")
+
+var tileHistory = try DeltaCommandHistory(document: base)
+let tileRenderer = TileCompositeRenderer(
+    configuration: TileCacheStartupConfiguration(isEnabled: true))
+tileRenderer.subscribe(to: tileHistory)
+let tileDestination = context()
+let tileGrid = try TileGrid(documentWidth: base.width, documentHeight: base.height)
+_ = try tileRenderer.composite(tileHistory.document, in: tileDestination)
+let measuredBench6 = try measure { index in
+    let targetID = id(84)
+    let direction = index.isMultiple(of: 2) ? 1.0 : -1.0
+    var transform = tileHistory.document.path(id: targetID)!.transform
+    transform.tx += direction
+    let edit = try ValueSwapCommands.transform(
+        in: tileHistory.document, nodeID: targetID, newValue: transform)
+    let expected = TileDamageMapper.map(edit.damageBounds.documentDamage, in: tileGrid)
+        .resolvedCoordinates(in: tileGrid)
+    try tileHistory.commit(edit)
+    let frame = try tileRenderer.composite(tileHistory.document, in: tileDestination)
+    precondition(!frame.hitTiles.isEmpty, "BENCH-6 requires nonzero cache hits every frame")
+    precondition(
+        Set(frame.renderedTiles) == expected,
+        "BENCH-6 rendered tiles must exactly equal the frozen damage mapping")
+}
+let bench6 = applyingGateFixture(measuredBench6, gate: "bench6-overrun", forcedP95: 8.001)
+printStats("BENCH-6 tile-edit", bench6)
+print(
+    "BENCH-6 assertions cache_hits=nonzero rendered_tiles=exact_damage_mapping "
+        + "warmup_frames=60 measured_frames=300 result=BLOCKING")
+print("BENCH-6 sequence=node-84 dx=alternating(+1,-1) dy=0 reference_scene_nodes=1000")
 precondition(bench5a.p95 <= 16.7, "BENCH-5a p95 exceeds frozen 16.7 ms target")
 if bench5bEnforcementEnabled {
     precondition(bench5b.p95 <= 1.0, "BENCH-5b p95 exceeds frozen 1.0 ms target")
 }
+precondition(bench6.p95 <= 8.0, "BENCH-6 p95 exceeds frozen 8.0 ms target")

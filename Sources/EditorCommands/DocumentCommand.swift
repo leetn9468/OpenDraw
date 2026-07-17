@@ -13,19 +13,51 @@ public struct DocumentChange: Sendable, Equatable {
         case command(String)
         case undo(String)
         case redo(String)
+        case gestureFrame
+        case gestureCancelled
         case saved
     }
     public let revision: UInt64
     public let kind: Kind
-    public init(revision: UInt64, kind: Kind) {
+    public let damage: DocumentDamage
+    public init(revision: UInt64, kind: Kind, damage: DocumentDamage = .none) {
         self.revision = revision
         self.kind = kind
+        self.damage = damage
     }
+
+    /// Preserve the pre-damage compatibility contract used by existing
+    /// consumers: a change's identity is its revision and kind. Subscribers
+    /// that render incrementally inspect `damage` explicitly.
+    public static func == (lhs: DocumentChange, rhs: DocumentChange) -> Bool {
+        lhs.revision == rhs.revision && lhs.kind == rhs.kind
+    }
+}
+
+public final class DocumentChangeObservation: @unchecked Sendable {
+    private let lock = NSLock()
+    private var cancellation: (@Sendable () -> Void)?
+
+    fileprivate init(cancellation: @escaping @Sendable () -> Void) {
+        self.cancellation = cancellation
+    }
+
+    public func cancel() {
+        let action = lock.withLock {
+            let value = cancellation
+            cancellation = nil
+            return value
+        }
+        action?()
+    }
+
+    deinit { cancel() }
 }
 
 final class ChangeBroadcaster: @unchecked Sendable {
     private let lock = NSLock()
     private var continuations: [UUID: AsyncStream<DocumentChange>.Continuation] = [:]
+    private var observers: [UUID: @Sendable (DocumentChange) -> Void] = [:]
     func stream() -> AsyncStream<DocumentChange> {
         let id = UUID()
         return AsyncStream { continuation in
@@ -33,11 +65,19 @@ final class ChangeBroadcaster: @unchecked Sendable {
             continuation.onTermination = { [weak self] _ in self?.lock.withLock { self?.continuations[id] = nil } }
         }
     }
+    func observe(_ observer: @escaping @Sendable (DocumentChange) -> Void) -> DocumentChangeObservation {
+        let id = UUID()
+        lock.withLock { observers[id] = observer }
+        return DocumentChangeObservation { [weak self] in
+            self?.lock.withLock { self?.observers[id] = nil }
+        }
+    }
     func publish(_ change: DocumentChange) {
-        let targets = lock.withLock { Array(continuations.values) }
-        for target in targets {
+        let targets = lock.withLock { (Array(continuations.values), Array(observers.values)) }
+        for target in targets.0 {
             target.yield(change)
         }
+        for observer in targets.1 { observer(change) }
     }
 }
 
@@ -50,6 +90,16 @@ public enum DocumentCommandDamageBounds: Equatable, Sendable {
     case none
     case rect(Rect)
     case full
+}
+
+extension DocumentCommandDamageBounds {
+    public var documentDamage: DocumentDamage {
+        switch self {
+        case .none: .none
+        case .rect(let rect): .rects([rect])
+        case .full: .full
+        }
+    }
 }
 
 public enum HistoryAssetPinSource: Hashable, Sendable {

@@ -24,7 +24,9 @@ measure() {
   cat "$scenario_log" | tee -a "$output"
   peak=$(awk '/maximum resident set size/ { print $1; exit }' "$timing")
   test -n "$peak"
-  printf '%s peak_bytes=%s limit_bytes=%s result=' "$scenario" "$peak" "$limit" | tee -a "$output"
+  headroom=$((limit - peak))
+  printf '%s peak_bytes=%s limit_bytes=%s headroom_bytes=%s result=' \
+    "$scenario" "$peak" "$limit" "$headroom" | tee -a "$output"
   if [ "$peak" -le "$limit" ]; then
     printf 'PASS\n' | tee -a "$output"
   else

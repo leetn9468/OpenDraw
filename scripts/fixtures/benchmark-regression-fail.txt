@@ -5,3 +5,4 @@ BENCH-3 zoom: p50 2.300 ms | p95 8.700 ms | max 10.000 ms
 BENCH-3 settle: 2.700 ms
 BENCH-5a undo-redo: p50 0.005 ms | p95 0.008 ms | max 0.012 ms
 BENCH-5b record: p50 0.120 ms | p95 0.147 ms | max 0.200 ms
+BENCH-6 tile-edit: p50 4.100 ms | p95 4.500 ms | max 4.900 ms

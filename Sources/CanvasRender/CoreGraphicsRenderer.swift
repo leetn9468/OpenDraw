@@ -15,11 +15,7 @@ public struct RenderViewport: Sendable {
         self.clip = clip
     }
 }
-public enum DamageRegion: Sendable, Equatable {
-    case none
-    case rects([Rect])
-    case full
-}
+public typealias DamageRegion = DocumentDamage
 
 public struct CoreGraphicsRenderer: Sendable {
     public init() {}

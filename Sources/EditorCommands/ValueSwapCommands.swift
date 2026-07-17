@@ -282,8 +282,7 @@ public enum ValueSwapCommands {
 
 private func damageBounds(before: Rect?, after: Rect?) -> DocumentCommandDamageBounds {
     switch (before, after) {
-    case (nil, nil): return .none
-    case (.some(let value), nil), (nil, .some(let value)): return .rect(value)
+    case (nil, _), (_, nil): return .full
     case (.some(let before), .some(let after)): return .rect(before.union(after))
     }
 }
@@ -359,7 +358,7 @@ private func nodeTransform(of node: SceneNode) -> Geometry.AffineTransform {
 }
 
 private func documentBounds(of node: SceneNode, parent: Geometry.AffineTransform) -> Rect? {
-    node.visualBounds?.transformed(by: parent)
+    node.conservativeInkBounds?.transformed(by: parent)
 }
 
 private func validateTransform(_ value: Geometry.AffineTransform) throws {
