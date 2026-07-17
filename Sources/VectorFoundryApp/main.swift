@@ -11,6 +11,7 @@ import UniformTypeIdentifiers
 
 private let processStartupStart = ProcessInfo.processInfo.systemUptime
 private let startupProbeEnabled = CommandLine.arguments.contains("--startup-probe")
+private let tileCacheStartupConfiguration = TileCacheStartupConfiguration.process
 
 private func registerEmbeddedAssets(
     in document: EditorDocument, with store: ApprovedAssetStore
@@ -957,6 +958,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let recoveryID = "active-document"
     private let unsavedCoordinator = UnsavedChangesCoordinator()
     func applicationDidFinishLaunching(_ notification: Notification) {
+        _ = tileCacheStartupConfiguration
         Diagnostics.installCrashContext()
         let frame = NSRect(x: 0, y: 0, width: 800, height: 620)
         let window = NSWindow(
