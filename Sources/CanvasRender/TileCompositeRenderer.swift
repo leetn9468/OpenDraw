@@ -221,7 +221,7 @@ public final class TileCompositeRenderer: @unchecked Sendable {
     private func ensureSpatialIndex(for document: EditorDocument, grid: TileGrid) {
         guard spatialIndexNeedsRebuild || spatialIndexGrid != grid else { return }
         let rootNodeCount = document.layers.reduce(0) { $0 + $1.nodes.count }
-        guard rootNodeCount >= 2_000 else {
+        guard rootNodeCount > 0 else {
             spatialIndexEnabled = false
             rootNodeIndicesByTile.removeAll(keepingCapacity: false)
             spatialIndexGrid = grid
