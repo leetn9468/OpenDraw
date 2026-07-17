@@ -30,6 +30,12 @@ struct TileGeometryVerifyTests {
         #expect(TileDamageMapper.map(DamageRegion.none, in: grid) == .none)
         #expect(TileDamageMapper.map(.full, in: grid) == .all)
         #expect(TileDamageMapper.map(nil, in: grid) == .all)
+
+        let retina = try TileGrid(
+            documentWidth: 800, documentHeight: 500, zoom: 1, backingScale: 2)
+        let retinaMapping = TileDamageMapper.map(
+            .rects([Geometry.Rect(minX: 100, minY: 50, maxX: 300, maxY: 150)]), in: retina)
+        #expect(retinaMapping.resolvedCoordinates(in: retina) == coordinates(columns: 0...2, rows: 0...1))
     }
 
     @Test func verify029FrozenConservativeInkCases() throws {
@@ -58,12 +64,19 @@ struct TileGeometryVerifyTests {
             image.frame.transformed(by: image.transform), path.visualBounds,
             path.visualBounds?.union(image.frame.transformed(by: image.transform)).transformed(by: group.transform),
         ]
+        let expectedMappings: [Set<TileCoordinate>] = [
+            [TileCoordinate(column: 0, row: 0)],
+            [TileCoordinate(column: 0, row: 0)],
+            [TileCoordinate(column: 1, row: 0)],
+            [TileCoordinate(column: 1, row: 0)],
+            [TileCoordinate(column: 1, row: 0)],
+        ]
         let grid = try TileGrid(documentWidth: 800, documentHeight: 500)
-        for (node, expectedBounds) in zip(nodes, expected) {
+        for ((node, expectedBounds), expectedMapping) in zip(zip(nodes, expected), expectedMappings) {
             let bounds = try #require(TileDamageMapper.conservativeInkBounds(for: node))
             #expect(bounds == expectedBounds)
             let mapping = TileDamageMapper.map(.rects([bounds]), in: grid)
-            #expect(!mapping.resolvedCoordinates(in: grid).isEmpty)
+            #expect(mapping.resolvedCoordinates(in: grid) == expectedMapping)
         }
         let absent = TileDamageMapper.conservativeInkBounds(for: .group(GroupNode(children: [])))
         #expect(absent == nil)
