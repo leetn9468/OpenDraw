@@ -6,7 +6,7 @@ Producing build-input revision: `fba637212174fd4c9fe6a047b7a340077e06a22d`
 
 ## Result
 
-T1 is implemented behind `OPENDRAW_TILE_CACHE=1`, default off. The new entry
+T1 was implemented behind the former tile-cache environment gate, default off. The new entry
 point provides the frozen device-pixel grid, conservative damage mapping,
 exact-budget LRU container, and cold/warm tile-composite harness. It calls the
 existing `CoreGraphicsRenderer` once per miss under a full-scene tile clip and

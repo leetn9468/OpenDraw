@@ -73,3 +73,19 @@ conditional step-4 rule.
 
 The approximately 41 ms audit baseline used the pre-R1.5 duplicate-ID sample
 and is not directly comparable to the current deterministic unique-ID results.
+
+## 2026-07-17 tile-production supersession note
+
+Historical results and mechanism descriptions above are intentionally
+preserved. The owner-selected Option A corridor supersedes only the BENCH-2b
+mechanism; its 16.7 ms p95 target and 60+300 schedule are unchanged.
+
+| Historical mechanism | Production successor |
+|---|---|
+| 2-device-pixel pan through `ViewportStripCache`, its strip counter, and the 1,000-node fixture | 46,480×250-unit exposure corridor at zoom 2/backing scale 1; 9,100 strictly interior nodes; setup columns 0…3; frame f renders exactly `(f+3,0)` and `(f+3,1)` |
+| `SceneBitmapCache` for BENCH-1/2/3 | `TileCompositeRenderer`; BENCH-1 uses typed-damage invalidation, BENCH-2 is warm-hit dominated, BENCH-3 enters the renderer-owned direct gesture path and settles through tiles |
+
+The corridor harness traps any unexpected render, zero-render frame, or hit
+from a never-rendered region. The local owner-reference baseline was rebased
+only for changed-mechanism rows at `58e867b`, with source provenance
+`5f18000fcab25d2fa7f52e81dd5f33900604fe15`. Absolute targets were not moved.

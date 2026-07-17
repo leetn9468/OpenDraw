@@ -185,17 +185,21 @@ the authoritative supersession record are in
 `docs/verification/VERIFICATION_QUEUE.md`; the P4 implementation map is
 `docs/phase-5/delta-history-P4.md`.
 
-Tile-render caching T1 is **IMPLEMENTED — AWAITING ACCEPTANCE** at build-input
-revision `fba637212174fd4c9fe6a047b7a340077e06a22d`. VERIFY-029–033 remain
-`FROZEN` in `docs/verification/VERIFICATION_QUEUE.md`; T1 adds the permanent
-VERIFY-029/030/031 arithmetic fixtures and the cold/warm VERIFY-032 composite
-harness without changing any frozen value. `OPENDRAW_TILE_CACHE` is read once
-at startup and defaults off, but no production caller uses the flag-on entry
-point in T1: `CanvasView` still renders directly. T1 contains no invalidation
-wiring, gesture damage publication, VERIFY-033 corpus, BENCH-2b mechanism
-change, benchmark-source change, or peak-memory extension. Those remain T2/T3
-work after T1 acceptance. The implementation and gate map is
-`docs/phase-5/tile-cache-T1.md`.
+Tile-render caching T1 and T2 were accepted at `fba6372` and `da6b14c`.
+The tile-render caching specification is now **DELIVERED locally by T3**:
+`TileCompositeRenderer` is the only production renderer, the former
+environment gate and all conditional test gating are removed, and the
+BENCH-2b exposure corridor replaces the retired viewport-strip mechanism.
+VERIFY-029–033 remain `FROZEN`; no frozen arithmetic, target, corpus draw,
+or policy value changed. The executed deletion/successor table and local gate
+map are in `docs/phase-5/tile-cache-T3.md`, with the production-renderer
+decision in `docs/adr/ADR-014-tile-composite-production-renderer.md`.
+
+Local implementation delivery does not by itself close hosted operations.
+T3 S6 remains **OPEN — OPERATOR DISPATCH REQUIRED** until the operator pushes
+and manually dispatches the exact final revision and all eight hosted jobs,
+including blocking BENCH-2b and BENCH-6, are retained verbatim under
+`artifacts/phase5/tile-t3/hosted/`.
 
 The feature's hosted story is **CLOSED** by manually dispatched CI #19 on exact
 revision `d278755e020455955c1837a7aa36ef20ec0058fe`:

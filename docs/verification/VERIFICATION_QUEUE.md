@@ -985,3 +985,14 @@ gives row heights 256 and **244**. The final viewport is
 - AMEND-10: `AGREE` — the operation ranges, draw consumption, modulo bounds,
   identity/no-op behavior, lazy-generation exemptions, live-gesture damage
   requirement, and failure retention form one deterministic 64-step corpus.
+
+### T3 execution references — 2026-07-17 (references only)
+
+No frozen VERIFY-029–033 value changed. Permanent execution references added
+by T3 are `bench2bExposureCorridorRendersExactIndices` and
+`productionDocumentCoordinateCompositeEqualsDirect` in
+`TileCompositeVerifyTests.swift`; the accepted T1/T2 tests are unconditional.
+The production cutover, complete deletion/successor table, gate map, and
+hosted-closure requirement are recorded in
+`docs/phase-5/tile-cache-T3.md` and
+`docs/adr/ADR-014-tile-composite-production-renderer.md`.
