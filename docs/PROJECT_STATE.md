@@ -74,6 +74,51 @@ names were confirmed. The permanent record is
 > considered and rejected: both mask noise without adding detection power.
 > This decision may only be revisited by a further explicit owner decision.
 
+> **2026-07-17 — OD-5:** tile size 256×256 device pixels; tile-cache budget
+> exactly 134,217,728 bytes (= 512 full tiles at 262,144 B each — the exact
+> divisibility is a design property, pinned); LRU eviction by last composite
+> use; exact byte accounting (w×h×4, edge tiles smaller); when the budget
+> cannot fit one full tile the cache is disabled-but-correct (every composite
+> miss-renders; the §3 invariant still holds).
+> **OD-6:** exact-current-zoom caching; any zoom change bumps the cache
+> generation (lazy full invalidation); zoom gestures retain the direct-render
+> path — BENCH-3 semantics and targets untouched by construction.
+> **OD-7:** per-object caching DEFERRED pending profiling evidence; Phase 5
+> V1 is tile-only.
+> **OD-8:** the peak-memory gate scenario extends to settle + delta-history
+> P-FLOOR worst case + nine checkpoints + tile cache filled to budget; the
+> 500 MiB ceiling is unchanged; under memory-safety-net pressure the tile
+> cache is discarded FIRST (pure derived data), before any checkpoint and
+> long before the history floor. **Reporting rule (owner correction,
+> 2026-07-17): compliance is proven only by exact measured bytes and exact
+> byte headroom at the gate; percentage estimates are never proof.** The
+> arithmetic expectation — 285,294,592 (P4 measured settle peak) +
+> 134,217,728 = 419,512,320 B, implying 104,775,680 B headroom under
+> 524,288,000 — is an expectation only; the gate reports measured values.
+
+Round-2 extension incorporated into the freeze: a backing-scale change bumps
+the cache generation exactly like a zoom change.
+
+> **BENCH-2b mechanism supersession.** The frozen 2-device-pixel-pan
+> viewport-strip mechanism (BENCH-R3.5) is formally superseded for the tile
+> era. New mechanism: a BENCH-2b-specific EXPOSURE CORRIDOR fixture —
+> document 46,480 × 250 units, z = 2, backingScale = 1 (device 92,960 × 500),
+> viewport 800 × 500 device px, pan exactly 256 device px (128 doc units) per
+> frame, 360 advances (60 warm-up + 300 measured), each advance exposing
+> exactly one never-rendered tile column (indices 4…363; initial columns 0…3
+> rendered in setup). Content: a strictly periodic pattern, 25 nodes placed
+> strictly interior to every 128-doc-unit period (364 periods, 9,100 nodes,
+> within the 100,000 ceiling), so every new tile column intersects exactly
+> 25 objects — pinned per-frame render load replaces node-count fidelity;
+> the 1,000-node reference document remains unchanged for every other BENCH
+> scenario. Retained unchanged: p95 ≤ 16.7 ms target, 60+300 schedule,
+> trapping nonzero-render precondition. Strengthened: the harness asserts
+> the EXACT new tile indices per frame — frame f renders exactly tiles
+> (f+3, 0) and (f+3, 1) and everything else composites from cache; any other
+> render or any hit-served never-rendered region traps. The old strip
+> mechanism, counter, and fixture are retired with a row in the supersession
+> record. This decision may only be revisited by explicit owner decision.
+
 > **2026-07-16 — Hosted BENCH-5b absolute gate downgraded to INFORMATIONAL.**
 > BENCH-5b is a sub-millisecond CPU micro-benchmark (structural/composite/
 > anchor record-commit p95, target 1.0 ms, calibrated on owner-reference
@@ -139,6 +184,12 @@ shared immutable asset storage retained. Permanent VERIFY-022–028 evidence and
 the authoritative supersession record are in
 `docs/verification/VERIFICATION_QUEUE.md`; the P4 implementation map is
 `docs/phase-5/delta-history-P4.md`.
+
+Tile-render caching remains **PREIMPLEMENTATION**. VERIFY-029–033 completed
+three agreement rounds and are `FROZEN` in
+`docs/verification/VERIFICATION_QUEUE.md`, including the BENCH-2b exposure-
+corridor supersession and the TEXT-DEFECT-001-unblocked text cases. No tile-
+cache implementation began as part of the freeze commit.
 
 The feature's hosted story is **CLOSED** by manually dispatched CI #19 on exact
 revision `d278755e020455955c1837a7aa36ef20ec0058fe`:

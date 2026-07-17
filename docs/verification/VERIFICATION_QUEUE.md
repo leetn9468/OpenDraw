@@ -739,3 +739,230 @@ for below. No frozen value was edited.
   future-schema protocol guard.
 - AMEND-6: `AGREE` — the listed old capacity constant, tests, and ADR rows are
   explicit implementation-time supersessions.
+
+## Phase 5 tile-render caching — preimplementation freeze
+
+VERIFY-029–033 were authored and independently recomputed before production
+implementation. The three agreement rounds closed on 2026-07-17. Their values,
+targets, tolerances, ceilings, policies, and corpus parameters are now frozen;
+implementation has not begun at this checkpoint.
+
+### Frozen owner decisions — OD-5–OD-8
+
+> **2026-07-17 — OD-5:** tile size 256×256 device pixels; tile-cache budget
+> exactly 134,217,728 bytes (= 512 full tiles at 262,144 B each — the exact
+> divisibility is a design property, pinned); LRU eviction by last composite
+> use; exact byte accounting (w×h×4, edge tiles smaller); when the budget
+> cannot fit one full tile the cache is disabled-but-correct (every composite
+> miss-renders; the composite/direct invariant still holds).
+>
+> **OD-6:** exact-current-zoom caching; any zoom or backing-scale change bumps
+> the cache generation (lazy full invalidation); zoom gestures retain the
+> direct-render path — BENCH-3 semantics and targets are untouched by
+> construction.
+>
+> **OD-7:** per-object caching is deferred pending profiling evidence; Phase 5
+> V1 is tile-only.
+>
+> **OD-8:** the peak-memory gate scenario extends to settle + delta-history
+> P-FLOOR worst case + nine checkpoints + tile cache filled to budget; the
+> 500 MiB ceiling is unchanged. Under memory-safety-net pressure the tile
+> cache is discarded first, before any checkpoint and long before the history
+> floor. Compliance is proven only by exact measured bytes and exact byte
+> headroom at the gate; percentage estimates are never proof. The arithmetic
+> expectation is 285,294,592 + 134,217,728 = 419,512,320 B, implying
+> 104,775,680 B headroom under 524,288,000 B; this is an expectation only.
+
+### Frozen tile policies
+
+- **P-OUTSET:** outset the conservative ink bound by exactly one device pixel
+  before tile mapping.
+- **P-HALFOPEN:** treat device-space damage as
+  `[minX,maxX) × [minY,maxY)`; columns are `floor(minX/256)` through
+  `ceil(maxX/256)-1`, rows likewise, intersected with the canvas tile range.
+- **P-NILDAMAGE:** typed `.none` means no invalidation; `.rects` maps only the
+  listed ink bounds; `.full` or genuinely absent/unknown damage means full
+  invalidation. The typed change stream is authoritative.
+- **P-BUDGETFIT:** cached bytes may equal the budget; evict LRU entries until
+  `Σ <= budget` and stop at exact equality.
+- **P-TILERENDER-COUNT:** BENCH-2b counts tile renders, never cache hits. Its
+  nonzero-render precondition remains trapping.
+
+### VERIFY-029 — Conservative ink damage to tile-set mapping
+
+- Status: `FROZEN`
+- Implementation: `NOT STARTED` at freeze
+- Rule: `deviceScale = zoom × backingScale`. Map the conservative ink bound to
+  device space, apply P-OUTSET, apply P-HALFOPEN, and clamp to the canvas tile
+  range. Paths use stroke-inclusive `visualBounds`; images use their
+  `visualBounds`; text uses Core Text image bounds union typographic bounds
+  union `layoutBounds`; groups use the union of member ink bounds. An
+  unavailable or untrustworthy ink bound is unknown damage and causes full
+  invalidation.
+- Worked examples, all with `backingScale = 1` unless stated otherwise:
+  1. `z=1`, `D=(100,50,200,100)` gives device `[100,300)×[50,150)`,
+     outset `[99,301)×[49,151)`, columns `0...1`, row `0`: **2 tiles**.
+  2. `z=2`, same D gives outset `[199,601)×[99,301)`, columns `0...2`,
+     rows `0...1`: **6 tiles**.
+  3. On an 800×500 canvas, `z=1`, `D=(256,0,256,256)` gives outset
+     `[255,513)×[-1,257)`, raw columns `0...2`, raw rows `-1...1`, and
+     clamped columns `0...2`, rows `0...1`: **6 tiles**.
+  4. Zero-area damage at `(300,300)`, `z=1`, gives `[299,301)²` and only
+     tile **(1,1)**.
+  5. On an 800×500 canvas, `D=(900,600,50,50)` gives
+     `[899,951)×[599,651)`; raw `(column 3,row 2)` clamps to the **empty set**.
+  6. Absent/unknown damage causes full invalidation; typed `.none` causes
+     **zero invalidation**.
+  7. `800×500`, `z=1`, `backingScale=2` maps to device 1600×1000 and is
+     covered by the VERIFY-030 seven-column/four-row example.
+- Permanent scene cases to implement: transformed text, fallback-glyph text,
+  image, path, and group union. TEXT-DEFECT-001 commit `ad1e5db` completed the
+  prerequisite conservative text bounds without changing schema v4; its five
+  permanent tests passed in the 127/127 full battery.
+- Tolerance: exact integer tile indices after floating-to-integer floor/ceil;
+  under-invalidation is forbidden.
+
+### VERIFY-030 — Grid geometry, backing scale, and pixel alignment
+
+- Status: `FROZEN`
+- Implementation: `NOT STARTED` at freeze
+- Rule: `deviceScale = zoom × backingScale`;
+  `W=ceil(docW×deviceScale)`, `H=ceil(docH×deviceScale)`;
+  `columns=ceil(W/256)`, `rows=ceil(H/256)`. Tile origins are integer
+  multiples of 256 device pixels. Right/bottom edge dimensions are the
+  remaining device pixels. A backing-scale change bumps the generation just
+  like a zoom change.
+- Worked examples:
+  1. 800×500, `z=1`, `backingScale=1` gives 4 columns and 2 rows; right edge
+     width 32 and bottom edge height 244. Full tile = **262,144 B**;
+     right-edge tile `32×256 = 8,192 pixels = 32,768 B`; bottom-edge tile
+     `256×244×4 = 249,856 B`; corner `32×244×4 = 31,232 B`.
+  2. 800×500, `z=1.5`, `backingScale=1` gives device 1200×750, 5 columns,
+     3 rows, right edge 176, bottom edge 238.
+  3. A 100×80 device canvas has one 100×80 tile costing **32,000 B**.
+  4. 800×500, `z=1`, `backingScale=2` gives device 1600×1000, 7 columns,
+     4 rows, right edge 64, bottom edge 232.
+- Tolerance: exact integer geometry and byte arithmetic.
+
+### VERIFY-031 — Budget-fit and LRU eviction arithmetic
+
+- Status: `FROZEN`
+- Implementation: `NOT STARTED` at freeze
+- Rule: exact byte accounting, P-BUDGETFIT, LRU by last composite use, and
+  disabled-but-correct behavior when one full tile cannot fit.
+- Worked examples under the exact 134,217,728 B budget:
+  1. `512×262,144 = 134,217,728 B`, exactly permitted. A 513th full tile
+     evicts exactly one LRU full tile.
+  2. `510` full tiles plus one 31,232 B corner total **133,724,672 B**.
+     One full insertion gives **133,986,816 B**, so no eviction. A second
+     gives **134,248,960 B**, over by exactly **31,232 B**; evicting the LRU
+     corner leaves **134,217,728 B**, so eviction stops after one entry.
+  3. Insert A, B, C; composite A; insert D under forced pressure: **B** is
+     evicted.
+  4. A fixture budget of 200,000 B is below 262,144 B: no full-tile insertion
+     occurs, every composite miss-renders, and correctness is unchanged.
+- Tolerance: exact integer byte counts and deterministic LRU order.
+
+### VERIFY-032 — Tile composite equals direct render
+
+- Status: `FROZEN`
+- Implementation: `NOT STARTED` at freeze
+- Rule: compare actual image dimensions with the existing golden instrument:
+  per-channel delta `<=3` is ignored, hard maximum is `12`, and the
+  overflow-checked differing-pixel limit is
+  `floor(actualWidth×actualHeight/100)`. Tile compositing expects **zero**
+  differing pixels. Every nonzero count is reported even if the instrument
+  passes, and any visible seam is a defect.
+- Pinned scenes and limits:
+  1. Mixed vectors/text/image, 800×500, 4×2 tiles: limit **4,000**, expected
+     differing pixels **0**.
+  2. Circle centered at device `(256,256)`, radius 40, on 512×512: four-tile
+     seam straddle, limit `floor(262,144/100) = **2,621**`, expected **0**.
+  3. Empty document on 256×256: limit `floor(65,536/100) = **655**`,
+     expected **0**.
+- Tolerance rationale: the frozen golden instrument measures acceptance; it
+  does not weaken the zero-difference construction expectation.
+
+### VERIFY-033 — Deterministic invalidation-completeness corpus
+
+- Status: `FROZEN`
+- Implementation: `NOT STARTED` at freeze
+- Initial state: the exact 1,000-node benchmark reference document, stable
+  pre-order scene-object indexing recomputed after structural changes, zoom
+  1.0, backing scale 1, fresh delta history, empty tile cache, and exactly one
+  warm-up composite before step 1.
+- PRNG: exactly 64 steps; seed `0x00000000A110F00D`; each `draw()` performs
+  `state = state &* 6364136223846793005 &+ 1` in UInt64 arithmetic and returns
+  `state >> 33` (31 bits). Each step first consumes one draw and selects
+  `draw() mod 100` from gapless ranges `0...29`, `30...49`, `50...59`,
+  `60...74`, `75...84`, `85...94`, `95...99`.
+- Complete operation table:
+  1. **valueSwap**, 3 further draws `t,d,e`: target is
+     `t mod objectCount`; `dx=(d mod 201)-100`, `dy=(e mod 201)-100`;
+     translate through a value swap. `dx=dy=0` is P-IDENT-elided with zero
+     tile re-renders.
+  2. **structural** consumes subtype draw `s`. INSERT consumes `s,p,q,r`
+     (4 further draws total): index `p mod (rootChildCount+1)` under the root
+     layer, x `q mod 761`, y `r mod 461`, fixed 40×40 rectangle and fixed
+     style. DELETE consumes `s,p` (2 further draws total): victim
+     `p mod objectCount`, objects only and layers excluded. Subtype is
+     `s mod 2` (INSERT/DELETE). Empty DELETE is a no-op with zero re-renders.
+  3. **reorder**, 2 further draws `p,q`: candidate is
+     `p mod (objects with at least two siblings)`; none means no-op while both
+     draws remain consumed. New index is `q mod siblingCount`; same position
+     is P-IDENT-elided with zero re-renders.
+  4. **undo**, no further draws; empty stack is a legal zero-render no-op.
+  5. **redo**, no further draws; empty stack is a legal zero-render no-op.
+  6. **gestureFrame:** with no open session, OPEN consumes `t,d,e` (3 further
+     draws), selects `t mod objectCount`, derives each delta component with
+     the same 201-value rule, and applies the first live frame. With an open
+     session, CONTINUE consumes `d,e` (2 further draws). Auto-commit occurs
+     immediately before a subsequently selected non-gesture operation and at
+     corpus end. Live frames publish damage; each frame asserts only that
+     frame's mapped tiles re-render. Commit damage is old ink union new ink.
+  7. **zoomChange**, 1 further draw `z`: new zoom is
+     `{0.5,1.0,1.5,2.0}[z mod 4]`. Equal zoom is a no-op with no generation
+     bump and zero invalidation; changed zoom bumps generation and lazily
+     re-renders only requested visible tiles.
+- After every step: full-canvas composite versus direct render under
+  VERIFY-032; rendered tiles must be a subset of the P-OUTSET/P-HALFOPEN map
+  of published damage, except lazy requested-tile rendering after generation
+  bumps. Elided/no-op steps assert the exact empty render set.
+  `CORPUS_FAILURE` retains step index, operation, subtype, draws consumed,
+  seed, and offending tile indices.
+- Independent seed walk: 205 total PRNG advances produce 15 value swaps,
+  21 structural operations (11 INSERT, 10 DELETE), 5 reorders, 8 undos,
+  5 redos, 6 gesture frames, and 4 zoom selections. All six gesture frames
+  are OPEN live frames for this seed (zero CONTINUE). Zoom selections are
+  step 2 `1.0→1.0` (no-op), step 14 `1.0→1.5`, step 19 `1.5→0.5`, and
+  step 38 `0.5→0.5` (no-op). Every operation class is exercised.
+- Boundary checks: 201 residues map gaplessly to `-100...100`;
+  `q mod 761` gives `0...760` and `760+40=800`; `r mod 461` gives
+  `0...460` and `460+40=500`; operation ranges cover `0...99` gaplessly.
+- T2 hard requirement: damage-bearing change publication for uncommitted live
+  gesture frames must be wired before this corpus can pass.
+
+### BENCH-2b tile-era mechanism supersession
+
+The owner-selected exposure corridor supersedes only BENCH-2b's old
+2-device-pixel strip mechanism. Its p95 `<=16.7 ms`, 60+300 schedule, and
+trapping nonzero-render precondition remain unchanged. The 1,000-node
+reference document remains unchanged for all other benchmarks.
+
+| Superseded item | Frozen successor |
+|---|---|
+| BENCH-2b 2-device-pixel pan, strip-redraw counter, and 1,000-node fixture | Dedicated document 46,480×250 units; `z=2`, `backingScale=1`; device 92,960×500; viewport 800×500; 256-device-pixel pan per frame; 360 one-column advances; 364 periods × 25 strictly interior nodes = 9,100 nodes; count exact tile renders only |
+
+Corridor frames are 1-based `f=1...360`: warm-up `1...60`, measured
+`61...360`. Setup renders columns `0...3`; frame f renders exactly tiles
+`(f+3,0)` and `(f+3,1)`, so new columns are `4...363`. Device height 500
+gives row heights 256 and **244**. The final viewport is
+`[360×256, 360×256+800) = [92,160,92,960)`, exactly the device canvas end.
+
+### Round-3 agreement — 2026-07-17
+
+- AMEND-9: `AGREE` — the 1-based convention maps frames 1…360 bijectively to
+  new columns 4…363; both rows render and the second row is 244 device pixels.
+- AMEND-10: `AGREE` — the operation ranges, draw consumption, modulo bounds,
+  identity/no-op behavior, lazy-generation exemptions, live-gesture damage
+  requirement, and failure retention form one deterministic 64-step corpus.
