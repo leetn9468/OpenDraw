@@ -1,6 +1,7 @@
 import EditorCore
 import Foundation
 import Geometry
+import TextEngine
 
 public enum LineCap: String, Codable, Sendable { case butt, round, square }
 public enum LineJoin: String, Codable, Sendable { case miter, round, bevel }
@@ -181,6 +182,15 @@ public struct TextObject: Identifiable, Hashable, Codable, Sendable {
         self.transform = transform
         self.layoutBounds = layoutBounds ?? Rect(minX: origin.x, minY: origin.y, maxX: origin.x, maxY: origin.y)
     }
+    /// Computed rather than serialized so legacy/default zero-area layout bounds
+    /// gain trustworthy ink coverage without changing the v4 document format.
+    public var conservativeInkBounds: Rect? {
+        guard
+            let shaped = try? TextShaper().conservativeBounds(
+                text, fontName: fontName, size: fontSize, at: origin)
+        else { return nil }
+        return layoutBounds.union(shaped)
+    }
 }
 public enum ImageStorage: Hashable, Codable, Sendable {
     case embedded(Data)
@@ -237,7 +247,7 @@ public indirect enum SceneNode: Hashable, Codable, Sendable {
     public var localBounds: Rect? {
         switch self {
         case .path(let x): return x.localBounds
-        case .text(let x): return x.layoutBounds
+        case .text(let x): return x.conservativeInkBounds
         case .image(let x): return x.frame
         case .group(let x): return unionRects(x.children.compactMap(\.visualBounds))
         }
@@ -245,7 +255,7 @@ public indirect enum SceneNode: Hashable, Codable, Sendable {
     public var visualBounds: Rect? {
         switch self {
         case .path(let x): return x.visualBounds
-        case .text(let x): return x.layoutBounds.transformed(by: x.transform)
+        case .text(let x): return x.conservativeInkBounds?.transformed(by: x.transform)
         case .image(let x): return x.frame.transformed(by: x.transform)
         case .group(let x):
             guard let union = unionRects(x.children.compactMap(\.visualBounds)) else { return nil }

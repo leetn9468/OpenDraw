@@ -190,3 +190,116 @@ import Testing
         }
     }
 }
+
+private func transparentBitmap(width: Int, height: Int) throws -> (CGContext, UnsafeMutablePointer<UInt8>) {
+    let bytes = UnsafeMutablePointer<UInt8>.allocate(capacity: width * height * 4)
+    bytes.initialize(repeating: 0, count: width * height * 4)
+    guard
+        let context = CGContext(
+            data: bytes, width: width, height: height, bitsPerComponent: 8,
+            bytesPerRow: width * 4, space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+    else {
+        bytes.deallocate()
+        throw CocoaError(.coderInvalidValue)
+    }
+    return (context, bytes)
+}
+
+private func rgbaBytes(_ image: CGImage) throws -> Data {
+    try #require(image.dataProvider?.data) as Data
+}
+
+@Test func defaultAndFallbackTextInkIsContainedByVisualBoundsPlusOnePixel() throws {
+    let width = 256
+    let height = 160
+    let cases = [
+        TextObject(
+            text: "Default bounds", origin: Point(x: 24, y: 70), fontName: "Helvetica", fontSize: 24,
+            transform: Geometry.AffineTransform(a: 1, b: 0.15, c: 0.1, d: 1, tx: 8, ty: 4)),
+        TextObject(
+            text: "Fallback 👩🏽‍💻", origin: Point(x: 24, y: 120),
+            fontName: "OpenDraw-Definitely-Missing-Font", fontSize: 22),
+    ]
+    for text in cases {
+        let node = SceneNode.text(text)
+        let document = try EditorDocument(
+            width: Double(width), height: Double(height),
+            layers: [Layer(name: "Text", nodes: [node])])
+        let bounds = node.visualBounds
+        let (context, bytes) = try transparentBitmap(width: width, height: height)
+        defer { bytes.deallocate() }
+        CoreGraphicsRenderer().render(document, in: context)
+        var renderedPixelCount = 0
+        for y in 0..<height {
+            for x in 0..<width where bytes[(y * width + x) * 4 + 3] != 0 {
+                renderedPixelCount += 1
+                let documentY = Double(height - 1 - y)
+                #expect(bounds?.contains(Point(x: Double(x), y: documentY), tolerance: 1) == true)
+            }
+        }
+        #expect(renderedPixelCount > 0)
+    }
+}
+
+@Test func revisionChangedTextMoveInvalidatesStripCacheAndMatchesDirectRender() throws {
+    let width = 200
+    let height = 100
+    let text = TextObject(text: "Move", origin: Point(x: 20, y: 50), fontSize: 24)
+    var document = try EditorDocument(
+        width: 200, height: 100,
+        layers: [
+            Layer(
+                name: "Text",
+                nodes: [.text(text)])
+        ])
+    let cache = ViewportStripCache()
+    let initial = try transparentBitmap(width: width, height: height)
+    defer { initial.1.deallocate() }
+    cache.render(
+        document, revision: 1, in: initial.0, viewport: RenderViewport(),
+        pixelWidth: width, pixelHeight: height)
+
+    let moved = document.translateNode(id: text.id, documentDX: 80, documentDY: 0)
+    #expect(moved)
+    let viewport = RenderViewport(pan: Point(x: -2, y: 0))
+    let cached = try transparentBitmap(width: width, height: height)
+    defer { cached.1.deallocate() }
+    cache.render(document, revision: 2, in: cached.0, viewport: viewport, pixelWidth: width, pixelHeight: height)
+
+    let direct = try transparentBitmap(width: width, height: height)
+    defer { direct.1.deallocate() }
+    direct.0.translateBy(x: viewport.pan.x, y: viewport.pan.y)
+    direct.0.scaleBy(x: viewport.zoom, y: viewport.zoom)
+    CoreGraphicsRenderer().render(document, in: direct.0)
+    #expect(try rgbaBytes(#require(cached.0.makeImage())) == rgbaBytes(#require(direct.0.makeImage())))
+}
+
+@Test func unchangedRevisionMutationReproducesStripCacheStalenessOutsideReleaseWiring() throws {
+    let width = 200
+    let height = 100
+    let text = TextObject(text: "Move", origin: Point(x: 20, y: 50), fontSize: 24)
+    var document = try EditorDocument(
+        width: 200, height: 100,
+        layers: [Layer(name: "Text", nodes: [.text(text)])])
+    let cache = ViewportStripCache()
+    let initial = try transparentBitmap(width: width, height: height)
+    defer { initial.1.deallocate() }
+    cache.render(
+        document, revision: 1, in: initial.0, viewport: RenderViewport(),
+        pixelWidth: width, pixelHeight: height)
+
+    let moved = document.translateNode(id: text.id, documentDX: 80, documentDY: 0)
+    #expect(moved)
+    let viewport = RenderViewport(pan: Point(x: -2, y: 0))
+    let cached = try transparentBitmap(width: width, height: height)
+    defer { cached.1.deallocate() }
+    cache.render(document, revision: 1, in: cached.0, viewport: viewport, pixelWidth: width, pixelHeight: height)
+
+    let direct = try transparentBitmap(width: width, height: height)
+    defer { direct.1.deallocate() }
+    direct.0.translateBy(x: viewport.pan.x, y: viewport.pan.y)
+    direct.0.scaleBy(x: viewport.zoom, y: viewport.zoom)
+    CoreGraphicsRenderer().render(document, in: direct.0)
+    #expect(try rgbaBytes(#require(cached.0.makeImage())) != rgbaBytes(#require(direct.0.makeImage())))
+}
