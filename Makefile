@@ -11,6 +11,7 @@ test:
 
 lint:
 	xcrun swift-format lint --recursive --strict Sources Tests Package.swift
+	scripts/check-ui-theme-tokens.sh
 
 format:
 	xcrun swift-format format --recursive --in-place Sources Tests Package.swift

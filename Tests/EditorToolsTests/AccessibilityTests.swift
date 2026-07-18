@@ -56,3 +56,33 @@ import Testing
     #expect(tree.children[0].children[0].label == "Path, selected")
     #expect(tree.children[0].children[0].frame != nil)
 }
+
+@Test func editorShellAccessibilityExposesRailInspectorToolbarAndLayers() {
+    let shell = EditorShellAccessibility.structure
+    #expect(shell.role == .window)
+    #expect(shell.children.map(\.label) == ["Document toolbar", "Tools", "Canvas", "Layers", "Inspector"])
+    let tools = shell.children[1]
+    #expect(
+        tools.children.map(\.label) == [
+            "Select", "Direct Select", "Pen", "Rectangle", "Ellipse", "Text", "Place Image",
+        ])
+    #expect(tools.children.allSatisfy { $0.role == .button })
+    let inspector = shell.children[4]
+    #expect(inspector.children.contains { $0.label == "Dash pattern" && $0.role == .textField })
+}
+
+@Test func inspectorNumericNoChangeRoundTripsThroughCommandsAndElidesIdentity() throws {
+    let path = ShapeFactory.rectangle(from: Point(x: 10, y: 20), to: Point(x: 60, y: 80))!
+    var history = try DeltaCommandHistory(document: EditorDocument(width: 100, height: 100))
+    let layerID = history.document.layers[0].id
+    try history.commit(
+        StructuralCommands.createShape(
+            path, in: history.document, parent: .layer(layerID), at: 0))
+    let depth = history.undoDepth
+    let xFieldNoChange = try CompositeSceneCommands.documentTransform(
+        in: history.document, nodeIDs: [path.id],
+        transform: Geometry.AffineTransform(tx: 0))
+    #expect(try history.commit(xFieldNoChange) == .identityElided)
+    #expect(history.undoDepth == depth)
+    #expect(history.document.path(id: path.id)?.transform == .identity)
+}

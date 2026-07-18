@@ -49,13 +49,20 @@ final class CanvasView: NSView {
     }
     var history: DeltaCommandHistory
     private let assetStore: ApprovedAssetStore
-    var activeTool: ActiveTool = .pen
+    var activeTool: ActiveTool = .pen {
+        didSet { onToolChange?(activeTool) }
+    }
     private var pen = SmoothPenToolState()
     private var penMouseDown: Point?
     private var penPreviewPoint: Point?
     private var dragStart: Point?
     private var dragLast: Point?
-    private var selectedIDs: Set<ObjectID> = []
+    private var selectedIDs: Set<ObjectID> = [] {
+        didSet {
+            guard selectedIDs != oldValue else { return }
+            onSelectionChange?()
+        }
+    }
     private var selectedAnchors: Set<AnchorRef> = []
     private var selectedControl: ControlRef?
     private var activeLayerIndex = 0
@@ -72,6 +79,10 @@ final class CanvasView: NSView {
     private var isZoomGestureActive = false
     private var zoomSettleTask: Task<Void, Never>?
     private var changeTask: Task<Void, Never>?
+    var onSelectionChange: (() -> Void)?
+    var onDocumentChange: (() -> Void)?
+    var onToolChange: ((ActiveTool) -> Void)?
+    var onZoomChange: ((Double) -> Void)?
     init(frame: NSRect, document: EditorDocument) throws {
         let assetStore = ApprovedAssetStore()
         registerEmbeddedAssets(in: document, with: assetStore)
@@ -95,23 +106,26 @@ final class CanvasView: NSView {
         changeTask?.cancel()
         let stream = history.changes()
         changeTask = Task { @MainActor [weak self] in
-            for await _ in stream { self?.needsDisplay = true }
+            for await _ in stream {
+                self?.needsDisplay = true
+                self?.onDocumentChange?()
+            }
         }
     }
     override var isFlipped: Bool { true }
     override var acceptsFirstResponder: Bool { true }
     override func draw(_ dirtyRect: NSRect) {
-        NSColor.windowBackgroundColor.setFill()
+        Theme.Color.workspace.setFill()
         dirtyRect.fill()
         guard let context = NSGraphicsContext.current?.cgContext else { return }
         context.saveGState()
         context.translateBy(x: 24 + pan.x, y: 24 + pan.y)
         context.scaleBy(x: zoom, y: zoom)
-        context.setFillColor(NSColor.white.cgColor)
+        context.setFillColor(Theme.Color.artboard.cgColor)
         context.fill(CGRect(x: 0, y: 0, width: history.document.width, height: history.document.height))
         renderDocument(in: context, dirtyRect: dirtyRect)
         if activeTool == .directSelection {
-            context.setFillColor(NSColor.controlAccentColor.cgColor)
+            context.setFillColor(Theme.Color.accent.cgColor)
             for id in selectedIDs {
                 guard let path = history.document.path(id: id) else { continue }
                 for subpath in path.path.subpaths {
@@ -126,7 +140,7 @@ final class CanvasView: NSView {
                             let c1 = history.document.documentPoint(pathID: id, localPoint: segment.control1),
                             let c2 = history.document.documentPoint(pathID: id, localPoint: segment.control2)
                         {
-                            context.setStrokeColor(NSColor.controlAccentColor.withAlphaComponent(0.6).cgColor)
+                            context.setStrokeColor(Theme.Color.directionStem.cgColor)
                             context.move(to: CGPoint(x: anchor.x, y: anchor.y))
                             context.addLine(to: CGPoint(x: c1.x, y: c1.y))
                             context.addLine(to: CGPoint(x: c2.x, y: c2.y))
@@ -141,10 +155,10 @@ final class CanvasView: NSView {
             }
         }
         if activeTool == .selection, let bounds = selectionBounds() {
-            context.setStrokeColor(NSColor.controlAccentColor.cgColor)
+            context.setStrokeColor(Theme.Color.accent.cgColor)
             context.setLineWidth(1 / zoom)
             context.stroke(CGRect(x: bounds.minX, y: bounds.minY, width: bounds.width, height: bounds.height))
-            context.setFillColor(NSColor.controlAccentColor.cgColor)
+            context.setFillColor(Theme.Color.accent.cgColor)
             for (_, point) in handlePoints(bounds) {
                 context.fill(CGRect(x: point.x - 3 / zoom, y: point.y - 3 / zoom, width: 6 / zoom, height: 6 / zoom))
             }
@@ -155,7 +169,7 @@ final class CanvasView: NSView {
                     width: 8 / zoom, height: 8 / zoom))
         }
         if let snapIndicator {
-            context.setStrokeColor(NSColor.systemRed.cgColor)
+            context.setStrokeColor(Theme.Color.guideSnap.cgColor)
             context.setLineWidth(1 / zoom)
             context.move(to: CGPoint(x: snapIndicator.x - 8 / zoom, y: snapIndicator.y))
             context.addLine(to: CGPoint(x: snapIndicator.x + 8 / zoom, y: snapIndicator.y))
@@ -164,7 +178,7 @@ final class CanvasView: NSView {
             context.strokePath()
         }
         if activeTool == .pen, let previewPoint = penPreviewPoint, let preview = pen.preview(to: previewPoint) {
-            context.setStrokeColor(NSColor.controlAccentColor.cgColor)
+            context.setStrokeColor(Theme.Color.accent.cgColor)
             context.setLineWidth(1 / zoom)
             context.move(to: CGPoint(x: preview.start.x, y: preview.start.y))
             context.addCurve(
@@ -613,6 +627,7 @@ final class CanvasView: NSView {
         {
             zoom = next
             pan = nextPan
+            onZoomChange?(zoom)
             needsDisplay = true
         }
     }
@@ -637,6 +652,7 @@ final class CanvasView: NSView {
         pan = Point(
             x: (availableWidth - history.document.width * zoom) / 2,
             y: (availableHeight - history.document.height * zoom) / 2)
+        onZoomChange?(zoom)
         needsDisplay = true
     }
     func toggleSnapping() {
@@ -928,16 +944,16 @@ final class CanvasView: NSView {
         } catch { presentCommandError(error, command: "Edit layer") }
     }
     func editGradient() {
-        guard let pathID = selectedIDs.first else { return }
+        guard selectedIDs.first != nil else { return }
         let alert = NSAlert()
         alert.messageText = "Gradient"
         alert.addButton(withTitle: "Apply")
         alert.addButton(withTitle: "Cancel")
         let kind = NSPopUpButton()
         kind.addItems(withTitles: ["Linear", "Radial"])
-        let start = NSTextField(string: "0,0")
-        let end = NSTextField(string: "100,0")
-        let stops = NSTextField(string: "0:#000000, 1:#FFFFFF")
+        let start = NSTextField(string: Theme.DefaultValue.gradientStart)
+        let end = NSTextField(string: Theme.DefaultValue.gradientEnd)
+        let stops = NSTextField(string: Theme.DefaultValue.gradientStops)
         let stack = NSStackView(views: [
             kind, NSTextField(labelWithString: "Start x,y"), start,
             NSTextField(labelWithString: "End x,y"), end, NSTextField(labelWithString: "Stops offset:#RRGGBB"), stops,
@@ -946,26 +962,38 @@ final class CanvasView: NSView {
         stack.spacing = 5
         stack.frame = NSRect(x: 0, y: 0, width: 280, height: 180)
         alert.accessoryView = stack
-        guard alert.runModal() == .alertFirstButtonReturn,
-            let startPoint = parsePoint(start.stringValue), let endPoint = parsePoint(end.stringValue),
-            let parsedStops = parseStops(stops.stringValue), parsedStops.count >= 2
-        else { return }
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        _ = applyGradient(
+            kindIndex: kind.indexOfSelectedItem, start: start.stringValue,
+            end: end.stringValue, stops: stops.stringValue)
+    }
+    @discardableResult func applyGradient(
+        kindIndex: Int, start: String, end: String, stops: String
+    ) -> Bool {
+        guard let pathID = selectedIDs.first, let startPoint = parsePoint(start),
+            let endPoint = parsePoint(end), let parsedStops = parseStops(stops),
+            parsedStops.count >= 2
+        else { return false }
         let gradient = GradientResource(
-            name: "Gradient", kind: kind.indexOfSelectedItem == 0 ? .linear : .radial,
+            name: "Gradient", kind: kindIndex == 0 ? .linear : .radial,
             start: startPoint, end: endPoint, stops: parsedStops)
         do {
             var staged = history.document
             let insert = try ResourceCommands.insertGradient(
                 gradient, in: staged, at: staged.gradients.count)
             try insert.apply(to: &staged)
-            guard var style = staged.path(id: pathID)?.style else { return }
+            guard var style = staged.path(id: pathID)?.style else { return false }
             style.fillGradientID = gradient.id
             let applyStyle = try ValueSwapCommands.pathStyle(
                 in: staged, nodeID: pathID, newValue: style)
             try history.commit(
                 CompositeCommands.ordered(
                     name: "Apply gradient", children: [insert, applyStyle]))
-        } catch { presentCommandError(error, command: "Apply gradient") }
+            return true
+        } catch {
+            presentCommandError(error, command: "Apply gradient")
+            return false
+        }
     }
     private func parsePoint(_ value: String) -> Point? {
         let pieces = value.split(separator: ",").compactMap { Double($0.trimmingCharacters(in: .whitespaces)) }
@@ -1014,6 +1042,118 @@ final class CanvasView: NSView {
         } catch { presentCommandError(error, command: "Apply style") }
         needsDisplay = true
     }
+    var selectedNodeIDs: Set<ObjectID> { selectedIDs }
+    var selectedBounds: Rect? { selectionBounds() }
+    var selectedPathStyle: PathStyle? {
+        guard selectedIDs.count == 1, let id = selectedIDs.first else { return nil }
+        return history.document.path(id: id)?.style
+    }
+    var selectedSceneNode: SceneNode? {
+        guard selectedIDs.count == 1, let id = selectedIDs.first else { return nil }
+        return try? StructuralCommands.slot(for: id, in: history.document).node
+    }
+    var canGroupSelection: Bool {
+        guard selectedIDs.count > 1 else { return false }
+        let slots = selectedIDs.compactMap { try? StructuralCommands.slot(for: $0, in: history.document) }
+        return slots.count == selectedIDs.count && Set(slots.map(\.parent)).count == 1
+    }
+    var canUngroupSelection: Bool {
+        guard case .group? = selectedSceneNode else { return false }
+        return true
+    }
+    var canMakeCompoundSelection: Bool {
+        guard canGroupSelection else { return false }
+        return selectedIDs.allSatisfy { history.document.path(id: $0) != nil }
+    }
+    var canReleaseCompoundSelection: Bool {
+        guard case .path(let path)? = selectedSceneNode else { return false }
+        return path.path.subpaths.count > 1
+    }
+    var selectedTransform: Geometry.AffineTransform? {
+        guard let node = selectedSceneNode else { return nil }
+        switch node {
+        case .path(let value): return value.transform
+        case .text(let value): return value.transform
+        case .image(let value): return value.transform
+        case .group(let value): return value.transform
+        }
+    }
+    func selectNode(_ id: ObjectID?) {
+        selectedIDs = id.map { [$0] } ?? []
+        selectedAnchors.removeAll()
+        selectedControl = nil
+        needsDisplay = true
+    }
+    func activateLayer(_ id: ObjectID) {
+        guard let index = history.document.layers.firstIndex(where: { $0.id == id }) else { return }
+        activeLayerIndex = index
+        selectNode(nil)
+    }
+    func commitDocumentTransform(_ transform: Geometry.AffineTransform) {
+        guard !selectedIDs.isEmpty else { return }
+        do {
+            try history.commit(
+                CompositeSceneCommands.documentTransform(
+                    in: history.document, nodeIDs: selectedIDs, transform: transform))
+        } catch { presentCommandError(error, command: "Transform selection") }
+    }
+    func commitPathStyle(_ mutation: (inout PathStyle) -> Void) {
+        guard selectedIDs.count == 1, let id = selectedIDs.first,
+            var style = history.document.path(id: id)?.style
+        else { return }
+        mutation(&style)
+        do {
+            try history.commit(
+                ValueSwapCommands.pathStyle(
+                    in: history.document, nodeID: id, newValue: style))
+        } catch { presentCommandError(error, command: "Edit style") }
+    }
+    func commitArtboard(width: Double? = nil, height: Double? = nil) {
+        let document = history.document
+        let value = ArtboardProperties(
+            width: width ?? document.width, height: height ?? document.height,
+            unit: document.unit)
+        do {
+            try history.commit(
+                ValueSwapCommands.artboardProperties(
+                    in: document, newValue: value))
+        } catch { presentCommandError(error, command: "Edit artboard") }
+    }
+    func commitLayerState(_ layerID: ObjectID, visible: Bool? = nil, locked: Bool? = nil) {
+        guard let layer = history.document.layers.first(where: { $0.id == layerID }) else { return }
+        do {
+            try history.commit(
+                ValueSwapCommands.layerVisibilityAndLock(
+                    in: history.document, layerID: layerID,
+                    newValue: LayerVisibilityAndLock(
+                        isVisible: visible ?? layer.isVisible,
+                        isLocked: locked ?? layer.isLocked)))
+        } catch { presentCommandError(error, command: "Edit layer") }
+    }
+    func reorderLayer(_ layerID: ObjectID, to index: Int) {
+        do {
+            try history.commit(
+                StructuralCommands.reorderLayer(
+                    in: history.document, layerID: layerID, to: index))
+            activeLayerIndex = index
+        } catch { presentCommandError(error, command: "Reorder layer") }
+    }
+    func reorderNode(_ nodeID: ObjectID, to parent: SceneParent, at index: Int) {
+        do {
+            try history.commit(
+                StructuralCommands.reorderNode(
+                    in: history.document, nodeID: nodeID, to: parent, at: index))
+            selectNode(nodeID)
+        } catch { presentCommandError(error, command: "Reorder object") }
+    }
+    func setZoomPercentage(_ percentage: Double) {
+        guard percentage.isFinite, percentage > 0 else { return }
+        setZoom(percentage / 100, about: NSPoint(x: bounds.midX, y: bounds.midY))
+    }
+    func prepareVisualAcceptanceState() {
+        activeTool = .directSelection
+        if let id = history.document.layers.first?.nodes.first?.id { selectNode(id) }
+    }
     private func presentCommandError(_ error: Error, command: String) {
         Diagnostics.documents.error(
             "Command \(command, privacy: .public) failed: \(String(describing: error), privacy: .public)")
@@ -1036,6 +1176,8 @@ final class CanvasView: NSView {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var window: NSWindow?
     private var canvas: CanvasView?
+    private var shell: EditorShellView?
+    private weak var zoomToolbarView: ZoomToolbarView?
     private var autosaveTimer: Timer?
     private var memoryPressureSource: DispatchSourceMemoryPressure?
     private var currentURL: URL?
@@ -1043,11 +1185,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let unsavedCoordinator = UnsavedChangesCoordinator()
     func applicationDidFinishLaunching(_ notification: Notification) {
         Diagnostics.installCrashContext()
-        let frame = NSRect(x: 0, y: 0, width: 800, height: 620)
+        let frame = NSRect(x: 0, y: 0, width: 1_440, height: 880)
         let window = NSWindow(
             contentRect: frame, styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered,
             defer: false)
-        window.title = "OpenDraw"
+        window.title = "Drawing.odraw"
         let document: EditorDocument
         do { document = try EditorDocument.sample() } catch {
             NSAlert(error: error).runModal()
@@ -1075,8 +1217,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             NSApp.terminate(nil)
             return
         }
-        window.contentView = canvas
+        let shell = EditorShellView(canvas: canvas)
+        shell.rail.onPlaceImage = { [weak self] in self?.placeImage() }
+        shell.onDocumentChange = { [weak self] in self?.updateWindowDocumentState() }
+        window.contentView = shell
+        window.minSize = NSSize(width: 960, height: 620)
+        window.titleVisibility = .visible
+        window.titlebarAppearsTransparent = false
+        window.toolbarStyle = .unifiedCompact
         self.canvas = canvas
+        self.shell = shell
         let memoryPressureSource = DispatchSource.makeMemoryPressureSource(
             eventMask: [.warning, .critical], queue: .main)
         memoryPressureSource.setEventHandler { [weak canvas] in
@@ -1086,10 +1236,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.memoryPressureSource = memoryPressureSource
         let toolbar = NSToolbar(identifier: "tools")
         toolbar.delegate = self
+        toolbar.displayMode = .iconOnly
+        toolbar.allowsUserCustomization = false
         window.toolbar = toolbar
+        buildMainMenu()
         window.center()
         window.makeKeyAndOrderFront(nil)
         self.window = window
+        if let screenshotIndex = CommandLine.arguments.firstIndex(of: "--ui-screenshot"),
+            CommandLine.arguments.indices.contains(screenshotIndex + 1)
+        {
+            let destination = CommandLine.arguments[screenshotIndex + 1]
+            canvas.prepareVisualAcceptanceState()
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .milliseconds(500))
+                self?.captureWindow(to: destination)
+                NSApp.terminate(nil)
+            }
+        }
         autosaveTimer = Timer.scheduledTimer(withTimeInterval: RecoverySettings.defaultInterval, repeats: true) {
             [weak self] _ in Task { @MainActor in self?.writeRecoveryIfDirty() }
         }
@@ -1105,6 +1269,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func writeRecoveryIfDirty() {
         guard let canvas, canvas.history.isDirty else { return }
         try? RecoveryStore.applicationSupport().save(canvas.history.document, documentID: recoveryID)
+    }
+    private func updateWindowDocumentState() {
+        window?.title = currentURL?.lastPathComponent ?? "Drawing.odraw"
+        window?.representedURL = currentURL
+        window?.isDocumentEdited = canvas?.history.isDirty ?? false
+    }
+    private func captureWindow(to path: String) {
+        if let window {
+            let capture = Process()
+            capture.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
+            capture.arguments = ["-x", "-l\(window.windowNumber)", path]
+            try? capture.run()
+            capture.waitUntilExit()
+            if capture.terminationStatus == 0 { return }
+        }
+        guard let view = window?.contentView?.superview,
+            let representation = view.bitmapImageRepForCachingDisplay(in: view.bounds)
+        else { return }
+        view.cacheDisplay(in: view.bounds, to: representation)
+        guard let data = representation.representation(using: .png, properties: [:]) else { return }
+        try? data.write(to: URL(fileURLWithPath: path), options: .atomic)
     }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
@@ -1132,25 +1317,129 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         default: return .cancel
         }
     }
+    private func buildMainMenu() {
+        let main = NSMenu()
+        let appItem = NSMenuItem()
+        main.addItem(appItem)
+        let appMenu = NSMenu(title: "OpenDraw")
+        appMenu.addItem(withTitle: "About OpenDraw", action: nil, keyEquivalent: "")
+        appMenu.addItem(.separator())
+        appMenu.addItem(withTitle: "Quit OpenDraw", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appItem.submenu = appMenu
+
+        main.addItem(
+            menu(
+                "File",
+                [
+                    command("New", .new, "n"), command("Open…", .open, "o"),
+                    command("Import SVG…", .open, "", [.command, .shift]),
+                    command("Save", .save, "s"), command("Export SVG…", .export, "e", [.command, .shift]),
+                    .separator(), command("Place Image…", .image, "i", [.command, .shift]),
+                ]))
+        main.addItem(
+            menu(
+                "Edit",
+                [
+                    command("Undo", .undo, "z"), command("Redo", .redo, "z", [.command, .shift]),
+                ]))
+        main.addItem(
+            menu(
+                "View",
+                [
+                    command("Zoom Out", .zoomOut, "-"), command("Actual Size", .actualSize, "0"),
+                    command("Zoom In", .zoomIn, "+"),
+                    command("Zoom to Fit", .zoomFit, "9"), .separator(),
+                    command("Layers", .layers, "l", [.command, .option]),
+                    command("Inspector", .inspector, "i", [.command, .option]), command("Snapping", .snap, ";"),
+                ]))
+        main.addItem(
+            menu(
+                "Object",
+                [
+                    command("Style", .style), command("Properties", .properties), command("Gradient…", .gradient),
+                    .separator(),
+                    command("Align Left", .alignLeft), command("Group", .group, "g"),
+                    command("Ungroup", .ungroup, "g", [.command, .shift]),
+                    command("Make Compound", .makeCompound), command("Release Compound", .releaseCompound),
+                ]))
+        main.addItem(
+            menu(
+                "Tools",
+                [
+                    command("Select", .selection, "v", []), command("Direct Select", .directSelection, "a", []),
+                    command("Pen", .pen, "p", []), command("Rectangle", .rectangle, "r", []),
+                    command("Ellipse", .ellipse, "e", []), command("Text", .text, "t", []),
+                    command("Place Image", .image, "i", []),
+                ]))
+        NSApp.mainMenu = main
+    }
+    private func menu(_ title: String, _ items: [NSMenuItem]) -> NSMenuItem {
+        let root = NSMenuItem()
+        let submenu = NSMenu(title: title)
+        items.forEach(submenu.addItem)
+        root.submenu = submenu
+        return root
+    }
+    private func command(
+        _ title: String, _ identifier: NSToolbarItem.Identifier, _ key: String = "",
+        _ modifiers: NSEvent.ModifierFlags = [.command]
+    ) -> NSMenuItem {
+        let item = NSMenuItem(title: title, action: #selector(menuAction(_:)), keyEquivalent: key)
+        item.keyEquivalentModifierMask = modifiers
+        item.target = self
+        item.representedObject = identifier.rawValue
+        return item
+    }
+    @objc private func menuAction(_ sender: NSMenuItem) {
+        guard let value = sender.representedObject as? String else { return }
+        let proxy = NSToolbarItem(itemIdentifier: NSToolbarItem.Identifier(value))
+        toolbarAction(proxy)
+    }
 }
 
 extension AppDelegate: NSToolbarDelegate {
     func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
         [
-            .new, .open, .save, .export, .undo, .redo, .selection, .directSelection, .pen, .rectangle, .ellipse, .text,
-            .image, .style, .properties, .zoomOut, .actualSize, .zoomIn, .zoomFit,
-            .alignLeft, .group, .ungroup, .makeCompound, .releaseCompound, .layers, .gradient,
-            .snap,
+            .new, .open, .save, .export, .flexibleSpace, .zoomCluster, .zoomFit,
+            .space, .layers, .inspector,
         ]
     }
     func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-        toolbarAllowedItemIdentifiers(toolbar)
+        [.new, .open, .save, .export, .flexibleSpace, .zoomCluster, .zoomFit, .space, .layers, .inspector]
     }
     func toolbar(
         _ toolbar: NSToolbar, itemForItemIdentifier id: NSToolbarItem.Identifier, willBeInsertedIntoToolbar _: Bool
     ) -> NSToolbarItem? {
+        if id == .zoomCluster {
+            let item = NSToolbarItem(itemIdentifier: id)
+            let view = ZoomToolbarView()
+            view.onZoomOut = { [weak self] in self?.canvas?.zoomOut() }
+            view.onZoomIn = { [weak self] in self?.canvas?.zoomIn() }
+            view.onCommit = { [weak self] in self?.canvas?.setZoomPercentage($0) }
+            canvas?.onZoomChange = { [weak view] in view?.update($0) }
+            item.view = view
+            item.label = "Zoom"
+            zoomToolbarView = view
+            return item
+        }
         let item = NSToolbarItem(itemIdentifier: id)
-        item.label = id.rawValue.capitalized
+        let metadata: (String, String) =
+            switch id {
+            case .new: ("New", "doc.badge.plus")
+            case .open: ("Open", "folder")
+            case .save: ("Save", "square.and.arrow.down")
+            case .export: ("Export", "square.and.arrow.up")
+            case .zoomFit: ("Zoom to Fit", "arrow.up.left.and.down.right.magnifyingglass")
+            case .layers: ("Layers", "square.3.layers.3d")
+            case .inspector: ("Inspector", "sidebar.trailing")
+            default: (id.rawValue.capitalized, "questionmark")
+            }
+        item.label = metadata.0
+        item.paletteLabel = metadata.0
+        item.toolTip = metadata.0
+        item.image = NSImage(systemSymbolName: metadata.1, accessibilityDescription: metadata.0)?
+            .withSymbolConfiguration(
+                NSImage.SymbolConfiguration(pointSize: Theme.Metric.toolbarIcon, weight: .medium))
         item.target = self
         item.action = #selector(toolbarAction(_:))
         return item
@@ -1170,13 +1459,14 @@ extension AppDelegate: NSToolbarDelegate {
         case .undo: canvas.undo()
         case .redo: canvas.redo()
         case .style: canvas.applyAccentStyle()
-        case .properties: canvas.editSelectedProperties()
+        case .properties: shell?.inspector.isHidden = false
         case .alignLeft: canvas.alignSelectedLeft()
         case .group: canvas.groupSelected()
         case .ungroup: canvas.ungroupSelected()
         case .makeCompound: canvas.makeCompoundSelected()
         case .releaseCompound: canvas.releaseCompoundSelected()
-        case .layers: canvas.editLayers()
+        case .layers: shell?.toggleLayers()
+        case .inspector: shell?.toggleInspector()
         case .gradient: canvas.editGradient()
         case .snap: canvas.toggleSnapping()
         case .zoomIn: canvas.zoomIn()
@@ -1231,6 +1521,7 @@ extension AppDelegate: NSToolbarDelegate {
         try NativeDocumentCodec().saveAtomically(canvas.history.document, to: url)
         canvas.history.markSaved()
         currentURL = url
+        updateWindowDocumentState()
         NSDocumentController.shared.noteNewRecentDocumentURL(url)
         try? RecoveryStore.applicationSupport().discard(documentID: recoveryID)
     }
@@ -1243,6 +1534,7 @@ extension AppDelegate: NSToolbarDelegate {
                     guard let document = try promptForNewDocument() else { return }
                     try canvas.replaceDocument(document)
                     currentURL = nil
+                    updateWindowDocumentState()
                 })
         } catch { NSAlert(error: error).runModal() }
     }
@@ -1308,6 +1600,7 @@ extension AppDelegate: NSToolbarDelegate {
                         ? try SVGImporter().importFile(url).document : try NativeDocumentCodec().load(from: url)
                     try canvas.replaceDocument(document)
                     currentURL = url
+                    updateWindowDocumentState()
                     NSDocumentController.shared.noteNewRecentDocumentURL(url)
                 })
         } catch { NSAlert(error: error).runModal() }
@@ -1320,9 +1613,12 @@ extension AppDelegate: NSToolbarItemValidation {
         switch item.itemIdentifier {
         case .undo: return canvas.history.canUndo
         case .redo: return canvas.history.canRedo
-        case .style, .properties, .gradient: return canvas.hasSelection
-        case .alignLeft, .group, .makeCompound: return canvas.hasMultipleSelection
-        case .ungroup, .releaseCompound: return canvas.hasSelection
+        case .style, .gradient: return canvas.hasSelection
+        case .alignLeft: return canvas.hasMultipleSelection
+        case .group: return canvas.canGroupSelection
+        case .makeCompound: return canvas.canMakeCompoundSelection
+        case .ungroup: return canvas.canUngroupSelection
+        case .releaseCompound: return canvas.canReleaseCompoundSelection
         default: return true
         }
     }
@@ -1339,10 +1635,11 @@ extension NSToolbarItem.Identifier {
     static let ungroup = Self("ungroup"), makeCompound = Self("make-compound"),
         releaseCompound = Self("release-compound")
     static let layers = Self("layers")
+    static let inspector = Self("inspector")
     static let gradient = Self("gradient")
     static let snap = Self("snap")
     static let zoomIn = Self("zoom-in"), zoomOut = Self("zoom-out"), actualSize = Self("zoom-100"),
-        zoomFit = Self("zoom-fit")
+        zoomFit = Self("zoom-fit"), zoomCluster = Self("zoom-cluster")
 }
 
 if CommandLine.arguments.contains("--smoke") {
