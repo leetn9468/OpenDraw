@@ -219,7 +219,7 @@ the authoritative supersession record are in
 `docs/phase-5/delta-history-P4.md`.
 
 Tile-render caching T1 and T2 were accepted at `fba6372` and `da6b14c`.
-The tile-render caching specification is now **DELIVERED locally by T3**:
+The tile-render caching specification is now **DELIVERED**:
 `TileCompositeRenderer` is the only production renderer, the former
 environment gate and all conditional test gating are removed, and the
 BENCH-2b exposure corridor replaces the retired viewport-strip mechanism.
@@ -228,12 +228,14 @@ or policy value changed. The executed deletion/successor table and local gate
 map are in `docs/phase-5/tile-cache-T3.md`, with the production-renderer
 decision in `docs/adr/ADR-014-tile-composite-production-renderer.md`.
 
-Local implementation delivery does not by itself close hosted operations.
-T3 S6 remains **OPEN — OPERATOR DISPATCH REQUIRED** until the operator pushes
-and manually dispatches the exact final revision and all eight hosted jobs,
-including blocking BENCH-2b and BENCH-6 correctness plus the informational
-BENCH-6 timing row, are retained verbatim under
-`artifacts/phase5/tile-t3/hosted/`.
+T3 S6 is **CLOSED** by manually dispatched CI #28 on exact revision
+`039560539127cb459f64216bd0ab93f5505a6de1`:
+<https://github.com/leetn9468/OpenDraw/actions/runs/29625792344>. All eight jobs
+passed. The production benchmark environment contained exactly the two
+decision-backed informational timing inputs; BENCH-2b reported
+`rendered_regions=728`; and BENCH-6 reported nonzero hits plus exact damage
+mapping as blocking correctness. The full hosted BENCH table and job record are
+retained in `artifacts/phase5/tile-t3/hosted-run-28-closure.md`.
 
 Manual CI #26 on `6090efe` passed the real benchmark measurement and seven of
 eight jobs, but its BENCH-5b-off falsifiability case was contaminated by an
@@ -241,8 +243,8 @@ organic BENCH-6 9.464 ms timing trap. The final fixture-class correction makes
 every exit-asserting fixture all-timing-off except for its deterministic target
 and permanently verifies that production CI contains exactly the two
 decision-backed timing downgrades. Evidence is retained in
-`artifacts/phase5/tile-t3/hosted-run-26-fixture-immunity.md`; S6 remains open
-until the corrected exact revision produces eight green hosted jobs.
+`artifacts/phase5/tile-t3/hosted-run-26-fixture-immunity.md`. CI #28 proves the
+class fix on hosted hardware and closes that incident.
 
 The feature's hosted story is **CLOSED** by manually dispatched CI #19 on exact
 revision `d278755e020455955c1837a7aa36ef20ec0058fe`:

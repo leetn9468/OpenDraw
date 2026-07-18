@@ -21,7 +21,7 @@ Production build-input revision: `a7c5b9f18781f6f94180c4e4476bef7d3a640983`
 | Peak memory forced failure | PASS | `peak-memory-failure-fixture.txt` |
 | Full-app startup with forced tile draw | PASS — p95 180.135 ms | `startup-p95.txt` |
 | Reliability with per-process cold/warm tiles | PASS — 100/100 and 10,000/10,000 | `reliability-100x100.txt` |
-| Hosted eight-job dispatch | OPEN | `hosted-operator-plan.md` |
+| Hosted eight-job dispatch | PASS — 8/8 | CI #28 on exact `0395605`; `hosted-run-28-closure.md` |
 
 Exact settle peak: 461,799,424 B. Exact headroom below 524,288,000 B:
 62,488,576 B. The forced fixture reached 1,037,467,648 B and was rejected.

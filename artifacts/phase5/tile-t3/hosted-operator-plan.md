@@ -1,34 +1,26 @@
-# T3 hosted closure operator plan
+# T3 hosted closure operator record
 
-State: **OPEN — not dispatched**
+State: **CLOSED — CI #28 passed**
 
-After local acceptance, the operator must:
+The operator pushed and manually dispatched exact revision
+`039560539127cb459f64216bd0ab93f5505a6de1`:
+<https://github.com/leetn9468/OpenDraw/actions/runs/29625792344>.
 
-1. Resolve the final local evidence revision with `git rev-parse HEAD`, verify
-   the worktree is clean, and push that exact revision without amendment.
-2. Manually dispatch `.github/workflows/ci.yml` for the branch containing that
-   exact revision; record the run ID, URL, requested SHA, and resolved SHA.
-3. Require the benchmark job's production-environment exactness proof to report
-   only `BENCH5B_ENFORCEMENT=off` and `BENCH6_TIMING_ENFORCEMENT=off`. Any
-   further production timing switch requires a new explicit owner decision.
-4. Require all timing falsifiability cases to use the all-off-except-target
-   fixture wrapper. An organic timing observation cannot select a fixture exit;
-   corridor and BENCH-6 correctness remain trapping in every fixture mode.
-5. Require all eight jobs to finish green: `debug-release`, `sanitizer`,
+Completion checklist:
+
+1. Exact requested and resolved SHA: PASS — `0395605`.
+2. Eight jobs green: PASS — `debug-release`, `sanitizer`,
    `adversarial-golden`, `benchmark`, `startup-memory`, `coverage`,
    `release-integrity`, and `nightly-reliability`.
-6. Retain job logs and uploaded artifacts under
-   `artifacts/phase5/tile-t3/hosted/`, including the complete hosted BENCH
-   table and exact memory/startup/reliability summaries.
-7. Treat hosted ratios, BENCH-5b timing, and BENCH-6 timing as informational
-   under standing policy. Keep BENCH-1/2/2b/3/5a timing and all BENCH-6
-   correctness preconditions blocking.
-8. Require the BENCH-6 artifact row
-   `bench6_timing_enforcement=off result=INFORMATIONAL
-   reason=owner-decision-2026-07-18`, retain p50/p95/max verbatim, and require
-   its nonzero-hit and exact-damage-mapping assertions to pass. Any correctness
-   trap or BENCH-2b corridor failure stops closure; hosted BENCH-6 timing alone
-   does not fail the job. Do not adjust a target, fixture, schedule, baseline
-   policy, or implementation.
-9. Add an evidence-only hosted closure commit linking the exact dispatch.
-   Until then T3 S6 and the feature remain open.
+3. Production benchmark timing environment exactness: PASS — only
+   `BENCH5B_ENFORCEMENT=off` and `BENCH6_TIMING_ENFORCEMENT=off`; injected
+   third `off` rejected.
+4. Organic-trap-immune timing fixtures: PASS — all target gates trapped with
+   the expected tag; hosted-policy forced 5b/6 exited zero.
+5. Speed-independent correctness: PASS — BENCH-2b exact indices and
+   `rendered_regions=728`; BENCH-6 nonzero hits and exact damage mapping.
+6. Hosted BENCH-5b and BENCH-6 timing: emitted as informational under their
+   recorded owner decisions; no threshold or target changed.
+
+The full hosted record is `hosted-run-28-closure.md`. T3 S6 and the
+tile-caching feature are delivered.
