@@ -64,6 +64,27 @@ measured frames, and the corridor remains the frozen 360-frame schedule. No
 deadline, threshold, target, ratio, corpus value, or frozen value changed.
 Production renderer modules and `Tests/` are untouched.
 
+Implementation revision: `4f101584f651e07ecd7d8b3f6264f706f765ac76`.
+
+## Final affected local gates
+
+| Gate | Result | Exact evidence |
+|---|---|---|
+| Strict Swift format + diff check | PASS | No diagnostics |
+| Ordinary production full BENCH battery | PASS | BENCH-1 4.927; BENCH-2 0.111; BENCH-2b 0.322; BENCH-3 6.632; settle 14.718; BENCH-5a 0.010; BENCH-5b 0.853; BENCH-6 4.944 ms |
+| Corridor correctness | PASS | `exact_indices=true`, frozen frame formula, `rendered_regions=728` |
+| BENCH-6 correctness | PASS | Nonzero hits and exact damage mapping over 60+300 frames |
+| Owner-reference ratios | PASS | All eight rows <= unchanged inclusive 1.25; largest ratio 1.203336 |
+| Ratio falsifiability | PASS | Every exact 1.25 boundary passes; 1.250151 reports FAIL |
+| Targeted timing falsifiability | PASS | Eight cases exit 133 with BENCH-1/2/2b/3/3-settle/5a/5b/6 tags |
+| Hosted-policy timing cases | PASS | Forced 5b and forced 6 each exit zero with both informational rows |
+| Timing-mode isolation | PASS | Only targeted BENCH-5a enabled; forced 16.701 exits 133 |
+| Correctness with all timings OFF | PASS | Injected BENCH-6 over-invalidation exits 133 with correctness tag |
+| Production env exactness | PASS | Exact 5b/6 OFF set passes; injected BENCH-1 OFF exits 1 |
+| Scope audit | PASS | Only `Sources/RenderBenchmark`; no production renderer module, `Tests/`, or frozen verification file changed |
+
+Raw evidence is retained in the sibling `fixture-immunity-*.txt` artifacts.
+
 ## Closure state
 
 **OPEN — operator dispatch required.** After local evidence is committed, the

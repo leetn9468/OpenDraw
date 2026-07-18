@@ -1,0 +1,60 @@
+BENCH_METADATA warmup_frames=60 measured_frames=300 production_paths=true bench5b_enforcement=off renderer=tile-composite bench2b_fixture=exposure-corridor
+BENCH_GATE_FIXTURE=bench6-overrun
+BENCH-1 drag: p50 4.349 ms | p95 4.783 ms | max 5.095 ms
+BENCH-2 pan: p50 0.092 ms | p95 0.110 ms | max 0.187 ms
+BENCH-2b exposure corridor: p50 0.243 ms | p95 0.348 ms | max 0.446 ms
+BENCH-2b exact_indices=true setup_columns=0...3 frame_formula=(f+3,0),(f+3,1) frames=1...360 warmup=1...60 measured=61...360 rendered_regions=728
+BENCH-3 zoom: p50 5.659 ms | p95 6.434 ms | max 7.300 ms
+BENCH-3 settle: 12.349 ms
+BENCH-4 cold-open: 13.703 ms
+Warm full redraw: 0.304 ms
+BENCH-5a undo-redo: p50 0.009 ms | p95 0.010 ms | max 0.120 ms
+BENCH-5b record: p50 0.183 ms | p95 0.843 ms | max 1.094 ms
+BENCH-5 mix=structural,composite,anchor-slice history=delta-only
+BENCH-5b enforcement: bench5b_enforcement=off result=INFORMATIONAL
+BENCH-6 timing enforcement: bench6_timing_enforcement=off result=INFORMATIONAL reason=owner-decision-2026-07-18
+BENCH-6 tile-edit: p50 4.496 ms | p95 8.001 ms | max 8.001 ms
+BENCH-6 assertions cache_hits=nonzero rendered_tiles=exact_damage_mapping warmup_frames=60 measured_frames=300 result=BLOCKING
+BENCH-6 sequence=node-84 dx=alternating(+1,-1) dy=0 reference_scene_nodes=1000
+/Users/user/Documents/AI 10 restructure project/scripts/run-render-benchmark.sh: line 17: 30514 Trace/BPT trap: 5       NSUnbufferedIO=YES .build/release/RenderBenchmark > "$benchmark_log" 2>&1
+BENCH_METADATA warmup_frames=60 measured_frames=300 production_paths=true bench5b_enforcement=off renderer=tile-composite bench2b_fixture=exposure-corridor
+BENCH_GATE_FIXTURE=bench5a-overrun
+BENCH-1 drag: p50 4.497 ms | p95 4.879 ms | max 5.012 ms
+BENCH-2 pan: p50 0.091 ms | p95 0.123 ms | max 0.193 ms
+BENCH-2b exposure corridor: p50 0.242 ms | p95 0.322 ms | max 0.440 ms
+BENCH-2b exact_indices=true setup_columns=0...3 frame_formula=(f+3,0),(f+3,1) frames=1...360 warmup=1...60 measured=61...360 rendered_regions=728
+BENCH-3 zoom: p50 5.714 ms | p95 6.721 ms | max 7.046 ms
+BENCH-3 settle: 11.731 ms
+BENCH-4 cold-open: 14.105 ms
+Warm full redraw: 0.445 ms
+BENCH-5a undo-redo: p50 0.009 ms | p95 16.701 ms | max 16.701 ms
+BENCH-5b record: p50 0.183 ms | p95 0.845 ms | max 1.019 ms
+BENCH-5 mix=structural,composite,anchor-slice history=delta-only
+BENCH-5b enforcement: bench5b_enforcement=off result=INFORMATIONAL
+BENCH-6 timing enforcement: bench6_timing_enforcement=off result=INFORMATIONAL reason=owner-decision-2026-07-18
+BENCH-6 tile-edit: p50 4.482 ms | p95 4.890 ms | max 5.134 ms
+BENCH-6 assertions cache_hits=nonzero rendered_tiles=exact_damage_mapping warmup_frames=60 measured_frames=300 result=BLOCKING
+BENCH-6 sequence=node-84 dx=alternating(+1,-1) dy=0 reference_scene_nodes=1000
+BENCH_TRAP exit=133 last_completed=BENCH-6 sequence=node-84 dx=alternating(+1,-1) dy=0 reference_scene_nodes=1000
+BENCH_TRAP source=Sources/RenderBenchmark/main.swift:341 gate=BENCH-5a observed_p95_ms=16.701 target_p95_ms=16.7
+/Users/user/Documents/AI 10 restructure project/scripts/run-render-benchmark.sh: line 17: 30554 Trace/BPT trap: 5       NSUnbufferedIO=YES .build/release/RenderBenchmark > "$benchmark_log" 2>&1
+BENCH_METADATA warmup_frames=60 measured_frames=300 production_paths=true bench5b_enforcement=off renderer=tile-composite bench2b_fixture=exposure-corridor
+BENCH_GATE_FIXTURE=bench6-overinvalidation
+BENCH-1 drag: p50 4.415 ms | p95 5.191 ms | max 20.732 ms
+BENCH-2 pan: p50 0.092 ms | p95 0.118 ms | max 0.222 ms
+BENCH-2b exposure corridor: p50 0.243 ms | p95 0.317 ms | max 0.426 ms
+BENCH-2b exact_indices=true setup_columns=0...3 frame_formula=(f+3,0),(f+3,1) frames=1...360 warmup=1...60 measured=61...360 rendered_regions=728
+BENCH-3 zoom: p50 5.691 ms | p95 6.479 ms | max 7.340 ms
+BENCH-3 settle: 12.077 ms
+BENCH-4 cold-open: 13.426 ms
+Warm full redraw: 0.315 ms
+BENCH-5a undo-redo: p50 0.010 ms | p95 0.011 ms | max 0.022 ms
+BENCH-5b record: p50 0.186 ms | p95 0.839 ms | max 0.968 ms
+BENCH-5 mix=structural,composite,anchor-slice history=delta-only
+BENCH-5b enforcement: bench5b_enforcement=off result=INFORMATIONAL
+BENCH-6 timing enforcement: bench6_timing_enforcement=off result=INFORMATIONAL reason=owner-decision-2026-07-18
+BENCH_TRAP exit=133 last_completed=BENCH-6 timing enforcement: bench6_timing_enforcement=off result=INFORMATIONAL reason=owner-decision-2026-07-18
+BENCH_TRAP source=Sources/RenderBenchmark/main.swift:319 gate=BENCH-6-correctness-exact-damage-mapping fixture=overinvalidation
+hosted_policy_bench6_timing_overrun_exit=0 target_p95_ms=8.0 result=PASS
+hosted_policy_bench5a_overrun_exit=133 result=PASS
+all_timing_off_correctness_violation_exit=133 result=PASS

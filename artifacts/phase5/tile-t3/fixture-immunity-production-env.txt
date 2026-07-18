@@ -1,0 +1,2 @@
+production_benchmark_timing_env=BENCH5B_ENFORCEMENT=off,BENCH6_TIMING_ENFORCEMENT=off result=PASS
+production_benchmark_extra_off_injection_exit=1 result=PASS

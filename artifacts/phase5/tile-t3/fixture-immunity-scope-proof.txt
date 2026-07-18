@@ -1,0 +1,16 @@
+base_revision=6090efe8d9649c57acaac26d8eb332555f0eb38c
+implementation_revision=4f101584f651e07ecd7d8b3f6264f706f765ac76
+allowed_source_change=Sources/RenderBenchmark/main.swift
+production_renderer_module_changes=0
+Tests_changes=0
+docs_verification_changes=0
+frame_schedule_changes=0
+deadline_changes=0
+threshold_changes=0
+target_changes=0
+ratio_policy_changes=0
+frozen_value_changes=0
+continue_on_error_references_in_fixture_or_workflow_paths=0
+production_benchmark_env=BENCH5B_ENFORCEMENT=off,BENCH6_TIMING_ENFORCEMENT=off
+production_benchmark_extra_off_injection_exit=1
+result=PASS
