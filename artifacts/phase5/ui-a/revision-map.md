@@ -7,7 +7,7 @@ Automated evidence revision: `72a3f6ad2f4b98812c1abdadbe98f890b0ccde72` (`eviden
 | Evidence | Producing revision | Validates revision |
 |---|---|---|
 | `opendraw-shell-dark.png` | `65f3cf4` | `65f3cf4` |
-| `design-deviations.md` | `65f3cf4` | `65f3cf4` |
+| `design-deviations.md` | `65f3cf4`, clarified by `2888262` | `65f3cf4` |
 | `menu-audit.md` | `65f3cf4` | `65f3cf4` |
 | `debug-tests.txt` | `72a3f6a` | `65f3cf4` |
 | `release-tests.txt` | `72a3f6a` | `65f3cf4` |
