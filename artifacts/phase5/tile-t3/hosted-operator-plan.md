@@ -14,10 +14,15 @@ After local acceptance, the operator must:
 4. Retain job logs and uploaded artifacts under
    `artifacts/phase5/tile-t3/hosted/`, including the complete hosted BENCH
    table and exact memory/startup/reliability summaries.
-5. Treat hosted ratios and BENCH-5b as informational under standing policy.
-   Keep BENCH-1/2/2b/3/5a/6 absolute gates blocking.
-6. If BENCH-2b corridor p95 exceeds 16.7 ms or BENCH-6 p95 exceeds 8.0 ms,
-   report the result verbatim and stop for owner decision. Do not adjust a
-   target, fixture, schedule, baseline policy, or implementation preemptively.
+5. Treat hosted ratios, BENCH-5b timing, and BENCH-6 timing as informational
+   under standing policy. Keep BENCH-1/2/2b/3/5a timing and all BENCH-6
+   correctness preconditions blocking.
+6. Require the BENCH-6 artifact row
+   `bench6_timing_enforcement=off result=INFORMATIONAL
+   reason=owner-decision-2026-07-18`, retain p50/p95/max verbatim, and require
+   its nonzero-hit and exact-damage-mapping assertions to pass. Any correctness
+   trap or BENCH-2b corridor failure stops closure; hosted BENCH-6 timing alone
+   does not fail the job. Do not adjust a target, fixture, schedule, baseline
+   policy, or implementation.
 7. Add an evidence-only hosted closure commit linking the exact dispatch.
    Until then T3 S6 and the feature remain open.

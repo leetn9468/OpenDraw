@@ -20,6 +20,11 @@ Thus BENCH-1 p95 `6.679 <= 16.7 ms`, and both BENCH-6 observations
 `4.787 <= 8.0 ms` and `5.708 <= 8.0 ms`. No owner decision is needed for
 either pre-registered watch item.
 
+Historical note: this risk-cleared classification records run #22 only.
+Follow-up run #23 on accepted triage revision `6208f52` measured BENCH-6 p95
+16.964 ms and max 113.417 ms on identical benchmark code, triggering the
+2026-07-18 owner decision retained in `hosted-run-23-bench6-policy.md`.
+
 ## FAIL-A — wall-clock contention
 
 `deterministicNativeAndSVGMutationCorpusMeetsDeadline` observed 3.427 seconds

@@ -139,6 +139,29 @@ the cache generation exactly like a zoom change.
 > reference hardware. This decision may only be revisited by a further
 > explicit owner decision.
 
+> **2026-07-18 — Hosted BENCH-6 TIMING gate downgraded to INFORMATIONAL;
+> BENCH-6 CORRECTNESS assertions remain BLOCKING everywhere.** BENCH-6
+> (incremental tile-edit recomposite, p95 target 8.0 ms calibrated on
+> owner-reference hardware) measured 4.787 and 5.708 ms on one hosted run
+> and 16.964 ms (max 113.417 ms) on the next, on identical code — a >3.5×
+> cross-run swing exceeding the target's 1.6× local headroom. As with the
+> 2026-07-15 ratio and 2026-07-16 BENCH-5b decisions: no fixed hosted
+> timing target for this gate can be simultaneously discriminating and
+> stable; enforcement lives on stable reference hardware. Therefore:
+> (1) BENCH-6 timing remains BLOCKING at the unchanged 8.0 ms p95 on
+> owner-reference hardware; (2) hosted BENCH-6 timing is measured and
+> emitted as INFORMATIONAL (p50/p95/max always in the artifact, never
+> failing the job); (3) BENCH-6's CORRECTNESS preconditions — nonzero cache
+> hits every measured frame, and rendered tiles EXACTLY equal to the frozen
+> damage mapping (superset and subset both trap) — remain BLOCKING in BOTH
+> modes without exception: they are runner-speed-independent and are the
+> tile cache's staleness/over-invalidation defense; (4) all other gates'
+> standing split is unchanged (absolute BENCH-1/2/2b/3 + BENCH-5a blocking
+> everywhere; 5b and ratios per their existing decisions). Options A
+> (higher hosted target) and C (N-of-M) considered and rejected: A cannot
+> discriminate inside a 4.8–17 ms noise band; C masks noise. Revisit only
+> by further explicit owner decision.
+
 > **2026-07-18 — Wall-clock-deadline test isolation policy.** Any test whose
 > assertion is a wall-clock deadline (currently: the adversarial-corpus
 > deadline test and the geometry 15-second smoke) runs ISOLATED — after the
@@ -208,7 +231,8 @@ decision in `docs/adr/ADR-014-tile-composite-production-renderer.md`.
 Local implementation delivery does not by itself close hosted operations.
 T3 S6 remains **OPEN — OPERATOR DISPATCH REQUIRED** until the operator pushes
 and manually dispatches the exact final revision and all eight hosted jobs,
-including blocking BENCH-2b and BENCH-6, are retained verbatim under
+including blocking BENCH-2b and BENCH-6 correctness plus the informational
+BENCH-6 timing row, are retained verbatim under
 `artifacts/phase5/tile-t3/hosted/`.
 
 The feature's hosted story is **CLOSED** by manually dispatched CI #19 on exact

@@ -13,6 +13,7 @@ struct Statistics {
 }
 let benchmarkEnvironment = ProcessInfo.processInfo.environment
 let bench5bEnforcementEnabled = benchmarkEnvironment["BENCH5B_ENFORCEMENT"] != "off"
+let bench6TimingEnforcementEnabled = benchmarkEnvironment["BENCH6_TIMING_ENFORCEMENT"] != "off"
 let benchmarkGateFixture = benchmarkEnvironment["BENCHMARK_GATE_FIXTURE"]
 
 func milliseconds(_ duration: Duration) -> Double {
@@ -276,6 +277,11 @@ tileRenderer.subscribe(to: tileHistory)
 let tileDestination = context()
 let tileGrid = try TileGrid(documentWidth: base.width, documentHeight: base.height)
 _ = try tileRenderer.composite(tileHistory.document, in: tileDestination)
+if !bench6TimingEnforcementEnabled {
+    print(
+        "BENCH-6 timing enforcement: bench6_timing_enforcement=off result=INFORMATIONAL "
+            + "reason=owner-decision-2026-07-18")
+}
 let measuredBench6 = try measure { index in
     let targetID = id(84)
     let direction = index.isMultiple(of: 2) ? 1.0 : -1.0
@@ -288,8 +294,14 @@ let measuredBench6 = try measure { index in
     try tileHistory.commit(edit)
     let frame = try tileRenderer.composite(tileHistory.document, in: tileDestination)
     precondition(!frame.hitTiles.isEmpty, "BENCH-6 requires nonzero cache hits every frame")
+    var renderedTiles = Set(frame.renderedTiles)
+    if benchmarkGateFixture == "bench6-overinvalidation" {
+        let injected = TileCoordinate(column: tileGrid.columnCount - 1, row: tileGrid.rowCount - 1)
+        precondition(!expected.contains(injected), "BENCH-6 over-invalidation fixture must add a superset tile")
+        renderedTiles.insert(injected)
+    }
     precondition(
-        Set(frame.renderedTiles) == expected,
+        renderedTiles == expected,
         "BENCH-6 rendered tiles must exactly equal the frozen damage mapping")
 }
 let bench6 = applyingGateFixture(measuredBench6, gate: "bench6-overrun", forcedP95: 8.001)
@@ -307,4 +319,6 @@ precondition(bench3Settle <= 100.0, "BENCH-3 settle exceeds frozen 100 ms target
 if bench5bEnforcementEnabled {
     precondition(bench5b.p95 <= 1.0, "BENCH-5b p95 exceeds frozen 1.0 ms target")
 }
-precondition(bench6.p95 <= 8.0, "BENCH-6 p95 exceeds frozen 8.0 ms target")
+if bench6TimingEnforcementEnabled {
+    precondition(bench6.p95 <= 8.0, "BENCH-6 p95 exceeds frozen 8.0 ms target")
+}

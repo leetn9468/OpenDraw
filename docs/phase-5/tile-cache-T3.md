@@ -74,6 +74,11 @@ independently frozen document-limit policy and remains covered by VERIFY-008.
 | BENCH-5b record | p95 0.853 ms | ≤1.0 ms local | PASS |
 | BENCH-6 tile edit | p95 4.967 ms | ≤8.0 ms | PASS |
 
+BENCH-6's 8.0 ms timing target remains blocking locally on owner-reference
+hardware. Under the 2026-07-18 owner decision, hosted timing is informational;
+the nonzero-hit and exact-damage-mapping assertions remain trapping in every
+mode.
+
 BENCH-2b setup rendered columns 0…3. Frames 1…360 rendered exactly
 `(f+3,0)` and `(f+3,1)`; all other visible tiles were proven prior-rendered
 hits; the final rendered-region count was 728.

@@ -69,6 +69,9 @@ and summary log is uploaded.
 | BENCH-5a absolute target, p95 <= 16.7 ms | Local and hosted | **BLOCKING**, unchanged |
 | BENCH-5b absolute target, p95 <= 1.0 ms | Stable owner-reference hardware | **BLOCKING**, unchanged |
 | BENCH-5b measurement | GitHub-hosted `macos-15` | **INFORMATIONAL**, owner decision 2026-07-16 |
+| BENCH-6 timing target, p95 <= 8.0 ms | Stable owner-reference hardware | **BLOCKING**, unchanged |
+| BENCH-6 timing measurement | GitHub-hosted `macos-15` | **INFORMATIONAL**, owner decision 2026-07-18 |
+| BENCH-6 correctness: nonzero hits and exact damage-mapped rendered tiles | Local and hosted | **BLOCKING**, unchanged |
 | Owner-reference ratio, inclusive 1.25 | Stable owner-reference hardware | **BLOCKING**, unchanged |
 | Hosted-runner ratio versus hosted reference | GitHub-hosted `macos-15` | **INFORMATIONAL**, owner decision 2026-07-15 |
 | Absolute-mode and ratio falsifiability fixtures | Local and hosted workflow | **BLOCKING**, unchanged |
@@ -111,21 +114,31 @@ mode=INFORMATIONAL ratio_enforcement=OFF reason=owner-decision-2026-07-15
 The benchmark wrapper executes redirected Swift output unbuffered. If a
 blocking release-mode benchmark precondition exits 133, the wrapper retains
 that exit status and appends the last completed BENCH line plus a diagnostic
-for the uniquely identifiable BENCH-2b/BENCH-5 gate. This is evidence
+for the uniquely identifiable BENCH-2b/BENCH-5/BENCH-6 gate. This is evidence
 preservation only: the job still fails, and no absolute target, precondition,
 ratio policy, retry rule, or hosted/local semantic changes. The rule was added
 after dispatched run 17 on 2026-07-16 lost its completed BENCH lines to the
 stdout buffer; see `artifacts/phase5/p4/hosted-run-17-triage.md`.
 
-`BENCH5B_ENFORCEMENT` is the sole policy mode input. It defaults to enforcement
-ON; local scripts do not set it. Only the hosted benchmark step sets it to
-`off`, with the 2026-07-16 owner-decision reference beside the workflow input.
-In that mode, the benchmark artifact still emits the complete BENCH-5b
-p50/p95/max row and adds
-`bench5b_enforcement=off result=INFORMATIONAL`. BENCH-2b and BENCH-5a retain
-their original trapping preconditions in both modes. The hosted informational
-comparison repeats the enforcement annotation; local comparison output is
-unchanged.
+`BENCH5B_ENFORCEMENT` and `BENCH6_TIMING_ENFORCEMENT` are independent policy
+mode inputs. Both default to enforcement ON; ordinary local benchmark scripts
+do not set either input. Only the hosted benchmark measurement step sets them
+to `off`, with the 2026-07-16 and 2026-07-18 owner-decision references beside
+the workflow inputs. Hosted artifacts still emit the complete p50/p95/max rows
+and add `bench5b_enforcement=off result=INFORMATIONAL` and
+`bench6_timing_enforcement=off result=INFORMATIONAL
+reason=owner-decision-2026-07-18`. BENCH-2b and BENCH-5a retain their original
+trapping preconditions in both modes. The hosted informational comparison
+repeats both enforcement annotations; ordinary local output is unchanged.
+
+The BENCH-6 timing guard is separate from its per-frame correctness path. The
+mode input governs only the final `bench6.p95 <= 8.0` timing precondition. The
+nonzero-hit and exact-damage-mapping preconditions execute unconditionally
+inside every measured frame. A superset or subset rendered-tile set therefore
+traps in both timing modes. `scripts/test-bench6-gate.sh` proves default timing
+overrun exit 133, timing-off overrun exit zero with the informational row,
+timing-off isolation from a still-trapping BENCH-5a overrun, and timing-off
+over-invalidation exit 133. No workflow step uses `continue-on-error`.
 
 `scripts/test-benchmark-enforcement-modes.sh` is blocking and proves three
 cases: absent/default mode traps a forced BENCH-5b overrun with exit 133 and a
@@ -193,6 +206,22 @@ remained at 0.026 ms and BENCH-2b still redrew 360/360 strips; evidence is in
 BENCH-5b informational by explicit owner decision. The unchanged 1.0 ms target
 remains blocking on stable owner-reference hardware. The standing hosted
 BENCH-1 absolute-headroom WATCH remains active.
+
+BENCH-6 variance evidence: manually dispatched run #22
+<https://github.com/leetn9468/OpenDraw/actions/runs/29595403869> measured 4.787
+and 5.708 ms p95 in its hosted enforcement-mode fixture executions. The next
+manual dispatch, run #23 on accepted triage revision `6208f52`,
+<https://github.com/leetn9468/OpenDraw/actions/runs/29622813655>, measured
+p50 7.540 ms, p95 16.964 ms, and max 113.417 ms while all per-frame BENCH-6
+correctness assertions and the BENCH-2b `rendered_regions=728` assertion
+passed. Standing variance-watch entry: BENCH-6 p95 4.787 → 16.964 ms, with
+the latter run's max at 113.417 ms. The >3.5× p95 swing on identical benchmark
+code triggered the 2026-07-18 owner decision: hosted BENCH-6 timing is
+informational, the unchanged 8.0 ms p95 remains blocking on stable
+owner-reference hardware, and
+correctness remains blocking everywhere. Options A (higher hosted target) and
+C (N-of-M) were rejected. The standing hosted BENCH-1 absolute-headroom WATCH
+remains active unchanged.
 
 CI #8 timing-headroom review found no gate within 10% of its absolute target:
 BENCH-1/2/2b/3 and settle retained at least 68.51% headroom, and startup p95
