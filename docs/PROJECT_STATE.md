@@ -235,6 +235,15 @@ including blocking BENCH-2b and BENCH-6 correctness plus the informational
 BENCH-6 timing row, are retained verbatim under
 `artifacts/phase5/tile-t3/hosted/`.
 
+Manual CI #26 on `6090efe` passed the real benchmark measurement and seven of
+eight jobs, but its BENCH-5b-off falsifiability case was contaminated by an
+organic BENCH-6 9.464 ms timing trap. The final fixture-class correction makes
+every exit-asserting fixture all-timing-off except for its deterministic target
+and permanently verifies that production CI contains exactly the two
+decision-backed timing downgrades. Evidence is retained in
+`artifacts/phase5/tile-t3/hosted-run-26-fixture-immunity.md`; S6 remains open
+until the corrected exact revision produces eight green hosted jobs.
+
 The feature's hosted story is **CLOSED** by manually dispatched CI #19 on exact
 revision `d278755e020455955c1837a7aa36ef20ec0058fe`:
 <https://github.com/leetn9468/OpenDraw/actions/runs/29529375715>. All eight jobs

@@ -45,11 +45,13 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v6
+      - name: Prove production benchmark timing policy env is exact
+        run: scripts/test-benchmark-production-env-exactness.sh
       - name: Run benchmark with frozen absolute targets
         env:
           # Hosted BENCH-5b and BENCH-6 timing are informational under the 2026-07-16 and 2026-07-18 owner decisions; correctness remains blocking.
-          BENCH5B_ENFORCEMENT: off
-          BENCH6_TIMING_ENFORCEMENT: off
+          BENCH5B_ENFORCEMENT: 'off'
+          BENCH6_TIMING_ENFORCEMENT: 'off'
         run: scripts/run-render-benchmark.sh benchmark.txt
       - name: Prove hosted BENCH-5b policy remains falsifiable
         run: scripts/test-benchmark-enforcement-modes.sh

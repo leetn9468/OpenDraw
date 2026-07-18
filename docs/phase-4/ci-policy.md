@@ -114,39 +114,66 @@ mode=INFORMATIONAL ratio_enforcement=OFF reason=owner-decision-2026-07-15
 The benchmark wrapper executes redirected Swift output unbuffered. If a
 blocking release-mode benchmark precondition exits 133, the wrapper retains
 that exit status and appends the last completed BENCH line plus a diagnostic
-for the uniquely identifiable BENCH-2b/BENCH-5/BENCH-6 gate. This is evidence
-preservation only: the job still fails, and no absolute target, precondition,
-ratio policy, retry rule, or hosted/local semantic changes. The rule was added
-after dispatched run 17 on 2026-07-16 lost its completed BENCH lines to the
-stdout buffer; see `artifacts/phase5/p4/hosted-run-17-triage.md`.
+for the uniquely identifiable timing gate or BENCH-2b/BENCH-6 correctness
+gate. This is evidence preservation only: the job still fails, and no absolute
+target, precondition, ratio policy, retry rule, or hosted/local semantic
+changes. The rule was added after dispatched run 17 on 2026-07-16 lost its
+completed BENCH lines to the stdout buffer; see
+`artifacts/phase5/p4/hosted-run-17-triage.md`.
 
-`BENCH5B_ENFORCEMENT` and `BENCH6_TIMING_ENFORCEMENT` are independent policy
-mode inputs. Both default to enforcement ON; ordinary local benchmark scripts
-do not set either input. Only the hosted benchmark measurement step sets them
-to `off`, with the 2026-07-16 and 2026-07-18 owner-decision references beside
-the workflow inputs. Hosted artifacts still emit the complete p50/p95/max rows
-and add `bench5b_enforcement=off result=INFORMATIONAL` and
+Every timing precondition has an independent, default-ON mode input:
+`BENCH1_TIMING_ENFORCEMENT`, `BENCH2_TIMING_ENFORCEMENT`,
+`BENCH2B_TIMING_ENFORCEMENT`, `BENCH3_TIMING_ENFORCEMENT` (both p95 and
+settle), `BENCH5A_TIMING_ENFORCEMENT`, `BENCH5B_ENFORCEMENT`, and
+`BENCH6_TIMING_ENFORCEMENT`. Ordinary local production benchmark scripts set
+none of them. The hosted production benchmark step sets exactly
+`BENCH5B_ENFORCEMENT=off` and `BENCH6_TIMING_ENFORCEMENT=off`, with the
+2026-07-16 and 2026-07-18 owner-decision references beside the workflow
+inputs. Adding any further production `off` is forbidden without a new
+explicit owner decision.
+
+`scripts/check-benchmark-production-env.sh` parses the named production
+workflow step and requires its environment to equal that two-entry set—no
+missing, changed, or additional input. The blocking
+`scripts/test-benchmark-production-env-exactness.sh` proves the exact set passes
+and an in-memory injected `BENCH1_TIMING_ENFORCEMENT=off` fails. This checker
+does not govern fixture subprocesses; it closes the quiet-downgrade surface in
+production wiring.
+
+Hosted artifacts still emit the complete p50/p95/max rows and add
+`bench5b_enforcement=off result=INFORMATIONAL` and
 `bench6_timing_enforcement=off result=INFORMATIONAL
 reason=owner-decision-2026-07-18`. BENCH-2b and BENCH-5a retain their original
-trapping preconditions in both modes. The hosted informational comparison
-repeats both enforcement annotations; ordinary local output is unchanged.
+trapping preconditions in both local and hosted production. The hosted
+informational comparison repeats both enforcement annotations; ordinary local
+output is unchanged.
 
 The BENCH-6 timing guard is separate from its per-frame correctness path. The
 mode input governs only the final `bench6.p95 <= 8.0` timing precondition. The
 nonzero-hit and exact-damage-mapping preconditions execute unconditionally
 inside every measured frame. A superset or subset rendered-tile set therefore
-traps in both timing modes. `scripts/test-bench6-gate.sh` proves default timing
-overrun exit 133, timing-off overrun exit zero with the informational row,
-timing-off isolation from a still-trapping BENCH-5a overrun, and timing-off
-over-invalidation exit 133. No workflow step uses `continue-on-error`.
+traps regardless of every timing input. No workflow step uses
+`continue-on-error`.
 
-`scripts/test-benchmark-enforcement-modes.sh` is blocking and proves three
-cases: absent/default mode traps a forced BENCH-5b overrun with exit 133 and a
-retained diagnostic; hosted-off mode records the same class of overrun and
-exits zero; and hosted-off mode still traps a forced BENCH-5a overrun. Its
-`BENCHMARK_GATE_FIXTURE` selector exists only to inject deterministic
-above-boundary observations into this falsifiability harness. It is never set
-by the production benchmark step.
+Every exit-asserting benchmark fixture runs through
+`scripts/run-render-benchmark-fixture.sh`. The wrapper mechanically sets all
+seven timing enforcements OFF, then explicitly enables only the timing gate
+targeted by that case. Production frame schedules remain 60 warm-up plus 300
+measured (and the frozen 360-frame corridor schedule); only deterministic
+forced values can select a timing exit. Speed-independent correctness
+preconditions remain unconditional and a correctness trap is always treated as
+a real defect.
+
+`scripts/test-benchmark-enforcement-modes.sh` independently forces all timing
+preconditions: BENCH-1, BENCH-2, BENCH-2b, BENCH-3 p95, BENCH-3 settle,
+BENCH-5a, BENCH-5b, and BENCH-6. Each case enables only its target and requires
+exit 133 plus the matching gate diagnostic. It also proves a forced BENCH-5b
+overrun exits zero in the all-timing-off hosted-policy fixture environment.
+`scripts/test-bench6-gate.sh` proves the corresponding BENCH-6 informational
+case, isolation from a still-trapping targeted BENCH-5a overrun, and an
+all-timing-off injected over-invalidation still exiting 133. The
+`BENCHMARK_GATE_FIXTURE` selector and nonproduction timing switches are never
+set by the production benchmark step.
 
 The workflow captures the unchanged checker's status for the artifact but
 always exits the reporting step successfully. The reference's `valid_until`
@@ -222,6 +249,19 @@ owner-reference hardware, and
 correctness remains blocking everywhere. Options A (higher hosted target) and
 C (N-of-M) were rejected. The standing hosted BENCH-1 absolute-headroom WATCH
 remains active unchanged.
+
+Fixture-contamination evidence: manually dispatched CI #26 on identical
+revision `6090efe`,
+<https://github.com/leetn9468/OpenDraw/actions/runs/29623884375>, passed seven
+jobs and the real hosted benchmark measurement. Its benchmark policy-fixture
+step then ran the BENCH-5b-off case with BENCH-6 timing inadvertently still
+blocking; an organic BENCH-6 p95 of 9.464 ms trapped at the unchanged 8.0 ms
+target and produced exit 133 where the fixture expected zero. This was not a
+gate failure. It was the second fixture-contamination incident after the
+retired `bench5a-and-b-overrun` selector overlap. The standing fixture rule is
+therefore structural: all nontarget timing guards are OFF for every
+exit-asserting fixture, while all correctness guards remain ON. Runner speed
+can no longer determine a fixture exit code.
 
 CI #8 timing-headroom review found no gate within 10% of its absolute target:
 BENCH-1/2/2b/3 and settle retained at least 68.51% headroom, and startup p95

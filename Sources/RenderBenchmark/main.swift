@@ -12,8 +12,16 @@ struct Statistics {
     var maximum: Double
 }
 let benchmarkEnvironment = ProcessInfo.processInfo.environment
-let bench5bEnforcementEnabled = benchmarkEnvironment["BENCH5B_ENFORCEMENT"] != "off"
-let bench6TimingEnforcementEnabled = benchmarkEnvironment["BENCH6_TIMING_ENFORCEMENT"] != "off"
+func timingEnforcementEnabled(_ environmentKey: String) -> Bool {
+    benchmarkEnvironment[environmentKey] != "off"
+}
+let bench1TimingEnforcementEnabled = timingEnforcementEnabled("BENCH1_TIMING_ENFORCEMENT")
+let bench2TimingEnforcementEnabled = timingEnforcementEnabled("BENCH2_TIMING_ENFORCEMENT")
+let bench2bTimingEnforcementEnabled = timingEnforcementEnabled("BENCH2B_TIMING_ENFORCEMENT")
+let bench3TimingEnforcementEnabled = timingEnforcementEnabled("BENCH3_TIMING_ENFORCEMENT")
+let bench5aTimingEnforcementEnabled = timingEnforcementEnabled("BENCH5A_TIMING_ENFORCEMENT")
+let bench5bEnforcementEnabled = timingEnforcementEnabled("BENCH5B_ENFORCEMENT")
+let bench6TimingEnforcementEnabled = timingEnforcementEnabled("BENCH6_TIMING_ENFORCEMENT")
 let benchmarkGateFixture = benchmarkEnvironment["BENCHMARK_GATE_FIXTURE"]
 
 func milliseconds(_ duration: Duration) -> Double {
@@ -85,12 +93,12 @@ func printStats(_ name: String, _ value: Statistics) {
     print(String(format: "%@: p50 %.3f ms | p95 %.3f ms | max %.3f ms", name, value.p50, value.p95, value.maximum))
 }
 func applyingGateFixture(_ value: Statistics, gate: String, forcedP95: Double) -> Statistics {
-    let forcesGate =
-        benchmarkGateFixture == gate
-        || benchmarkGateFixture == "bench5a-and-b-overrun"
-    guard forcesGate else { return value }
+    guard benchmarkGateFixture == gate else { return value }
     let p95 = max(value.p95, forcedP95)
     return Statistics(p50: min(value.p50, p95), p95: p95, maximum: max(value.maximum, p95))
+}
+func applyingGateFixture(_ value: Double, gate: String, forcedValue: Double) -> Double {
+    benchmarkGateFixture == gate ? max(value, forcedValue) : value
 }
 
 let activity = ProcessInfo.processInfo.beginActivity(
@@ -115,7 +123,7 @@ var dragHistory = try DeltaCommandHistory(document: base)
 let dragRenderer = TileCompositeRenderer()
 dragRenderer.subscribe(to: dragHistory)
 _ = try dragRenderer.composite(dragHistory.document, in: destination)
-let bench1 = try measure { index in
+let measuredBench1 = try measure { index in
     let direction = index.isMultiple(of: 2) ? 1.0 : -1.0
     var transform = dragHistory.document.path(id: id(0))!.transform
     transform.tx += direction
@@ -130,11 +138,12 @@ let bench1 = try measure { index in
         Set(frame.renderedTiles) == expected,
         "BENCH-1 rendered tiles must exactly equal mapped edit damage")
 }
+let bench1 = applyingGateFixture(measuredBench1, gate: "bench1-overrun", forcedP95: 16.701)
 printStats("BENCH-1 drag", bench1)
 
 let panRenderer = TileCompositeRenderer()
 _ = try panRenderer.composite(base, in: destination)
-let bench2 = try measure { index in
+let measuredBench2 = try measure { index in
     let visibleRect = DevicePixelRect(
         minX: index, minY: 0, maxX: index + 800, maxY: 500)
     let frame = try panRenderer.composite(
@@ -142,6 +151,7 @@ let bench2 = try measure { index in
     precondition(frame.renderedTiles.isEmpty, "BENCH-2 warm pan must be hit-dominated")
     precondition(!frame.hitTiles.isEmpty, "BENCH-2 warm pan requires cache hits")
 }
+let bench2 = applyingGateFixture(measuredBench2, gate: "bench2-overrun", forcedP95: 16.701)
 printStats("BENCH-2 pan", bench2)
 
 let corridor = try TileExposureCorridor.document()
@@ -161,7 +171,7 @@ precondition(
     "BENCH-2b setup must render exactly columns 0...3")
 precondition(corridorSetup.hitTiles.isEmpty, "BENCH-2b setup cannot contain hits")
 var corridorRenderedRegions = Set(corridorSetup.renderedTiles)
-let bench2b = try measure { zeroBasedFrame in
+let measuredBench2b = try measure { zeroBasedFrame in
     let frameIndex = zeroBasedFrame + 1
     let visibleRect = TileExposureCorridor.visibleRect(frame: frameIndex)
     let expectedRendered = TileExposureCorridor.expectedRenderedTiles(frame: frameIndex)
@@ -187,21 +197,25 @@ let bench2b = try measure { zeroBasedFrame in
         "BENCH-2b cannot serve a never-rendered region as a hit")
     corridorRenderedRegions.formUnion(rendered)
 }
+let bench2b = applyingGateFixture(measuredBench2b, gate: "bench2b-overrun", forcedP95: 16.701)
 printStats("BENCH-2b exposure corridor", bench2b)
 print(
     "BENCH-2b exact_indices=true setup_columns=0...3 frame_formula=(f+3,0),(f+3,1) "
         + "frames=1...360 warmup=1...60 measured=61...360 rendered_regions=\(corridorRenderedRegions.count)")
 
 let zoomRenderer = TileCompositeRenderer()
-let bench3 = measure { index in
+let measuredBench3 = measure { index in
     let zoom = 0.8 + Double(index % 60) / 100
     zoomRenderer.renderZoomGestureDirect(
         base, in: destination, viewport: RenderViewport(zoom: zoom))
 }
+let bench3 = applyingGateFixture(measuredBench3, gate: "bench3-overrun", forcedP95: 33.001)
 printStats("BENCH-3 zoom", bench3)
 let settleStart = ContinuousClock.now
 _ = try zoomRenderer.composite(base, in: destination, zoom: 1.4)
-let bench3Settle = milliseconds(settleStart.duration(to: .now))
+let measuredBench3Settle = milliseconds(settleStart.duration(to: .now))
+let bench3Settle = applyingGateFixture(
+    measuredBench3Settle, gate: "bench3-settle-overrun", forcedValue: 100.001)
 print(String(format: "BENCH-3 settle: %.3f ms", bench3Settle))
 
 let warmFullStart = ContinuousClock.now
@@ -310,12 +324,22 @@ print(
     "BENCH-6 assertions cache_hits=nonzero rendered_tiles=exact_damage_mapping "
         + "warmup_frames=60 measured_frames=300 result=BLOCKING")
 print("BENCH-6 sequence=node-84 dx=alternating(+1,-1) dy=0 reference_scene_nodes=1000")
-precondition(bench5a.p95 <= 16.7, "BENCH-5a p95 exceeds frozen 16.7 ms target")
-precondition(bench1.p95 <= 16.7, "BENCH-1 p95 exceeds frozen 16.7 ms target")
-precondition(bench2.p95 <= 16.7, "BENCH-2 p95 exceeds frozen 16.7 ms target")
-precondition(bench2b.p95 <= 16.7, "BENCH-2b p95 exceeds frozen 16.7 ms target")
-precondition(bench3.p95 <= 33.0, "BENCH-3 p95 exceeds frozen 33 ms target")
-precondition(bench3Settle <= 100.0, "BENCH-3 settle exceeds frozen 100 ms target")
+if bench1TimingEnforcementEnabled {
+    precondition(bench1.p95 <= 16.7, "BENCH-1 p95 exceeds frozen 16.7 ms target")
+}
+if bench2TimingEnforcementEnabled {
+    precondition(bench2.p95 <= 16.7, "BENCH-2 p95 exceeds frozen 16.7 ms target")
+}
+if bench2bTimingEnforcementEnabled {
+    precondition(bench2b.p95 <= 16.7, "BENCH-2b p95 exceeds frozen 16.7 ms target")
+}
+if bench3TimingEnforcementEnabled {
+    precondition(bench3.p95 <= 33.0, "BENCH-3 p95 exceeds frozen 33 ms target")
+    precondition(bench3Settle <= 100.0, "BENCH-3 settle exceeds frozen 100 ms target")
+}
+if bench5aTimingEnforcementEnabled {
+    precondition(bench5a.p95 <= 16.7, "BENCH-5a p95 exceeds frozen 16.7 ms target")
+}
 if bench5bEnforcementEnabled {
     precondition(bench5b.p95 <= 1.0, "BENCH-5b p95 exceeds frozen 1.0 ms target")
 }
