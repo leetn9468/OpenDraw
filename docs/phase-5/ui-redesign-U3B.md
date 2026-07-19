@@ -59,5 +59,5 @@ under `artifacts/phase5/ui-b/`.
 
 ## Closure state
 
-All automated and local performance gates pass. U3-B and the UI redesign remain
-open only for owner visual acceptance of the dark-mode mid-gesture screenshot.
+All automated and local performance gates pass. TN LEE granted owner visual
+acceptance on 2026-07-19. U3-B and the UI redesign are **DELIVERED**.

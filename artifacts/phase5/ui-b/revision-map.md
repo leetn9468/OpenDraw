@@ -20,3 +20,4 @@
 | `theme-tokens.txt`, `format.txt` | `58bcf8e6` | `a9f219c6` |
 | `dependency-check.txt`, `clean-room.txt`, `symbol-graph.txt`, `release-integrity.txt` | `58bcf8e6` | `a9f219c6` |
 | `menu-audit.md`, `design-deviations.md`, `test-counts.txt`, `gate-summary.md` | `58bcf8e6` | `a9f219c6` |
+| `owner-visual-acceptance.md` and DELIVERED state | closure commit pending | `a9f219c6` |

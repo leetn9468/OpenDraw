@@ -246,15 +246,16 @@ decision-backed timing downgrades. Evidence is retained in
 `artifacts/phase5/tile-t3/hosted-run-26-fixture-immunity.md`. CI #28 proves the
 class fix on hosted hardware and closes that incident.
 
-The editor UI redesign U3-A is accepted. U3-B implementation and its complete
-local gate battery pass at `a9f219c6b3f94befa55d7c5eba9409f4b80bd934`:
+The editor UI redesign U3-A and U3-B is **DELIVERED**. U3-B implementation and
+its complete local gate battery pass at
+`a9f219c6b3f94befa55d7c5eba9409f4b80bd934`:
 VERIFY-034 is frozen and executed, the six-control align family is live,
 selection chrome and modifier interactions follow the design tokens, and the
-retired create-text alert is superseded by in-place editing. U3-B remains
-**AWAITING OWNER VISUAL ACCEPTANCE** of
-`artifacts/phase5/ui-b/chrome-dark-mid-gesture.png`; the UI redesign is not
-marked delivered until that acceptance. The gate report, revision map,
-deviation delta, menu audit, and supersession record are under
+retired create-text alert is superseded by in-place editing. TN LEE granted
+owner visual acceptance on 2026-07-19 for
+`artifacts/phase5/ui-b/chrome-dark-mid-gesture.png`, closing U3-B and the UI
+redesign. The gate report, revision map, deviation delta, menu audit, and
+supersession record are under
 `artifacts/phase5/ui-b/` and `docs/phase-5/ui-redesign-U3B.md`, retained by
 evidence revision `58bcf8e6f5d6a3828bc9e16c85303a514ada6c37`.
 

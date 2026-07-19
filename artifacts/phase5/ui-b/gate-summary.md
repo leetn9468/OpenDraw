@@ -30,6 +30,7 @@ on macOS 15.7.5, Apple M1 Max, arm64, Swift 6.1.2.
 | Dependency / clean room / symbol graph | Dependency and clean-room scripts exit 0; all module symbol graphs emit | PASS |
 | Release integrity | arm64 app, ad-hoc signature, hardened runtime, sealed resources | PASS |
 | Formatting | Strict Swift formatting exits 0 | PASS |
-| Dark-mode mid-gesture screenshot | SHA-256 `471b5c010c3b56581d7912a0a0252d2b84f18b98af65a127c38c998eed1e4ad1` | CAPTURED — OWNER REVIEW OPEN |
+| Dark-mode mid-gesture screenshot | SHA-256 `471b5c010c3b56581d7912a0a0252d2b84f18b98af65a127c38c998eed1e4ad1`; approved by TN LEE on 2026-07-19 | PASS |
 
-All machine-enforced gates pass. U3-B closes only after owner visual approval.
+All machine-enforced gates and owner visual acceptance pass. U3-B and the UI
+redesign are delivered.
