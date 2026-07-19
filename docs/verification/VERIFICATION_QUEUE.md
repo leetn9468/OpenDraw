@@ -961,6 +961,43 @@ implementation has not begun at this checkpoint.
 - T2 hard requirement: damage-bearing change publication for uncommitted live
   gesture frames must be wired before this corpus can pass.
 
+### VERIFY-034 — Align-family visual-bounds target math
+
+- Status: `FROZEN`
+- Freeze checkpoint: production implementation `NOT STARTED` at the VERIFY-034
+  freeze revision.
+- Permanent references: `verify034FrozenAlignmentWorkedExamples` and
+  `verify034DegenerateSelectionsElideWithoutHistoryMutation` in
+  `AlignFamilyVerifyTests.swift`; shipped-left compatibility remains pinned by
+  the unmodified `testP3AlignmentIsOneCompositeAndUndoableOnDeltaPath`.
+- Bounds source: the selection's combined stroke-inclusive visual bounds `B*`,
+  using `EditorDocument.visualBounds(for:)`, exactly matching the shipped Align
+  Left command's bounds source.
+- Coordinate convention: document Y increases downward in the flipped canvas,
+  so top maps to `minY` and bottom maps to `maxY`.
+- Per-object translation, with `o` the object's visual bounds:
+  - left: `dx = B*.minX - o.minX`
+  - right: `dx = B*.maxX - o.maxX`
+  - center X: `dx = midX(B*) - midX(o)`
+  - top: `dy = B*.minY - o.minY`
+  - bottom: `dy = B*.maxY - o.maxY`
+  - middle Y: `dy = midY(B*) - midY(o)`
+  where `mid = (min + max) / 2` in raw `Double` arithmetic. No rounding or
+  snapping applies.
+- Command shape: one composite of transform value swaps. P-IDENT children are
+  elided semantically; an all-identity composite records nothing. Single-object
+  and already-aligned selections therefore leave history and redo unchanged.
+- Frozen worked bounds: `A=(10,30,20,40)`, `B=(50,90,10,22)`,
+  `C=(-5,15,35,60)`, so `B*=(-5,90,10,60)`.
+  1. Left `dx=(-15,-55,0)`.
+  2. Right `dx=(60,0,75)`.
+  3. Center X uses `midX(B*)=42.5`, giving `dx=(22.5,-27.5,37.5)`.
+  4. Middle Y uses `midY(B*)=35.0`, giving `dy=(5.0,19.0,-12.5)`.
+  5. A single object produces a fully elided composite; undo depth and redo
+     depth are unchanged.
+- Tolerance: exact `Double` equality for these representable frozen values;
+  no epsilon and no display-space rounding.
+
 ### BENCH-2b tile-era mechanism supersession
 
 The owner-selected exposure corridor supersedes only BENCH-2b's old
