@@ -255,7 +255,8 @@ retired create-text alert is superseded by in-place editing. U3-B remains
 `artifacts/phase5/ui-b/chrome-dark-mid-gesture.png`; the UI redesign is not
 marked delivered until that acceptance. The gate report, revision map,
 deviation delta, menu audit, and supersession record are under
-`artifacts/phase5/ui-b/` and `docs/phase-5/ui-redesign-U3B.md`.
+`artifacts/phase5/ui-b/` and `docs/phase-5/ui-redesign-U3B.md`, retained by
+evidence revision `58bcf8e6f5d6a3828bc9e16c85303a514ada6c37`.
 
 The feature's hosted story is **CLOSED** by manually dispatched CI #19 on exact
 revision `d278755e020455955c1837a7aa36ef20ec0058fe`:
