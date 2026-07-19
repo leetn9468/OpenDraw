@@ -58,6 +58,36 @@ private struct SegmentSlicePayload: Hashable, Codable, Sendable {
 }
 
 public enum AnchorGeometryCommands {
+    public static func isSmooth(_ slice: PathAnchorSlice) -> Bool {
+        guard let incoming = slice.incoming, let outgoing = slice.outgoing else { return false }
+        return outgoing == Point(
+            x: 2 * slice.anchor.x - incoming.x,
+            y: 2 * slice.anchor.y - incoming.y)
+    }
+
+    public static func handleDragSlice(
+        from old: PathAnchorSlice, side: PathHandleSide, to point: Point,
+        breakSmooth: Bool
+    ) throws -> PathAnchorSlice {
+        var new = old
+        let preserveSmooth = isSmooth(old) && !breakSmooth
+        switch side {
+        case .incoming:
+            guard old.incoming != nil else { throw AnchorGeometryCommandError.handleNotFound }
+            new.incoming = point
+            if preserveSmooth, old.outgoing != nil {
+                new.outgoing = Point(x: 2 * old.anchor.x - point.x, y: 2 * old.anchor.y - point.y)
+            }
+        case .outgoing:
+            guard old.outgoing != nil else { throw AnchorGeometryCommandError.handleNotFound }
+            new.outgoing = point
+            if preserveSmooth, old.incoming != nil {
+                new.incoming = Point(x: 2 * old.anchor.x - point.x, y: 2 * old.anchor.y - point.y)
+            }
+        }
+        return new
+    }
+
     public static func slice(
         in document: EditorDocument, at location: PathAnchorLocation
     ) throws -> PathAnchorSlice {

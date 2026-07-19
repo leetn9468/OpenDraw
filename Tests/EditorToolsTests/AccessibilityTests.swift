@@ -69,6 +69,12 @@ import Testing
     #expect(tools.children.allSatisfy { $0.role == .button })
     let inspector = shell.children[4]
     #expect(inspector.children.contains { $0.label == "Dash pattern" && $0.role == .textField })
+    #expect(inspector.children.contains { $0.label == "Text content" && $0.role == .textField })
+    #expect(inspector.children.contains { $0.label == "Text font name" && $0.role == .textField })
+    #expect(inspector.children.contains { $0.label == "Text font size" && $0.role == .textField })
+    for alignment in ["Align Left", "Align Center", "Align Right", "Align Top", "Align Middle", "Align Bottom"] {
+        #expect(inspector.children.contains { $0.label == alignment && $0.role == .button })
+    }
 }
 
 @Test func inspectorNumericNoChangeRoundTripsThroughCommandsAndElidesIdentity() throws {

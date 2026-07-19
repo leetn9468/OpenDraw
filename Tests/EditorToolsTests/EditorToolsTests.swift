@@ -199,6 +199,46 @@ import Testing
             == Point(x: 1, y: 7))
 }
 
+@Test func u3bModifierScaleRotateAndMarqueeThresholdPolicies() throws {
+    let bounds = Rect(minX: 10, minY: 20, maxX: 110, maxY: 70)
+    let uniform = try #require(
+        TransformInteractions.scale(
+            bounds: bounds, handle: .bottomRight,
+            displacement: Point(x: 50, y: 50), uniform: true, fromCenter: false))
+    #expect(uniform == Point(x: 1.5, y: 1.5))
+
+    let centered = try #require(
+        TransformInteractions.scale(
+            bounds: bounds, handle: .right,
+            displacement: Point(x: 25, y: 0), uniform: false, fromCenter: true))
+    #expect(centered == Point(x: 1.5, y: 1))
+    let centerPivot = bounds.center
+    let transform = AffineTransform(
+        a: centered.x, d: centered.y,
+        tx: centerPivot.x * (1 - centered.x), ty: centerPivot.y * (1 - centered.y))
+    #expect(transform.applying(to: centerPivot) == centerPivot)
+
+    #expect(!TransformInteractions.shouldSnapRotation(globalSnapEnabled: false, shiftHeld: false))
+    #expect(TransformInteractions.shouldSnapRotation(globalSnapEnabled: true, shiftHeld: false))
+    #expect(TransformInteractions.shouldSnapRotation(globalSnapEnabled: false, shiftHeld: true))
+    #expect(TransformInteractions.shouldSnapRotation(globalSnapEnabled: true, shiftHeld: true))
+    #expect(TransformInteractions.snappedRotation(radians: .pi / 8, constrain: true) == .pi / 6)
+
+    let start = Point(x: 10, y: 10)
+    #expect(
+        !MarqueeInteraction.hasCrossedThreshold(
+            start: start, current: Point(x: 12.999, y: 10), zoom: 1,
+            thresholdInScreenPoints: 3))
+    #expect(
+        MarqueeInteraction.hasCrossedThreshold(
+            start: start, current: Point(x: 13, y: 10), zoom: 1,
+            thresholdInScreenPoints: 3))
+    #expect(
+        MarqueeInteraction.hasCrossedThreshold(
+            start: start, current: Point(x: 11.5, y: 10), zoom: 2,
+            thresholdInScreenPoints: 3))
+}
+
 @Test func testVerify018ScreenSpaceSnappingTolerance() {
     let policy = SnapPolicy(toleranceInScreenPoints: 6)
     #expect(policy.shouldSnap(distance: 3, zoom: 2))

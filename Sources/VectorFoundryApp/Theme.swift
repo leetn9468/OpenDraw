@@ -17,8 +17,11 @@ import EditorCore
         static let accent = NSColor.controlAccentColor
         static let handleFill = NSColor.white
         static let handleStroke = NSColor.controlAccentColor
+        static let anchorSelectedFill = NSColor.controlAccentColor
+        static let anchorSelectedStroke = NSColor.white
         static let directionStem = NSColor.controlAccentColor.withAlphaComponent(0.6)
         static let guideSnap = NSColor.systemRed
+        static let badgeReadoutText = NSColor.white
 
         static let artboardShadow = adaptive(
             dark: literal(0x000000, alpha: 0.55),
@@ -92,6 +95,9 @@ import EditorCore
         static var numeric: NSFont { NSFont.monospacedSystemFont(ofSize: 11.5, weight: .regular) }
         static var badge: NSFont { NSFont.monospacedSystemFont(ofSize: 10.5, weight: .medium) }
         static var zoom: NSFont { NSFont.monospacedSystemFont(ofSize: 11, weight: .regular) }
+        static func inlineText(name: String, size: CGFloat) -> NSFont {
+            NSFont(name: name, size: size) ?? NSFont.systemFont(ofSize: size)
+        }
     }
 
     enum Metric {
@@ -119,11 +125,40 @@ import EditorCore
         static let artboardInset: CGFloat = 24
         static let gradientPopoverWidth: CGFloat = 260
         static let gradientPopoverHeight: CGFloat = 190
+        static let selectionBoundsLineWidth: CGFloat = 1
+        static let selectionHandleSize: CGFloat = 8
+        static let selectionHandleStrokeWidth: CGFloat = 1.5
+        static let rotationRingSize: CGFloat = 10
+        static let rotationStemOffset: CGFloat = 20
+        static let anchorSize: CGFloat = 7
+        static let directionDotSize: CGFloat = 5
+        static let directionStemWidth: CGFloat = 1
+        static let marqueeLineWidth: CGFloat = 1
+        static let marqueeDragThreshold: CGFloat = 3
+        static let snapGuideLineWidth: CGFloat = 1
+        static let snapGuideCrossSpan: CGFloat = 16
+        static let badgeCornerRadius: CGFloat = 4
+        static let badgePointerOffset: CGFloat = 12
+        static let badgeHorizontalInset: CGFloat = 6
+        static let badgeVerticalInset: CGFloat = 3
+        static let inlineTextOutlineWidth: CGFloat = 1
+        static let inlineTextMinimumWidth: CGFloat = 120
+        static let inlineTextMinimumHeight: CGFloat = 28
+        static let inlineTextFontSize: CGFloat = 24
+        static let penPreviewLineWidth: CGFloat = 1
+    }
+
+    enum HitTarget {
+        // These are the shipped interaction radii. U3-B changes drawing only.
+        static let anchorRadius: Double = 6
+        static let transformHandleRadius: Double = 7
+        static let rotationRadius: Double = 8
     }
 
     enum DefaultValue {
         static let gradientStart = "0,0"
         static let gradientEnd = "100,0"
         static let gradientStops = "0:#000000, 1:#FFFFFF"
+        static let textFontName = "Helvetica"
     }
 }

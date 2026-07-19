@@ -32,9 +32,25 @@ import Testing
             newValue: slice.translated(dx: 1, dy: 1)))
     var pen = SmoothPenToolState()
     pen.addSmooth(Point(x: 300, y: 40), outgoing: Point(x: 310, y: 50))
-    pen.addCorner(Point(x: 350, y: 80))
+    pen.addSmooth(Point(x: 350, y: 80), outgoing: Point(x: 360, y: 90))
+    pen.addCorner(Point(x: 390, y: 60))
     #expect(pen.preview(to: Point(x: 360, y: 90)) != nil)
-    #expect(pen.finish(close: false) != nil)
+    let finishedSmoothPath = pen.finish(close: false)
+    let smoothPath = try #require(finishedSmoothPath)
+    try history.commit(
+        StructuralCommands.createShape(
+            smoothPath, in: history.document, parent: .layer(artworkLayer), at: 2))
+    let smoothLocation = PathAnchorLocation(pathID: smoothPath.id, anchorIndex: 1)
+    let smoothSlice = try AnchorGeometryCommands.slice(in: history.document, at: smoothLocation)
+    #expect(AnchorGeometryCommands.isSmooth(smoothSlice))
+    let cornerSlice = try AnchorGeometryCommands.handleDragSlice(
+        from: smoothSlice, side: .outgoing, to: Point(x: 370, y: 100), breakSmooth: true)
+    try history.commit(
+        AnchorGeometryCommands.setSlice(
+            in: history.document, at: smoothLocation, newValue: cornerSlice))
+    #expect(!AnchorGeometryCommands.isSmooth(try AnchorGeometryCommands.slice(in: history.document, at: smoothLocation)))
+    try history.undo()
+    #expect(try AnchorGeometryCommands.slice(in: history.document, at: smoothLocation) == smoothSlice)
     #expect(SnapPolicy(gridSpacing: 10).snap(Point(x: 309, y: 41), zoom: 1) == Point(x: 310, y: 40))
     try history.commit(
         CompositeSceneCommands.group(
@@ -80,6 +96,10 @@ import Testing
             in: history.document, nodeIDs: [path.id, second.id],
             axis: .left))
     try history.commit(
+        CompositeSceneCommands.align(
+            in: history.document, nodeIDs: [path.id, second.id],
+            axis: .bottom))
+    try history.commit(
         CompositeSceneCommands.documentTransform(
             in: history.document, nodeIDs: [path.id],
             transform: TransformInteractions.rotation(
@@ -89,6 +109,11 @@ import Testing
             bounds: Rect(minX: 0, minY: 0, maxX: 100, maxY: 100), handle: .bottomRight,
             displacement: Point(x: 20, y: 20), uniform: true, fromCenter: false))
     #expect(scaled.x == scaled.y)
+    let centeredScale = try #require(
+        TransformInteractions.scale(
+            bounds: Rect(minX: 0, minY: 0, maxX: 100, maxY: 100), handle: .right,
+            displacement: Point(x: 25, y: 0), uniform: false, fromCenter: true))
+    #expect(centeredScale == Point(x: 1.5, y: 1))
     #expect(
         TransformInteractions.zoomAbout(
             screenPoint: Point(x: 100, y: 80), oldZoom: 1, newZoom: 2, oldPan: Point(x: 10, y: 20))
@@ -110,6 +135,15 @@ import Testing
             in: history.document, at: 1))
     #expect(history.document.layers.count == 2)
     #expect(history.document.layers[1].nodes.count == 2)
+    let depthBeforeEmptyText = history.undoDepth
+    #expect(
+        try InPlaceTextEditing.createCommand(
+            text: TextObject(text: "", origin: Point(x: 100, y: 200)),
+            in: history.document, parent: .layer(history.document.layers[1].id), at: 2) == nil)
+    #expect(history.undoDepth == depthBeforeEmptyText)
+    try history.commit(
+        InPlaceTextEditing.editCommand(
+            nodeID: text.id, text: "OpenDraw edited in place", in: history.document))
     for index in 0..<35 {
         try history.commit(
             ValueSwapCommands.textContent(

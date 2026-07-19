@@ -30,8 +30,11 @@ public enum EditorShellAccessibility {
                 role: .group, label: "Inspector",
                 children: [
                     "Geometry X", "Geometry Y", "Geometry W", "Geometry H", "Geometry ∠", "Stroke width",
-                    "Dash pattern", "Opacity",
+                    "Dash pattern", "Opacity", "Text content", "Text font name", "Text font size",
                 ]
-                .map { ShellAccessibilityNode(role: .textField, label: $0) }),
+                .map { ShellAccessibilityNode(role: .textField, label: $0) }
+                    + [
+                        "Align Left", "Align Center", "Align Right", "Align Top", "Align Middle", "Align Bottom",
+                    ].map { ShellAccessibilityNode(role: .button, label: $0) }),
         ])
 }

@@ -31,7 +31,7 @@ private func registerEmbeddedAssets(
 }
 
 @MainActor
-final class CanvasView: NSView {
+final class CanvasView: NSView, NSTextFieldDelegate {
     private struct AnchorRef: Hashable {
         var pathID: ObjectID
         var subpath: Int
@@ -47,6 +47,10 @@ final class CanvasView: NSView {
         case scale(TransformHandle)
         case rotate
     }
+    private enum TextEditTarget {
+        case new(Point)
+        case existing(ObjectID)
+    }
     var history: DeltaCommandHistory
     private let assetStore: ApprovedAssetStore
     var activeTool: ActiveTool = .pen {
@@ -57,6 +61,9 @@ final class CanvasView: NSView {
     private var penPreviewPoint: Point?
     private var dragStart: Point?
     private var dragLast: Point?
+    private var marqueeOrigin: Point?
+    private var marqueeCurrent: Point?
+    private var marqueeBaseSelection: Set<ObjectID> = []
     private var selectedIDs: Set<ObjectID> = [] {
         didSet {
             guard selectedIDs != oldValue else { return }
@@ -75,6 +82,11 @@ final class CanvasView: NSView {
     private var snappingEnabled = true
     private var snapIndicator: Point?
     private var transformGesture: TransformGesture?
+    private var rotationReadout: (pointer: NSPoint, degrees: Double)?
+    private var rotationDeltaRadians = 0.0
+    private var inlineTextField: NSTextField?
+    private var textEditTarget: TextEditTarget?
+    private var isCommittingInlineText = false
     private let renderer = TileCompositeRenderer()
     private var isZoomGestureActive = false
     private var zoomSettleTask: Task<Void, Never>?
@@ -124,62 +136,30 @@ final class CanvasView: NSView {
         context.setFillColor(Theme.Color.artboard.cgColor)
         context.fill(CGRect(x: 0, y: 0, width: history.document.width, height: history.document.height))
         renderDocument(in: context, dirtyRect: dirtyRect)
-        if activeTool == .directSelection {
-            context.setFillColor(Theme.Color.accent.cgColor)
-            for id in selectedIDs {
-                guard let path = history.document.path(id: id) else { continue }
-                for subpath in path.path.subpaths {
-                    for segment in subpath.segments {
-                        if let anchor = history.document.documentPoint(pathID: id, localPoint: segment.start) {
-                            context.fillEllipse(
-                                in: CGRect(
-                                    x: anchor.x - 3 / zoom, y: anchor.y - 3 / zoom,
-                                    width: 6 / zoom, height: 6 / zoom))
-                        }
-                        if let anchor = history.document.documentPoint(pathID: id, localPoint: segment.start),
-                            let c1 = history.document.documentPoint(pathID: id, localPoint: segment.control1),
-                            let c2 = history.document.documentPoint(pathID: id, localPoint: segment.control2)
-                        {
-                            context.setStrokeColor(Theme.Color.directionStem.cgColor)
-                            context.move(to: CGPoint(x: anchor.x, y: anchor.y))
-                            context.addLine(to: CGPoint(x: c1.x, y: c1.y))
-                            context.addLine(to: CGPoint(x: c2.x, y: c2.y))
-                            context.strokePath()
-                            context.fillEllipse(
-                                in: CGRect(x: c1.x - 2 / zoom, y: c1.y - 2 / zoom, width: 4 / zoom, height: 4 / zoom))
-                            context.fillEllipse(
-                                in: CGRect(x: c2.x - 2 / zoom, y: c2.y - 2 / zoom, width: 4 / zoom, height: 4 / zoom))
-                        }
-                    }
-                }
-            }
-        }
+        if activeTool == .directSelection { drawDirectSelectionChrome(in: context) }
         if activeTool == .selection, let bounds = selectionBounds() {
-            context.setStrokeColor(Theme.Color.accent.cgColor)
-            context.setLineWidth(1 / zoom)
-            context.stroke(CGRect(x: bounds.minX, y: bounds.minY, width: bounds.width, height: bounds.height))
-            context.setFillColor(Theme.Color.accent.cgColor)
-            for (_, point) in handlePoints(bounds) {
-                context.fill(CGRect(x: point.x - 3 / zoom, y: point.y - 3 / zoom, width: 6 / zoom, height: 6 / zoom))
-            }
-            let rotation = Point(x: bounds.center.x, y: bounds.minY - 20 / zoom)
-            context.strokeEllipse(
-                in: CGRect(
-                    x: rotation.x - 4 / zoom, y: rotation.y - 4 / zoom,
-                    width: 8 / zoom, height: 8 / zoom))
+            drawSelectionChrome(bounds: bounds, in: context)
+        }
+        if let marqueeOrigin, let marqueeCurrent {
+            drawMarquee(from: marqueeOrigin, to: marqueeCurrent, in: context)
         }
         if let snapIndicator {
             context.setStrokeColor(Theme.Color.guideSnap.cgColor)
-            context.setLineWidth(1 / zoom)
-            context.move(to: CGPoint(x: snapIndicator.x - 8 / zoom, y: snapIndicator.y))
-            context.addLine(to: CGPoint(x: snapIndicator.x + 8 / zoom, y: snapIndicator.y))
-            context.move(to: CGPoint(x: snapIndicator.x, y: snapIndicator.y - 8 / zoom))
-            context.addLine(to: CGPoint(x: snapIndicator.x, y: snapIndicator.y + 8 / zoom))
+            context.setLineWidth(Theme.Metric.snapGuideLineWidth / zoom)
+            context.move(to: CGPoint(x: 0, y: snapIndicator.y))
+            context.addLine(to: CGPoint(x: history.document.width, y: snapIndicator.y))
+            context.move(to: CGPoint(x: snapIndicator.x, y: 0))
+            context.addLine(to: CGPoint(x: snapIndicator.x, y: history.document.height))
+            let crossRadius = Theme.Metric.snapGuideCrossSpan / 2 / zoom
+            context.move(to: CGPoint(x: snapIndicator.x - crossRadius, y: snapIndicator.y))
+            context.addLine(to: CGPoint(x: snapIndicator.x + crossRadius, y: snapIndicator.y))
+            context.move(to: CGPoint(x: snapIndicator.x, y: snapIndicator.y - crossRadius))
+            context.addLine(to: CGPoint(x: snapIndicator.x, y: snapIndicator.y + crossRadius))
             context.strokePath()
         }
         if activeTool == .pen, let previewPoint = penPreviewPoint, let preview = pen.preview(to: previewPoint) {
             context.setStrokeColor(Theme.Color.accent.cgColor)
-            context.setLineWidth(1 / zoom)
+            context.setLineWidth(Theme.Metric.penPreviewLineWidth / zoom)
             context.move(to: CGPoint(x: preview.start.x, y: preview.start.y))
             context.addCurve(
                 to: CGPoint(x: preview.end.x, y: preview.end.y),
@@ -188,9 +168,131 @@ final class CanvasView: NSView {
             context.strokePath()
         }
         context.restoreGState()
+        drawRotationReadout()
+    }
+
+    private func drawDirectSelectionChrome(in context: CGContext) {
+        let anchorSize = Theme.Metric.anchorSize / zoom
+        let directionSize = Theme.Metric.directionDotSize / zoom
+        context.setLineWidth(Theme.Metric.directionStemWidth / zoom)
+        for id in selectedIDs {
+            guard let path = history.document.path(id: id) else { continue }
+            for (subpathIndex, subpath) in path.path.subpaths.enumerated() {
+                for (segmentIndex, segment) in subpath.segments.enumerated() {
+                    let reference = AnchorRef(pathID: id, subpath: subpathIndex, segment: segmentIndex)
+                    let location = PathAnchorLocation(
+                        pathID: id, subpathIndex: subpathIndex, anchorIndex: segmentIndex)
+                    guard let anchor = history.document.documentPoint(pathID: id, localPoint: segment.start),
+                        let slice = try? AnchorGeometryCommands.slice(in: history.document, at: location)
+                    else { continue }
+                    let selected = selectedAnchors.contains(reference)
+                    context.setFillColor(
+                        (selected ? Theme.Color.anchorSelectedFill : Theme.Color.handleFill).cgColor)
+                    context.setStrokeColor(
+                        (selected ? Theme.Color.anchorSelectedStroke : Theme.Color.handleStroke).cgColor)
+                    let anchorRect = CGRect(
+                        x: anchor.x - anchorSize / 2, y: anchor.y - anchorSize / 2,
+                        width: anchorSize, height: anchorSize)
+                    if AnchorGeometryCommands.isSmooth(slice) {
+                        context.fillEllipse(in: anchorRect)
+                        context.strokeEllipse(in: anchorRect)
+                    } else {
+                        context.fill(anchorRect)
+                        context.stroke(anchorRect)
+                    }
+                    guard
+                        let control1 = history.document.documentPoint(pathID: id, localPoint: segment.control1),
+                        let control2 = history.document.documentPoint(pathID: id, localPoint: segment.control2)
+                    else { continue }
+                    context.setStrokeColor(Theme.Color.directionStem.cgColor)
+                    context.move(to: CGPoint(x: anchor.x, y: anchor.y))
+                    context.addLine(to: CGPoint(x: control1.x, y: control1.y))
+                    context.addLine(to: CGPoint(x: control2.x, y: control2.y))
+                    context.strokePath()
+                    context.setFillColor(Theme.Color.handleFill.cgColor)
+                    context.setStrokeColor(Theme.Color.handleStroke.cgColor)
+                    for control in [control1, control2] {
+                        let rect = CGRect(
+                            x: control.x - directionSize / 2, y: control.y - directionSize / 2,
+                            width: directionSize, height: directionSize)
+                        context.fillEllipse(in: rect)
+                        context.strokeEllipse(in: rect)
+                    }
+                }
+            }
+        }
+    }
+
+    private func drawSelectionChrome(bounds: Rect, in context: CGContext) {
+        context.setStrokeColor(Theme.Color.accent.cgColor)
+        context.setLineWidth(Theme.Metric.selectionBoundsLineWidth / zoom)
+        context.stroke(CGRect(x: bounds.minX, y: bounds.minY, width: bounds.width, height: bounds.height))
+        let handleSize = Theme.Metric.selectionHandleSize / zoom
+        context.setFillColor(Theme.Color.handleFill.cgColor)
+        context.setStrokeColor(Theme.Color.handleStroke.cgColor)
+        context.setLineWidth(Theme.Metric.selectionHandleStrokeWidth / zoom)
+        for (_, point) in handlePoints(bounds) {
+            let rect = CGRect(
+                x: point.x - handleSize / 2, y: point.y - handleSize / 2,
+                width: handleSize, height: handleSize)
+            context.fill(rect)
+            context.stroke(rect)
+        }
+        let rotation = Point(x: bounds.center.x, y: bounds.minY - Theme.Metric.rotationStemOffset / zoom)
+        let ringSize = Theme.Metric.rotationRingSize / zoom
+        context.setLineWidth(Theme.Metric.selectionBoundsLineWidth / zoom)
+        context.move(to: CGPoint(x: bounds.center.x, y: bounds.minY))
+        context.addLine(to: CGPoint(x: rotation.x, y: rotation.y + ringSize / 2))
+        context.strokePath()
+        let ring = CGRect(
+            x: rotation.x - ringSize / 2, y: rotation.y - ringSize / 2,
+            width: ringSize, height: ringSize)
+        context.fillEllipse(in: ring)
+        context.strokeEllipse(in: ring)
+    }
+
+    private func drawMarquee(from start: Point, to end: Point, in context: CGContext) {
+        let rect = CGRect(
+            x: min(start.x, end.x), y: min(start.y, end.y),
+            width: abs(end.x - start.x), height: abs(end.y - start.y))
+        context.setFillColor(Theme.Color.marqueeFill.cgColor)
+        context.fill(rect)
+        context.setStrokeColor(Theme.Color.accent.cgColor)
+        context.setLineWidth(Theme.Metric.marqueeLineWidth / zoom)
+        context.stroke(rect)
+    }
+
+    private func drawRotationReadout() {
+        guard let rotationReadout else { return }
+        let roundedDegrees = String(format: "%.1f", rotationReadout.degrees)
+            .replacingOccurrences(of: ".0", with: "")
+        let text = "Δ \(roundedDegrees)°" as NSString
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: Theme.Font.badge,
+            .foregroundColor: Theme.Color.badgeReadoutText,
+        ]
+        let textSize = text.size(withAttributes: attributes)
+        let origin = NSPoint(
+            x: rotationReadout.pointer.x + Theme.Metric.badgePointerOffset,
+            y: rotationReadout.pointer.y + Theme.Metric.badgePointerOffset)
+        let badge = NSRect(
+            x: origin.x, y: origin.y,
+            width: textSize.width + 2 * Theme.Metric.badgeHorizontalInset,
+            height: textSize.height + 2 * Theme.Metric.badgeVerticalInset)
+        Theme.Color.badgeReadoutBackground.setFill()
+        NSBezierPath(
+            roundedRect: badge,
+            xRadius: Theme.Metric.badgeCornerRadius,
+            yRadius: Theme.Metric.badgeCornerRadius).fill()
+        text.draw(
+            at: NSPoint(
+                x: badge.minX + Theme.Metric.badgeHorizontalInset,
+                y: badge.minY + Theme.Metric.badgeVerticalInset),
+            withAttributes: attributes)
     }
 
     override func mouseDown(with event: NSEvent) {
+        if inlineTextField != nil { commitInlineTextEditing() }
         let location = convert(event.locationInWindow, from: nil)
         if spaceDown {
             panDragLocation = location
@@ -198,29 +300,50 @@ final class CanvasView: NSView {
         }
         let point = documentPoint(location)
         if activeTool == .selection, let bounds = selectionBounds() {
-            if let handle = handlePoints(bounds).first(where: { $0.1.distance(to: point) <= 7 / zoom })?.0 {
+            if let handle = handlePoints(bounds).first(where: {
+                $0.1.distance(to: point) <= Theme.HitTarget.transformHandleRadius / zoom
+            })?.0 {
                 transformGesture = .scale(handle)
                 dragLast = point
                 dragHasMutation = false
                 dragGestureID = nil
                 return
             }
-            let rotation = Point(x: bounds.center.x, y: bounds.minY - 20 / zoom)
-            if rotation.distance(to: point) <= 8 / zoom {
+            let rotation = Point(
+                x: bounds.center.x,
+                y: bounds.minY - Double(Theme.Metric.rotationStemOffset) / zoom)
+            if rotation.distance(to: point) <= Theme.HitTarget.rotationRadius / zoom {
                 transformGesture = .rotate
                 dragLast = point
                 dragHasMutation = false
                 dragGestureID = nil
+                rotationDeltaRadians = 0
                 return
             }
         }
         if activeTool == .text {
-            createText(at: point)
+            let hit = SelectionTool().hitTest(history.document, pointer: point, zoom: zoom)
+            if let hit, case .text? = try? StructuralCommands.slot(for: hit, in: history.document).node {
+                beginInlineTextEditing(existing: hit)
+            } else {
+                beginInlineTextEditing(newAt: point)
+            }
         } else if activeTool == .pen {
             penMouseDown = point
             penPreviewPoint = point
         } else if activeTool == .selection || activeTool == .directSelection {
             let hit = SelectionTool().hitTest(history.document, pointer: point, zoom: zoom)
+            selectedControl = nil
+            selectedAnchors.removeAll()
+            if activeTool == .selection, hit == nil {
+                marqueeOrigin = point
+                marqueeCurrent = nil
+                marqueeBaseSelection = event.modifierFlags.contains(.shift) ? selectedIDs : []
+                selectedIDs = marqueeBaseSelection
+                dragLast = nil
+                needsDisplay = true
+                return
+            }
             if event.modifierFlags.contains(.shift), let hit {
                 selectedIDs.insert(hit)
             } else {
@@ -234,7 +357,9 @@ final class CanvasView: NSView {
                         for (controlIndex, local) in [(1, segment.control1), (2, segment.control2)] {
                             if let position = history.document.documentPoint(pathID: hit, localPoint: local) {
                                 let distance = position.distance(to: point)
-                                if distance <= 6 / zoom, distance < nearestControl?.1 ?? .infinity {
+                                if distance <= Theme.HitTarget.anchorRadius / zoom,
+                                    distance < nearestControl?.1 ?? .infinity
+                                {
                                     nearestControl = (
                                         ControlRef(
                                             pathID: hit, subpath: subpathIndex, segment: segmentIndex,
@@ -247,7 +372,9 @@ final class CanvasView: NSView {
                             let documentAnchor = history.document.documentPoint(pathID: hit, localPoint: segment.start)
                         else { continue }
                         let distance = documentAnchor.distance(to: point)
-                        if distance <= 6 / zoom, distance < nearest?.1 ?? .infinity {
+                        if distance <= Theme.HitTarget.anchorRadius / zoom,
+                            distance < nearest?.1 ?? .infinity
+                        {
                             nearest = (AnchorRef(pathID: hit, subpath: subpathIndex, segment: segmentIndex), distance)
                         }
                     }
@@ -285,9 +412,19 @@ final class CanvasView: NSView {
             needsDisplay = true
             return
         }
-        guard !selectedIDs.isEmpty, let prior = dragLast else { return }
         let location = convert(event.locationInWindow, from: nil)
         let rawNext = documentPoint(location)
+        if let marqueeOrigin {
+            if MarqueeInteraction.hasCrossedThreshold(
+                start: marqueeOrigin, current: rawNext, zoom: zoom,
+                thresholdInScreenPoints: Double(Theme.Metric.marqueeDragThreshold))
+            {
+                marqueeCurrent = rawNext
+                needsDisplay = true
+            }
+            return
+        }
+        guard !selectedIDs.isEmpty, let prior = dragLast else { return }
         let next = snappingEnabled ? snappedPoint(rawNext) : rawNext
         snapIndicator = next == rawNext ? nil : next
         let dx = next.x - prior.x
@@ -311,7 +448,16 @@ final class CanvasView: NSView {
                 documentTransform = TransformInteractions.rotation(
                     about: pivot,
                     radians: TransformInteractions.snappedRotation(
-                        radians: delta, constrain: event.modifierFlags.contains(.shift)))
+                        radians: delta,
+                        constrain: TransformInteractions.shouldSnapRotation(
+                            globalSnapEnabled: snappingEnabled,
+                            shiftHeld: event.modifierFlags.contains(.shift))))
+                if let documentTransform {
+                    rotationDeltaRadians += atan2(documentTransform.b, documentTransform.a)
+                    rotationReadout = (
+                        pointer: location,
+                        degrees: rotationDeltaRadians * 180 / .pi)
+                }
             }
             if let documentTransform {
                 do {
@@ -343,9 +489,17 @@ final class CanvasView: NSView {
                         segment: control.segment, control: control.control,
                         documentDelta: Point(x: dx, y: dy))
                 else { throw AnchorGeometryCommandError.handleNotFound }
+                let current = try AnchorGeometryCommands.slice(in: history.document, at: location)
+                let moved = try AnchorGeometryCommands.slice(in: planned, at: location)
+                let side: PathHandleSide = control.control == 1 ? .outgoing : .incoming
+                guard let movedPoint = side == .outgoing ? moved.outgoing : moved.incoming else {
+                    throw AnchorGeometryCommandError.handleNotFound
+                }
                 try history.updateAnchorGesture(
                     dragGestureID!,
-                    newValue: AnchorGeometryCommands.slice(in: planned, at: location))
+                    newValue: AnchorGeometryCommands.handleDragSlice(
+                        from: current, side: side, to: movedPoint,
+                        breakSmooth: event.modifierFlags.contains(.option)))
                 dragHasMutation = true
             } catch {
                 cancelActiveDragGesture()
@@ -410,6 +564,19 @@ final class CanvasView: NSView {
             panDragLocation = nil
             return
         }
+        if let marqueeOrigin {
+            if let marqueeCurrent {
+                selectedIDs = marqueeBaseSelection.union(
+                    marqueeSelection(in: Rect(
+                        minX: marqueeOrigin.x, minY: marqueeOrigin.y,
+                        maxX: marqueeCurrent.x, maxY: marqueeCurrent.y)))
+            }
+            self.marqueeOrigin = nil
+            marqueeCurrent = nil
+            marqueeBaseSelection.removeAll()
+            needsDisplay = true
+            return
+        }
         if activeTool == .selection || activeTool == .directSelection {
             if dragHasMutation, let dragGestureID {
                 do { try history.endGesture(dragGestureID) } catch {
@@ -422,6 +589,8 @@ final class CanvasView: NSView {
             dragHasMutation = false
             dragGestureID = nil
             snapIndicator = nil
+            rotationReadout = nil
+            rotationDeltaRadians = 0
             return
         }
         if activeTool == .pen, let start = penMouseDown {
@@ -474,6 +643,8 @@ final class CanvasView: NSView {
             transformGesture = nil
             dragLast = nil
             snapIndicator = nil
+            rotationReadout = nil
+            rotationDeltaRadians = 0
             needsDisplay = true
             return
         }
@@ -619,6 +790,8 @@ final class CanvasView: NSView {
         }
         dragGestureID = nil
         dragHasMutation = false
+        rotationReadout = nil
+        rotationDeltaRadians = 0
     }
     private func setZoom(_ requested: Double, about viewPoint: NSPoint) {
         let next = TransformInteractions.clampedZoom(requested)
@@ -663,6 +836,24 @@ final class CanvasView: NSView {
     private func selectionBounds() -> Rect? {
         selectedIDs.compactMap { history.document.visualBounds(for: $0) }
             .reduce(nil) { partial, next in partial.map { $0.union(next) } ?? next }
+    }
+    private func marqueeSelection(in marquee: Rect) -> Set<ObjectID> {
+        var result: Set<ObjectID> = []
+        func collect(_ nodes: [SceneNode]) {
+            for node in nodes {
+                if case .group(let group) = node {
+                    collect(group.children)
+                } else if let bounds = history.document.visualBounds(for: node.id),
+                    bounds.intersection(marquee) != nil
+                {
+                    result.insert(node.id)
+                }
+            }
+        }
+        for layer in history.document.layers where layer.isVisible && !layer.isLocked {
+            collect(layer.nodes)
+        }
+        return result
     }
     private func handlePoints(_ bounds: Rect) -> [(TransformHandle, Point)] {
         [
@@ -711,33 +902,113 @@ final class CanvasView: NSView {
         } catch { presentCommandError(error, command: "Create object") }
         needsDisplay = true
     }
-    private func createText(at point: Point) {
-        let alert = NSAlert()
-        alert.messageText = "Create Text"
-        alert.addButton(withTitle: "Create")
-        alert.addButton(withTitle: "Cancel")
-        let content = NSTextField(string: "Text")
-        let font = NSTextField(string: "Helvetica")
-        let size = NSTextField(string: "24")
-        let stack = NSStackView(views: [
-            NSTextField(labelWithString: "Content"), content,
-            NSTextField(labelWithString: "Font"), font, NSTextField(labelWithString: "Size"), size,
-        ])
-        stack.orientation = .vertical
-        stack.spacing = 5
-        stack.frame = NSRect(x: 0, y: 0, width: 260, height: 150)
-        alert.accessoryView = stack
-        guard alert.runModal() == .alertFirstButtonReturn, let fontSize = Double(size.stringValue), fontSize > 0 else {
+    private func beginInlineTextEditing(newAt point: Point) {
+        beginInlineTextEditing(
+            target: .new(point), text: "", fontName: Theme.DefaultValue.textFontName,
+            fontSize: Double(Theme.Metric.inlineTextFontSize), documentBounds: nil)
+    }
+    private func beginInlineTextEditing(existing nodeID: ObjectID) {
+        guard case .text(let text)? = try? StructuralCommands.slot(for: nodeID, in: history.document).node else {
             return
         }
-        let text = TextObject(text: content.stringValue, origin: point, fontName: font.stringValue, fontSize: fontSize)
+        selectedIDs = [nodeID]
+        beginInlineTextEditing(
+            target: .existing(nodeID), text: text.text, fontName: text.fontName,
+            fontSize: text.fontSize, documentBounds: history.document.visualBounds(for: nodeID))
+    }
+    private func beginInlineTextEditing(
+        target: TextEditTarget, text: String, fontName: String, fontSize: Double,
+        documentBounds: Rect?
+    ) {
+        commitInlineTextEditing()
+        let field = NSTextField(string: text)
+        field.placeholderString = "Type"
+        field.isBezeled = false
+        field.drawsBackground = false
+        field.focusRingType = .none
+        field.isEditable = true
+        field.isSelectable = true
+        field.font = Theme.Font.inlineText(name: fontName, size: fontSize * zoom)
+        field.textColor = Theme.Color.textPrimary
+        field.delegate = self
+        field.setAccessibilityLabel("In-place text editor")
+        field.wantsLayer = true
+        field.layer?.borderColor = Theme.Color.accent.cgColor
+        field.layer?.borderWidth = Theme.Metric.inlineTextOutlineWidth
+        let origin: Point
+        switch target {
+        case .new(let point): origin = point
+        case .existing:
+            origin = Point(
+                x: documentBounds?.minX ?? 0,
+                y: documentBounds?.minY ?? 0)
+        }
+        let width = max(
+            Theme.Metric.inlineTextMinimumWidth,
+            CGFloat(documentBounds?.width ?? 0) * zoom + 2 * Theme.Metric.badgeHorizontalInset)
+        let height = max(
+            Theme.Metric.inlineTextMinimumHeight,
+            CGFloat(documentBounds?.height ?? fontSize) * zoom)
+        field.frame = NSRect(
+            x: Theme.Metric.artboardInset + pan.x + origin.x * zoom,
+            y: Theme.Metric.artboardInset + pan.y + origin.y * zoom,
+            width: width, height: height)
+        textEditTarget = target
+        inlineTextField = field
+        addSubview(field)
+        window?.makeFirstResponder(field)
+        field.currentEditor()?.selectedRange = NSRange(location: 0, length: field.stringValue.utf16.count)
+    }
+    private func commitInlineTextEditing() {
+        guard !isCommittingInlineText, let field = inlineTextField, let target = textEditTarget else { return }
+        isCommittingInlineText = true
+        let value = field.stringValue
+        field.delegate = nil
+        inlineTextField = nil
+        textEditTarget = nil
+        field.removeFromSuperview()
+        defer { isCommittingInlineText = false }
         do {
-            let layer = history.document.layers[activeLayerIndex]
-            try history.commit(
-                StructuralCommands.createText(
-                    text, in: history.document, parent: .layer(layer.id),
-                    at: layer.nodes.count, assetStore: assetStore))
-        } catch { presentCommandError(error, command: "Create text") }
+            switch target {
+            case .new(let point):
+                let layer = history.document.layers[activeLayerIndex]
+                let text = TextObject(
+                    text: value, origin: point,
+                    fontName: Theme.DefaultValue.textFontName,
+                    fontSize: Double(Theme.Metric.inlineTextFontSize))
+                if let command = try InPlaceTextEditing.createCommand(
+                    text: text, in: history.document, parent: .layer(layer.id),
+                    at: layer.nodes.count, assetStore: assetStore)
+                {
+                    try history.commit(command)
+                    selectedIDs = [text.id]
+                }
+            case .existing(let nodeID):
+                try history.commit(
+                    InPlaceTextEditing.editCommand(
+                        nodeID: nodeID, text: value, in: history.document))
+                selectedIDs = [nodeID]
+            }
+        } catch { presentCommandError(error, command: "Edit text") }
+        needsDisplay = true
+    }
+    func control(
+        _ control: NSControl, textView: NSTextView,
+        doCommandBy commandSelector: Selector
+    ) -> Bool {
+        guard control === inlineTextField else { return false }
+        if commandSelector == #selector(NSResponder.cancelOperation(_:))
+            || commandSelector == #selector(NSResponder.insertNewline(_:))
+        {
+            commitInlineTextEditing()
+            window?.makeFirstResponder(self)
+            return true
+        }
+        return false
+    }
+    func controlTextDidEndEditing(_ notification: Notification) {
+        guard notification.object as? NSTextField === inlineTextField else { return }
+        commitInlineTextEditing()
     }
     func placeEmbeddedImage(data: Data) throws {
         let image = try RasterResourceLoader().embedded(
@@ -1051,6 +1322,10 @@ final class CanvasView: NSView {
         guard selectedIDs.count == 1, let id = selectedIDs.first else { return nil }
         return history.document.path(id: id)?.style
     }
+    var selectedTextObject: TextObject? {
+        guard case .text(let text)? = selectedSceneNode else { return nil }
+        return text
+    }
     var selectedSceneNode: SceneNode? {
         guard selectedIDs.count == 1, let id = selectedIDs.first else { return nil }
         return try? StructuralCommands.slot(for: id, in: history.document).node
@@ -1111,6 +1386,32 @@ final class CanvasView: NSView {
                     in: history.document, nodeID: id, newValue: style))
         } catch { presentCommandError(error, command: "Edit style") }
     }
+    func commitSelectedTextContent(_ value: String) {
+        guard let id = selectedIDs.first, selectedTextObject != nil else { return }
+        do {
+            try history.commit(
+                InPlaceTextEditing.editCommand(
+                    nodeID: id, text: value, in: history.document))
+        } catch { presentCommandError(error, command: "Edit text content") }
+    }
+    func commitSelectedTextFontName(_ value: String) {
+        guard let id = selectedIDs.first, selectedTextObject != nil else { return }
+        do {
+            try history.commit(
+                ValueSwapCommands.nodeProperty(
+                    in: history.document, nodeID: id,
+                    newValue: .textFontName(value)))
+        } catch { presentCommandError(error, command: "Edit text font") }
+    }
+    func commitSelectedTextFontSize(_ value: Double) {
+        guard let id = selectedIDs.first, selectedTextObject != nil else { return }
+        do {
+            try history.commit(
+                ValueSwapCommands.nodeProperty(
+                    in: history.document, nodeID: id,
+                    newValue: .textFontSize(value)))
+        } catch { presentCommandError(error, command: "Edit text size") }
+    }
     func commitArtboard(width: Double? = nil, height: Double? = nil) {
         let document = history.document
         let value = ArtboardProperties(
@@ -1154,8 +1455,17 @@ final class CanvasView: NSView {
         setZoom(percentage / 100, about: NSPoint(x: bounds.midX, y: bounds.midY))
     }
     func prepareVisualAcceptanceState() {
-        activeTool = .directSelection
-        if let id = history.document.layers.first?.nodes.first?.id { selectNode(id) }
+        activeTool = .selection
+        if let id = history.document.layers.first?.nodes.first?.id {
+            selectNode(id)
+            if let bounds = selectionBounds() {
+                let pointer = NSPoint(
+                    x: Theme.Metric.artboardInset + pan.x + bounds.maxX * zoom,
+                    y: Theme.Metric.artboardInset + pan.y + bounds.minY * zoom)
+                rotationReadout = (pointer: pointer, degrees: 15)
+                snapIndicator = bounds.center
+            }
+        }
     }
     private func presentCommandError(_ error: Error, command: String) {
         Diagnostics.documents.error(

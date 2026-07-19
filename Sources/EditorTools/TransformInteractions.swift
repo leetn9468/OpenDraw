@@ -35,6 +35,9 @@ public enum TransformInteractions {
         let step = Double.pi / 12
         return (radians / step).rounded() * step
     }
+    public static func shouldSnapRotation(globalSnapEnabled: Bool, shiftHeld: Bool) -> Bool {
+        globalSnapEnabled || shiftHeld
+    }
     public static func rotation(about pivot: Point, radians: Double) -> AffineTransform {
         let c = cos(radians)
         let s = sin(radians)
@@ -52,5 +55,16 @@ public enum TransformInteractions {
         return Point(
             x: screenPoint.x - documentPoint.x * newZoom,
             y: screenPoint.y - documentPoint.y * newZoom)
+    }
+}
+
+public enum MarqueeInteraction {
+    public static func hasCrossedThreshold(
+        start: Point, current: Point, zoom: Double, thresholdInScreenPoints: Double
+    ) -> Bool {
+        guard zoom.isFinite, zoom > 0, thresholdInScreenPoints.isFinite, thresholdInScreenPoints >= 0 else {
+            return false
+        }
+        return start.distance(to: current) * zoom >= thresholdInScreenPoints
     }
 }

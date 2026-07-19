@@ -325,6 +325,10 @@ final class InspectorView: NSVisualEffectView, NSTextFieldDelegate {
     private var steppers: [String: NSStepper] = [:]
     private let selectionSections = NSStackView()
     private let artboardSection = InspectorSection(title: "Artboard")
+    private let textSection = InspectorSection(title: "Text")
+    private let textContent = NSTextField()
+    private let textFontName = NSTextField()
+    private let textFontSize = NSTextField()
     private let fillWell = NSColorWell()
     private let strokeWell = NSColorWell()
     private let strokeWidth = NSTextField()
@@ -365,6 +369,7 @@ final class InspectorView: NSVisualEffectView, NSTextFieldDelegate {
         selectionSections.spacing = Theme.Metric.stackFlush
         buildGeometry()
         buildFillAndStroke()
+        buildText()
         buildArrange()
         stack.addArrangedSubview(selectionSections)
         buildArtboard()
@@ -471,6 +476,24 @@ final class InspectorView: NSVisualEffectView, NSTextFieldDelegate {
         selectionSections.addArrangedSubview(section)
     }
 
+    private func buildText() {
+        for (label, field, accessibilityLabel) in [
+            ("Text", textContent, "Text content"),
+            ("Font", textFontName, "Text font name"),
+            ("Size", textFontSize, "Text font size"),
+        ] {
+            field.font = field === textFontSize ? Theme.Font.numeric : Theme.Font.control
+            field.delegate = self
+            field.target = self
+            field.action = #selector(textFieldCommitted(_:))
+            field.setAccessibilityLabel(accessibilityLabel)
+            field.widthAnchor.constraint(equalToConstant: Theme.Metric.inspectorFieldWidth).isActive = true
+            textSection.addRow(labeled(label, field))
+        }
+        textSection.isHidden = true
+        selectionSections.addArrangedSubview(textSection)
+    }
+
     private func buildArtboard() {
         for (label, key) in [("W", "width"), ("H", "height")] {
             let field = numericField(key: key, label: "Artboard \(label)")
@@ -573,6 +596,14 @@ final class InspectorView: NSVisualEffectView, NSTextFieldDelegate {
             dash.stringValue = style.dash.isEmpty ? "—" : style.dash.map(number).joined(separator: ", ")
             opacity.doubleValue = style.opacity ?? 1
         }
+        if let text = canvas.selectedTextObject {
+            textSection.isHidden = false
+            textContent.stringValue = text.text
+            textFontName.stringValue = text.fontName
+            textFontSize.stringValue = number(text.fontSize)
+        } else {
+            textSection.isHidden = true
+        }
         let multiple = canvas.hasMultipleSelection
         for title in ["Align Left", "Align Center", "Align Right", "Align Top", "Align Middle", "Align Bottom"] {
             arrangeButtons[title]?.isEnabled = multiple
@@ -619,6 +650,21 @@ final class InspectorView: NSVisualEffectView, NSTextFieldDelegate {
         refresh()
     }
 
+    @objc private func textFieldCommitted(_ sender: NSTextField) {
+        guard let canvas else { return }
+        if sender === textContent {
+            canvas.commitSelectedTextContent(sender.stringValue)
+        } else if sender === textFontName {
+            canvas.commitSelectedTextFontName(sender.stringValue)
+        } else if sender === textFontSize, let value = Double(sender.stringValue), value > 0 {
+            canvas.commitSelectedTextFontSize(value)
+        } else {
+            refresh()
+            return
+        }
+        refresh()
+    }
+
     @objc private func stepperChanged(_ sender: NSStepper) {
         guard let key = sender.identifier?.rawValue,
             let field = geometryFields[key] ?? artboardFields[key]
@@ -628,7 +674,12 @@ final class InspectorView: NSVisualEffectView, NSTextFieldDelegate {
     }
 
     func controlTextDidEndEditing(_ obj: Notification) {
-        if let field = obj.object as? NSTextField { numericCommitted(field) }
+        guard let field = obj.object as? NSTextField else { return }
+        if field === textContent || field === textFontName || field === textFontSize {
+            textFieldCommitted(field)
+        } else {
+            numericCommitted(field)
+        }
     }
 
     @objc private func fillChanged() { canvas?.commitPathStyle { $0.fill = Theme.Color.srgb(fillWell.color) } }
