@@ -257,7 +257,8 @@ owner visual acceptance on 2026-07-19 for
 redesign. The gate report, revision map, deviation delta, menu audit, and
 supersession record are under
 `artifacts/phase5/ui-b/` and `docs/phase-5/ui-redesign-U3B.md`, retained by
-evidence revision `58bcf8e6f5d6a3828bc9e16c85303a514ada6c37`.
+evidence revision `58bcf8e6f5d6a3828bc9e16c85303a514ada6c37` and
+owner-acceptance closure revision `c8e3784a135b3e51e7f2b5570e1bdf17e10fb26a`.
 
 The feature's hosted story is **CLOSED** by manually dispatched CI #19 on exact
 revision `d278755e020455955c1837a7aa36ef20ec0058fe`:
