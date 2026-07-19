@@ -821,13 +821,16 @@ final class CanvasView: NSView {
             green: Double((raw >> 8) & 255) / 255, blue: Double(raw & 255) / 255)
     }
     func alignSelectedLeft() {
+        alignSelected(.left)
+    }
+    func alignSelected(_ axis: AlignmentAxis) {
         guard selectedIDs.count > 1 else { return }
         do {
             try history.commit(
                 CompositeSceneCommands.align(
-                    in: history.document, nodeIDs: selectedIDs, axis: .left))
+                    in: history.document, nodeIDs: selectedIDs, axis: axis))
         } catch {
-            presentCommandError(error, command: "Align left")
+            presentCommandError(error, command: "Align selection")
         }
     }
     func groupSelected() {
@@ -1358,7 +1361,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 [
                     command("Style", .style), command("Properties", .properties), command("Gradient…", .gradient),
                     .separator(),
-                    command("Align Left", .alignLeft), command("Group", .group, "g"),
+                    command("Align Left", .alignLeft), command("Align Center", .alignCenter),
+                    command("Align Right", .alignRight), command("Align Top", .alignTop),
+                    command("Align Middle", .alignMiddle), command("Align Bottom", .alignBottom),
+                    .separator(), command("Group", .group, "g"),
                     command("Ungroup", .ungroup, "g", [.command, .shift]),
                     command("Make Compound", .makeCompound), command("Release Compound", .releaseCompound),
                 ]))
@@ -1461,6 +1467,11 @@ extension AppDelegate: NSToolbarDelegate {
         case .style: canvas.applyAccentStyle()
         case .properties: shell?.inspector.isHidden = false
         case .alignLeft: canvas.alignSelectedLeft()
+        case .alignCenter: canvas.alignSelected(.horizontalCenter)
+        case .alignRight: canvas.alignSelected(.right)
+        case .alignTop: canvas.alignSelected(.top)
+        case .alignMiddle: canvas.alignSelected(.verticalCenter)
+        case .alignBottom: canvas.alignSelected(.bottom)
         case .group: canvas.groupSelected()
         case .ungroup: canvas.ungroupSelected()
         case .makeCompound: canvas.makeCompoundSelected()
@@ -1614,7 +1625,8 @@ extension AppDelegate: NSToolbarItemValidation {
         case .undo: return canvas.history.canUndo
         case .redo: return canvas.history.canRedo
         case .style, .gradient: return canvas.hasSelection
-        case .alignLeft: return canvas.hasMultipleSelection
+        case .alignLeft, .alignCenter, .alignRight, .alignTop, .alignMiddle, .alignBottom:
+            return canvas.hasMultipleSelection
         case .group: return canvas.canGroupSelection
         case .makeCompound: return canvas.canMakeCompoundSelection
         case .ungroup: return canvas.canUngroupSelection
@@ -1631,7 +1643,9 @@ extension NSToolbarItem.Identifier {
         rectangle = Self("rectangle"),
         ellipse = Self("ellipse"), style = Self("style")
     static let text = Self("text"), image = Self("image"), properties = Self("properties")
-    static let alignLeft = Self("align-left"), group = Self("group")
+    static let alignLeft = Self("align-left"), alignCenter = Self("align-center"), alignRight = Self("align-right")
+    static let alignTop = Self("align-top"), alignMiddle = Self("align-middle"), alignBottom = Self("align-bottom")
+    static let group = Self("group")
     static let ungroup = Self("ungroup"), makeCompound = Self("make-compound"),
         releaseCompound = Self("release-compound")
     static let layers = Self("layers")

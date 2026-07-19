@@ -444,12 +444,12 @@ final class InspectorView: NSVisualEffectView, NSTextFieldDelegate {
             ("Align Right", "align.horizontal.right"), ("Align Top", "align.vertical.top"),
             ("Align Middle", "align.vertical.center"), ("Align Bottom", "align.vertical.bottom"),
         ]
+        let actions = [
+            #selector(alignLeft), #selector(alignCenter), #selector(alignRight),
+            #selector(alignTop), #selector(alignMiddle), #selector(alignBottom),
+        ]
         for (index, pair) in symbols.enumerated() {
-            let button = symbolButton(pair.0, symbol: pair.1, action: index == 0 ? #selector(alignLeft) : nil)
-            if index > 0 {
-                button.isEnabled = false
-                button.toolTip = "U3-B"
-            }
+            let button = symbolButton(pair.0, symbol: pair.1, action: actions[index])
             arrangeButtons[pair.0] = button
             align.addArrangedSubview(button)
         }
@@ -574,7 +574,9 @@ final class InspectorView: NSVisualEffectView, NSTextFieldDelegate {
             opacity.doubleValue = style.opacity ?? 1
         }
         let multiple = canvas.hasMultipleSelection
-        arrangeButtons["Align Left"]?.isEnabled = multiple
+        for title in ["Align Left", "Align Center", "Align Right", "Align Top", "Align Middle", "Align Bottom"] {
+            arrangeButtons[title]?.isEnabled = multiple
+        }
         arrangeButtons["Group"]?.isEnabled = canvas.canGroupSelection
         arrangeButtons["Compound"]?.isEnabled = canvas.canMakeCompoundSelection
         arrangeButtons["Ungroup"]?.isEnabled = canvas.canUngroupSelection
@@ -653,6 +655,11 @@ final class InspectorView: NSVisualEffectView, NSTextFieldDelegate {
         popover.show(relativeTo: sender.bounds, of: sender, preferredEdge: .maxX)
     }
     @objc private func alignLeft() { canvas?.alignSelectedLeft() }
+    @objc private func alignCenter() { canvas?.alignSelected(.horizontalCenter) }
+    @objc private func alignRight() { canvas?.alignSelected(.right) }
+    @objc private func alignTop() { canvas?.alignSelected(.top) }
+    @objc private func alignMiddle() { canvas?.alignSelected(.verticalCenter) }
+    @objc private func alignBottom() { canvas?.alignSelected(.bottom) }
     @objc private func group() { canvas?.groupSelected() }
     @objc private func ungroup() { canvas?.ungroupSelected() }
     @objc private func compound() { canvas?.makeCompoundSelected() }

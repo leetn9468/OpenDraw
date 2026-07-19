@@ -13,7 +13,9 @@ func verify034FrozenAlignmentWorkedExamples() throws {
         (.left, [Point(x: -15, y: 0), Point(x: -55, y: 0), Point(x: 0, y: 0)]),
         (.right, [Point(x: 60, y: 0), Point(x: 0, y: 0), Point(x: 75, y: 0)]),
         (.horizontalCenter, [Point(x: 22.5, y: 0), Point(x: -27.5, y: 0), Point(x: 37.5, y: 0)]),
+        (.top, [Point(x: 0, y: -10), Point(x: 0, y: 0), Point(x: 0, y: -25)]),
         (.verticalCenter, [Point(x: 0, y: 5), Point(x: 0, y: 19), Point(x: 0, y: -12.5)]),
+        (.bottom, [Point(x: 0, y: 20), Point(x: 0, y: 38), Point(x: 0, y: 0)]),
     ]
 
     #expect(verify034CombinedBounds(in: original, ids: ids) == Rect(minX: -5, minY: 10, maxX: 90, maxY: 60))

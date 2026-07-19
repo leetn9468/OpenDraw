@@ -133,15 +133,18 @@ public enum CompositeSceneCommands {
     ) throws -> DocumentCommand {
         let entries = nodeIDs.compactMap { id in document.visualBounds(for: id).map { (id, $0) } }
             .sorted { $0.0.rawValue.uuidString < $1.0.rawValue.uuidString }
-        guard entries.count >= 2 else { throw CompositeSceneCommandError.selectionTooSmall }
+        guard !entries.isEmpty else { throw CompositeSceneCommandError.selectionTooSmall }
+        let combinedBounds = entries.dropFirst().reduce(entries[0].1) { result, entry in
+            result.union(entry.1)
+        }
         let target: Double
         switch axis {
-        case .left: target = entries.map { $0.1.minX }.min()!
-        case .right: target = entries.map { $0.1.maxX }.max()!
-        case .horizontalCenter: target = entries.map { $0.1.center.x }.reduce(0, +) / Double(entries.count)
-        case .top: target = entries.map { $0.1.minY }.min()!
-        case .bottom: target = entries.map { $0.1.maxY }.max()!
-        case .verticalCenter: target = entries.map { $0.1.center.y }.reduce(0, +) / Double(entries.count)
+        case .left: target = combinedBounds.minX
+        case .right: target = combinedBounds.maxX
+        case .horizontalCenter: target = (combinedBounds.minX + combinedBounds.maxX) / 2
+        case .top: target = combinedBounds.minY
+        case .bottom: target = combinedBounds.maxY
+        case .verticalCenter: target = (combinedBounds.minY + combinedBounds.maxY) / 2
         }
         var staged = document
         var children: [DocumentCommand] = []
@@ -155,6 +158,7 @@ public enum CompositeSceneCommands {
             case .bottom: delta = (0, target - bounds.maxY)
             case .verticalCenter: delta = (0, target - bounds.center.y)
             }
+            guard delta.0 != 0 || delta.1 != 0 else { continue }
             var planned = staged
             guard planned.translateNode(id: id, documentDX: delta.0, documentDY: delta.1),
                 let transformed = try? StructuralCommands.slot(for: id, in: planned)
