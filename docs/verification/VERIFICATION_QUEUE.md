@@ -964,8 +964,11 @@ implementation has not begun at this checkpoint.
 ### VERIFY-034 — Align-family visual-bounds target math
 
 - Status: `FROZEN`
-- Freeze checkpoint: production implementation `NOT STARTED` at the VERIFY-034
-  freeze revision.
+- Freeze checkpoint: `0a9619515d97226d6c0e531b3a319df8c583bafb`, with
+  production implementation `NOT STARTED` at that revision.
+- Executed by `CompositeSceneCommands.align` in
+  `f3181ef54f865fa23eb58e72f0a552b1d253dea8`; the complete U3-B implementation
+  validated at `a9f219c6b3f94befa55d7c5eba9409f4b80bd934`.
 - Permanent references: `verify034FrozenAlignmentWorkedExamples` and
   `verify034DegenerateSelectionsElideWithoutHistoryMutation` in
   `AlignFamilyVerifyTests.swift`; shipped-left compatibility remains pinned by
@@ -997,6 +1000,16 @@ implementation has not begun at this checkpoint.
      depth are unchanged.
 - Tolerance: exact `Double` equality for these representable frozen values;
   no epsilon and no display-space rounding.
+
+### U3-B directive erratum — rotation snap copy
+
+The 2026-07-18 U3-B basis closes U3-A deviation C2: the repository is
+authoritative. The rotation snap increment is `pi/12` (15 degrees), while
+`pi/8` (22.5 degrees) is the pinned half-grid tie input and rounds
+half-away-from-zero to `pi/6` (30 degrees). The U3-A directive's statement
+that 22.5 degrees was the increment was a directive-reading error. This is a
+documentation correction only; VERIFY-013, production arithmetic, and its
+permanent tests are unchanged.
 
 ### BENCH-2b tile-era mechanism supersession
 

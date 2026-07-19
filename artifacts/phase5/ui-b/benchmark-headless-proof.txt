@@ -1,0 +1,1 @@
+PASS: RenderBenchmark has no VectorFoundryApp, CanvasView, selection-chrome, or Theme dependency.

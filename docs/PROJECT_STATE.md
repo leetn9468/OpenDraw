@@ -1,6 +1,6 @@
 # OpenDraw remediation project state
 
-Updated: 2026-07-18
+Updated: 2026-07-19
 
 The owner-directed tracker was absent from repository history when the R4
 rejection was received. This file restores the twelve hard closure rows from
@@ -245,6 +245,17 @@ and permanently verifies that production CI contains exactly the two
 decision-backed timing downgrades. Evidence is retained in
 `artifacts/phase5/tile-t3/hosted-run-26-fixture-immunity.md`. CI #28 proves the
 class fix on hosted hardware and closes that incident.
+
+The editor UI redesign U3-A is accepted. U3-B implementation and its complete
+local gate battery pass at `a9f219c6b3f94befa55d7c5eba9409f4b80bd934`:
+VERIFY-034 is frozen and executed, the six-control align family is live,
+selection chrome and modifier interactions follow the design tokens, and the
+retired create-text alert is superseded by in-place editing. U3-B remains
+**AWAITING OWNER VISUAL ACCEPTANCE** of
+`artifacts/phase5/ui-b/chrome-dark-mid-gesture.png`; the UI redesign is not
+marked delivered until that acceptance. The gate report, revision map,
+deviation delta, menu audit, and supersession record are under
+`artifacts/phase5/ui-b/` and `docs/phase-5/ui-redesign-U3B.md`.
 
 The feature's hosted story is **CLOSED** by manually dispatched CI #19 on exact
 revision `d278755e020455955c1837a7aa36ef20ec0058fe`:

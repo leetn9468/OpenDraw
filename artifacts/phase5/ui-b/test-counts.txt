@@ -1,0 +1,19 @@
+U3-A accepted population: 140
+U3-B new permanent tests: 6
+Reconciled U3-B population: 146
+Execution split: 144 main + 1 adversarial wall-clock deadline isolated + 1 geometry wall-clock deadline isolated
+
+New permanent tests:
+1. AlignFamilyVerifyTests.verify034FrozenAlignmentWorkedExamples
+2. AlignFamilyVerifyTests.verify034DegenerateSelectionsElideWithoutHistoryMutation
+3. EditorToolsTests.u3bModifierScaleRotateAndMarqueeThresholdPolicies
+4. U3BInteractionTests.u3bOptionHandleBreakCoalescesAndUndoRestoresSmoothness
+5. U3BInteractionTests.u3bModifierGestureCommitAndCancelPreserveDeltaHistorySemantics
+6. U3BInteractionTests.u3bInPlaceTextNewEmptyCancelAndExistingValueSwapRoundTrip
+
+Existing tests extended without increasing population:
+- UIJourneyTests.headlessUIJourneyCreateStyleTransformSaveReopenAndExport
+- AccessibilityTests.editorShellAccessibilityExposesRailInspectorToolbarAndLayers
+
+Existing shipped-left compatibility fixture unchanged:
+- P3CommandTests.testP3AlignmentIsOneCompositeAndUndoableOnDeltaPath

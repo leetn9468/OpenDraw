@@ -1,0 +1,8 @@
+bench1_p95 baseline_ms=4.961 observed_ms=4.550 ratio=0.917154 allowed_ratio=1.25 result=PASS
+bench2_p95 baseline_ms=0.116 observed_ms=0.108 ratio=0.931034 allowed_ratio=1.25 result=PASS
+bench2b_p95 baseline_ms=0.387 observed_ms=0.281 ratio=0.726098 allowed_ratio=1.25 result=PASS
+bench3_p95 baseline_ms=6.669 observed_ms=5.872 ratio=0.880492 allowed_ratio=1.25 result=PASS
+bench3_settle baseline_ms=12.231 observed_ms=11.645 ratio=0.952089 allowed_ratio=1.25 result=PASS
+bench5a_p95 baseline_ms=0.363 observed_ms=0.010 ratio=0.027548 allowed_ratio=1.25 result=PASS
+bench5b_p95 baseline_ms=0.881 observed_ms=0.801 ratio=0.909194 allowed_ratio=1.25 result=PASS
+bench6_p95 baseline_ms=4.619 observed_ms=4.517 ratio=0.977917 allowed_ratio=1.25 result=PASS

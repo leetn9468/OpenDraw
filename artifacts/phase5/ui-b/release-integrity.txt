@@ -1,0 +1,42 @@
+[0/1] Planning build
+Building for production...
+[0/4] Write swift-version--1AB21518FC5DEDBE.txt
+[2/5] Compiling EditorCore CoreTypes.swift
+[3/7] Compiling MacPlatform BackingScale.swift
+[4/7] Compiling Geometry Geometry.swift
+[5/8] Compiling TextEngine TextShaper.swift
+[6/9] Compiling DocumentModel ApprovedAssetStore.swift
+[7/12] Compiling DocumentFormats AdversarialParserHarness.swift
+[8/14] Compiling EditorCommands AnchorGeometryCommands.swift
+[9/16] Compiling EditorTools AccessibilityTree.swift
+[10/16] Compiling CanvasRender CoreGraphicsRenderer.swift
+[11/19] Compiling R4GateHarness main.swift
+[11/19] Write Objects.LinkFileList
+[12/19] Linking R4GateHarness
+[14/19] Compiling RenderBenchmark main.swift
+[14/19] Write Objects.LinkFileList
+[15/19] Linking RenderBenchmark
+[17/19] Compiling VectorFoundryApp ShellViews.swift
+[17/19] Write Objects.LinkFileList
+[18/19] Linking VectorFoundry
+Build complete! (19.26s)
+dist/OpenDraw.app: replacing existing signature
+Executable=/Users/user/Documents/AI 10 restructure project/dist/OpenDraw.app/Contents/MacOS/OpenDraw
+Identifier=org.opendraw.editor
+Format=app bundle with Mach-O thin (arm64)
+CodeDirectory v=20500 size=25396 flags=0x10002(adhoc,runtime) hashes=787+3 location=embedded
+Hash type=sha256 size=32
+CandidateCDHash sha256=9e011d64401c57c7a4473cc376ed054cc9d2779a
+CandidateCDHashFull sha256=9e011d64401c57c7a4473cc376ed054cc9d2779aaf0516b4d2ed84a029fec96c
+Hash choices=sha256
+CMSDigest=9e011d64401c57c7a4473cc376ed054cc9d2779aaf0516b4d2ed84a029fec96c
+CMSDigestType=2
+CDHash=9e011d64401c57c7a4473cc376ed054cc9d2779a
+Signature=adhoc
+Info.plist entries=8
+TeamIdentifier=not set
+Runtime Version=15.5.0
+Sealed Resources version=2 rules=13 files=0
+Internal requirements count=0 size=12
+dist/OpenDraw.app/Contents/MacOS/OpenDraw: Mach-O 64-bit executable arm64
+PASS
