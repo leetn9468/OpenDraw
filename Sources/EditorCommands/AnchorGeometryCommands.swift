@@ -60,9 +60,10 @@ private struct SegmentSlicePayload: Hashable, Codable, Sendable {
 public enum AnchorGeometryCommands {
     public static func isSmooth(_ slice: PathAnchorSlice) -> Bool {
         guard let incoming = slice.incoming, let outgoing = slice.outgoing else { return false }
-        return outgoing == Point(
-            x: 2 * slice.anchor.x - incoming.x,
-            y: 2 * slice.anchor.y - incoming.y)
+        return outgoing
+            == Point(
+                x: 2 * slice.anchor.x - incoming.x,
+                y: 2 * slice.anchor.y - incoming.y)
     }
 
     public static func handleDragSlice(

@@ -283,7 +283,8 @@ final class CanvasView: NSView, NSTextFieldDelegate {
         NSBezierPath(
             roundedRect: badge,
             xRadius: Theme.Metric.badgeCornerRadius,
-            yRadius: Theme.Metric.badgeCornerRadius).fill()
+            yRadius: Theme.Metric.badgeCornerRadius
+        ).fill()
         text.draw(
             at: NSPoint(
                 x: badge.minX + Theme.Metric.badgeHorizontalInset,
@@ -456,7 +457,8 @@ final class CanvasView: NSView, NSTextFieldDelegate {
                     rotationDeltaRadians += atan2(documentTransform.b, documentTransform.a)
                     rotationReadout = (
                         pointer: location,
-                        degrees: rotationDeltaRadians * 180 / .pi)
+                        degrees: rotationDeltaRadians * 180 / .pi
+                    )
                 }
             }
             if let documentTransform {
@@ -567,9 +569,10 @@ final class CanvasView: NSView, NSTextFieldDelegate {
         if let marqueeOrigin {
             if let marqueeCurrent {
                 selectedIDs = marqueeBaseSelection.union(
-                    marqueeSelection(in: Rect(
-                        minX: marqueeOrigin.x, minY: marqueeOrigin.y,
-                        maxX: marqueeCurrent.x, maxY: marqueeCurrent.y)))
+                    marqueeSelection(
+                        in: Rect(
+                            minX: marqueeOrigin.x, minY: marqueeOrigin.y,
+                            maxX: marqueeCurrent.x, maxY: marqueeCurrent.y)))
             }
             self.marqueeOrigin = nil
             marqueeCurrent = nil

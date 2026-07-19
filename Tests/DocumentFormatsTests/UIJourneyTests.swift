@@ -48,7 +48,8 @@ import Testing
     try history.commit(
         AnchorGeometryCommands.setSlice(
             in: history.document, at: smoothLocation, newValue: cornerSlice))
-    #expect(!AnchorGeometryCommands.isSmooth(try AnchorGeometryCommands.slice(in: history.document, at: smoothLocation)))
+    #expect(
+        !AnchorGeometryCommands.isSmooth(try AnchorGeometryCommands.slice(in: history.document, at: smoothLocation)))
     try history.undo()
     #expect(try AnchorGeometryCommands.slice(in: history.document, at: smoothLocation) == smoothSlice)
     #expect(SnapPolicy(gridSpacing: 10).snap(Point(x: 309, y: 41), zoom: 1) == Point(x: 310, y: 40))
