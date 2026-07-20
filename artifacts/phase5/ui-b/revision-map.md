@@ -22,4 +22,4 @@
 | `dependency-check.txt`, `clean-room.txt`, `symbol-graph.txt`, `release-integrity.txt` | `58bcf8e6` | `a9f219c6` |
 | `menu-audit.md`, `design-deviations.md`, `test-counts.txt`, `gate-summary.md` | `58bcf8e6` | `a9f219c6` |
 | `owner-visual-acceptance.md` and DELIVERED state | `c8e3784a` | `a9f219c6` |
-| `hosted/` CI #32 closure evidence | hosted-evidence commit pending | `8d604586` |
+| `hosted/` CI #32 closure evidence | `67a956cb` | `8d604586` |

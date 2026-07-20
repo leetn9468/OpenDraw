@@ -172,6 +172,15 @@ the cache generation exactly like a zoom change.
 > construction. Contention observations (CI #6: 7.90 s; this run: 3.427 s /
 > 3.162 s) are the triggering evidence.
 
+> **2026-07-18 — PHASE 5 CORE DELIVERED.** Three features complete under the
+> retained verification protocol: delta/command-inverse history (P1–P4,
+> VERIFY-022–028), tile render caching (T1–T3, VERIFY-029–033, BENCH-2b
+> corridor supersession), and the UI redesign (U3-A/U3-B, VERIFY-034).
+> Verification state: VERIFY-001–034 FROZEN and implemented with permanent
+> tests; 146-test population; all owner decisions on record. Remaining
+> Phase 5 backlog: notarized distribution; PDF import/export capability
+> decision.
+
 > **Owner decision (TN LEE, 2026-07-13): Option A is adopted.** BLOCK-002 now
 > requires both the codec reliability run and the full-app startup run on real
 > macOS 13.x Apple Silicon hardware. Option B, accepting codec-only smoke as
@@ -208,6 +217,18 @@ controlled-contention reproduction retained in
 `6dea372fc90d7474dc1f5db0085dd03bfdc046ea`.
 
 ## Phase 5 delivery state
+
+### Phase 5 core milestone
+
+**PHASE 5 CORE DELIVERED.** Delta/command-inverse history, tile render caching,
+and the UI redesign are complete under the retained verification protocol.
+VERIFY-001–034 are frozen and implemented with permanent tests; the single
+population is 146. The qualifying final hosted closure is CI #32 on exact SHA
+`8d604586406565718a1d2146c91214742a6ecc7d`, manually dispatched and all eight
+jobs green. Remaining backlog is notarized distribution and the PDF
+import/export capability decision.
+
+`phase5-core`: **PENDING ANNOTATED TAG CREATION ON THIS CORE RECORD REVISION**.
 
 Delta command history P1–P4 is **DELIVERED**. The runtime gate and snapshot
 undo owner are retired; delta history is the only application undo/redo path.
@@ -265,6 +286,8 @@ deviation log, finalized menu audit, and supersession record are under
 `artifacts/phase5/ui-b/` and `docs/phase-5/ui-redesign-U3B.md`, retained by
 evidence revision `58bcf8e6f5d6a3828bc9e16c85303a514ada6c37` and
 owner-acceptance closure revision `c8e3784a135b3e51e7f2b5570e1bdf17e10fb26a`.
+Hosted CI #32 evidence is retained by
+`67a956cbfb007dae361ffd12ffd811004fbd2d8d`.
 
 The feature's hosted story is **CLOSED** by manually dispatched CI #19 on exact
 revision `d278755e020455955c1837a7aa36ef20ec0058fe`:
