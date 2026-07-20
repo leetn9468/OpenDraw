@@ -1,7 +1,9 @@
-# U3-B design-deviation delta
+# U3-B final design-deviation log
 
-Design basis: accepted U3-A shell, design 1f/D3.2, and the 2026-07-18 U3-B
-directive.
+Design of record: owner-named `OpenDraw_Redesign.html` (supplied source file
+`/Users/user/Documents/OpenDraw Redesign.html`), this finalized deviation log,
+and the directive errata—particularly C2. The implementation basis is the
+accepted U3-A shell, design 1f/D3.2, and the 2026-07-18 U3-B directive.
 
 | Item | Resolution | Rationale |
 |---|---|---|
@@ -13,4 +15,5 @@ directive.
 | In-place text field | `MODEL-FAITHFUL` | Current text objects are point text. The replacement is a single in-place AppKit field and does not invent multiline/area-text capability. |
 
 No new design deviation was introduced in U3-B. The only delta from U3-A is
-closure of C2 under the directive's explicit erratum.
+closure of C2 under the directive's explicit erratum. This log is final at
+U3-B closure.

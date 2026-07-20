@@ -31,6 +31,7 @@ on macOS 15.7.5, Apple M1 Max, arm64, Swift 6.1.2.
 | Release integrity | arm64 app, ad-hoc signature, hardened runtime, sealed resources | PASS |
 | Formatting | Strict Swift formatting exits 0 | PASS |
 | Dark-mode mid-gesture screenshot | SHA-256 `471b5c010c3b56581d7912a0a0252d2b84f18b98af65a127c38c998eed1e4ad1`; approved by TN LEE on 2026-07-19 | PASS |
+| Hosted dispatch | CI #32, `workflow_dispatch`, exact SHA `8d604586406565718a1d2146c91214742a6ecc7d`, eight of eight jobs green | PASS |
 
 All machine-enforced gates and owner visual acceptance pass. U3-B and the UI
 redesign are delivered.

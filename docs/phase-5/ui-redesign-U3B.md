@@ -60,4 +60,9 @@ under `artifacts/phase5/ui-b/`.
 ## Closure state
 
 All automated and local performance gates pass. TN LEE granted owner visual
-acceptance on 2026-07-19. U3-B and the UI redesign are **DELIVERED**.
+acceptance on 2026-07-19. Manually dispatched CI #32
+<https://github.com/leetn9468/OpenDraw/actions/runs/29686626995> verified exact
+revision `8d604586406565718a1d2146c91214742a6ecc7d`, event
+`workflow_dispatch`, and eight of eight successful jobs. The verbatim hosted
+BENCH table and retained artifacts are in `artifacts/phase5/ui-b/hosted/`.
+U3-B and the UI redesign are **DELIVERED**.

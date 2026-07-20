@@ -1,0 +1,18 @@
+revision=8d604586406565718a1d2146c91214742a6ecc7d model=VirtualMac2,1 chip=Apple M1 (Virtual) memory_bytes=7516192768 os=15.7.7 build=24G720 arch=arm64 swift=swift-driver version: 1.120.5 Apple Swift version 6.1.2 (swiftlang-6.1.2.1.2 clang-1700.0.13.5)
+BENCH_METADATA warmup_frames=60 measured_frames=300 production_paths=true bench5b_enforcement=off renderer=tile-composite bench2b_fixture=exposure-corridor
+BENCH-1 drag: p50 3.711 ms | p95 3.800 ms | max 4.294 ms
+BENCH-2 pan: p50 0.090 ms | p95 0.106 ms | max 0.117 ms
+BENCH-2b exposure corridor: p50 0.200 ms | p95 0.231 ms | max 0.341 ms
+BENCH-2b exact_indices=true setup_columns=0...3 frame_formula=(f+3,0),(f+3,1) frames=1...360 warmup=1...60 measured=61...360 rendered_regions=728
+BENCH-3 zoom: p50 4.868 ms | p95 5.302 ms | max 5.820 ms
+BENCH-3 settle: 10.139 ms
+BENCH-4 cold-open: 18.604 ms
+Warm full redraw: 0.168 ms
+BENCH-5a undo-redo: p50 0.009 ms | p95 0.010 ms | max 0.021 ms
+BENCH-5b record: p50 0.174 ms | p95 0.823 ms | max 0.858 ms
+BENCH-5 mix=structural,composite,anchor-slice history=delta-only
+BENCH-5b enforcement: bench5b_enforcement=off result=INFORMATIONAL
+BENCH-6 timing enforcement: bench6_timing_enforcement=off result=INFORMATIONAL reason=owner-decision-2026-07-18
+BENCH-6 tile-edit: p50 3.770 ms | p95 3.941 ms | max 4.319 ms
+BENCH-6 assertions cache_hits=nonzero rendered_tiles=exact_damage_mapping warmup_frames=60 measured_frames=300 result=BLOCKING
+BENCH-6 sequence=node-84 dx=alternating(+1,-1) dy=0 reference_scene_nodes=1000

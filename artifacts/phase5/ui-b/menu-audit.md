@@ -1,4 +1,4 @@
-# U3-B command reachability audit
+# U3-B final command reachability audit
 
 U3-A's retired 27-item text strip still has no exclusive commands. U3-B adds
 the five formerly disabled align-family destinations and removes no reachable
@@ -22,3 +22,6 @@ Open continues to accept native and SVG documents; the File menu names the SVG
 route as `Import SVG...`. Export remains SVG because no PNG capability was
 invented. The superseded Create Text alert has no menu command of its own: the
 Text tool now enters the in-place editor directly.
+
+Final result: every pre-redesign command remains reachable and all six align
+commands are live. No menu exception remains open at U3-B closure.

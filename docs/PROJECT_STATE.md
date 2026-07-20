@@ -253,9 +253,15 @@ VERIFY-034 is frozen and executed, the six-control align family is live,
 selection chrome and modifier interactions follow the design tokens, and the
 retired create-text alert is superseded by in-place editing. TN LEE granted
 owner visual acceptance on 2026-07-19 for
-`artifacts/phase5/ui-b/chrome-dark-mid-gesture.png`, closing U3-B and the UI
-redesign. The gate report, revision map, deviation delta, menu audit, and
-supersession record are under
+`artifacts/phase5/ui-b/chrome-dark-mid-gesture.png` (SHA-256
+`471b5c010c3b56581d7912a0a0252d2b84f18b98af65a127c38c998eed1e4ad1`),
+closing the visual checkpoint. Manually dispatched CI #32
+<https://github.com/leetn9468/OpenDraw/actions/runs/29686626995> is the
+qualifying hosted closure: event `workflow_dispatch`, exact revision
+`8d604586406565718a1d2146c91214742a6ecc7d`, and all eight jobs successful.
+The verbatim hosted BENCH table and retained artifacts are under
+`artifacts/phase5/ui-b/hosted/`. The gate report, revision map, finalized
+deviation log, finalized menu audit, and supersession record are under
 `artifacts/phase5/ui-b/` and `docs/phase-5/ui-redesign-U3B.md`, retained by
 evidence revision `58bcf8e6f5d6a3828bc9e16c85303a514ada6c37` and
 owner-acceptance closure revision `c8e3784a135b3e51e7f2b5570e1bdf17e10fb26a`.

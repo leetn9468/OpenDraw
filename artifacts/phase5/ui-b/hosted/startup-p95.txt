@@ -1,0 +1,22 @@
+revision=8d604586406565718a1d2146c91214742a6ecc7d model=VirtualMac2,1 chip=Apple M1 (Virtual) memory_bytes=7516192768 os=15.7.7 build=24G720 arch=arm64 swift=swift-driver version: 1.120.5 Apple Swift version 6.1.2 (swiftlang-6.1.2.1.2 clang-1700.0.13.5) policy=clean-process-cold-app-state-warm-os-caches start=static-initializer stop=window-ready renderer=production-tile-composite forced_canvas_display=true
+sample=1 startup_ready_ms=600.125
+sample=2 startup_ready_ms=193.713
+sample=3 startup_ready_ms=146.051
+sample=4 startup_ready_ms=156.024
+sample=5 startup_ready_ms=136.555
+sample=6 startup_ready_ms=129.936
+sample=7 startup_ready_ms=130.792
+sample=8 startup_ready_ms=131.579
+sample=9 startup_ready_ms=152.027
+sample=10 startup_ready_ms=151.327
+sample=11 startup_ready_ms=128.826
+sample=12 startup_ready_ms=126.902
+sample=13 startup_ready_ms=147.955
+sample=14 startup_ready_ms=155.520
+sample=15 startup_ready_ms=150.485
+sample=16 startup_ready_ms=161.403
+sample=17 startup_ready_ms=155.447
+sample=18 startup_ready_ms=150.732
+sample=19 startup_ready_ms=129.613
+sample=20 startup_ready_ms=127.897
+summary samples=20 p50_ms=147.955 p95_ms=193.713 max_ms=600.125 target_ms=2000 result=PASS
