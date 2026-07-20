@@ -91,7 +91,8 @@ closed through 12 hard blockers with committed, reproducible evidence:
 
 The full audit trail — anchors, blockers, owner decisions, and the evidence
 map — is in `docs/PROJECT_STATE.md` and `artifacts/r4/`. The audited baseline
-is tagged `pre-phase5-remediation`.
+is tagged `pre-phase5-remediation`; the delivered Phase 5 core record is tagged
+`phase5-core`.
 
 Hosted CI runs on GitHub's `macos-15` runners. Stable-reference timing gates
 remain blocking; the recorded hosted exceptions for BENCH-5b and BENCH-6

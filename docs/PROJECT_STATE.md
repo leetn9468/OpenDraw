@@ -1,6 +1,6 @@
 # OpenDraw remediation project state
 
-Updated: 2026-07-19
+Updated: 2026-07-20
 
 The owner-directed tracker was absent from repository history when the R4
 rejection was received. This file restores the twelve hard closure rows from
@@ -228,7 +228,10 @@ population is 146. The qualifying final hosted closure is CI #32 on exact SHA
 jobs green. Remaining backlog is notarized distribution and the PDF
 import/export capability decision.
 
-`phase5-core`: **PENDING ANNOTATED TAG CREATION ON THIS CORE RECORD REVISION**.
+`phase5-core`: **PRESENT — ANNOTATED**, target
+`56225cd882063668dcb3241ba0764e247e18676b` (the commit containing the Phase 5
+core owner-decision record and README milestone refresh). Annotated tag object:
+`e1a3e35bbe63adcb82dc75571b1a98653b0198fd`.
 
 Delta command history P1–P4 is **DELIVERED**. The runtime gate and snapshot
 undo owner are retired; delta history is the only application undo/redo path.
